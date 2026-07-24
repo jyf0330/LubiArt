@@ -1,0 +1,27 @@
+; Standalone battle UI mock project.
+; This project intentionally has no dependency on the production GameSession.
+
+config_version=5
+
+[application]
+
+config/name="YSBZS Battle UI Mock"
+run/main_scene="res://game/scenes/game.tscn"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1600
+window/size/window_height_override=900
+window/stretch/mode="canvas_items"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true

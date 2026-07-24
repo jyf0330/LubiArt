@@ -1,0 +1,8 @@
+source_psd=/Users/ywh/Downloads/战斗精灵完整预制体.psd
+source_canvas=171x144
+scene_hierarchy=CompleteBattleCreaturePrefab/01_UnitVisual/{CreatureArt,Shadow,Stats/{Health,Shield,Attack,DamageCap},EnemyMarker_Optional}; CompleteBattleCreaturePrefab/02_FrontTargetCell/{up,front,down,left}; CompleteBattleCreaturePrefab/03_AttackActions/{bite,element_projectile}
+unit_visual=CreatureArt,Shadow,Stats/Health,Stats/Shield,Stats/Attack,Stats/DamageCap,EnemyMarker_Optional
+attack_range=02_FrontTargetCell front/up/down/left cells; runtime direction and count remain data-driven
+attack_actions=03_AttackActions bite frame_001..frame_005; element_projectile fire/water/earth/wind projectile and landing variants
+dynamic_fields=creature_texture,side,hp,shield,attack,damage_cap,selection,death,attack_type,element_id
+contracts=bite resolves on frame_004; element projectile and landing use the same element_id

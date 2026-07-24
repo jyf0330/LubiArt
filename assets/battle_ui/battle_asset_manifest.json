@@ -1,0 +1,116 @@
+{
+  "version": 2,
+  "runtime_sections": [
+    "background",
+    "buttons",
+    "frames",
+    "leaders",
+    "fallback_units",
+    "effects"
+  ],
+  "rules": {
+    "zip_is_read_only": true,
+    "runtime_truth": "YsbzsState.snapshot().board.cells",
+    "paths_are_project_ascii_copies": true
+  },
+  "source_metadata": {
+    "package_name": "棋盘-战斗界面_Godot完整可打开包_20260710_224332.zip",
+    "monster_bite": {
+      "chromakey_source": "assets/battle_ui/prefabs/monster_bite/monster_teeth_bite_chromakey_source.png",
+      "preview": "assets/battle_ui/prefabs/monster_bite/monster_teeth_bite_preview.png",
+      "sheet": "assets/battle_ui/prefabs/monster_bite/monster_teeth_bite_sheet.png",
+      "sheet_5x512": "assets/battle_ui/prefabs/monster_bite/monster_teeth_bite_sheet_5x512.png"
+    }
+  },
+  "element_visual_aliases": {
+    "neutral": "wind",
+    "无": "wind",
+    "fire": "fire",
+    "火": "fire",
+    "water": "water",
+    "水": "water",
+    "grass": "wind",
+    "草": "wind",
+    "electric": "wind",
+    "雷": "wind",
+    "ice": "water",
+    "冰": "water",
+    "ground": "earth",
+    "earth": "earth",
+    "地": "earth",
+    "dark": "earth",
+    "暗": "earth",
+    "dragon": "fire",
+    "龙": "fire",
+    "wind": "wind"
+  },
+  "pet_assets": {
+    "slice_dir": "res://assets/artist_ui/pet_sheet/slices",
+    "explicit_image_dir": "res://assets/artist_ui/sprite_images"
+  },
+  "coverage": {
+    "player_pet_catalog": "res://data/ysbzs_singleplayer_data.json"
+  },
+  "background": {
+    "battle": "res://assets/battle_ui/images/battle_background.png"
+  },
+  "buttons": {
+    "auto_arrange": "res://assets/battle_ui/images/buttons/button_auto_deploy.png",
+    "begin_turn": "res://assets/battle_ui/images/buttons/button_start_action.png"
+  },
+  "frames": {
+    "player": "res://assets/battle_ui/prefabs/select_frames/selection-blue-64.png",
+    "enemy": "res://assets/battle_ui/prefabs/select_frames/selection-red-64.png",
+    "hover": "res://assets/battle_ui/sprite_images/tile_hover_frame_ai_512.png",
+    "drag": "res://assets/battle_ui/prefabs/select_frames/selection-white-blue-shadow-64.png"
+  },
+  "leaders": {
+    "player": "res://assets/battle_ui/hero_images/sun_wukong_ai_220x210.png",
+    "enemy": "res://assets/battle_ui/hero_images/spider_spirit_ai_220x210.png"
+  },
+  "fallback_units": {
+    "fire": "res://assets/battle_ui/sprite_images/Sprite_FlameCub.png",
+    "water": "res://assets/battle_ui/sprite_images/Sprite_WaterWisp.png",
+    "earth": "res://assets/battle_ui/sprite_images/Sprite_StoneTurtle.png",
+    "wind": "res://assets/battle_ui/sprite_images/Sprite_WindSprite.png",
+    "boss": "res://assets/battle_ui/sprite_images/Sprite_ShadowDragon.png"
+  },
+  "effects": {
+    "bullets": {
+      "fire": "res://assets/battle_ui/prefabs/element_bullets/fire_bullet.png",
+      "water": "res://assets/battle_ui/prefabs/element_bullets/water_bullet.png",
+      "earth": "res://assets/battle_ui/prefabs/element_bullets/earth_bullet.png",
+      "wind": "res://assets/battle_ui/prefabs/element_bullets/wind_bullet.png"
+    },
+    "buff_rings": {
+      "fire": "res://assets/battle_ui/prefabs/element_buff/simple-buff-ring-fire.png",
+      "water": "res://assets/battle_ui/prefabs/element_buff/simple-buff-ring-water.png",
+      "earth": "res://assets/battle_ui/prefabs/element_buff/simple-buff-ring-earth.png",
+      "wind": "res://assets/battle_ui/prefabs/element_buff/simple-buff-ring-wind.png"
+    },
+    "death_marks": {
+      "player": "res://assets/battle_ui/prefabs/death_marks/death_mark_player.png",
+      "enemy": "res://assets/battle_ui/prefabs/death_marks/death_mark_enemy.png"
+    },
+    "attack_order": {
+      "one": "res://assets/battle_ui/prefabs/attack_order/dice_marker_1.png",
+      "two": "res://assets/battle_ui/prefabs/attack_order/dice_marker_2.png",
+      "three": "res://assets/battle_ui/prefabs/attack_order/dice_marker_3.png"
+    },
+    "monster_bite": {
+      "frames": [
+        "res://assets/battle_ui/prefabs/monster_bite/frames/monster_teeth_bite_01.png",
+        "res://assets/battle_ui/prefabs/monster_bite/frames/monster_teeth_bite_02.png",
+        "res://assets/battle_ui/prefabs/monster_bite/frames/monster_teeth_bite_03.png",
+        "res://assets/battle_ui/prefabs/monster_bite/frames/monster_teeth_bite_04.png",
+        "res://assets/battle_ui/prefabs/monster_bite/frames/monster_teeth_bite_05.png"
+      ],
+      "frame_durations": [0.083, 0.067, 0.033, 0.1, 0.067],
+      "hit_frame_index": 3
+    }
+  },
+  "external_maps": {
+    "player_pet_images": "res://assets/artist_ui/pet_sheet/pet_id_map.json",
+    "enemy_unit_images": "res://assets/battle_ui/enemy_image_map.json"
+  }
+}

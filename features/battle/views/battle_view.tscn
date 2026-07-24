@@ -1,0 +1,512 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/battle_ui/images/battle_background_8x8.png" id="1_bg"]
+[ext_resource type="Script" path="res://features/battle/controllers/battle_controller.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://assets/battle_ui/images/buttons/button_auto_deploy.png" id="3_auto"]
+[ext_resource type="Texture2D" path="res://assets/battle_ui/images/buttons/button_start_action.png" id="4_start"]
+[ext_resource type="Script" path="res://features/battle/controllers/battle_vfx_controller.gd" id="5_vfx"]
+[ext_resource type="PackedScene" path="res://features/battle/prefabs/board/battle_cell.tscn" id="6_cell"]
+
+[node name="BattleUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("2_script")
+
+[node name="BoardBG" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("1_bg")
+
+[node name="BoardGrid" type="Control" parent="."]
+custom_minimum_size = Vector2(996, 849)
+anchors_preset = 0
+layout_mode = 0
+offset_left = 465.0
+offset_top = 84.0
+offset_right = 1461.0
+offset_bottom = 933.0
+mouse_filter = 1
+
+[node name="Cell_R1_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_right = 124.500
+offset_bottom = 121.285714
+
+[node name="Cell_R1_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_right = 249.000
+offset_bottom = 121.285714
+
+[node name="Cell_R1_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_right = 373.500
+offset_bottom = 121.285714
+
+[node name="Cell_R1_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_right = 498.000
+offset_bottom = 121.285714
+
+[node name="Cell_R1_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_right = 622.500
+offset_bottom = 121.285714
+
+[node name="Cell_R1_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_right = 747.000
+offset_bottom = 121.285714
+
+[node name="Cell_R1_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_right = 871.500
+offset_bottom = 121.285714
+
+[node name="Cell_R1_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_right = 996.000
+offset_bottom = 121.285714
+
+[node name="Cell_R2_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 121.285714
+offset_right = 124.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 121.285714
+offset_right = 249.000
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 121.285714
+offset_right = 373.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 121.285714
+offset_right = 498.000
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 121.285714
+offset_right = 622.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 121.285714
+offset_right = 747.000
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 121.285714
+offset_right = 871.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 121.285714
+offset_right = 996.000
+offset_bottom = 242.571429
+
+[node name="Cell_R3_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 242.571429
+offset_right = 124.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 242.571429
+offset_right = 249.000
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 242.571429
+offset_right = 373.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 242.571429
+offset_right = 498.000
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 242.571429
+offset_right = 622.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 242.571429
+offset_right = 747.000
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 242.571429
+offset_right = 871.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 242.571429
+offset_right = 996.000
+offset_bottom = 363.857143
+
+[node name="Cell_R4_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 363.857143
+offset_right = 124.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 363.857143
+offset_right = 249.000
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 363.857143
+offset_right = 373.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 363.857143
+offset_right = 498.000
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 363.857143
+offset_right = 622.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 363.857143
+offset_right = 747.000
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 363.857143
+offset_right = 871.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 363.857143
+offset_right = 996.000
+offset_bottom = 485.142857
+
+[node name="Cell_R5_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 485.142857
+offset_right = 124.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 485.142857
+offset_right = 249.000
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 485.142857
+offset_right = 373.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 485.142857
+offset_right = 498.000
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 485.142857
+offset_right = 622.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 485.142857
+offset_right = 747.000
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 485.142857
+offset_right = 871.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 485.142857
+offset_right = 996.000
+offset_bottom = 606.428571
+
+[node name="Cell_R6_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 606.428571
+offset_right = 124.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 606.428571
+offset_right = 249.000
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 606.428571
+offset_right = 373.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 606.428571
+offset_right = 498.000
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 606.428571
+offset_right = 622.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 606.428571
+offset_right = 747.000
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 606.428571
+offset_right = 871.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 606.428571
+offset_right = 996.000
+offset_bottom = 727.714286
+
+[node name="Cell_R7_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 727.714286
+offset_right = 124.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 727.714286
+offset_right = 249.000
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 727.714286
+offset_right = 373.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 727.714286
+offset_right = 498.000
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 727.714286
+offset_right = 622.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 727.714286
+offset_right = 747.000
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 727.714286
+offset_right = 871.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 727.714286
+offset_right = 996.000
+offset_bottom = 849.000000
+
+[node name="Cell_R8_C1" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_top = 742.875
+offset_right = 124.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C2" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 124.500
+offset_top = 742.875
+offset_right = 249.000
+offset_bottom = 849.000
+
+[node name="Cell_R8_C3" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 249.000
+offset_top = 742.875
+offset_right = 373.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C4" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 373.500
+offset_top = 742.875
+offset_right = 498.000
+offset_bottom = 849.000
+
+[node name="Cell_R8_C5" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 498.000
+offset_top = 742.875
+offset_right = 622.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C6" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 622.500
+offset_top = 742.875
+offset_right = 747.000
+offset_bottom = 849.000
+
+[node name="Cell_R8_C7" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 747.000
+offset_top = 742.875
+offset_right = 871.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C8" parent="BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 871.500
+offset_top = 742.875
+offset_right = 996.000
+offset_bottom = 849.000
+
+[node name="AutoArrangeButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 1583.0
+offset_top = 717.0
+offset_right = 1850.0
+offset_bottom = 807.0
+texture_normal = ExtResource("3_auto")
+
+[node name="PositionDifficultyButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1583.0
+offset_top = 665.0
+offset_right = 1850.0
+offset_bottom = 709.0
+mouse_default_cursor_shape = 2
+focus_mode = 0
+toggle_mode = true
+text = "摆位难度：普通"
+
+[node name="BeginTurnButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 1587.0
+offset_top = 813.0
+offset_right = 1843.0
+offset_bottom = 904.0
+texture_normal = ExtResource("4_start")
+
+[node name="BattleVfxPlayer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_vfx")

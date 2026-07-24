@@ -1,0 +1,5 @@
+source: /Users/ywh/Downloads/宠物信息栏2.psd
+canvas: 476x539
+exported: 2026-07-24
+notes: Dynamic text layers are rebuilt as Godot Labels; source PSD remains read-only.
+font_gap: PSD references LEEFONTMENGHEI, which is not delivered or installed; the prefab uses the project's licensed fusion_pixel_zh_hans.ttf.
