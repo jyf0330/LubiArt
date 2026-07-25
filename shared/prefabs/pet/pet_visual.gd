@@ -8,10 +8,11 @@ const ATTACK_RANGE_TEXTURE := preload("res://assets/artist_ui/battle_pet_complet
 @onready var psd_root: Control = $CompleteBattleCreaturePrefab
 @onready var frame_rect: TextureRect = $RuntimeSupport/SelectionFrame
 @onready var sprite_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/CreatureArt"
-@onready var collection_presentation: Control = $RuntimeSupport/CollectionPresentation
-@onready var collection_sprite_rect: TextureRect = $RuntimeSupport/CollectionPresentation/Sprite
 @onready var shadow_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/Shadow"
+@onready var stats_root: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats"
 @onready var enemy_marker_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/EnemyMarker_Optional"
+@onready var front_target_cell: Control = $"CompleteBattleCreaturePrefab/02_FrontTargetCell"
+@onready var attack_actions: Control = $"CompleteBattleCreaturePrefab/03_AttackActions"
 @onready var health_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health"
 @onready var shield_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield"
 @onready var attack_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack"
@@ -50,6 +51,7 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 	_layout_children()
 	if assets != null and assets.has_method("frame_texture"):
 		frame_rect.texture = assets.call("frame_texture", side)
+	frame_rect.visible = frame_rect.texture != null
 	if assets != null and assets.has_method("texture_for_unit"):
 		var result := Dictionary(assets.call("texture_for_unit", cell_data, side))
 		sprite_rect.texture = result.get("texture", null) as Texture2D
@@ -68,11 +70,7 @@ func set_collection_data(data: Dictionary, texture_resource: Texture2D) -> void:
 	side = "player"
 	_display_mode = &"collection"
 	frame_rect.visible = false
-	sprite_rect.visible = false
-	_set_psd_battle_layers_visible(false)
-	collection_sprite_rect.texture = texture_resource
-	collection_sprite_rect.visible = texture_resource != null
-	collection_presentation.visible = texture_resource != null
+	_set_collection_presentation(texture_resource)
 	status_view.set_mode(&"collection")
 	interaction.bind_context(&"collection", side, get_unit_id())
 	clear_dead_mark()
@@ -82,11 +80,7 @@ func clear_collection_data() -> void:
 	reset_pet_view()
 	_display_mode = &"collection"
 	frame_rect.visible = false
-	sprite_rect.visible = false
-	_set_psd_battle_layers_visible(false)
-	collection_sprite_rect.texture = null
-	collection_sprite_rect.visible = false
-	collection_presentation.visible = false
+	_set_collection_presentation(null)
 	status_view.set_mode(&"collection")
 	clear_dead_mark()
 
@@ -101,10 +95,7 @@ func reset_pet_view() -> void:
 	frame_rect.visible = false
 	sprite_rect.texture = null
 	sprite_rect.visible = false
-	_set_psd_battle_layers_visible(false)
-	collection_sprite_rect.texture = null
-	collection_sprite_rect.visible = false
-	collection_presentation.visible = false
+	_set_authored_root_visible(false)
 	death_mark_rect.texture = null
 	clear_dead_mark()
 	status_view.reset()
@@ -118,8 +109,6 @@ func get_display_mode() -> StringName:
 
 
 func get_display_texture() -> Texture2D:
-	if _display_mode == &"collection":
-		return collection_sprite_rect.texture
 	return sprite_rect.texture
 
 
@@ -127,11 +116,12 @@ func _set_battle_presentation() -> void:
 	_display_mode = &"battle"
 	frame_rect.visible = true
 	sprite_rect.visible = true
-	_set_psd_battle_layers_visible(true)
+	_set_authored_root_visible(true)
+	shadow_rect.visible = true
+	stats_root.visible = true
+	front_target_cell.visible = false
+	attack_actions.visible = true
 	enemy_marker_group.visible = side == "enemy" or side == "monster"
-	collection_sprite_rect.texture = null
-	collection_sprite_rect.visible = false
-	collection_presentation.visible = false
 	status_view.set_mode(&"battle")
 
 
@@ -265,7 +255,18 @@ func _set_authored_local_rect(control: Control, authored_rect: Rect2) -> void:
 	control.size = authored_rect.size * authored_scale
 
 
-func _set_psd_battle_layers_visible(visible_value: bool) -> void:
+func _set_collection_presentation(texture_resource: Texture2D) -> void:
+	_set_authored_root_visible(texture_resource != null)
+	sprite_rect.texture = texture_resource
+	sprite_rect.visible = texture_resource != null
+	shadow_rect.visible = false
+	stats_root.visible = false
+	enemy_marker_group.visible = false
+	front_target_cell.visible = false
+	attack_actions.visible = false
+
+
+func _set_authored_root_visible(visible_value: bool) -> void:
 	if psd_root != null:
 		psd_root.visible = visible_value
 	if not visible_value and enemy_marker_group != null:

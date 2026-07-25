@@ -1,5 +1,10 @@
-; Standalone battle UI mock project.
-; This project intentionally has no dependency on the production GameSession.
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
@@ -7,21 +12,11 @@ config_version=5
 
 config/name="YSBZS Battle UI Mock"
 run/main_scene="res://game/scenes/game.tscn"
+config/features=PackedStringArray("4.7")
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/window_width_override=1600
-window/size/window_height_override=900
 window/stretch/mode="canvas_items"
-
-[rendering]
-
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
-textures/default_filters/use_nearest_mipmap_filter=false
-
-[gui]
-
-theme/default_font_multichannel_signed_distance_field=true
+window/stretch/aspect="expand"

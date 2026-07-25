@@ -102,10 +102,16 @@ func _ready() -> void:
 	_configure_stage_presenter()
 	_connect_buttons()
 	_prepare_sell_button()
-	_render_content_from_state(_current_snapshot())
+	call_deferred("_finish_initial_mount")
+
+
+func _finish_initial_mount() -> void:
+	await get_tree().process_frame
+	var initial_snapshot := _current_snapshot()
+	_render_content_from_state(initial_snapshot)
 	_set_initial_state()
-	call_deferred("_show_initial_view")
-	call_deferred("_refresh_slot_button_layouts")
+	await _show_initial_view()
+	_refresh_slot_button_layouts()
 
 
 func _exit_tree() -> void:
@@ -1024,8 +1030,21 @@ func _on_battle_command_requested(command: Dictionary) -> void:
 		return
 	if not await _submit_core_command(command):
 		return
-	var target_view := _render_content_from_state(_take_core_command_snapshot())
+	var command_snapshot := _take_core_command_snapshot()
+	if String(command.get("type", "")) == "RUN_COMBAT_ROUND" \
+			and String(command_snapshot.get("phase", "")) != "battle":
+		_render_battle_view(command_snapshot)
+		await _await_battle_trace_sequence()
+	var target_view := _render_content_from_state(command_snapshot)
 	await _transition_to_view(target_view)
+
+
+func _await_battle_trace_sequence() -> void:
+	if _battle_view != null \
+			and _battle_view.has_method("is_battle_input_locked") \
+			and bool(_battle_view.call("is_battle_input_locked")) \
+			and _battle_view.has_signal("trace_sequence_finished"):
+		await _battle_view.trace_sequence_finished
 
 
 func _run_visible_auto_battle() -> void:
@@ -1047,11 +1066,7 @@ func _run_visible_auto_battle() -> void:
 			break
 		var round_snapshot := _take_core_command_snapshot()
 		_render_battle_view(round_snapshot)
-		if _battle_view != null \
-			and _battle_view.has_method("is_battle_input_locked") \
-			and bool(_battle_view.call("is_battle_input_locked")) \
-			and _battle_view.has_signal("trace_sequence_finished"):
-			await _battle_view.trace_sequence_finished
+		await _await_battle_trace_sequence()
 		if String(round_snapshot.get("phase", "")) != "battle":
 			var target_view := _render_content_from_state(round_snapshot)
 			await _transition_to_view(target_view)

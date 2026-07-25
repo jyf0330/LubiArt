@@ -1,33 +1,35 @@
 extends "res://session/game_session.gd"
 class_name MockGameSession
 
-## JSON-backed implementation of the production-facing GameSession port.
-## It deliberately owns only deterministic presentation data and mock rules.
+## Offline replay of public snapshots captured from the production
+## LocalGameSession. This project does not calculate combat outcomes.
 
 signal snapshot_changed(snapshot: Dictionary, event: Dictionary)
 
-const SNAPSHOT_PATH := "res://data/mock_battle_snapshot.json"
+const CAPTURE_PATH := "res://data/mock_battle_snapshot.json"
 
+var _capture_source: Dictionary = {}
+var _presentation_bootstrap_snapshot: Dictionary = {}
 var _snapshot: Dictionary = {}
-var _event_serial := 0
+var _steps: Array = []
+var _step_index := 0
 
 
-func _init(options: Dictionary = {}) -> void:
+func _init(_options: Dictionary = {}) -> void:
 	reset(false)
-	var dimensions: Variant = options.get("board_dimensions", Vector2i.ZERO)
-	if dimensions is Vector2i:
-		var size := dimensions as Vector2i
-		if size.x > 0 and size.y > 0:
-			var board := Dictionary(_snapshot.get("board", {}))
-			board["width"] = size.x
-			board["height"] = size.y
-			_snapshot["board"] = board
-			_rebuild_board_cells()
-	_enter_battle_after_ui_ready()
+	_publish_initial_snapshot_after_ui_ready()
 
 
 func get_authority() -> RefCounted:
 	return null
+
+
+func connect_session() -> bool:
+	return not _snapshot.is_empty()
+
+
+func is_session_connected() -> bool:
+	return not _snapshot.is_empty()
 
 
 func current_snapshot() -> Dictionary:
@@ -36,81 +38,95 @@ func current_snapshot() -> Dictionary:
 	return _snapshot.duplicate(true)
 
 
+func capture_source() -> Dictionary:
+	return _capture_source.duplicate(true)
+
+
+func presentation_bootstrap_snapshot() -> Dictionary:
+	return _presentation_bootstrap_snapshot.duplicate(true)
+
+
+func replay_step_count() -> int:
+	return _steps.size()
+
+
+func replay_step_index() -> int:
+	return _step_index
+
+
 func submit_command(command: Dictionary) -> Dictionary:
 	var requested_type := String(command.get("type", "")).strip_edges().to_upper()
 	var command_type := _canonical_command_type(requested_type)
-	var result := _execute_command(command_type, command)
-	var accepted := String(result.get("type", "")) != "IGNORED"
-	if accepted:
-		_append_command_log(command_type, command)
-	_snapshot["lastCommandResult"] = result.duplicate(true)
-	_snapshot["last_command_result"] = result.duplicate(true)
-	_rebuild_board_cells()
-	var snapshot := current_snapshot()
-	var response := {
-		"accepted": accepted,
-		"pending": false,
-		"status": "accepted" if accepted else "rejected",
-		"command": command_type,
-		"result": result.duplicate(true),
-		"snapshot": snapshot,
-	}
-	if accepted:
-		command_completed.emit(command.duplicate(true), response.duplicate(true))
-	else:
-		command_rejected.emit(command.duplicate(true), response.duplicate(true))
-	command_settled.emit(response.duplicate(true))
-	snapshot_received.emit(snapshot, {
-		"asynchronous": false,
-		"source": "mock_json",
-		"command": command_type,
-	})
-	snapshot_changed.emit(snapshot, result.duplicate(true))
-	return response
+	if command_type == "RESET_MOCK":
+		reset(false)
+		return _accepted_projection(
+			command,
+			command_type,
+			{"type": "RESET_MOCK", "ok": true, "message": "已回到正式运行数据起点"}
+		)
+	if command_type in ["GET_CELL_DETAIL", "SELECT_UNIT"]:
+		return _accepted_projection(
+			command,
+			command_type,
+			_projection_result(command_type, command)
+		)
+	return _replay_captured_command(command, command_type)
 
 
 func submit_command_and_wait(command: Dictionary) -> Dictionary:
 	return submit_command(command)
 
 
+func persistence_slot_count() -> int:
+	# Preserve the production RunTools geometry without enabling persistence.
+	# The standalone Mock still cannot read or write formal-project saves.
+	return 3
+
+
 func reset(emit_change: bool = true) -> void:
-	var file := FileAccess.open(SNAPSHOT_PATH, FileAccess.READ)
+	var file := FileAccess.open(CAPTURE_PATH, FileAccess.READ)
 	if file == null:
-		push_error("Cannot open mock snapshot: %s" % SNAPSHOT_PATH)
+		push_error("Cannot open production battle capture: %s" % CAPTURE_PATH)
 		_snapshot = {}
+		_steps = []
 		return
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	_snapshot = Dictionary(parsed).duplicate(true) if parsed is Dictionary else {}
-	_snapshot["battleTrace"] = Array(_snapshot.get("battleTrace", []))
-	_snapshot["battle_trace"] = Array(_snapshot["battleTrace"]).duplicate(true)
-	_snapshot["command_log"] = Array(_snapshot.get("command_log", []))
-	_rebuild_board_cells()
+	if not (parsed is Dictionary):
+		push_error("Production battle capture is not a JSON object: %s" % CAPTURE_PATH)
+		_snapshot = {}
+		_steps = []
+		return
+	var capture := Dictionary(parsed)
+	if int(capture.get("capture_schema_version", 0)) != 1:
+		push_error("Unsupported production battle capture schema")
+		_snapshot = {}
+		_steps = []
+		return
+	_capture_source = Dictionary(capture.get("source", {})).duplicate(true)
+	_presentation_bootstrap_snapshot = Dictionary(
+		capture.get("presentation_bootstrap_snapshot", {})
+	).duplicate(true)
+	_snapshot = Dictionary(capture.get("initial_snapshot", {})).duplicate(true)
+	_steps = Array(capture.get("steps", [])).duplicate(true)
+	_step_index = 0
 	if emit_change:
-		var event := {"type": "RESET_MOCK", "ok": true, "message": "假数据已载入"}
-		var snapshot := current_snapshot()
-		snapshot_received.emit(snapshot, {"asynchronous": true, "source": "mock_json"})
-		snapshot_changed.emit(snapshot, event)
+		_emit_snapshot(
+			{"type": "RESET_MOCK", "ok": true, "message": "已重新载入正式运行数据"},
+			"reset"
+		)
 
 
-func _enter_battle_after_ui_ready() -> void:
+func _publish_initial_snapshot_after_ui_ready() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree == null:
 		return
 	await tree.process_frame
 	await tree.process_frame
 	await tree.process_frame
-	_snapshot["phase"] = "battle"
-	var snapshot := current_snapshot()
-	snapshot_received.emit(snapshot, {
-		"asynchronous": true,
-		"source": "mock_json",
-		"command": "MOCK_ENTER_BATTLE",
-	})
-	snapshot_changed.emit(snapshot, {
-		"type": "MOCK_ENTER_BATTLE",
-		"ok": true,
-		"message": "固定数据已进入战斗",
-	})
+	_emit_snapshot(
+		{"type": "CAPTURE_READY", "ok": true, "message": "正式战斗运行数据已就绪"},
+		"capture_ready"
+	)
 
 
 func _canonical_command_type(command_type: String) -> String:
@@ -122,255 +138,147 @@ func _canonical_command_type(command_type: String) -> String:
 	return command_type
 
 
-func _execute_command(command_type: String, command: Dictionary) -> Dictionary:
-	match command_type:
-		"AUTO_POSITION_HEROES":
-			return _auto_position()
-		"RUN_COMBAT_ROUND":
-			return _run_combat_round()
-		"SELECT_UNIT":
-			return _select_unit(String(command.get("unit_id", command.get("unitId", ""))))
-		"GET_CELL_DETAIL":
-			return _cell_detail(
-				int(command.get("x", Dictionary(command.get("cell", {})).get("x", -1))),
-				int(command.get("y", Dictionary(command.get("cell", {})).get("y", -1)))
-			)
-		"MOVE_HERO":
-			return _move_hero(command)
-		"SET_DIFFICULTY":
-			return _set_difficulty(String(command.get("difficulty", "normal")))
-		"SELECT_CELL", "SELECT_ACTION_SLOT", "SET_ACTION_DIRECTION", "SET_ACTION_AP", "USE_ACTION_SLOT":
-			return {"type": command_type, "ok": true, "message": "Mock 已接收展示命令"}
-		"RESET_MOCK":
-			reset(false)
-			return {"type": "RESET_MOCK", "ok": true, "message": "已恢复假数据初始状态"}
-		_:
-			return {"type": "IGNORED", "ok": false, "message": "未识别的假命令：%s" % command_type}
-
-
-func _auto_position() -> Dictionary:
-	var positions := [
-		Vector2i(0, 2),
-		Vector2i(0, 5),
-		Vector2i(2, 3),
-		Vector2i(2, 4),
-	]
-	var moves: Array = []
-	var player_index := 0
-	var units := Array(_snapshot.get("units", []))
-	for index in range(units.size()):
-		var unit := Dictionary(units[index])
-		if String(unit.get("side", "")) != "player":
-			continue
-		var from := Vector2i(int(unit.get("x", -1)), int(unit.get("y", -1)))
-		var position: Vector2i = positions[min(player_index, positions.size() - 1)]
-		unit["x"] = position.x
-		unit["y"] = position.y
-		units[index] = unit
-		if from != position:
-			moves.append({
-				"unitId": String(unit.get("id", "")),
-				"from": {"x": from.x, "y": from.y},
-				"to": {"x": position.x, "y": position.y},
-			})
-		player_index += 1
-	_snapshot["units"] = units
-	return {
-		"type": "AUTO_POSITION_HEROES",
-		"ok": true,
-		"moves": moves,
-		"message": "我方宠物已按假规则重新布置",
-	}
-
-
-func _run_combat_round() -> Dictionary:
-	var units := Array(_snapshot.get("units", []))
-	var attacker_index := _first_living_unit_index(units, "player")
-	var target_index := _first_living_unit_index(units, "enemy")
-	if attacker_index < 0 or target_index < 0:
-		return {"type": "NO_TARGET", "ok": false, "message": "没有可行动的假单位"}
-
-	var attacker := Dictionary(units[attacker_index])
-	var target_before := Dictionary(units[target_index]).duplicate(true)
-	var target := target_before.duplicate(true)
-	var damage: int = maxi(1, int(attacker.get("atk", 1)))
-	var old_shield: int = maxi(0, int(target.get("shield", 0)))
-	var absorbed: int = mini(old_shield, damage)
-	var hp_damage: int = damage - absorbed
-	target["shield"] = old_shield - absorbed
-	target["hp"] = maxi(0, int(target.get("hp", 0)) - hp_damage)
-	target["alive"] = int(target.get("hp", 0)) > 0
-	units[target_index] = target
-
-	var counter_event: Dictionary = {}
-	var counter_index := _first_living_unit_index(units, "enemy")
-	var player_target_index := _first_living_unit_index(units, "player")
-	if counter_index >= 0 and player_target_index >= 0:
-		var counter := Dictionary(units[counter_index])
-		var player_before := Dictionary(units[player_target_index]).duplicate(true)
-		var player_target := player_before.duplicate(true)
-		var counter_damage: int = maxi(1, int(counter.get("atk", 1)) - 1)
-		var player_shield: int = maxi(0, int(player_target.get("shield", 0)))
-		var counter_absorbed: int = mini(player_shield, counter_damage)
-		player_target["shield"] = player_shield - counter_absorbed
-		player_target["hp"] = maxi(
-			0,
-			int(player_target.get("hp", 0)) - (counter_damage - counter_absorbed)
+func _replay_captured_command(command: Dictionary, command_type: String) -> Dictionary:
+	if _step_index >= _steps.size():
+		return _rejected_response(
+			command,
+			command_type,
+			"CAPTURE_FINISHED",
+			"正式项目的双按钮循环数据已经回放完毕"
 		)
-		player_target["alive"] = int(player_target.get("hp", 0)) > 0
-		units[player_target_index] = player_target
-		counter_event = _damage_trace(counter, player_before, player_target, counter_damage)
+	var record := Dictionary(_steps[_step_index])
+	var expected_command := String(Dictionary(record.get("command", {})).get("type", "")).to_upper()
+	if command_type != expected_command:
+		return _rejected_response(
+			command,
+			command_type,
+			"CAPTURE_SEQUENCE_MISMATCH",
+			"下一步正式运行数据要求先执行 %s" % expected_command
+		)
 
-	_snapshot["units"] = units
-	_snapshot["battle_round"] = mini(
-		int(_snapshot.get("battle_round", 1)) + 1,
-		int(_snapshot.get("maxRounds", 12))
+	_apply_snapshot_delta(Dictionary(record.get("snapshot_delta", {})))
+	var identity := Dictionary(record.get("snapshot_identity", {}))
+	if int(_snapshot.get("stateVersion", -1)) != int(identity.get("stateVersion", -2)) \
+			or String(_snapshot.get("stateHash", "")) != String(identity.get("stateHash", "")):
+		return _rejected_response(
+			command,
+			command_type,
+			"CAPTURE_IDENTITY_MISMATCH",
+			"正式 Snapshot 增量校验失败"
+		)
+	_step_index += 1
+
+	var response := Dictionary(record.get("response", {})).duplicate(true)
+	response["command"] = command_type
+	response["snapshot"] = current_snapshot()
+	response["captureStep"] = _step_index
+	command_completed.emit(command.duplicate(true), response.duplicate(true))
+	command_settled.emit(response.duplicate(true))
+	_emit_snapshot(
+		Dictionary(response.get("result", {})),
+		"formal_capture_replay",
+		command_type
 	)
-	_snapshot["battleRound"] = int(_snapshot["battle_round"])
-	_damage_enemy_leader(1)
-	var trace := Array(_snapshot.get("battleTrace", []))
-	trace.append(_damage_trace(attacker, target_before, target, damage))
-	if not counter_event.is_empty():
-		trace.append(counter_event)
-	_snapshot["battleTrace"] = trace
-	_snapshot["battle_trace"] = trace.duplicate(true)
-	return {
-		"type": "COMBAT_ROUND",
+	return response
+
+
+func _apply_snapshot_delta(delta: Dictionary) -> void:
+	for key_value in Array(delta.get("remove", [])):
+		_snapshot.erase(String(key_value))
+	for key_value in Dictionary(delta.get("set", {})).keys():
+		var key := String(key_value)
+		_snapshot[key] = Dictionary(delta.get("set", {}))[key_value]
+	_snapshot = _snapshot.duplicate(true)
+
+
+func _accepted_projection(
+	command: Dictionary,
+	command_type: String,
+	result: Dictionary
+) -> Dictionary:
+	var response := {
+		"accepted": true,
+		"pending": false,
+		"status": "completed",
 		"ok": true,
-		"message": "%s 对 %s 造成 %d 点伤害（护盾吸收 %d）" % [
-			attacker.get("name", "我方宠物"),
-			target.get("name", "敌方宠物"),
-			damage,
-			absorbed,
-		],
-		"attacker_id": String(attacker.get("id", "")),
-		"target_id": String(target.get("id", "")),
+		"command": command_type,
+		"result": result.duplicate(true),
+		"snapshot": current_snapshot(),
+		"stateVersion": int(_snapshot.get("stateVersion", -1)),
+		"stateHash": String(_snapshot.get("stateHash", "")),
 	}
+	command_completed.emit(command.duplicate(true), response.duplicate(true))
+	command_settled.emit(response.duplicate(true))
+	snapshot_received.emit(current_snapshot(), {
+		"asynchronous": false,
+		"source": "formal_snapshot_projection",
+		"command": command_type,
+	})
+	snapshot_changed.emit(current_snapshot(), result.duplicate(true))
+	return response
 
 
-func _damage_trace(actor: Dictionary, before: Dictionary, after: Dictionary, raw_damage: int) -> Dictionary:
-	_event_serial += 1
-	var shield_damage := maxi(0, int(before.get("shield", 0)) - int(after.get("shield", 0)))
-	var hp_damage := maxi(0, int(before.get("hp", 0)) - int(after.get("hp", 0)))
+func _rejected_response(
+	command: Dictionary,
+	command_type: String,
+	code: String,
+	message: String
+) -> Dictionary:
+	var response := {
+		"accepted": false,
+		"pending": false,
+		"status": "rejected",
+		"ok": false,
+		"command": command_type,
+		"error": {"code": code, "message": message},
+		"snapshot": current_snapshot(),
+		"stateVersion": int(_snapshot.get("stateVersion", -1)),
+		"stateHash": String(_snapshot.get("stateHash", "")),
+	}
+	command_rejected.emit(command.duplicate(true), response.duplicate(true))
+	command_settled.emit(response.duplicate(true))
+	return response
+
+
+func _projection_result(command_type: String, command: Dictionary) -> Dictionary:
+	if command_type == "SELECT_UNIT":
+		var unit_id := String(command.get("unit_id", command.get("unitId", "")))
+		var unit := _unit_by_id(unit_id)
+		return {
+			"type": "SELECT_UNIT",
+			"ok": not unit.is_empty(),
+			"unit_id": unit_id,
+			"unit": unit,
+		}
+	var cell_arg := Dictionary(command.get("cell", {}))
+	var x := int(command.get("x", command.get("c", cell_arg.get("x", cell_arg.get("c", -1)))))
+	var y := int(command.get("y", command.get("r", cell_arg.get("y", cell_arg.get("r", -1)))))
+	var cell := _board_cell(x, y)
 	return {
-		"eventId": "mock_damage_%d" % _event_serial,
-		"kind": "combat",
-		"type": "DAMAGE_APPLIED",
-		"round": int(_snapshot.get("battle_round", 1)),
-		"actor": _unit_ref(actor),
-		"target": _unit_ref(before),
-		"payload": {
-			"rawDamage": raw_damage,
-			"finalDamage": raw_damage,
-			"shieldDamage": shield_damage,
-			"hpDamage": hp_damage,
-			"hpFrom": int(before.get("hp", 0)),
-			"hpTo": int(after.get("hp", 0)),
-			"shieldFrom": int(before.get("shield", 0)),
-			"shieldTo": int(after.get("shield", 0)),
-			"element": String(actor.get("element_id", "fire")),
-			"sourceType": "action",
-		},
+		"type": "GET_CELL_DETAIL",
+		"ok": not cell.is_empty(),
+		"x": x,
+		"y": y,
+		"c": x,
+		"r": y,
+		"elements": Dictionary(cell.get("elements", {})).duplicate(true),
+		"unit": _unit_by_id(String(cell.get("unitId", cell.get("unit_id", "")))),
 	}
 
 
-func _unit_ref(unit: Dictionary) -> Dictionary:
-	return {
-		"id": String(unit.get("id", unit.get("unitId", ""))),
-		"name": String(unit.get("name", "")),
-		"side": String(unit.get("side", "")),
-		"x": int(unit.get("x", -1)),
-		"y": int(unit.get("y", -1)),
-	}
-
-
-func _cell_detail(x: int, y: int) -> Dictionary:
+func _board_cell(x: int, y: int) -> Dictionary:
 	var board := Dictionary(_snapshot.get("board", {}))
 	for value in Array(board.get("cells", [])):
 		var cell := Dictionary(value)
-		if int(cell.get("x", -1)) != x or int(cell.get("y", -1)) != y:
-			continue
-		return {
-			"type": "GET_CELL_DETAIL",
-			"ok": true,
-			"x": x,
-			"y": y,
-			"c": x,
-			"r": y,
-			"elements": Dictionary(cell.get("elements", {})).duplicate(true),
-			"unit": _unit_by_id(String(cell.get("unitId", ""))),
-		}
-	return {"type": "GET_CELL_DETAIL", "ok": false, "x": x, "y": y, "unit": {}}
-
-
-func _move_hero(command: Dictionary) -> Dictionary:
-	var unit_id := String(command.get("unitId", command.get("unit_id", "")))
-	var target := Dictionary(command.get("to", command.get("cell", {})))
-	var x := int(command.get("x", target.get("x", target.get("c", -1))))
-	var y := int(command.get("y", target.get("y", target.get("r", -1))))
-	var board := Dictionary(_snapshot.get("board", {}))
-	var width := maxi(1, int(board.get("width", 8)))
-	var height := maxi(1, int(board.get("height", 8)))
-	if x < 0 or x >= width or y < 0 or y >= height or _unit_id_at(x, y) != "":
-		return {"type": "MOVE_HERO", "ok": false, "unitId": unit_id, "x": x, "y": y}
-	var units := Array(_snapshot.get("units", []))
-	for index in range(units.size()):
-		var unit := Dictionary(units[index])
-		if String(unit.get("id", "")) != unit_id or String(unit.get("side", "")) != "player":
-			continue
-		var from := {"x": int(unit.get("x", -1)), "y": int(unit.get("y", -1))}
-		unit["x"] = x
-		unit["y"] = y
-		units[index] = unit
-		_snapshot["units"] = units
-		return {
-			"type": "MOVE_HERO",
-			"ok": true,
-			"unitId": unit_id,
-			"from": from,
-			"to": {"x": x, "y": y},
-		}
-	return {"type": "MOVE_HERO", "ok": false, "unitId": unit_id, "x": x, "y": y}
-
-
-func _set_difficulty(value: String) -> Dictionary:
-	var difficulty := "easy" if value == "easy" else "normal"
-	_snapshot["difficulty"] = difficulty
-	return {"type": "SET_DIFFICULTY", "ok": true, "difficulty": difficulty}
-
-
-func _select_unit(unit_id: String) -> Dictionary:
-	_snapshot["selected_unit_id"] = unit_id
-	var unit := _unit_by_id(unit_id)
-	return {
-		"type": "SELECT_UNIT",
-		"ok": not unit.is_empty(),
-		"message": "查看 %s 的预制体详情" % unit.get("name", unit_id),
-		"unit_id": unit_id,
-		"unit": unit,
-	}
-
-
-func _damage_enemy_leader(amount: int) -> void:
-	var leaders := Array(_snapshot.get("leaders", []))
-	for index in range(leaders.size()):
-		var leader := Dictionary(leaders[index])
-		if String(leader.get("side", "")) == "enemy":
-			leader["hp"] = maxi(0, int(leader.get("hp", 0)) - amount)
-			leaders[index] = leader
-			break
-	_snapshot["leaders"] = leaders
-
-
-func _first_living_unit_index(units: Array, side: String) -> int:
-	for index in range(units.size()):
-		var unit := Dictionary(units[index])
-		if String(unit.get("side", "")) == side and bool(unit.get("alive", true)):
-			return index
-	return -1
+		if int(cell.get("x", cell.get("c", -1))) == x \
+				and int(cell.get("y", cell.get("r", -1))) == y:
+			return cell.duplicate(true)
+	return {}
 
 
 func _unit_by_id(unit_id: String) -> Dictionary:
+	if unit_id == "":
+		return {}
 	for value in Array(_snapshot.get("units", [])):
 		var unit := Dictionary(value)
 		if String(unit.get("id", unit.get("unitId", ""))) == unit_id:
@@ -378,67 +286,17 @@ func _unit_by_id(unit_id: String) -> Dictionary:
 	return {}
 
 
-func _unit_id_at(x: int, y: int) -> String:
-	for value in Array(_snapshot.get("units", [])):
-		var unit := Dictionary(value)
-		if not bool(unit.get("alive", true)):
-			continue
-		if int(unit.get("x", -1)) == x and int(unit.get("y", -1)) == y:
-			return String(unit.get("id", ""))
-	return ""
-
-
-func _append_command_log(command_type: String, command: Dictionary) -> void:
-	var command_log := Array(_snapshot.get("command_log", []))
-	command_log.append({
-		"type": command_type,
-		"command": command.duplicate(true),
-		"sequence": command_log.size() + 1,
-	})
-	_snapshot["command_log"] = command_log
-
-
-func _rebuild_board_cells() -> void:
-	if _snapshot.is_empty():
-		return
-	var board := Dictionary(_snapshot.get("board", {}))
-	var width := maxi(1, int(board.get("width", 8)))
-	var height := maxi(1, int(board.get("height", 8)))
-	var units_by_cell := {}
-	for value in Array(_snapshot.get("units", [])):
-		var unit := Dictionary(value)
-		if not bool(unit.get("alive", true)):
-			continue
-		units_by_cell["%d:%d" % [int(unit.get("x", -1)), int(unit.get("y", -1))]] = unit
-	var elements := ["fire", "water", "ground", "wind"]
-	var cells: Array = []
-	for y in range(height):
-		for x in range(width):
-			var element_id: String = elements[(x + y * 2) % elements.size()]
-			var layers := 3 if (x + y) % 5 == 0 else 1
-			var cell := {
-				"index": y * width + x,
-				"x": x,
-				"y": y,
-				"c": x,
-				"r": y,
-				"element": element_id,
-				"layers": layers,
-				"elements": {element_id: layers},
-				"unitId": "",
-			}
-			var key := "%d:%d" % [x, y]
-			if units_by_cell.has(key):
-				var unit := Dictionary(units_by_cell[key])
-				cell.merge(unit, true)
-				cell["unitId"] = String(unit.get("id", ""))
-				cell["unitName"] = String(unit.get("name", ""))
-				cell["unitSide"] = String(unit.get("side", ""))
-				cell["elements"] = {element_id: layers}
-			cells.append(cell)
-	board["width"] = width
-	board["height"] = height
-	board["columns"] = width
-	board["rows"] = height
-	board["cells"] = cells
-	_snapshot["board"] = board
+func _emit_snapshot(
+	event: Dictionary,
+	source: String,
+	command_type: String = ""
+) -> void:
+	var snapshot := current_snapshot()
+	var metadata := {
+		"asynchronous": false,
+		"source": source,
+		"command": command_type,
+		"captureStep": _step_index,
+	}
+	snapshot_received.emit(snapshot, metadata)
+	snapshot_changed.emit(snapshot, event.duplicate(true))

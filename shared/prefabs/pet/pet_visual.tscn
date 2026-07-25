@@ -1,9 +1,8 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://shared/prefabs/pet/pet_visual.gd" id="1_script"]
 [ext_resource type="Script" path="res://shared/prefabs/pet/pet_status_view.gd" id="2_status"]
 [ext_resource type="Script" path="res://shared/prefabs/pet/pet_interaction.gd" id="3_interaction"]
-[ext_resource type="Texture2D" path="res://assets/artist_ui/images/party_slot_frame.png" id="4_frame"]
 [ext_resource type="Texture2D" path="res://assets/artist_ui/battle_pet_complete_v2/creature_art.png" id="5_pet"]
 [ext_resource type="Script" path="res://shared/prefabs/pet/pet_animation.gd" id="6_animation"]
 [ext_resource type="Texture2D" path="res://assets/artist_ui/battle_pet_complete_v2/shadow.png" id="7_shadow"]
@@ -750,7 +749,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("4_frame")
 expand_mode = 1
 stretch_mode = 5
 

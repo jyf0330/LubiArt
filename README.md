@@ -1,40 +1,47 @@
 # 战斗界面独立 Mock 项目
 
-这是从正式项目拆出的独立 Godot 界面项目，用于美术、预制体、设计模式和接口联调。
+这是交付给美术独立使用的 Godot 界面项目，用于美术、预制体、设计模式和接口联调。使用者只需要本项目和兼容的 Godot，不需要拥有原项目。
 
 ## 结构
 
-- `game/`：从正式项目整目录镜像；保留 Composition Shell、Factory、Feature Registry 和 Scene Router
-- `features/`：从正式项目整目录镜像；保留 Controller、Presenter、Adapter、Command Builder、Trace Projection 和各功能预制体
-- `shared/prefabs/`：从正式项目整目录镜像；保留共享宠物、详情等复用预制体
-- `assets/artist_ui/`、`assets/battle_ui/`：从正式项目整目录镜像
-- `session/`：实现与正式项目一致的 `GameSession` 公共端口，但只读固定假数据
-- `data/mock_battle_snapshot.json`：与正式 Snapshot 字段相似的假数据
+- `game/`：保留 Composition Shell、Factory、Feature Registry 和 Scene Router
+- `features/`：保留 Controller、Presenter、Adapter、Command Builder、Trace Projection 和各功能预制体
+- `shared/prefabs/`：保留共享宠物、详情等复用预制体
+- `assets/artist_ui/`、`assets/battle_ui/`：项目内完整美术资源
+- `session/`：实现与正式项目一致的 `GameSession` 公共端口，只离线回放正式运行数据
+- `data/mock_battle_snapshot.json`：项目方通过正式 `LocalGameSession` 读取存档槽2，再每回合执行一次“自动布置 → 开始行动”，直到战斗结算后导出的公共 Snapshot 序列
 - `tests/`：独立项目契约 smoke
 
 运行时装配链为：
 
 `game.tscn -> FeatureRegistry -> SceneRouter -> artist_flow_view.tscn -> battle_view.tscn -> 多个 battle/shared 预制体`
 
-`game/`、`features/`、`shared/prefabs/` 及 UI 资源与当前 `godot-latest` 保持整目录逐字节一致。差异只允许位于 `session/`、`core/`、`data/` 和测试；正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目。
+美术可以直接修改本项目中的 UI 场景、展示脚本、预制体、布局、动画和资源。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
 
 ## 验证
 
 ```bash
 ./tests/verify_ui_mirror.sh
-/Users/ywh/Downloads/Godot.app/Contents/MacOS/Godot \
+godot \
   --headless \
-  --path /Users/ywh/Documents/godot-battle-ui-mock \
+  --path . \
   --script res://tests/smoke_mock_battle_project.gd
 ```
 
-第一条会对完整 UI 层整目录逐字节比较；任何场景、脚本、预制体、Presenter、Adapter 或资源漂移都会直接失败。
+第一条默认只检查独立交付项目的必要目录和入口文件，不需要原项目。项目方在回集成时如需比较来源，可显式执行：
+
+```bash
+GODOT_LATEST_UI_SOURCE=/path/to/godot-latest ./tests/verify_ui_mirror.sh
+```
+
+美术侧不需要执行来源比较。若 `godot` 不在命令行 PATH 中，请把示例中的 `godot` 替换为本机 Godot 可执行文件路径。
 
 ## 可操作内容
 
 - 点击棋盘宠物：打开宠物详情预制体
-- 自动布置：按固定规则重新摆放我方宠物
-- 开始行动：执行一轮假战斗，动态改变护盾、生命和回合
-- 重置演示：恢复 JSON 初始数据
+- 自动布置：回放正式项目本轮“自动布置”后的 Snapshot 和命令结果
+- 开始行动：回放正式项目本轮“开始行动”后的 Snapshot、Trace、护盾、生命、元素和回合结果
+- 两个按钮按“自动布置 → 开始行动”逐回合循环到结算；敌我双方每一步站位都直接来自这次正式运行
+- 重置演示：回到这次正式运行数据的起点
 
-这个项目不会读取正式存档，也不会调用正式战斗核心。修改假数据不会影响正式项目。
+这个项目不会读取正式存档，也不会调用正式战斗核心。数据文件不是在 Mock 中计算或手写的玩法结果；需要更新时，由项目方在正式项目重新运行导出器。修改后的 UI 由项目方另行回集成。
