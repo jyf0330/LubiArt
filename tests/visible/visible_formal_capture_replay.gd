@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://game/scenes/game.tscn")
+const MainScene := preload("res://art/scenes/art.tscn")
 const STEP_TIMEOUT_SECONDS := 45.0
 
 

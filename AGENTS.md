@@ -20,18 +20,28 @@
 
 ## 目录职责
 
-- `game/`：Composition Shell，只负责装配、路由和功能切换。
-- `features/`：战斗界面及其 Controller、Presenter、Adapter 等展示逻辑。
-- `shared/prefabs/`：跨界面复用的场景和预制体。
-- `assets/artist_ui/`、`assets/battle_ui/`：正式 UI 使用的美术资源。
+- `art/scenes/`：可独立打开的页面场景与总装场景；正式入口是 `art/scenes/art.tscn`。
+- `art/prefabs/`：按 `battle`、`route`、`shared` 等 scope 分类的可复用预制体。
+- `art/images/`：只放图片与相邻的 Godot `.import` 文件。
+- `art/manifests/`：只放图片资源映射和 manifest JSON。
+- `core_ui/scripts/`：按 scope 分类的 Controller、Presenter、Adapter 和预制体表现脚本。
 - `session/`：正式公共会话接口的 Mock 实现边界。
 
 ## 可修改范围
 
-- 美术任务可以直接修改 `game/`、`features/`、`shared/prefabs/`、`assets/artist_ui/` 和 `assets/battle_ui/` 中的场景、展示脚本、预制体、节点结构、布局、动画、资源及资源引用。
+- 美术任务可以直接修改 `art/scenes/`、`art/prefabs/`、`art/images/`、`art/manifests/` 和 `core_ui/scripts/` 中的场景、展示脚本、预制体、节点结构、布局、动画、资源及资源引用。
 - 可以为演示需要修改 `session/`、`core/`、`data/`、`tests/` 和项目文档，但不得在其中建立正式玩法、数值或存档实现。
 - 不得引入指向原项目、本机其他目录或某位开发者电脑的绝对路径。
 - 不得为了完成美术效果而接入正式存档、权威状态、战斗服务或策划数据链。
+
+## 文件类型规则
+
+- 页面和总装 `.tscn` 放 `art/scenes/<scope>/`。
+- 可复用 `.tscn` 放 `art/prefabs/<scope>/`。
+- `.png`、`.jpg`、`.webp`、`.svg` 等图片放 `art/images/<scope>/`。
+- 图片映射和 manifest `.json` 放 `art/manifests/<scope>/`；Mock 回放数据仍放 `data/`。
+- UI `.gd` 与 `.gd.uid` 放 `core_ui/scripts/<scope>/`。
+- 不得恢复 `game/`、`features/`、`shared/prefabs/`、`assets/artist_ui/` 或 `assets/battle_ui/` 兼容副本。
 
 ## 交付与回集成
 
@@ -49,7 +59,7 @@
 
 ## 完成与验收
 
-- 每次改动后运行 `./tests/verify_ui_mirror.sh`，确认独立项目结构完整；默认检查不需要原项目。
+- 每次改动后运行 `./tests/verify_ui_mirror.sh`，确认独立项目结构完整且文件类型没有串目录；默认检查不需要原项目。
 - 运行 README 中的独立项目契约 smoke，确认 Mock Snapshot 和装配链仍可工作。
 - 涉及布局、交互或动画时，必须在真实 Godot 窗口检查；headless smoke 不能代替可见结果。
 - 美术侧只验收本项目中的可见结果和 Mock 交互，不负责正式玩法、战斗结算或存读档验收。

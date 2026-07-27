@@ -1,0 +1,203 @@
+{
+  "source": "data/ysbzs_singleplayer_data.json route.node_pool",
+  "rule": "first 25 formal shop nodes in core node_pool order map to shop_character_001..025",
+  "mapped": [
+    {
+      "index": 1,
+      "nodeId": "node_shop_basic",
+      "name": "夜市商人",
+      "shopPoolId": "night_base",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_001.png"
+    },
+    {
+      "index": 2,
+      "nodeId": "node_shop_fire",
+      "name": "火系补货商人",
+      "shopPoolId": "elem_火",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_002.png"
+    },
+    {
+      "index": 3,
+      "nodeId": "node_d02_role_summon",
+      "name": "召唤摊位",
+      "shopPoolId": "role_召唤",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_003.png"
+    },
+    {
+      "index": 4,
+      "nodeId": "node_d02_role_tank",
+      "name": "前排摊位",
+      "shopPoolId": "role_坦克",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_004.png"
+    },
+    {
+      "index": 5,
+      "nodeId": "node_d02_shop_water",
+      "name": "水系补货商人",
+      "shopPoolId": "elem_水",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_005.png"
+    },
+    {
+      "index": 6,
+      "nodeId": "node_d03_tier2_shop",
+      "name": "白银预备商人",
+      "shopPoolId": "tier_pT2",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_006.png"
+    },
+    {
+      "index": 7,
+      "nodeId": "node_d03_fire_shop",
+      "name": "火系强化商人",
+      "shopPoolId": "elem_火",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_007.png"
+    },
+    {
+      "index": 8,
+      "nodeId": "node_d03_summon_shop",
+      "name": "召唤强化商人",
+      "shopPoolId": "role_召唤",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_008.png"
+    },
+    {
+      "index": 9,
+      "nodeId": "node_d04_tier2_shop",
+      "name": "白银商会",
+      "shopPoolId": "tier_pT2",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_009.png"
+    },
+    {
+      "index": 10,
+      "nodeId": "node_d04_wind_shop",
+      "name": "风系补货商人",
+      "shopPoolId": "elem_风",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_010.png"
+    },
+    {
+      "index": 11,
+      "nodeId": "node_d04_control_shop",
+      "name": "控制补强商人",
+      "shopPoolId": "role_控制",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_011.png"
+    },
+    {
+      "index": 12,
+      "nodeId": "node_d05_tier2_shop",
+      "name": "白银精选商会",
+      "shopPoolId": "tier_pT2",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_012.png"
+    },
+    {
+      "index": 13,
+      "nodeId": "node_d05_water_shop",
+      "name": "水系治疗商人",
+      "shopPoolId": "elem_水",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_013.png"
+    },
+    {
+      "index": 14,
+      "nodeId": "node_d05_heal_shop",
+      "name": "治疗补强商人",
+      "shopPoolId": "role_治疗",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_014.png"
+    },
+    {
+      "index": 15,
+      "nodeId": "node_d06_tier3_shop",
+      "name": "黄金商会",
+      "shopPoolId": "tier_pT3",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_015.png"
+    },
+    {
+      "index": 16,
+      "nodeId": "node_d06_output_shop",
+      "name": "输出补强商人",
+      "shopPoolId": "role_输出",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_016.png"
+    },
+    {
+      "index": 17,
+      "nodeId": "node_d06_fire_shop",
+      "name": "火系爆发商人",
+      "shopPoolId": "elem_火",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_017.png"
+    },
+    {
+      "index": 18,
+      "nodeId": "node_d07_tier3_shop",
+      "name": "黄金精选商会",
+      "shopPoolId": "tier_pT3",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_018.png"
+    },
+    {
+      "index": 19,
+      "nodeId": "node_d07_tank_shop",
+      "name": "前排补强商人",
+      "shopPoolId": "role_坦克",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_019.png"
+    },
+    {
+      "index": 20,
+      "nodeId": "node_d07_earth_shop",
+      "name": "土系防线商人",
+      "shopPoolId": "elem_土",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_020.png"
+    },
+    {
+      "index": 21,
+      "nodeId": "node_d08_tier3_shop",
+      "name": "黄金连锁商会",
+      "shopPoolId": "tier_pT3",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_021.png"
+    },
+    {
+      "index": 22,
+      "nodeId": "node_d08_economy_shop",
+      "name": "经济补强商人",
+      "shopPoolId": "role_经济",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_022.png"
+    },
+    {
+      "index": 23,
+      "nodeId": "node_d08_wind_shop",
+      "name": "风系连锁商人",
+      "shopPoolId": "elem_风",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_023.png"
+    },
+    {
+      "index": 24,
+      "nodeId": "node_d09_tier3_shop",
+      "name": "终局前黄金商会",
+      "shopPoolId": "tier_pT3",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_024.png"
+    },
+    {
+      "index": 25,
+      "nodeId": "node_d09_summon_shop",
+      "name": "召唤终局商人",
+      "shopPoolId": "role_召唤",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_025.png"
+    }
+  ],
+  "unmapped_formal_shop_nodes": [
+    {
+      "nodeId": "node_d09_fire_shop",
+      "name": "火系终局商人",
+      "shopPoolId": "elem_火"
+    },
+    {
+      "nodeId": "node_d10_tier3_shop",
+      "name": "终局黄金商会",
+      "shopPoolId": "tier_pT3"
+    },
+    {
+      "nodeId": "node_d10_output_shop",
+      "name": "终局输出商人",
+      "shopPoolId": "role_输出"
+    },
+    {
+      "nodeId": "node_d10_fire_shop",
+      "name": "终局火系商人",
+      "shopPoolId": "elem_火"
+    }
+  ]
+}

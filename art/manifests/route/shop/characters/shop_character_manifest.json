@@ -1,0 +1,287 @@
+{
+  "source": "/Users/ywh/Downloads/ChatGPT Image 2026年7月10日 03_35_19.png",
+  "imported": "res://art/images/route/shop/characters/shop_characters.png",
+  "grid": {
+    "columns": 5,
+    "rows": 5,
+    "width": 1254,
+    "height": 1254
+  },
+  "slices": [
+    {
+      "index": 1,
+      "id": "shop_character_001",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_001.png",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 2,
+      "id": "shop_character_002",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_002.png",
+      "rect": {
+        "x": 251,
+        "y": 0,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 3,
+      "id": "shop_character_003",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_003.png",
+      "rect": {
+        "x": 502,
+        "y": 0,
+        "w": 250,
+        "h": 251
+      }
+    },
+    {
+      "index": 4,
+      "id": "shop_character_004",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_004.png",
+      "rect": {
+        "x": 752,
+        "y": 0,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 5,
+      "id": "shop_character_005",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_005.png",
+      "rect": {
+        "x": 1003,
+        "y": 0,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 6,
+      "id": "shop_character_006",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_006.png",
+      "rect": {
+        "x": 0,
+        "y": 251,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 7,
+      "id": "shop_character_007",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_007.png",
+      "rect": {
+        "x": 251,
+        "y": 251,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 8,
+      "id": "shop_character_008",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_008.png",
+      "rect": {
+        "x": 502,
+        "y": 251,
+        "w": 250,
+        "h": 251
+      }
+    },
+    {
+      "index": 9,
+      "id": "shop_character_009",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_009.png",
+      "rect": {
+        "x": 752,
+        "y": 251,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 10,
+      "id": "shop_character_010",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_010.png",
+      "rect": {
+        "x": 1003,
+        "y": 251,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 11,
+      "id": "shop_character_011",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_011.png",
+      "rect": {
+        "x": 0,
+        "y": 502,
+        "w": 251,
+        "h": 250
+      }
+    },
+    {
+      "index": 12,
+      "id": "shop_character_012",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_012.png",
+      "rect": {
+        "x": 251,
+        "y": 502,
+        "w": 251,
+        "h": 250
+      }
+    },
+    {
+      "index": 13,
+      "id": "shop_character_013",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_013.png",
+      "rect": {
+        "x": 502,
+        "y": 502,
+        "w": 250,
+        "h": 250
+      }
+    },
+    {
+      "index": 14,
+      "id": "shop_character_014",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_014.png",
+      "rect": {
+        "x": 752,
+        "y": 502,
+        "w": 251,
+        "h": 250
+      }
+    },
+    {
+      "index": 15,
+      "id": "shop_character_015",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_015.png",
+      "rect": {
+        "x": 1003,
+        "y": 502,
+        "w": 251,
+        "h": 250
+      }
+    },
+    {
+      "index": 16,
+      "id": "shop_character_016",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_016.png",
+      "rect": {
+        "x": 0,
+        "y": 752,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 17,
+      "id": "shop_character_017",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_017.png",
+      "rect": {
+        "x": 251,
+        "y": 752,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 18,
+      "id": "shop_character_018",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_018.png",
+      "rect": {
+        "x": 502,
+        "y": 752,
+        "w": 250,
+        "h": 251
+      }
+    },
+    {
+      "index": 19,
+      "id": "shop_character_019",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_019.png",
+      "rect": {
+        "x": 752,
+        "y": 752,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 20,
+      "id": "shop_character_020",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_020.png",
+      "rect": {
+        "x": 1003,
+        "y": 752,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 21,
+      "id": "shop_character_021",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_021.png",
+      "rect": {
+        "x": 0,
+        "y": 1003,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 22,
+      "id": "shop_character_022",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_022.png",
+      "rect": {
+        "x": 251,
+        "y": 1003,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 23,
+      "id": "shop_character_023",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_023.png",
+      "rect": {
+        "x": 502,
+        "y": 1003,
+        "w": 250,
+        "h": 251
+      }
+    },
+    {
+      "index": 24,
+      "id": "shop_character_024",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_024.png",
+      "rect": {
+        "x": 752,
+        "y": 1003,
+        "w": 251,
+        "h": 251
+      }
+    },
+    {
+      "index": 25,
+      "id": "shop_character_025",
+      "path": "res://art/images/route/shop/characters/slices/shop_character_025.png",
+      "rect": {
+        "x": 1003,
+        "y": 1003,
+        "w": 251,
+        "h": 251
+      }
+    }
+  ]
+}

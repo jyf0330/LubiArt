@@ -1,0 +1,335 @@
+{
+  "source": "/var/folders/6h/2lxsxqh54g12hmnvwwl_ms0w0000gn/T/codex-clipboard-6a1ab97f-bcd3-4d31-b8d2-366ffe578620.png",
+  "source_project_path": "res://art/images/route/rewards/reward_nodes.png",
+  "columns": 5,
+  "rows": 5,
+  "source_width": 1254,
+  "source_height": 1254,
+  "slices": [
+    {
+      "id": "reward_node_001",
+      "index": 1,
+      "row": 1,
+      "column": 1,
+      "rect": [
+        0,
+        0,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_001.png"
+    },
+    {
+      "id": "reward_node_002",
+      "index": 2,
+      "row": 1,
+      "column": 2,
+      "rect": [
+        250,
+        0,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_002.png"
+    },
+    {
+      "id": "reward_node_003",
+      "index": 3,
+      "row": 1,
+      "column": 3,
+      "rect": [
+        500,
+        0,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_003.png"
+    },
+    {
+      "id": "reward_node_004",
+      "index": 4,
+      "row": 1,
+      "column": 4,
+      "rect": [
+        750,
+        0,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_004.png"
+    },
+    {
+      "id": "reward_node_005",
+      "index": 5,
+      "row": 1,
+      "column": 5,
+      "rect": [
+        1000,
+        0,
+        254,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_005.png"
+    },
+    {
+      "id": "reward_node_006",
+      "index": 6,
+      "row": 2,
+      "column": 1,
+      "rect": [
+        0,
+        250,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_006.png"
+    },
+    {
+      "id": "reward_node_007",
+      "index": 7,
+      "row": 2,
+      "column": 2,
+      "rect": [
+        250,
+        250,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_007.png"
+    },
+    {
+      "id": "reward_node_008",
+      "index": 8,
+      "row": 2,
+      "column": 3,
+      "rect": [
+        500,
+        250,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_008.png"
+    },
+    {
+      "id": "reward_node_009",
+      "index": 9,
+      "row": 2,
+      "column": 4,
+      "rect": [
+        750,
+        250,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_009.png"
+    },
+    {
+      "id": "reward_node_010",
+      "index": 10,
+      "row": 2,
+      "column": 5,
+      "rect": [
+        1000,
+        250,
+        254,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_010.png"
+    },
+    {
+      "id": "reward_node_011",
+      "index": 11,
+      "row": 3,
+      "column": 1,
+      "rect": [
+        0,
+        500,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_011.png"
+    },
+    {
+      "id": "reward_node_012",
+      "index": 12,
+      "row": 3,
+      "column": 2,
+      "rect": [
+        250,
+        500,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_012.png"
+    },
+    {
+      "id": "reward_node_013",
+      "index": 13,
+      "row": 3,
+      "column": 3,
+      "rect": [
+        500,
+        500,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_013.png"
+    },
+    {
+      "id": "reward_node_014",
+      "index": 14,
+      "row": 3,
+      "column": 4,
+      "rect": [
+        750,
+        500,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_014.png"
+    },
+    {
+      "id": "reward_node_015",
+      "index": 15,
+      "row": 3,
+      "column": 5,
+      "rect": [
+        1000,
+        500,
+        254,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_015.png"
+    },
+    {
+      "id": "reward_node_016",
+      "index": 16,
+      "row": 4,
+      "column": 1,
+      "rect": [
+        0,
+        750,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_016.png"
+    },
+    {
+      "id": "reward_node_017",
+      "index": 17,
+      "row": 4,
+      "column": 2,
+      "rect": [
+        250,
+        750,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_017.png"
+    },
+    {
+      "id": "reward_node_018",
+      "index": 18,
+      "row": 4,
+      "column": 3,
+      "rect": [
+        500,
+        750,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_018.png"
+    },
+    {
+      "id": "reward_node_019",
+      "index": 19,
+      "row": 4,
+      "column": 4,
+      "rect": [
+        750,
+        750,
+        250,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_019.png"
+    },
+    {
+      "id": "reward_node_020",
+      "index": 20,
+      "row": 4,
+      "column": 5,
+      "rect": [
+        1000,
+        750,
+        254,
+        250
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_020.png"
+    },
+    {
+      "id": "reward_node_021",
+      "index": 21,
+      "row": 5,
+      "column": 1,
+      "rect": [
+        0,
+        1000,
+        250,
+        254
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_021.png"
+    },
+    {
+      "id": "reward_node_022",
+      "index": 22,
+      "row": 5,
+      "column": 2,
+      "rect": [
+        250,
+        1000,
+        250,
+        254
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_022.png"
+    },
+    {
+      "id": "reward_node_023",
+      "index": 23,
+      "row": 5,
+      "column": 3,
+      "rect": [
+        500,
+        1000,
+        250,
+        254
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_023.png"
+    },
+    {
+      "id": "reward_node_024",
+      "index": 24,
+      "row": 5,
+      "column": 4,
+      "rect": [
+        750,
+        1000,
+        250,
+        254
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_024.png"
+    },
+    {
+      "id": "reward_node_025",
+      "index": 25,
+      "row": 5,
+      "column": 5,
+      "rect": [
+        1000,
+        1000,
+        254,
+        254
+      ],
+      "path": "res://art/images/route/rewards/slices/reward_node_025.png"
+    }
+  ]
+}

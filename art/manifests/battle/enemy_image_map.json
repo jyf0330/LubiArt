@@ -1,0 +1,12 @@
+{
+  "enemy_r01_001": "res://art/images/battle/runtime/sprite_images/Sprite_WoolLlama.png",
+  "enemy_001": "res://art/images/battle/runtime/sprite_images/Sprite_WoolLlama.png",
+  "pal_001": "res://art/images/battle/runtime/sprite_images/Sprite_WoolLlama.png",
+  "pal_001:monster_template": "res://art/images/battle/runtime/sprite_images/Sprite_WoolLlama.png",
+  "棉悠悠": "res://art/images/battle/runtime/sprite_images/Sprite_WoolLlama.png",
+  "enemy_r01_002": "res://art/images/battle/runtime/sprite_images/Sprite_BrownBull.png",
+  "enemy_002": "res://art/images/battle/runtime/sprite_images/Sprite_BrownBull.png",
+  "pal_042": "res://art/images/battle/runtime/sprite_images/Sprite_BrownBull.png",
+  "pal_042:monster_template": "res://art/images/battle/runtime/sprite_images/Sprite_BrownBull.png",
+  "炽焰牛": "res://art/images/battle/runtime/sprite_images/Sprite_BrownBull.png"
+}

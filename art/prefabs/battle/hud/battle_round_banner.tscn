@@ -1,0 +1,53 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/battle_round_banner.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/round_banner_blank.png" id="2_banner"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_round_feedback"]
+atlas = ExtResource("2_banner")
+region = Rect2(18, 276, 1636, 460)
+
+[node name="RoundFeedback" type="TextureRect"]
+layout_mode = 3
+anchors_preset = -1
+anchor_left = 0.265167
+anchor_top = 0.400734
+anchor_right = 0.734833
+anchor_bottom = 0.635502
+mouse_filter = 2
+texture = SubResource("AtlasTexture_round_feedback")
+expand_mode = 1
+stretch_mode = 5
+script = ExtResource("1_script")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.0110024
+anchor_top = 0.0820652
+anchor_right = 1.011
+anchor_bottom = 0.550611
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.3, 0.1, 0.02, 0.9)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_font_sizes/font_size = 62
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Subtitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.0110024
+anchor_top = 0.635802
+anchor_right = 1.011
+anchor_bottom = 0.933967
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.96, 0.86, 1)
+theme_override_colors/font_shadow_color = Color(0.3, 0.1, 0.02, 0.9)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+vertical_alignment = 1

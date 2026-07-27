@@ -1,0 +1,146 @@
+[gd_scene load_steps=13 format=3 uid="uid://2ni6yhfwuuhs"]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_art_scene.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://art/scenes/battle/battle_view.tscn" id="2_battle_view"]
+[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/battle_background_8x8.png" id="3_background"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/board/battle_cell.tscn" id="4_battle_cell"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shared/pet/pet_visual.tscn" id="5_pet_visual"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_action_panel.tscn" id="6_action_panel"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shared/pet/pet_detail_panel.tscn" id="7_detail_panel"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shared/pet/pet_info_panel_v2.tscn" id="8_info_panel"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/effects/battle_projectile.tscn" id="9_projectile"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/effects/battle_damage_number.tscn" id="10_damage_number"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_round_banner.tscn" id="11_round_banner"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/effects/battle_bite_vfx.tscn" id="12_bite_vfx"]
+
+[node name="BattleArtScene" type="Control" unique_id=906704810]
+editor_description = "正式战斗组合场景。Runtime 只承载唯一 BattleView；PrefabCatalog 只索引正式预制体，不参与玩法与输入。"
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+metadata/_edit_lock_ = true
+
+[node name="Runtime" type="Control" parent="." unique_id=2122349624]
+editor_description = "正式运行分支。背景只负责让场景可独立预览；BattleView 是唯一战斗界面与表现实现。"
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_lock_ = true
+
+[node name="PreviewBackground" type="TextureRect" parent="Runtime"]
+editor_description = "BattleArtScene 的自包含背景，不持有玩法状态。"
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_background")
+expand_mode = 1
+stretch_mode = 6
+metadata/_edit_lock_ = true
+
+[node name="BattleView" parent="Runtime" instance=ExtResource("2_battle_view")]
+editor_description = "正式 BattleView 实例。运行时命令、Snapshot 和 VFX 均继续由这个实例处理。"
+layout_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="PrefabCatalog" type="Node" parent="."]
+editor_description = "美术与策划使用的正式预制体索引。按职责展开；所有目录实例默认隐藏。"
+
+[node name="ReusablePrefabs" type="Control" parent="PrefabCatalog" unique_id=519442389]
+editor_description = "稳定存在并可复用的棋盘、单位与 HUD 预制体。"
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_lock_ = true
+
+[node name="Board" type="Node" parent="PrefabCatalog/ReusablePrefabs"]
+
+[node name="BattleCell" parent="PrefabCatalog/ReusablePrefabs/Board" unique_id=201022473 instance=ExtResource("4_battle_cell")]
+offset_right = 124.5
+offset_bottom = 106.125
+metadata/_edit_lock_ = true
+
+[node name="Units" type="Node" parent="PrefabCatalog/ReusablePrefabs"]
+
+[node name="BattleUnit" parent="PrefabCatalog/ReusablePrefabs/Units" unique_id=1529524461 instance=ExtResource("5_pet_visual")]
+metadata/_edit_lock_ = true
+
+[node name="HUD" type="Node" parent="PrefabCatalog/ReusablePrefabs"]
+
+[node name="BattleActionPanel" parent="PrefabCatalog/ReusablePrefabs/HUD" unique_id=1541001444 instance=ExtResource("6_action_panel")]
+offset_right = 336.0
+offset_bottom = 594.0
+metadata/_edit_lock_ = true
+
+[node name="Details" type="Node" parent="PrefabCatalog/ReusablePrefabs/HUD"]
+
+[node name="PetDetailPanel" parent="PrefabCatalog/ReusablePrefabs/HUD/Details" unique_id=2088646853 instance=ExtResource("7_detail_panel")]
+metadata/_edit_lock_ = true
+
+[node name="PetInfoPanelV2" parent="PrefabCatalog/ReusablePrefabs/HUD/Details" unique_id=1607970390 instance=ExtResource("8_info_panel")]
+metadata/_edit_lock_ = true
+
+[node name="RuntimeEffects" type="Control" parent="PrefabCatalog" unique_id=90737734]
+editor_description = "只在战斗事件发生时播放的表现预制体。默认隐藏，由正式 BattleView 的真实事件触发。"
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_lock_ = true
+
+[node name="Projectiles" type="Node" parent="PrefabCatalog/RuntimeEffects"]
+
+[node name="BattleProjectile" parent="PrefabCatalog/RuntimeEffects/Projectiles" unique_id=1277259454 instance=ExtResource("9_projectile")]
+metadata/_edit_lock_ = true
+
+[node name="HitFeedback" type="Node" parent="PrefabCatalog/RuntimeEffects"]
+
+[node name="BattleDamageNumber" parent="PrefabCatalog/RuntimeEffects/HitFeedback" unique_id=2016898980 instance=ExtResource("10_damage_number")]
+metadata/_edit_lock_ = true
+
+[node name="BattleBiteVfx" parent="PrefabCatalog/RuntimeEffects/HitFeedback" unique_id=1548543481 instance=ExtResource("12_bite_vfx")]
+metadata/_edit_lock_ = true
+
+[node name="RoundFeedback" parent="PrefabCatalog/RuntimeEffects" unique_id=1881047440 instance=ExtResource("11_round_banner")]
+metadata/_edit_lock_ = true
+
+[editable path="Runtime/BattleView"]
+
+[editable path="PrefabCatalog/ReusablePrefabs/Board/BattleCell"]
+
+[editable path="PrefabCatalog/ReusablePrefabs/Units/BattleUnit"]
+
+[editable path="PrefabCatalog/ReusablePrefabs/HUD/BattleActionPanel"]
+
+[editable path="PrefabCatalog/ReusablePrefabs/HUD/Details/PetDetailPanel"]
+
+[editable path="PrefabCatalog/ReusablePrefabs/HUD/Details/PetInfoPanelV2"]
+
+[editable path="PrefabCatalog/RuntimeEffects/Projectiles/BattleProjectile"]
+
+[editable path="PrefabCatalog/RuntimeEffects/HitFeedback/BattleDamageNumber"]
+
+[editable path="PrefabCatalog/RuntimeEffects/HitFeedback/BattleBiteVfx"]
+
+[editable path="PrefabCatalog/RuntimeEffects/RoundFeedback"]

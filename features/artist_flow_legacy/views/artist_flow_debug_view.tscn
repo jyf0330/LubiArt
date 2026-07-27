@@ -1,7 +1,0 @@
-[gd_scene load_steps=3 format=3]
-
-[ext_resource type="PackedScene" path="res://features/artist_flow_legacy/views/artist_flow_view.tscn" id="1_original"]
-[ext_resource type="Script" path="res://features/artist_flow_legacy/controllers/artist_ui_debug_image_replacer.gd" id="2_debug_script"]
-
-[node name="UI_DebugCopy" instance=ExtResource("1_original")]
-script = ExtResource("2_debug_script")

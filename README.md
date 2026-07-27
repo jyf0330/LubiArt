@@ -4,19 +4,20 @@
 
 ## 结构
 
-- `game/`：保留 Composition Shell、Factory、Feature Registry 和 Scene Router
-- `features/`：保留 Controller、Presenter、Adapter、Command Builder、Trace Projection 和各功能预制体
-- `shared/prefabs/`：保留共享宠物、详情等复用预制体
-- `assets/artist_ui/`、`assets/battle_ui/`：项目内完整美术资源
+- `art/scenes/`：页面场景和总装场景；项目从 `art/scenes/art.tscn` 启动
+- `art/prefabs/`：战斗、路线和共享 UI 预制体
+- `art/images/`：项目内完整图片资源
+- `art/manifests/`：图片 ID、切片和资源映射 JSON
+- `core_ui/scripts/`：Controller、Presenter、Adapter、Command Builder、Trace Projection 和预制体表现脚本
 - `session/`：实现与正式项目一致的 `GameSession` 公共端口，只离线回放正式运行数据
 - `data/mock_battle_snapshot.json`：项目方通过正式 `LocalGameSession` 读取存档槽2，再每回合执行一次“自动布置 → 开始行动”，直到战斗结算后导出的公共 Snapshot 序列
 - `tests/`：独立项目契约 smoke
 
 运行时装配链为：
 
-`game.tscn -> FeatureRegistry -> SceneRouter -> artist_flow_view.tscn -> battle_view.tscn -> 多个 battle/shared 预制体`
+`art.tscn -> FeatureRegistry -> SceneRouter -> artist_flow_view.tscn -> battle_view.tscn -> 多个 art/prefabs 预制体`
 
-美术可以直接修改本项目中的 UI 场景、展示脚本、预制体、布局、动画和资源。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
+美术可以直接修改本项目中的 UI 场景、展示脚本、预制体、布局、动画和资源。场景、预制体、图片、manifest 和脚本必须继续分别放在上述类型目录，再在类型目录内部按功能 scope 分类。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
 
 ## 验证
 
@@ -26,6 +27,10 @@ godot \
   --headless \
   --path . \
   --script res://tests/smoke_mock_battle_project.gd
+godot \
+  --headless \
+  --path . \
+  --script res://tests/smoke_battle_art_scene.gd
 ```
 
 第一条默认只检查独立交付项目的必要目录和入口文件，不需要原项目。项目方在回集成时如需比较来源，可显式执行：

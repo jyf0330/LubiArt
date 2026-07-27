@@ -1,13 +1,13 @@
 extends SceneTree
 
 const MockSession := preload("res://session/mock_game_session.gd")
-const FeatureRegistry := preload("res://game/controllers/feature_registry.gd")
-const SceneRouter := preload("res://game/controllers/scene_router.gd")
-const BattleBoardController := preload("res://features/battle/controllers/battle_board_controller.gd")
-const BattleHudController := preload("res://features/battle/controllers/battle_hud_controller.gd")
-const BattleDetailController := preload("res://features/battle/controllers/battle_detail_controller.gd")
-const BattleCommandBuilder := preload("res://features/battle/controllers/battle_command_builder.gd")
-const BattleTraceProjection := preload("res://features/battle/controllers/battle_trace_projection.gd")
+const FeatureRegistry := preload("res://core_ui/scripts/app/feature_registry.gd")
+const SceneRouter := preload("res://core_ui/scripts/app/scene_router.gd")
+const BattleBoardController := preload("res://core_ui/scripts/battle/controllers/battle_board_controller.gd")
+const BattleHudController := preload("res://core_ui/scripts/battle/controllers/battle_hud_controller.gd")
+const BattleDetailController := preload("res://core_ui/scripts/battle/controllers/battle_detail_controller.gd")
+const BattleCommandBuilder := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
+const BattleTraceProjection := preload("res://core_ui/scripts/battle/controllers/battle_trace_projection.gd")
 
 
 func _initialize() -> void:
@@ -79,7 +79,7 @@ func _run() -> void:
 	assert(not session_source.contains("_run_combat_round"))
 	assert(not session_source.contains("_damage_trace"))
 
-	var main_scene := load("res://game/scenes/game.tscn") as PackedScene
+	var main_scene := load("res://art/scenes/art.tscn") as PackedScene
 	assert(main_scene != null)
 	var main_instance := main_scene.instantiate()
 	root.add_child(main_instance)
