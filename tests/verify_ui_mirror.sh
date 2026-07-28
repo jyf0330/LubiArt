@@ -14,8 +14,12 @@ mirror_directories=(
 
 required_files=(
   "project.godot"
-  "art/scenes/art.tscn"
+  "art/scenes/three_choice/three_choice_scene.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
+  "art/prefabs/pet/pet.tscn"
+  "art/prefabs/pet/pet_detail.tscn"
+  "art/prefabs/terrain/terrain.tscn"
+  "art/prefabs/terrain/terrain_detail.tscn"
   "session/mock_game_session.gd"
   "data/mock_battle_snapshot.json"
 )
@@ -33,6 +37,30 @@ for relative_path in "${required_files[@]}"; do
     exit 1
   fi
 done
+
+expected_scenes=(
+  "art/scenes/battle/battle_art_scene.tscn"
+  "art/scenes/three_choice/three_choice_scene.tscn"
+)
+
+actual_scenes=("${(@f)$(cd "$MOCK_ROOT" && find art/scenes -type f -name "*.tscn" | sort)}")
+if [[ "${(j:\n:)actual_scenes}" != "${(j:\n:)expected_scenes}" ]]; then
+  print -u2 "Standalone project must contain exactly the two formal UI scenes."
+  exit 1
+fi
+
+expected_prefabs=(
+  "art/prefabs/pet/pet.tscn"
+  "art/prefabs/pet/pet_detail.tscn"
+  "art/prefabs/terrain/terrain.tscn"
+  "art/prefabs/terrain/terrain_detail.tscn"
+)
+
+actual_prefabs=("${(@f)$(cd "$MOCK_ROOT" && find art/prefabs -type f -name "*.tscn" | sort)}")
+if [[ "${(j:\n:)actual_prefabs}" != "${(j:\n:)expected_prefabs}" ]]; then
+  print -u2 "Standalone project must contain exactly the four formal reusable prefabs."
+  exit 1
+fi
 
 legacy_directories=(
   "game"
@@ -92,6 +120,7 @@ for relative_path in "${mirror_directories[@]}"; do
   diff -qr \
     -x ".DS_Store" \
     -x "._*" \
+    -x "debug" \
     "$MOCK_ROOT/$relative_path" \
     "$SOURCE_ROOT/$relative_path"
 done

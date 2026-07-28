@@ -11,10 +11,10 @@ const BattleDetailControllerScript := preload("res://core_ui/scripts/battle/cont
 const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
 const BattleTraceProjectionScript := preload("res://core_ui/scripts/battle/controllers/battle_trace_projection.gd")
 const GameLogScript := preload("res://core/logging/game_log.gd")
-const BattleCellScene := preload("res://art/prefabs/battle/board/battle_cell.tscn")
-const BattleUnitScene := preload("res://art/prefabs/shared/pet/pet_visual.tscn")
-const BattleActionPanelScene := preload("res://art/prefabs/battle/hud/battle_action_panel.tscn")
-const PetDetailPanelScene := preload("res://art/prefabs/shared/pet/pet_detail_panel.tscn")
+const BattleCellScene := preload("res://art/prefabs/terrain/terrain.tscn")
+const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
+const PetDetailPanelScene := preload("res://art/prefabs/pet/pet_detail.tscn")
+const TerrainDetailScene := preload("res://art/prefabs/terrain/terrain_detail.tscn")
 
 const DEFAULT_BOARD_COLUMNS := BattleBoardDimensionsScript.DEFAULT_WIDTH
 const DEFAULT_BOARD_ROWS := BattleBoardDimensionsScript.DEFAULT_HEIGHT
@@ -26,11 +26,14 @@ const DRAG_CLICK_THRESHOLD := 12.0
 const DROP_SETTLE_DURATION := 0.12
 const DROP_RETURN_DURATION := 0.16
 
-@onready var board_grid: Control = $BoardGrid
-@onready var auto_arrange_button: TextureButton = $AutoArrangeButton
-@onready var position_difficulty_button: Button = $PositionDifficultyButton
-@onready var begin_turn_button: TextureButton = $BeginTurnButton
-@onready var vfx_player: Control = $BattleVfxPlayer
+@onready var board: Control = $Board
+@onready var top_info_bar: Control = $TopInfoBar
+@onready var cell_detail: Control = $CellDetail
+@onready var board_grid: Control = board.call("get_board_grid") as Control
+@onready var auto_arrange_button: TextureButton = board.call("get_auto_arrange_button") as TextureButton
+@onready var position_difficulty_button: Button = board.call("get_position_difficulty_button") as Button
+@onready var begin_turn_button: TextureButton = board.call("get_begin_turn_button") as TextureButton
+@onready var vfx_player: Control = board.call("get_vfx_player") as Control
 
 var _assets: RefCounted = null
 var _cell_size := Vector2.ZERO
@@ -66,7 +69,6 @@ var _action_panel: Control = null
 var _preview_highlights: Dictionary = {}
 var _detail_panel: Control = null
 var _element_detail_panel: PanelContainer = null
-var _detail_content: VBoxContainer = null
 var _active_detail_grid := Vector2i(-1, -1)
 var _active_detail_unit_id := ""
 var _battle_input_locked := false
@@ -103,16 +105,20 @@ func _ready() -> void:
 	if vfx_player != null and vfx_player.has_signal("enemy_move_projection_requested"):
 		if not vfx_player.enemy_move_projection_requested.is_connected(_on_enemy_move_projection_requested):
 			vfx_player.enemy_move_projection_requested.connect(_on_enemy_move_projection_requested)
-	if not auto_arrange_button.pressed.is_connected(_on_auto_arrange_pressed):
-		auto_arrange_button.pressed.connect(_on_auto_arrange_pressed)
-	if not position_difficulty_button.toggled.is_connected(_on_position_difficulty_toggled):
-		position_difficulty_button.toggled.connect(_on_position_difficulty_toggled)
+	board.call(
+		"bind_primary_actions",
+		Callable(self, "_on_auto_arrange_pressed"),
+		Callable(self, "_on_position_difficulty_toggled"),
+		Callable(self, "_on_begin_turn_pressed")
+	)
 	_style_position_difficulty_button()
 	_update_position_difficulty_button({})
-	if not begin_turn_button.pressed.is_connected(_on_begin_turn_pressed):
-		begin_turn_button.pressed.connect(_on_begin_turn_pressed)
 	_ensure_detail_panel()
 	_ensure_action_panel()
+
+
+func get_runtime_view() -> Control:
+	return self
 
 
 func _process(_delta: float) -> void:
@@ -374,16 +380,14 @@ func debug_detail_panel_summary() -> Dictionary:
 	var labels: Array[String] = []
 	if _detail_panel != null and _detail_panel.visible and _detail_panel.has_method("get_display_text"):
 		labels.append_array(String(_detail_panel.call("get_display_text")).split("\n", false))
-	elif _detail_content != null:
-		for child in _detail_content.get_children():
-			if child is Label:
-				labels.append(String((child as Label).text))
+	elif _element_detail_panel != null and _element_detail_panel.has_method("get_display_text"):
+		labels.append_array(String(_element_detail_panel.call("get_display_text")).split("\n", false))
 	return {
 		"visible": (_detail_panel != null and _detail_panel.visible) or (_element_detail_panel != null and _element_detail_panel.visible),
 		"unitId": _active_detail_unit_id,
 		"lineCount": labels.size(),
 		"text": "\n".join(labels),
-		"usesSharedPrefab": _detail_panel != null and _detail_panel.find_child("SpriteInfoCard", true, false) != null,
+		"usesSharedPrefab": _detail_panel != null and _detail_panel.scene_file_path == "res://art/prefabs/pet/pet_detail.tscn",
 	}
 
 
@@ -1359,9 +1363,11 @@ func _ensure_detail_panel() -> void:
 	_detail_panel.name = "BattlePetDetailPanel"
 	_detail_panel.visible = false
 	_detail_panel.z_index = 42
-	add_child(_detail_panel)
+	cell_detail.call("mount_detail_panel", _detail_panel)
 
-	_element_detail_panel = PanelContainer.new()
+	_element_detail_panel = TerrainDetailScene.instantiate() as PanelContainer
+	if _element_detail_panel == null:
+		return
 	_element_detail_panel.name = "BattleElementDetailPanel"
 	_element_detail_panel.visible = false
 	_element_detail_panel.z_index = 42
@@ -1370,33 +1376,12 @@ func _ensure_detail_panel() -> void:
 	_element_detail_panel.position = DETAIL_PANEL_POSITION
 	_element_detail_panel.custom_minimum_size = DETAIL_PANEL_SIZE
 	_element_detail_panel.size = DETAIL_PANEL_SIZE
-	_element_detail_panel.add_theme_stylebox_override("panel", _make_detail_panel_style())
-	var margin := MarginContainer.new()
-	margin.name = "BattlePetDetailMargin"
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	_element_detail_panel.add_child(margin)
-
-	var scroll := ScrollContainer.new()
-	scroll.name = "BattlePetDetailScroll"
-	scroll.custom_minimum_size = DETAIL_PANEL_SIZE - Vector2(28.0, 24.0)
-	scroll.size = DETAIL_PANEL_SIZE - Vector2(28.0, 24.0)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	margin.add_child(scroll)
-
-	_detail_content = VBoxContainer.new()
-	_detail_content.name = "BattlePetDetailContent"
-	_detail_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_detail_content.add_theme_constant_override("separation", 8)
-	scroll.add_child(_detail_content)
-	add_child(_element_detail_panel)
+	cell_detail.call("mount_detail_panel", _element_detail_panel)
 
 
 func _render_pet_detail(snap: Dictionary) -> void:
 	_ensure_detail_panel()
-	if _detail_panel == null or _detail_content == null:
+	if _detail_panel == null or _element_detail_panel == null:
 		return
 	var detail := Dictionary(_detail_controller.call("resolve_detail", snap, _active_detail_grid, _active_detail_unit_id))
 	var unit := _dict(detail.get("unit", {}))
@@ -1404,8 +1389,6 @@ func _render_pet_detail(snap: Dictionary) -> void:
 	if unit.is_empty() and not bool(_detail_controller.call("has_visible_elements", cell_elements)):
 		_clear_active_detail()
 		return
-	for child in _detail_content.get_children():
-		child.queue_free()
 	if unit.is_empty():
 		if _detail_panel.has_method("close"):
 			_detail_panel.call("close")
@@ -1442,18 +1425,8 @@ func _battle_detail_texture(unit: Dictionary) -> Texture2D:
 
 func _render_element_cell_detail(detail: Dictionary, elements: Dictionary) -> void:
 	_active_detail_unit_id = ""
-	var x := int(detail.get("x", detail.get("c", _active_detail_grid.x)))
-	var y := int(detail.get("y", detail.get("r", _active_detail_grid.y)))
-	_add_detail_label("元素格", 24, Color("#fff0c4"), true)
-	_add_detail_label("第%d行 · 第%d列" % [y + 1, x + 1], 16, Color("#e0d7bc"))
-	_add_detail_separator()
-	_add_detail_section("格子元素层", String(_detail_controller.call("element_summary", elements)), Color("#f6ead1"))
-	var threat := _dict(detail.get("threat", {}))
-	if not threat.is_empty():
-		_add_detail_section("威胁", String(_detail_controller.call("threat_summary", threat)))
-	var preview := _dict(detail.get("preview", {}))
-	if not preview.is_empty():
-		_add_detail_section("当前预览", String(_detail_controller.call("preview_summary", preview)))
+	if _element_detail_panel != null and _element_detail_panel.has_method("render_detail"):
+		_element_detail_panel.call("render_detail", detail, elements, _detail_controller)
 
 
 func _dict(value: Variant) -> Dictionary:
@@ -1486,57 +1459,6 @@ func _cell_data_for_cell(cell: Node) -> Dictionary:
 	return {}
 
 
-func _add_detail_section(title: String, body: String, body_color: Color = Color("#d7d0bd")) -> void:
-	if body.strip_edges() == "":
-		return
-	_add_detail_label(title, 16, Color("#f3d58c"), true)
-	_add_detail_label(body, 14, body_color)
-
-
-func _add_detail_label(text: String, font_size: int, color: Color, bold: bool = false) -> void:
-	if _detail_content == null:
-		return
-	var label := Label.new()
-	label.text = text
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", color)
-	if bold:
-		label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.62))
-		label.add_theme_constant_override("shadow_offset_x", 1)
-		label.add_theme_constant_override("shadow_offset_y", 1)
-	_detail_content.add_child(label)
-
-
-func _add_detail_separator() -> void:
-	if _detail_content == null:
-		return
-	var line := ColorRect.new()
-	line.color = Color(0.86, 0.67, 0.34, 0.55)
-	line.custom_minimum_size = Vector2(0.0, 2.0)
-	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_detail_content.add_child(line)
-
-
-func _make_detail_panel_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.075, 0.052, 0.86)
-	style.border_color = Color(0.85, 0.66, 0.36, 0.95)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
-	style.shadow_size = 8
-	style.shadow_offset = Vector2(0.0, 3.0)
-	return style
-
-
 func _ensure_command_tools() -> void:
 	if _command_tools != null:
 		return
@@ -1564,18 +1486,17 @@ func _ensure_command_tools() -> void:
 	_add_command_tool_button(grid, "结束", "EndPlayerTurnButton", "END_PLAYER_TURN")
 	_add_command_tool_button(grid, "AI行动", "RunMonsterTurnButton", "RUN_MONSTER_TURN")
 	_add_command_tool_button(grid, "自动战斗", "RunBattleButton", "RUN_BATTLE")
-	add_child(_command_tools)
+	board.call("add_runtime_control", _command_tools)
 
 
 func _ensure_action_panel() -> void:
 	if _action_panel != null:
 		return
-	_action_panel = BattleActionPanelScene.instantiate() as Control
-	_action_panel.name = "BattleActionPanel"
-	_action_panel.z_index = 41
+	_action_panel = board.call("get_action_panel") as Control
+	if _action_panel == null:
+		return
 	if _action_panel.has_signal("command_requested"):
 		_action_panel.connect("command_requested", Callable(self, "_on_action_panel_command_requested"))
-	add_child(_action_panel)
 
 
 func _render_action_panel(snap: Dictionary) -> void:

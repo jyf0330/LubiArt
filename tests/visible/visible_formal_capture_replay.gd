@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/art.tscn")
+const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
 const STEP_TIMEOUT_SECONDS := 45.0
 
 
@@ -15,13 +15,13 @@ func _run() -> void:
 		await process_frame
 	await create_timer(1.0).timeout
 
-	var battle_view := main_instance.get_node_or_null("ViewHost/UI/BattleFlow") as Control
+	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	var session := main_instance.call("get_game_session") as RefCounted
 	if battle_view == null or session == null:
 		_fail("main battle view or session is unavailable")
 		return
-	var auto_button := battle_view.get_node_or_null("AutoArrangeButton") as TextureButton
-	var begin_button := battle_view.get_node_or_null("BeginTurnButton") as TextureButton
+	var auto_button := battle_view.get_node_or_null("Board/AutoArrangeButton") as TextureButton
+	var begin_button := battle_view.get_node_or_null("Board/BeginTurnButton") as TextureButton
 	if auto_button == null or begin_button == null:
 		_fail("the two battle buttons are unavailable")
 		return

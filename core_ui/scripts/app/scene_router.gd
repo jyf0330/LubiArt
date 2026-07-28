@@ -1,6 +1,6 @@
 extends RefCounted
 
-## Owns the lifecycle of the single feature view mounted below the game shell.
+## Owns the lifecycle of one view mounted below the three-choice composition.
 
 var _host: Node = null
 var _active_view: Node = null

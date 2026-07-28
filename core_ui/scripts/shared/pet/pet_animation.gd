@@ -1,13 +1,13 @@
-extends Node
+extends Control
 class_name PetAnimation
 
 const PSD_CANVAS_SIZE := Vector2(171.0, 144.0)
 const BITE_FRAME_PATHS: Array[NodePath] = [
-	NodePath("CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_001/FrameArt"),
-	NodePath("CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_002/FrameArt"),
-	NodePath("CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_003/FrameArt"),
-	NodePath("CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_004/FrameArt"),
-	NodePath("CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_005/FrameArt"),
+	NodePath("bite/frame_001/FrameArt"),
+	NodePath("bite/frame_002/FrameArt"),
+	NodePath("bite/frame_003/FrameArt"),
+	NodePath("bite/frame_004/FrameArt"),
+	NodePath("bite/frame_005/FrameArt"),
 ]
 const BITE_FRAME_RECTS: Array[Rect2] = [
 	Rect2(159.0, 27.0, 102.0, 110.0),
@@ -135,15 +135,15 @@ func _resolve_psd_action_nodes() -> void:
 	if _view == null:
 		return
 	for path in BITE_FRAME_PATHS:
-		var frame := _view.get_node_or_null(path) as TextureRect
+		var frame := get_node_or_null(path) as TextureRect
 		if frame != null:
 			_bite_frames.append(frame)
 	for element_id in ELEMENT_IDS:
-		_projectiles[element_id] = _view.get_node_or_null(
-			"CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/%s/ProjectileArt" % element_id
+		_projectiles[element_id] = get_node_or_null(
+			"element_projectile/ProjectileVariants/%s/ProjectileArt" % element_id
 		) as TextureRect
-		_landings[element_id] = _view.get_node_or_null(
-			"CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/%s/TileArt" % element_id
+		_landings[element_id] = get_node_or_null(
+			"element_projectile/LandingTileVariants/%s/TileArt" % element_id
 		) as TextureRect
 
 

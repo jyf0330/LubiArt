@@ -20,8 +20,8 @@
 
 ## 目录职责
 
-- `art/scenes/`：可独立打开的页面场景与总装场景；正式入口是 `art/scenes/art.tscn`。
-- `art/prefabs/`：按 `battle`、`route`、`shared` 等 scope 分类的可复用预制体。
+- `art/scenes/`：只保留与正式项目同步的两个 Scene：`three_choice/three_choice_scene.tscn` 与 `battle/battle_art_scene.tscn`；项目直接从三选一 Scene 启动。
+- `art/prefabs/`：只保留四个可复用 prefab：`pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn`、`terrain/terrain_detail.tscn`。
 - `art/images/`：只放图片与相邻的 Godot `.import` 文件。
 - `art/manifests/`：只放图片资源映射和 manifest JSON。
 - `core_ui/scripts/`：按 scope 分类的 Controller、Presenter、Adapter 和预制体表现脚本。
@@ -36,8 +36,8 @@
 
 ## 文件类型规则
 
-- 页面和总装 `.tscn` 放 `art/scenes/<scope>/`。
-- 可复用 `.tscn` 放 `art/prefabs/<scope>/`。
+- 三选一和战斗两个 `.tscn` 放 `art/scenes/<scope>/`；不得新增第三个正式 Scene。
+- 宠物、宠物详情、地形、地形详情四个 `.tscn` 放 `art/prefabs/<scope>/`；不得新增第五个 prefab。
 - `.png`、`.jpg`、`.webp`、`.svg` 等图片放 `art/images/<scope>/`。
 - 图片映射和 manifest `.json` 放 `art/manifests/<scope>/`；Mock 回放数据仍放 `data/`。
 - UI `.gd` 与 `.gd.uid` 放 `core_ui/scripts/<scope>/`。
@@ -50,6 +50,7 @@
 - 项目方收到交付后，另开 UI 集成任务审查差异并适配回正式项目。
 - 回集成时只迁移确认过的 UI、预制体、展示脚本和资源，不得用本项目覆盖正式状态、规则、存档或数据文件。
 - 原项目比较只属于项目方的可选集成检查，不是美术侧的开发或验收前置条件。
+- 项目方主动同步正式 UI 时，以正式项目已提交的版本为基线；`session/`、`data/` 与 Mock 测试继续留在本项目，不从正式项目复制权威核心或存档实现。
 
 ## 命名与内容
 

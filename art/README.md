@@ -1,32 +1,36 @@
-# Art 场景入口
+# Art 目录规则
 
-`art/` 是项目唯一的运行视觉目录，给美术、策划和程序共同维护场景、预制体与图片。
+`art/` 是美术运行资产目录，文件类型严格分开：
 
-## 目录约定
+```text
+art/
+├── scenes/      两个正式 Scene
+├── prefabs/     四个可复用 prefab
+├── images/      运行图片
+└── manifests/   图片映射与 JSON manifest
+```
 
-- 正式启动入口固定为 `res://art/scenes/art.tscn`，不再从 `game.tscn` 启动。
-- 场景统一放在 `art/scenes/<scene_id>/`；可复用预制体统一放在 `art/prefabs/<scope>/`。
-- 图片统一放在 `art/images/<scope>/`；图片映射和随图 manifest 单独放在 `art/manifests/<scope>/`。两个类型目录内部都按 `shared/pets`、`route`、`battle`、`debug` 分类。
-- `art/` 不放 `.gd`；场景控制器、Presenter 和预制体表现脚本统一放在 `core_ui/scripts/<scope>/`。
-- 总装 `.tscn` 只实例化正式场景和正式预制体，不复制它们的内部节点或脚本。
-- 场景根节点是可运行的组合边界；需要包住正式运行视图时，只提供视图查询和装配关系，不复制控制器、Session、Snapshot 或玩法状态。
-- `PrefabCatalog` 用于一次找到该页面依赖的全部预制体；战斗场景按 `Board`、`Units`、`HUD` 和 `RuntimeEffects` 继续分类。
-- `RuntimeEffects` 下的目录实例默认隐藏；它们只在投射物命中、伤害结算、回合切换等游戏时机由正式运行视图创建或播放。
-- 修改视觉或节点结构时，应打开实例指向的正式预制体源文件；总装场景负责汇总，不建立第二份实现。
-- 不再新增 `features/**`、`game/**`、`shared/prefabs/**` 或 `assets/**` UI 路径；旧路径已经迁入 `art/` / `core_ui/scripts/`，禁止复制兼容副本。
+## 两个正式 Scene
 
-## 当前场景
-
-- 正式入口：`res://art/scenes/art.tscn`
-- 路线：`res://art/scenes/route/route_art_scene.tscn`
+- 三选一与路线流程：`res://art/scenes/three_choice/three_choice_scene.tscn`
 - 战斗：`res://art/scenes/battle/battle_art_scene.tscn`
 
-## 对应脚本与图片
+`project.godot` 直接启动三选一 Scene；进入战斗时，它只挂载战斗 Scene。
 
-- 主装配、路由、功能控制器：`res://core_ui/scripts/`
-- 战斗脚本：`res://core_ui/scripts/battle/`
-- 共享宠物脚本：`res://core_ui/scripts/shared/pet/`
-- 路线图片：`res://art/images/route/`
-- 战斗图片：`res://art/images/battle/`
-- 共享宠物图片：`res://art/images/shared/pets/`
-- 图片映射与 manifest：`res://art/manifests/`
+路线、商店、背包、队伍、结算、按钮、HUD、回合反馈、投射物、伤害数字和咬击表现都直接属于这两个 Scene 的节点树或表现脚本，不另建 `.tscn`。
+
+## 四个正式 prefab
+
+- 宠物：`res://art/prefabs/pet/pet.tscn`
+- 宠物详情：`res://art/prefabs/pet/pet_detail.tscn`
+- 地形：`res://art/prefabs/terrain/terrain.tscn`
+- 地形详情：`res://art/prefabs/terrain/terrain_detail.tscn`
+
+只有这些跨位置或跨流程重复使用的组件是 prefab。“可以实例化”不等于“应该做成 prefab”。
+
+## 文件边界
+
+- `art/` 不放 `.gd`；所有 UI 脚本与 `.gd.uid` 放在 `res://core_ui/scripts/`。
+- 图片只放 `art/images/`，JSON 映射只放 `art/manifests/`。
+- 不恢复 `game/**`、`features/**`、`shared/prefabs/**`、`assets/**` 或 Catalog 兼容副本。
+- 美术修改节点时直接打开所属 Scene 或四个正式 prefab，不复制第二份运行实现。

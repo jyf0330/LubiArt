@@ -68,8 +68,36 @@ func get_detail_snapshot() -> Dictionary:
 	return _detail_snapshot.duplicate(true)
 
 
+func set_info(record: Dictionary, texture: Texture2D = null) -> Dictionary:
+	if not info_card.has_method("set_info"):
+		_detail_snapshot = record.duplicate(true)
+	else:
+		_detail_snapshot = Dictionary(info_card.call("set_info", record, texture))
+	return get_detail_snapshot()
+
+
 func get_attack_shape_cell_count() -> int:
 	return int(info_card.call("get_attack_shape_cell_count")) if info_card.has_method("get_attack_shape_cell_count") else 0
+
+
+func get_target_cell_indices() -> Array:
+	return Array(info_card.call("get_target_cell_indices")) if info_card.has_method("get_target_cell_indices") else []
+
+
+func get_source_canvas_size() -> Vector2:
+	return Vector2(info_card.call("get_source_canvas_size")) if info_card.has_method("get_source_canvas_size") else Vector2.ZERO
+
+
+func get_source_psd() -> String:
+	return String(info_card.call("get_source_psd")) if info_card.has_method("get_source_psd") else ""
+
+
+func get_component_source() -> String:
+	return String(info_card.call("get_component_source")) if info_card.has_method("get_component_source") else ""
+
+
+func get_info_card() -> Control:
+	return info_card
 
 
 func get_display_text() -> String:

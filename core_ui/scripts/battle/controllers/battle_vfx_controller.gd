@@ -7,16 +7,17 @@ signal trace_sequence_finished
 signal pets_reset_reveal_requested(units: Array)
 signal enemy_move_projection_requested(event: Dictionary)
 
-const BattleProjectileScene := preload("res://art/prefabs/battle/effects/battle_projectile.tscn")
-const BattleDamageNumberScene := preload("res://art/prefabs/battle/effects/battle_damage_number.tscn")
-const BattleRoundBannerScene := preload("res://art/prefabs/battle/hud/battle_round_banner.tscn")
-const BattleBiteVfxScene := preload("res://art/prefabs/battle/effects/battle_bite_vfx.tscn")
-const BattleUnitScene := preload("res://art/prefabs/shared/pet/pet_visual.tscn")
+const BattleProjectileScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_projectile.gd")
+const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
+const BattleRoundBannerScript := preload("res://core_ui/scripts/battle/prefabs/hud/battle_round_banner.gd")
+const BattleBiteVfxScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_bite_vfx.gd")
+const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const BattleVfxHandlerRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_vfx_handler_registry.gd")
 const ARTIST_ACTION_STEP_DELAY := 0.16
 const ARTIST_BULLET_FLIGHT_DURATION := 0.32
 const ELEMENT_LAYER_PROJECTILE_INTERVAL := 0.055
 const DEATH_FADE_DURATION := 0.42
+const DEATH_IMPACT_HOLD_DURATION := 0.10
 const ELEMENT_SETTLEMENT_DELAY := 1.0
 const ARTIST_ROUND_BANNER_DURATION := 1.4
 const ARTIST_MOVE_DURATION := 0.22
@@ -148,15 +149,13 @@ func _play_damage_trace_sequence(event: Dictionary) -> void:
 		if attack_translation != null:
 			await get_tree().create_timer(ENEMY_ATTACK_TRANSLATION_OUT_DURATION).timeout
 		var bite := play_bite(target_grid)
-		if attack_translation != null and attack_translation.is_running():
-			await attack_translation.finished
-		if bite != null and bite.has_signal("finished"):
-			await bite.finished
+		await _await_bite_impact(bite)
 	else:
-		play_projectile(element, actor_grid, target_grid)
-		await get_tree().create_timer(ARTIST_BULLET_FLIGHT_DURATION).timeout
+		var projectile := play_projectile(element, actor_grid, target_grid)
+		await _await_projectile_impact(projectile)
 	_apply_damage_impact(event, target_visual)
 	if int(payload.get("hpTo", 1)) <= 0 and target_visual != null:
+		await get_tree().create_timer(DEATH_IMPACT_HOLD_DURATION).timeout
 		await _play_defeated_unit_fade(target_visual)
 	elif is_element_trap:
 		await get_tree().create_timer(0.54 + ARTIST_ACTION_STEP_DELAY).timeout
@@ -194,22 +193,21 @@ func _play_attack_strike_trace_sequence(event: Dictionary) -> void:
 		if target_grid.x >= 0 and target_grid.y >= 0:
 			target_grids.append(target_grid)
 	if String(actor.get("side", "")) == "enemy":
-		var attack_translation := play_enemy_attack_translation(actor, target)
-		if attack_translation != null:
+		if play_enemy_attack_translation(actor, target) != null:
 			await get_tree().create_timer(ENEMY_ATTACK_TRANSLATION_OUT_DURATION).timeout
 		var bite := play_bite(target_grids[0]) if not target_grids.is_empty() else null
-		if attack_translation != null and attack_translation.is_running():
-			await attack_translation.finished
-		if bite != null and bite.has_signal("finished"):
-			await bite.finished
+		await _await_bite_impact(bite)
 	else:
+		var projectiles: Array[Node] = []
 		for target_grid in target_grids:
-			play_projectile(element, actor_grid, target_grid)
-		await get_tree().create_timer(ARTIST_BULLET_FLIGHT_DURATION).timeout
+			var projectile := play_projectile(element, actor_grid, target_grid)
+			if projectile != null:
+				projectiles.append(projectile)
+		if not projectiles.is_empty():
+			await _await_projectile_impact(projectiles[0])
 	var apply_element_on_impact := bool(payload.get("applyElementOnImpact", false))
 	for target_grid in target_grids:
 		play_element_impact(element, target_grid, apply_element_on_impact)
-	await get_tree().create_timer(ARTIST_ACTION_STEP_DELAY).timeout
 
 
 func _play_element_applied_trace_sequence(event: Dictionary) -> void:
@@ -289,12 +287,17 @@ func _apply_damage_impact(event: Dictionary, target_visual: Control = null) -> N
 	var final_damage: int = max(0, int(payload.get("finalDamage", 0)))
 	var shield_damage: int = max(0, int(payload.get("shieldDamage", 0)))
 	var hp_damage: int = max(0, int(payload.get("hpDamage", final_damage - shield_damage)))
+	var strike_index: int = max(1, int(payload.get("strikeIndex", 1)))
+	var strike_count: int = max(1, int(payload.get("strikeCount", 1)))
+	var strike_x_offset := 0.0
+	if strike_count > 1:
+		strike_x_offset = float(strike_index - 1) * 10.0 - float(strike_count - 1) * 5.0
 	if shield_damage > 0:
-		play_damage_number(target_grid, shield_damage, "shield", -13.0 if hp_damage > 0 else 0.0)
+		play_damage_number(target_grid, shield_damage, "shield", -13.0 if hp_damage > 0 else 0.0, strike_x_offset)
 	if hp_damage > 0:
-		play_damage_number(target_grid, hp_damage, "hp", 13.0 if shield_damage > 0 else 0.0)
+		play_damage_number(target_grid, hp_damage, "hp", 13.0 if shield_damage > 0 else 0.0, strike_x_offset)
 	if shield_damage <= 0 and hp_damage <= 0 and final_damage > 0:
-		play_damage_number(target_grid, final_damage)
+		play_damage_number(target_grid, final_damage, "hp", 0.0, strike_x_offset)
 	var unit := target_visual if target_visual != null else _unit_by_id(String(target.get("id", "")))
 	if unit != null:
 		if unit.has_method("play_shake"):
@@ -412,7 +415,7 @@ func play_enemy_attack_translation(actor: Dictionary, target: Dictionary) -> Twe
 
 
 func play_projectile(element: String, from_grid: Vector2i, to_grid: Vector2i) -> Node:
-	var projectile := BattleProjectileScene.instantiate()
+	var projectile := BattleProjectileScript.new()
 	add_child(projectile)
 	projectile.z_index = 80
 	var texture_resource: Texture2D = null
@@ -448,7 +451,7 @@ func _visual_element_id(element: String) -> String:
 
 
 func play_bite(grid: Vector2i) -> Node:
-	var bite := BattleBiteVfxScene.instantiate() as Control
+	var bite := BattleBiteVfxScript.new() as Control
 	add_child(bite)
 	bite.z_index = 85
 	bite.size = _monster_bite_size()
@@ -465,12 +468,12 @@ func play_bite(grid: Vector2i) -> Node:
 	return bite
 
 
-func play_damage_number(grid: Vector2i, amount: int, damage_kind: String = "hp", y_offset: float = 0.0) -> Node:
-	var number := BattleDamageNumberScene.instantiate() as Control
+func play_damage_number(grid: Vector2i, amount: int, damage_kind: String = "hp", y_offset: float = 0.0, x_offset: float = 0.0) -> Node:
+	var number := BattleDamageNumberScript.new() as Control
 	add_child(number)
 	number.name = "ShieldDamageNumber" if damage_kind == "shield" else "HpDamageNumber"
 	number.z_index = 90
-	number.position = _cell_center(grid) - Vector2(70.0, 24.0) + Vector2(0.0, y_offset)
+	number.position = _cell_center(grid) - Vector2(70.0, 24.0) + Vector2(x_offset, y_offset)
 	number.size = Vector2(140.0, 40.0)
 	if number.has_method("show_damage"):
 		if damage_kind == "shield":
@@ -478,6 +481,18 @@ func play_damage_number(grid: Vector2i, amount: int, damage_kind: String = "hp",
 		else:
 			number.call("show_damage", amount, Color(1.0, 0.22, 0.14), 0.55, "生命")
 	return number
+
+
+func _await_projectile_impact(projectile: Node) -> void:
+	if projectile != null and projectile.has_signal("impact_reached"):
+		await projectile.impact_reached
+		return
+	await get_tree().create_timer(ARTIST_BULLET_FLIGHT_DURATION).timeout
+
+
+func _await_bite_impact(bite: Node) -> void:
+	if bite != null and not bite.is_queued_for_deletion() and bite.has_signal("hit_frame_reached"):
+		await bite.hit_frame_reached
 
 
 func play_spawn_trap(element: String, grid: Vector2i, transient: bool = false) -> Node:
@@ -553,22 +568,58 @@ func _element_impact_color(element: String) -> Color:
 
 
 func play_round_banner(round_number: int, side: String) -> Node:
-	var banner := BattleRoundBannerScene.instantiate() as Control
+	var banner := _new_round_banner()
 	add_child(banner)
 	banner.z_index = 100
-	banner.anchor_left = 0.0
-	banner.anchor_top = 0.0
-	banner.anchor_right = 1.0
-	banner.anchor_bottom = 1.0
-	banner.offset_left = 0.0
-	banner.offset_top = 0.0
-	banner.offset_right = 0.0
-	banner.offset_bottom = 0.0
 	var texture_resource: Texture2D = null
 	if assets != null and assets.has_method("round_banner_texture"):
 		texture_resource = assets.call("round_banner_texture") as Texture2D
 	if banner.has_method("show_round"):
 		banner.call("show_round", round_number, side, texture_resource, 1.4)
+	return banner
+
+
+func _new_round_banner() -> Control:
+	var banner := BattleRoundBannerScript.new() as TextureRect
+	banner.name = "RoundFeedback"
+	banner.layout_mode = 1
+	banner.anchor_left = 0.265167
+	banner.anchor_top = 0.400734
+	banner.anchor_right = 0.734833
+	banner.anchor_bottom = 0.635502
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	banner.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	var title := Label.new()
+	title.name = "Title"
+	title.set_anchors_preset(Control.PRESET_FULL_RECT)
+	title.anchor_top = 0.0820652
+	title.anchor_bottom = 0.550611
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title.add_theme_color_override("font_color", Color.WHITE)
+	title.add_theme_color_override("font_shadow_color", Color(0.3, 0.1, 0.02, 0.9))
+	title.add_theme_constant_override("shadow_offset_x", 4)
+	title.add_theme_constant_override("shadow_offset_y", 5)
+	title.add_theme_font_size_override("font_size", 62)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	banner.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.name = "Subtitle"
+	subtitle.set_anchors_preset(Control.PRESET_FULL_RECT)
+	subtitle.anchor_top = 0.635802
+	subtitle.anchor_bottom = 0.933967
+	subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	subtitle.add_theme_color_override("font_color", Color(1.0, 0.96, 0.86))
+	subtitle.add_theme_color_override("font_shadow_color", Color(0.3, 0.1, 0.02, 0.9))
+	subtitle.add_theme_constant_override("shadow_offset_x", 3)
+	subtitle.add_theme_constant_override("shadow_offset_y", 4)
+	subtitle.add_theme_font_size_override("font_size", 34)
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	banner.add_child(subtitle)
 	return banner
 
 

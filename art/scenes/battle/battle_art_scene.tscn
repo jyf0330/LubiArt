@@ -1,32 +1,29 @@
-[gd_scene load_steps=13 format=3 uid="uid://2ni6yhfwuuhs"]
+[gd_scene load_steps=10 format=3]
 
-[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_art_scene.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://art/scenes/battle/battle_view.tscn" id="2_battle_view"]
-[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/battle_background_8x8.png" id="3_background"]
-[ext_resource type="PackedScene" path="res://art/prefabs/battle/board/battle_cell.tscn" id="4_battle_cell"]
-[ext_resource type="PackedScene" path="res://art/prefabs/shared/pet/pet_visual.tscn" id="5_pet_visual"]
-[ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_action_panel.tscn" id="6_action_panel"]
-[ext_resource type="PackedScene" path="res://art/prefabs/shared/pet/pet_detail_panel.tscn" id="7_detail_panel"]
-[ext_resource type="PackedScene" path="res://art/prefabs/shared/pet/pet_info_panel_v2.tscn" id="8_info_panel"]
-[ext_resource type="PackedScene" path="res://art/prefabs/battle/effects/battle_projectile.tscn" id="9_projectile"]
-[ext_resource type="PackedScene" path="res://art/prefabs/battle/effects/battle_damage_number.tscn" id="10_damage_number"]
-[ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_round_banner.tscn" id="11_round_banner"]
-[ext_resource type="PackedScene" path="res://art/prefabs/battle/effects/battle_bite_vfx.tscn" id="12_bite_vfx"]
+[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/battle_background_8x8.png" id="1_bg"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/controllers/battle_controller.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/buttons/button_auto_deploy.png" id="3_auto"]
+[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/buttons/button_start_action.png" id="4_start"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/controllers/battle_vfx_controller.gd" id="5_vfx"]
+[ext_resource type="PackedScene" path="res://art/prefabs/terrain/terrain.tscn" id="6_cell"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/battle_action_panel.gd" id="7_action_panel"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_board.gd" id="8_board"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_top_info_bar.gd" id="9_top_info"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_cell_detail.gd" id="10_cell_detail"]
 
-[node name="BattleArtScene" type="Control" unique_id=906704810]
-editor_description = "正式战斗组合场景。Runtime 只承载唯一 BattleView；PrefabCatalog 只索引正式预制体，不参与玩法与输入。"
+[node name="BattleArtScene" type="Control"]
+editor_description = "正式战斗 Scene。战斗 View、HUD、回合反馈、投射物与命中表现都属于本场景；只复用宠物、宠物详情、地形、地形详情四个 prefab。"
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("1_script")
-metadata/_edit_lock_ = true
+mouse_filter = 1
+script = ExtResource("2_script")
 
-[node name="Runtime" type="Control" parent="." unique_id=2122349624]
-editor_description = "正式运行分支。背景只负责让场景可独立预览；BattleView 是唯一战斗界面与表现实现。"
+[node name="Board" type="Control" parent="."]
+editor_description = "棋盘：承载战斗背景、64 格地形、宠物和所有棋盘内命中表现。"
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,10 +31,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-metadata/_edit_lock_ = true
+script = ExtResource("8_board")
 
-[node name="PreviewBackground" type="TextureRect" parent="Runtime"]
-editor_description = "BattleArtScene 的自包含背景，不持有玩法状态。"
+[node name="TopInfoBar" type="Control" parent="."]
+editor_description = "上方信息栏：只承载日程、回合、货币和顶部功能信息；不得放棋盘或详情节点。"
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 84.0
+mouse_filter = 2
+script = ExtResource("9_top_info")
+
+[node name="CellDetail" type="Control" parent="."]
+editor_description = "格子详情：承载右侧操作区，以及运行时显示的宠物详情和地形详情。"
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,102 +50,566 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("3_background")
-expand_mode = 1
-stretch_mode = 6
-metadata/_edit_lock_ = true
+script = ExtResource("10_cell_detail")
 
-[node name="BattleView" parent="Runtime" instance=ExtResource("2_battle_view")]
-editor_description = "正式 BattleView 实例。运行时命令、Snapshot 和 VFX 均继续由这个实例处理。"
-layout_mode = 1
-metadata/_edit_lock_ = true
-
-[node name="PrefabCatalog" type="Node" parent="."]
-editor_description = "美术与策划使用的正式预制体索引。按职责展开；所有目录实例默认隐藏。"
-
-[node name="ReusablePrefabs" type="Control" parent="PrefabCatalog" unique_id=519442389]
-editor_description = "稳定存在并可复用的棋盘、单位与 HUD 预制体。"
+[node name="BoardBG" type="TextureRect" parent="Board"]
 visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-metadata/_edit_lock_ = true
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("1_bg")
 
-[node name="Board" type="Node" parent="PrefabCatalog/ReusablePrefabs"]
+[node name="BoardGrid" type="Control" parent="Board"]
+custom_minimum_size = Vector2(996, 849)
+anchors_preset = 0
+layout_mode = 0
+offset_left = 465.0
+offset_top = 84.0
+offset_right = 1461.0
+offset_bottom = 933.0
+mouse_filter = 1
 
-[node name="BattleCell" parent="PrefabCatalog/ReusablePrefabs/Board" unique_id=201022473 instance=ExtResource("4_battle_cell")]
-offset_right = 124.5
-offset_bottom = 106.125
-metadata/_edit_lock_ = true
+[node name="Cell_R1_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_right = 124.500
+offset_bottom = 121.285714
 
-[node name="Units" type="Node" parent="PrefabCatalog/ReusablePrefabs"]
+[node name="Cell_R1_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_right = 249.000
+offset_bottom = 121.285714
 
-[node name="BattleUnit" parent="PrefabCatalog/ReusablePrefabs/Units" unique_id=1529524461 instance=ExtResource("5_pet_visual")]
-metadata/_edit_lock_ = true
+[node name="Cell_R1_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_right = 373.500
+offset_bottom = 121.285714
 
-[node name="HUD" type="Node" parent="PrefabCatalog/ReusablePrefabs"]
+[node name="Cell_R1_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_right = 498.000
+offset_bottom = 121.285714
 
-[node name="BattleActionPanel" parent="PrefabCatalog/ReusablePrefabs/HUD" unique_id=1541001444 instance=ExtResource("6_action_panel")]
-offset_right = 336.0
-offset_bottom = 594.0
-metadata/_edit_lock_ = true
+[node name="Cell_R1_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_right = 622.500
+offset_bottom = 121.285714
 
-[node name="Details" type="Node" parent="PrefabCatalog/ReusablePrefabs/HUD"]
+[node name="Cell_R1_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_right = 747.000
+offset_bottom = 121.285714
 
-[node name="PetDetailPanel" parent="PrefabCatalog/ReusablePrefabs/HUD/Details" unique_id=2088646853 instance=ExtResource("7_detail_panel")]
-metadata/_edit_lock_ = true
+[node name="Cell_R1_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_right = 871.500
+offset_bottom = 121.285714
 
-[node name="PetInfoPanelV2" parent="PrefabCatalog/ReusablePrefabs/HUD/Details" unique_id=1607970390 instance=ExtResource("8_info_panel")]
-metadata/_edit_lock_ = true
+[node name="Cell_R1_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_right = 996.000
+offset_bottom = 121.285714
 
-[node name="RuntimeEffects" type="Control" parent="PrefabCatalog" unique_id=90737734]
-editor_description = "只在战斗事件发生时播放的表现预制体。默认隐藏，由正式 BattleView 的真实事件触发。"
+[node name="Cell_R2_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 121.285714
+offset_right = 124.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 121.285714
+offset_right = 249.000
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 121.285714
+offset_right = 373.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 121.285714
+offset_right = 498.000
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 121.285714
+offset_right = 622.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 121.285714
+offset_right = 747.000
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 121.285714
+offset_right = 871.500
+offset_bottom = 242.571429
+
+[node name="Cell_R2_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 121.285714
+offset_right = 996.000
+offset_bottom = 242.571429
+
+[node name="Cell_R3_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 242.571429
+offset_right = 124.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 242.571429
+offset_right = 249.000
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 242.571429
+offset_right = 373.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 242.571429
+offset_right = 498.000
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 242.571429
+offset_right = 622.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 242.571429
+offset_right = 747.000
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 242.571429
+offset_right = 871.500
+offset_bottom = 363.857143
+
+[node name="Cell_R3_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 242.571429
+offset_right = 996.000
+offset_bottom = 363.857143
+
+[node name="Cell_R4_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 363.857143
+offset_right = 124.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 363.857143
+offset_right = 249.000
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 363.857143
+offset_right = 373.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 363.857143
+offset_right = 498.000
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 363.857143
+offset_right = 622.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 363.857143
+offset_right = 747.000
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 363.857143
+offset_right = 871.500
+offset_bottom = 485.142857
+
+[node name="Cell_R4_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 363.857143
+offset_right = 996.000
+offset_bottom = 485.142857
+
+[node name="Cell_R5_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 485.142857
+offset_right = 124.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 485.142857
+offset_right = 249.000
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 485.142857
+offset_right = 373.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 485.142857
+offset_right = 498.000
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 485.142857
+offset_right = 622.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 485.142857
+offset_right = 747.000
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 485.142857
+offset_right = 871.500
+offset_bottom = 606.428571
+
+[node name="Cell_R5_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 485.142857
+offset_right = 996.000
+offset_bottom = 606.428571
+
+[node name="Cell_R6_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 606.428571
+offset_right = 124.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 606.428571
+offset_right = 249.000
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 606.428571
+offset_right = 373.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 606.428571
+offset_right = 498.000
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 606.428571
+offset_right = 622.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 606.428571
+offset_right = 747.000
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 606.428571
+offset_right = 871.500
+offset_bottom = 727.714286
+
+[node name="Cell_R6_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 606.428571
+offset_right = 996.000
+offset_bottom = 727.714286
+
+[node name="Cell_R7_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_top = 727.714286
+offset_right = 124.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 124.500
+offset_top = 727.714286
+offset_right = 249.000
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 249.000
+offset_top = 727.714286
+offset_right = 373.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 373.500
+offset_top = 727.714286
+offset_right = 498.000
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 498.000
+offset_top = 727.714286
+offset_right = 622.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 622.500
+offset_top = 727.714286
+offset_right = 747.000
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 747.000
+offset_top = 727.714286
+offset_right = 871.500
+offset_bottom = 849.000000
+
+[node name="Cell_R7_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+layout_mode = 0
+offset_left = 871.500
+offset_top = 727.714286
+offset_right = 996.000
+offset_bottom = 849.000000
+
+[node name="Cell_R8_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 3
+layout_mode = 0
+offset_top = 742.875
+offset_right = 124.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 124.500
+offset_top = 742.875
+offset_right = 249.000
+offset_bottom = 849.000
+
+[node name="Cell_R8_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 249.000
+offset_top = 742.875
+offset_right = 373.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 373.500
+offset_top = 742.875
+offset_right = 498.000
+offset_bottom = 849.000
+
+[node name="Cell_R8_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 498.000
+offset_top = 742.875
+offset_right = 622.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 622.500
+offset_top = 742.875
+offset_right = 747.000
+offset_bottom = 849.000
+
+[node name="Cell_R8_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 747.000
+offset_top = 742.875
+offset_right = 871.500
+offset_bottom = 849.000
+
+[node name="Cell_R8_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+visible = false
+layout_mode = 0
+offset_left = 871.500
+offset_top = 742.875
+offset_right = 996.000
+offset_bottom = 849.000
+
+[node name="AutoArrangeButton" type="TextureButton" parent="Board"]
+layout_mode = 0
+offset_left = 1583.0
+offset_top = 717.0
+offset_right = 1850.0
+offset_bottom = 807.0
+texture_normal = ExtResource("3_auto")
+
+[node name="PositionDifficultyButton" type="Button" parent="Board"]
+layout_mode = 0
+offset_left = 1583.0
+offset_top = 665.0
+offset_right = 1850.0
+offset_bottom = 709.0
+mouse_default_cursor_shape = 2
+focus_mode = 0
+toggle_mode = true
+text = "摆位难度：普通"
+
+[node name="BeginTurnButton" type="TextureButton" parent="Board"]
+layout_mode = 0
+offset_left = 1587.0
+offset_top = 813.0
+offset_right = 1843.0
+offset_bottom = 904.0
+texture_normal = ExtResource("4_start")
+
+[node name="BattleVfxPlayer" type="Control" parent="Board"]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-metadata/_edit_lock_ = true
+script = ExtResource("5_vfx")
 
-[node name="Projectiles" type="Node" parent="PrefabCatalog/RuntimeEffects"]
+[node name="BattleActionPanel" type="PanelContainer" parent="Board"]
+z_index = 41
+offset_left = 18.0
+offset_top = 150.0
+offset_right = 354.0
+offset_bottom = 744.0
+mouse_filter = 0
+script = ExtResource("7_action_panel")
 
-[node name="BattleProjectile" parent="PrefabCatalog/RuntimeEffects/Projectiles" unique_id=1277259454 instance=ExtResource("9_projectile")]
-metadata/_edit_lock_ = true
+[node name="Margin" type="MarginContainer" parent="Board/BattleActionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
-[node name="HitFeedback" type="Node" parent="PrefabCatalog/RuntimeEffects"]
+[node name="Content" type="VBoxContainer" parent="Board/BattleActionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="BattleDamageNumber" parent="PrefabCatalog/RuntimeEffects/HitFeedback" unique_id=2016898980 instance=ExtResource("10_damage_number")]
-metadata/_edit_lock_ = true
+[node name="Title" type="Label" parent="Board/BattleActionPanel/Margin/Content"]
+layout_mode = 2
+text = "行动控制"
 
-[node name="BattleBiteVfx" parent="PrefabCatalog/RuntimeEffects/HitFeedback" unique_id=1548543481 instance=ExtResource("12_bite_vfx")]
-metadata/_edit_lock_ = true
+[node name="Summary" type="Label" parent="Board/BattleActionPanel/Margin/Content"]
+layout_mode = 2
+autowrap_mode = 2
 
-[node name="RoundFeedback" parent="PrefabCatalog/RuntimeEffects" unique_id=1881047440 instance=ExtResource("11_round_banner")]
-metadata/_edit_lock_ = true
+[node name="ResetPetsButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "重置宠物"
 
-[editable path="Runtime/BattleView"]
+[node name="ActionSlotButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "行动槽"
 
-[editable path="PrefabCatalog/ReusablePrefabs/Board/BattleCell"]
+[node name="DirectionButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "方向"
 
-[editable path="PrefabCatalog/ReusablePrefabs/Units/BattleUnit"]
+[node name="ActionApButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "行动 AP"
 
-[editable path="PrefabCatalog/ReusablePrefabs/HUD/BattleActionPanel"]
+[node name="CastButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "施放行动"
 
-[editable path="PrefabCatalog/ReusablePrefabs/HUD/Details/PetDetailPanel"]
+[node name="AllOutButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "我方全部出击"
 
-[editable path="PrefabCatalog/ReusablePrefabs/HUD/Details/PetInfoPanelV2"]
+[node name="EndTurnButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "结束玩家回合"
 
-[editable path="PrefabCatalog/RuntimeEffects/Projectiles/BattleProjectile"]
-
-[editable path="PrefabCatalog/RuntimeEffects/HitFeedback/BattleDamageNumber"]
-
-[editable path="PrefabCatalog/RuntimeEffects/HitFeedback/BattleBiteVfx"]
-
-[editable path="PrefabCatalog/RuntimeEffects/RoundFeedback"]
+[node name="MonsterTurnButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "执行敌方行动"

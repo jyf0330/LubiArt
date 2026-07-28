@@ -1,7 +1,7 @@
 extends Control
 
-## Composition-only boundary for the artist Mock battle scene. Snapshot replay,
-## rendering and VFX remain owned by the single BattleView instance.
+## Composition-only boundary for the formal battle Art scene. Gameplay state,
+## commands, rendering and VFX stay owned by the single BattleView instance.
 
 @onready var battle_view: Control = $Runtime/BattleView
 

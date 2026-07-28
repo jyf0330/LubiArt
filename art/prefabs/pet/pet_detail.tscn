@@ -1,0 +1,349 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/shared/pet/pet_detail_panel.gd" id="1_detail"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/panel_base_silver.png" id="3_base_silver"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/attack_grid_silver.png" id="7_grid_silver"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_slots_silver.png" id="11_slots_silver"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_hp.png" id="14_hp"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_attack.png" id="15_attack"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_ap.png" id="16_ap"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_defense.png" id="17_defense"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_shield.png" id="18_shield"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_regen.png" id="19_regen"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/frame_silver.png" id="21_frame_silver"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/trait_silver.png" id="24_trait_silver"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/trait_gold.png" id="25_trait_gold"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/trait_crystal.png" id="26_trait_crystal"]
+[ext_resource type="FontFile" path="res://art/images/shared/pets/info_card/fonts/fusion_pixel_zh_hans.ttf" id="27_font"]
+[ext_resource type="Script" path="res://core_ui/scripts/shared/pet/pet_info_panel_v2.gd" id="28_info"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/element_fire.png" id="30_fire"]
+
+[node name="PetDetail" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_detail")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.022, 0.016, 0.78)
+mouse_filter = 0
+
+[node name="Panel" type="Control" parent="."]
+layout_mode = 0
+offset_left = 1240.0
+offset_top = 90.0
+offset_right = 1840.0
+offset_bottom = 990.0
+mouse_filter = 0
+
+[node name="SpriteInfoCard" type="Control" parent="Panel"]
+custom_minimum_size = Vector2(476, 539)
+layout_mode = 0
+offset_left = 124.0
+offset_right = 600.0
+offset_bottom = 539.0
+mouse_filter = 2
+script = ExtResource("28_info")
+
+[node name="Actions" type="HBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 42.0
+offset_top = -76.0
+offset_right = -42.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 2
+theme_override_constants/separation = 14
+
+[node name="CloseButton" type="Button" parent="Panel/Actions"]
+custom_minimum_size = Vector2(150, 54)
+layout_mode = 2
+text = "关闭"
+
+[node name="ConfirmButton" type="Button" parent="Panel/Actions"]
+custom_minimum_size = Vector2(150, 54)
+layout_mode = 2
+text = "确认选择"
+
+[node name="BaseArt" type="TextureRect" parent="Panel/SpriteInfoCard"]
+editor_description = "底板图片根。根节点自己承载当前品质图片；same 仅是可替换图片资源集合。"
+layout_mode = 0
+offset_left = 28.0
+offset_top = 29.0
+offset_right = 449.0
+offset_bottom = 516.0
+mouse_filter = 2
+texture = ExtResource("3_base_silver")
+expand_mode = 1
+
+[node name="AttackFormatPlate" type="TextureRect" parent="Panel/SpriteInfoCard"]
+editor_description = "攻击格式盘子图片根；根节点自己承载当前品质攻击棋盘，并管理运行时起点/目标标记。"
+layout_mode = 0
+offset_left = 46.0
+offset_top = 145.0
+offset_right = 429.0
+offset_bottom = 297.0
+mouse_filter = 2
+texture = ExtResource("7_grid_silver")
+expand_mode = 1
+
+[node name="StatSlotArt" type="TextureRect" parent="Panel/SpriteInfoCard"]
+editor_description = "数值格子图片根。根节点自己承载当前品质图片；same 不进入 SceneTree。"
+layout_mode = 0
+offset_left = 49.0
+offset_top = 308.0
+offset_right = 371.0
+offset_bottom = 482.0
+mouse_filter = 2
+texture = ExtResource("11_slots_silver")
+expand_mode = 1
+
+[node name="PetName" type="Label" parent="Panel/SpriteInfoCard"]
+editor_description = "宠物名字动态文字层；矩形对应 PSD 文字边界，不使用空容器。"
+layout_mode = 0
+offset_left = 159.0
+offset_top = 55.0
+offset_right = 329.0
+offset_bottom = 91.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.07, 0.06, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 30
+text = "李元芳"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="ElementArt" type="TextureRect" parent="Panel/SpriteInfoCard"]
+editor_description = "属性图片根；运行时在同一根节点替换元素图片。"
+layout_mode = 0
+offset_left = 371.0
+offset_top = 18.0
+offset_right = 449.0
+offset_bottom = 113.0
+mouse_filter = 2
+texture = ExtResource("30_fire")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AttackFormatTitle" type="Label" parent="Panel/SpriteInfoCard"]
+editor_description = "攻击格式动态标题文字层；矩形对应 PSD 文字边界。"
+layout_mode = 0
+offset_left = 202.0
+offset_top = 104.0
+offset_right = 290.0
+offset_bottom = 124.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.2, 0.18, 0.16, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 16
+text = "攻击格式"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AttackOverlay" type="Control" parent="Panel/SpriteInfoCard/AttackFormatPlate"]
+layout_mode = 0
+offset_right = 383.0
+offset_bottom = 152.0
+mouse_filter = 2
+
+[node name="StatsUI" type="TextureRect" parent="Panel/SpriteInfoCard"]
+editor_description = "数值 UI 图片根；根节点承载 HP 图，其他图标和动态数值按 PSD 相对位置作为子层。"
+layout_mode = 0
+offset_left = 55.0
+offset_top = 316.0
+offset_right = 104.0
+offset_bottom = 363.0
+mouse_filter = 2
+texture = ExtResource("14_hp")
+expand_mode = 1
+
+[node name="AttackIcon" type="TextureRect" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 159.0
+offset_top = -1.0
+offset_right = 204.0
+offset_bottom = 45.0
+mouse_filter = 2
+texture = ExtResource("15_attack")
+expand_mode = 1
+
+[node name="ApIcon" type="TextureRect" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 54.0
+offset_right = 44.0
+offset_bottom = 100.0
+mouse_filter = 2
+texture = ExtResource("16_ap")
+expand_mode = 1
+
+[node name="DefenseIcon" type="TextureRect" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 159.0
+offset_top = 56.0
+offset_right = 198.0
+offset_bottom = 102.0
+mouse_filter = 2
+texture = ExtResource("17_defense")
+expand_mode = 1
+
+[node name="ShieldIcon" type="TextureRect" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 111.0
+offset_right = 39.0
+offset_bottom = 156.0
+mouse_filter = 2
+texture = ExtResource("18_shield")
+expand_mode = 1
+
+[node name="RegenIcon" type="TextureRect" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 158.0
+offset_top = 110.0
+offset_right = 200.0
+offset_bottom = 155.0
+mouse_filter = 2
+texture = ExtResource("19_regen")
+expand_mode = 1
+
+[node name="HpValue" type="Label" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 49.0
+offset_top = -8.0
+offset_right = 155.0
+offset_bottom = 50.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.07, 0.06, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 19
+text = "24/24"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="AttackValue" type="Label" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 204.0
+offset_top = -8.0
+offset_right = 316.0
+offset_bottom = 50.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.07, 0.06, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 19
+text = "4"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ApValue" type="Label" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 50.0
+offset_right = 155.0
+offset_bottom = 108.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.07, 0.06, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 19
+text = "3/5"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DefenseValue" type="Label" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 198.0
+offset_top = 50.0
+offset_right = 316.0
+offset_bottom = 108.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.07, 0.06, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 19
+text = "2"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ShieldValue" type="Label" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 108.0
+offset_right = 155.0
+offset_bottom = 166.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.07, 0.06, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 19
+text = "3"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RegenValue" type="Label" parent="Panel/SpriteInfoCard/StatsUI"]
+layout_mode = 0
+offset_left = 200.0
+offset_top = 108.0
+offset_right = 316.0
+offset_bottom = 166.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.07, 0.06, 1)
+theme_override_fonts/font = ExtResource("27_font")
+theme_override_font_sizes/font_size = 19
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TraitArt" type="TextureRect" parent="Panel/SpriteInfoCard"]
+editor_description = "特性格子图片根；根节点承载白银特性图，黄金和水晶图片保持各自真实 48×48 子层。"
+layout_mode = 0
+offset_left = 378.0
+offset_top = 315.0
+offset_right = 426.0
+offset_bottom = 363.0
+mouse_filter = 2
+texture = ExtResource("24_trait_silver")
+expand_mode = 1
+
+[node name="TraitGold" type="TextureRect" parent="Panel/SpriteInfoCard/TraitArt"]
+layout_mode = 0
+offset_top = 54.0
+offset_right = 48.0
+offset_bottom = 102.0
+mouse_filter = 2
+texture = ExtResource("25_trait_gold")
+expand_mode = 1
+
+[node name="TraitCrystal" type="TextureRect" parent="Panel/SpriteInfoCard/TraitArt"]
+layout_mode = 0
+offset_top = 109.0
+offset_right = 48.0
+offset_bottom = 157.0
+mouse_filter = 2
+texture = ExtResource("26_trait_crystal")
+expand_mode = 1
+
+[node name="FrameArt" type="TextureRect" parent="Panel/SpriteInfoCard"]
+editor_description = "外框图片根。品质切换直接替换根纹理和对应 authored 图片矩形；same 不进入 SceneTree。"
+layout_mode = 0
+offset_left = 4.0
+offset_top = 5.0
+offset_right = 469.0
+offset_bottom = 533.0
+mouse_filter = 2
+texture = ExtResource("21_frame_silver")
+expand_mode = 1

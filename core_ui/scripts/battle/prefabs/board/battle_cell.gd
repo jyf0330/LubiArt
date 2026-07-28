@@ -6,7 +6,7 @@ signal cell_released(x: int, y: int)
 signal cell_hovered(x: int, y: int)
 signal cell_unhovered(x: int, y: int)
 
-const BattleUnitScene := preload("res://art/prefabs/shared/pet/pet_visual.tscn")
+const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const DefaultCellImage := preload("res://art/images/battle/runtime/images/cell_anchor_transparent.svg")
 
 const STYLE_DEFAULT_BG := Color(0.48, 0.50, 0.53, 0.30)

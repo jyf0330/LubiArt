@@ -1,12 +1,13 @@
 extends NinePatchRect
 
+signal feature_view_requested(feature_id: StringName)
+signal feature_view_release_requested(feature_id: StringName)
+
 const GameLogScript := preload("res://core/logging/game_log.gd")
 const SessionBridgeScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_session_bridge.gd")
 const StagePresenterScript := preload("res://core_ui/scripts/artist_flow/presenters/artist_flow_stage_presenter.gd")
 const AssetRegistryScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd")
-const BATTLE_UI_SCENE := preload("res://art/scenes/battle/battle_view.tscn")
-const PET_DETAIL_PANEL_SCENE := preload("res://art/prefabs/shared/pet/pet_detail_panel.tscn")
-const BAZAAR_INFO_PANEL_SCENE := preload("res://art/prefabs/shop/bazaar_info_panel.tscn")
+const PET_DETAIL_PANEL_SCENE := preload("res://art/prefabs/pet/pet_detail.tscn")
 const RoutePresenterScript := preload("res://core_ui/scripts/route/presenters/route_presenter.gd")
 const ShopPresenterScript := preload("res://core_ui/scripts/shop/presenters/shop_presenter.gd")
 const InventoryPresenterScript := preload("res://core_ui/scripts/inventory/presenters/inventory_presenter.gd")
@@ -95,23 +96,16 @@ func _ready() -> void:
 	_ensure_game_session()
 	_asset_registry.reload()
 	_collect_slots()
-	_ensure_battle_view()
 	_ensure_pet_detail_panel()
 	_ensure_bazaar_info_panel()
 	_ensure_run_tools()
 	_configure_stage_presenter()
 	_connect_buttons()
 	_prepare_sell_button()
-	call_deferred("_finish_initial_mount")
-
-
-func _finish_initial_mount() -> void:
-	await get_tree().process_frame
-	var initial_snapshot := _current_snapshot()
-	_render_content_from_state(initial_snapshot)
+	_render_content_from_state(_current_snapshot())
 	_set_initial_state()
-	await _show_initial_view()
-	_refresh_slot_button_layouts()
+	call_deferred("_show_initial_view")
+	call_deferred("_refresh_slot_button_layouts")
 
 
 func _exit_tree() -> void:
@@ -292,6 +286,53 @@ func _render_battle_view(snap: Dictionary) -> void:
 	_ensure_battle_view()
 	if _battle_view != null and _battle_view.has_method("render_snapshot"):
 		_battle_view.call("render_snapshot", snap)
+
+
+func attach_feature_view(feature_id: StringName, view: Node) -> void:
+	if feature_id != VIEW_BATTLE or not (view is Control):
+		return
+	var battle_view := _runtime_feature_view(view)
+	if battle_view == null:
+		return
+	if _battle_view == battle_view:
+		return
+	_detach_battle_view()
+	_battle_view = battle_view
+	_battle_view.name = "BattleFlow"
+	_battle_view.visible = false
+	_battle_view.z_index = 50
+	_battle_view.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var command_callback := Callable(self, "_on_battle_command_requested")
+	if _battle_view.has_signal("command_requested") \
+			and not _battle_view.is_connected("command_requested", command_callback):
+		_battle_view.connect("command_requested", command_callback)
+	_configure_stage_presenter()
+
+
+func detach_feature_view(feature_id: StringName, view: Node = null) -> void:
+	if feature_id != VIEW_BATTLE:
+		return
+	if view != null and _battle_view != _runtime_feature_view(view):
+		return
+	_detach_battle_view()
+
+
+func _runtime_feature_view(view: Node) -> Control:
+	if view == null:
+		return null
+	if view.has_method("get_runtime_view"):
+		return view.call("get_runtime_view") as Control
+	return view as Control
+
+
+func _detach_battle_view() -> void:
+	if is_instance_valid(_battle_view):
+		var command_callback := Callable(self, "_on_battle_command_requested")
+		if _battle_view.has_signal("command_requested") \
+				and _battle_view.is_connected("command_requested", command_callback):
+			_battle_view.disconnect("command_requested", command_callback)
+	_battle_view = null
+	_configure_stage_presenter()
 
 
 func _render_terminal_choice(snap: Dictionary) -> void:
@@ -792,10 +833,12 @@ func _on_bags_gui_input(event: InputEvent) -> void:
 
 func _show_view(view: StringName) -> void:
 	_close_pet_detail()
+	var previous_view := _current_view
 	_current_view = view
 	_stage_presenter.show_immediate(view)
 	_set_persistent_hud_visible(view != VIEW_BATTLE)
 	_set_run_tools_visible(true)
+	_release_battle_view_after_transition(previous_view, view)
 
 
 func _set_initial_state() -> void:
@@ -820,12 +863,14 @@ func _transition_to_view(target_view: StringName) -> void:
 	if target_view == _current_view:
 		_show_view(target_view)
 		return
+	var previous_view := _current_view
 	_is_transitioning = true
 	await _stage_presenter.switch_view(_current_view, target_view)
 	_current_view = target_view
 	_ensure_persistent_hud_visible()
 	_set_run_tools_visible(true)
 	_is_transitioning = false
+	_release_battle_view_after_transition(previous_view, target_view)
 
 
 func _open_bag() -> void:
@@ -887,19 +932,15 @@ func _set_persistent_hud_visible(is_visible: bool) -> void:
 
 
 func _ensure_battle_view() -> void:
-	if _battle_view != null:
+	if is_instance_valid(_battle_view):
 		return
-	var scene_root := owner as Control
-	if scene_root == null:
-		return
-	_battle_view = BATTLE_UI_SCENE.instantiate() as Control
-	_battle_view.name = "BattleFlow"
-	_battle_view.visible = false
-	_battle_view.z_index = 50
-	_battle_view.set_anchors_preset(Control.PRESET_FULL_RECT)
-	if _battle_view.has_signal("command_requested"):
-		_battle_view.connect("command_requested", Callable(self, "_on_battle_command_requested"))
-	scene_root.add_child.call_deferred(_battle_view)
+	_battle_view = null
+	feature_view_requested.emit(VIEW_BATTLE)
+
+
+func _release_battle_view_after_transition(previous_view: StringName, target_view: StringName) -> void:
+	if previous_view == VIEW_BATTLE and target_view != VIEW_BATTLE and is_instance_valid(_battle_view):
+		feature_view_release_requested.emit(VIEW_BATTLE)
 
 
 func _ensure_pet_detail_panel() -> void:
@@ -908,13 +949,14 @@ func _ensure_pet_detail_panel() -> void:
 	var scene_root := owner as Control
 	if scene_root == null:
 		return
-	_pet_detail_panel = PET_DETAIL_PANEL_SCENE.instantiate() as Control
-	_pet_detail_panel.name = "ArtistPetDetailPanel"
-	_pet_detail_panel.z_index = 200
-	_pet_detail_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pet_detail_panel = scene_root.get_node_or_null("ArtistPetDetailPanel") as Control
+	if _pet_detail_panel == null:
+		_pet_detail_panel = PET_DETAIL_PANEL_SCENE.instantiate() as Control
+		_pet_detail_panel.name = "ArtistPetDetailPanel"
+		_pet_detail_panel.z_index = 200
+		scene_root.add_child.call_deferred(_pet_detail_panel)
 	if _pet_detail_panel.has_signal("confirm_requested"):
 		_pet_detail_panel.connect("confirm_requested", Callable(self, "_on_pet_detail_confirm_requested"))
-	scene_root.add_child.call_deferred(_pet_detail_panel)
 
 
 func _ensure_bazaar_info_panel() -> void:
@@ -923,12 +965,11 @@ func _ensure_bazaar_info_panel() -> void:
 	var scene_root := owner as Control
 	if scene_root == null:
 		return
-	_bazaar_info_panel = BAZAAR_INFO_PANEL_SCENE.instantiate() as Control
-	_bazaar_info_panel.name = "BazaarInfoPanel"
-	_bazaar_info_panel.z_index = 120
+	_bazaar_info_panel = scene_root.get_node_or_null("BazaarInfoPanel") as Control
+	if _bazaar_info_panel == null:
+		return
 	if _bazaar_info_panel.has_signal("command_requested"):
 		_bazaar_info_panel.connect("command_requested", Callable(self, "_on_bazaar_info_command_requested"))
-	scene_root.add_child.call_deferred(_bazaar_info_panel)
 
 
 func _render_bazaar_information(snap: Dictionary, target_view: StringName) -> void:

@@ -1,30 +1,30 @@
-# Art 预制体工作区
+# 四个正式预制体
 
-这里是美术直接维护的 Godot 预制体目录。表现脚本统一放在 `res://core_ui/scripts/`。
-
-## 目录
+本目录只允许四个真正复用的 Godot prefab：
 
 ```text
 art/prefabs/
-├── shared/   两个以上 Art 场景实际共用的表现预制体
-├── route/    路线、商店、背包、队伍和结算流程使用的预制体
-└── battle/   战斗场景使用的棋盘、单位、HUD 和特效预制体
+├── pet/
+│   ├── pet.tscn
+│   └── pet_detail.tscn
+└── terrain/
+    ├── terrain.tscn
+    └── terrain_detail.tscn
 ```
 
-## 放置规则
+- `pet.tscn`：三选一、队伍、背包和战斗共同使用的宠物视觉与交互根。
+- `pet_detail.tscn`：三选一和战斗共同使用的宠物详情、遮罩与确认操作。
+- `terrain.tscn`：战斗棋盘重复实例化的地形格。
+- `terrain_detail.tscn`：战斗中查看地形元素、威胁和预览的详情面板。
 
-- 每个预制体使用英文 ASCII `snake_case` 命名。
-- `.tscn` 按 scope 和组件分类；专用 `.gd` 在 `core_ui/scripts/` 使用相同 scope 对应：
+按钮、槽位、HUD、回合横幅、投射物、伤害数字、咬击、页面和调试入口不是 prefab，直接放在所属正式 Scene 或由其脚本创建。
 
-```text
-art/prefabs/battle/damage_number/
-└── damage_number.tscn
+对应脚本统一放在 `res://core_ui/scripts/`，图片统一放在 `res://art/images/`。新增第五个 `.tscn` 前必须先修改“两 Scene / 四 prefab”项目契约，不能仅以“它能被实例化”为理由。
 
-core_ui/scripts/battle/prefabs/effects/
-└── damage_number.gd
-```
+## PSD 功能层与资源层
 
-- 图片引用 `art/images/<scope>/` 下的唯一资源，不在预制体目录复制素材。
-- 脚本只负责布局、动画、输入、信号和公开显示接口，不创建 `GameSession`、`YsbzsState`、正式 Snapshot 或第二套玩法状态。
-- 运行时才显示的特效可以作为真实预制体被 Art 场景引用，但在场景目录或 `PrefabInventory` 中必须默认隐藏。
-- 禁止恢复 `features/**/prefabs` 或 `shared/prefabs` 兼容副本；正式预制体只以这里的版本为准。
+- PSD 中对运行时有职责的分组要进入 prefab 节点树。例如宠物详情的底板、攻击格式盘子、数值格子、数值 UI、特性格子、属性、外框、攻击格式标题和宠物名字。
+- `same` 只表示同一槽位可替换的一组图片资源，不是运行时功能层。它下面的青铜、白银、黄金、水晶等图片直接放入对应功能组，不创建 `Same` 节点，也不挂脚本。
+- 有切图的功能分层根必须自己是 `TextureRect` / `Sprite2D` 等图片节点并直接持有当前图片，节点位置与尺寸等于图片的 authored 边界；不得用空 `Control`、0×0 容器或整屏透明矩形冒充分层根。品质、元素等 `same` 变体由表现脚本替换根纹理和对应图片矩形。
+- 一个功能层包含多张同时可见图片时，选择其中第一张正式图片作为根节点图片，其余图片按 PSD 相对坐标作为子图片；动态文本层直接使用匹配 PSD 边界的 `Label`，不额外包空节点。
+- 动态名称、数值、元素和攻击形状继续由表现脚本写入；图片资源分组不得持有 Session、Snapshot 或玩法状态。

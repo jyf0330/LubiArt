@@ -1,18 +1,18 @@
 extends RefCounted
 
-## Explicit feature-to-scene registry for the game composition shell. New
-## top-level features register here instead of adding another branch to the
-## shell or router.
+## Registry for the only Scene mounted by the three-choice composition root.
+## The three-choice Scene is already alive, so it is not registered as a child.
 
-const ARTIST_FLOW_SCENE := preload("res://art/scenes/artist_flow/artist_flow_view.tscn")
-const DEFAULT_FEATURE := &"artist_flow"
+const BATTLE_SCENE := preload("res://art/scenes/battle/battle_art_scene.tscn")
+const THREE_CHOICE_FEATURE := &"three_choice"
+const BATTLE_FEATURE := &"battle"
 
 var _scenes: Dictionary = {}
 
 
 func _init(register_defaults: bool = true) -> void:
 	if register_defaults:
-		register_feature(DEFAULT_FEATURE, ARTIST_FLOW_SCENE)
+		register_feature(BATTLE_FEATURE, BATTLE_SCENE)
 
 
 func register_feature(feature_id: StringName, scene: PackedScene, replace_existing: bool = false) -> bool:

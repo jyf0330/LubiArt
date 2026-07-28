@@ -1,5 +1,39 @@
-source: /Users/ywh/Downloads/宠物信息栏2.psd
+source: /Users/ywh/Downloads/宠物信息栏实装.psd
 canvas: 476x539
-exported: 2026-07-24
-notes: Dynamic text layers are rebuilt as Godot Labels; source PSD remains read-only.
-font_gap: PSD references LEEFONTMENGHEI, which is not delivered or installed; the prefab uses the project's licensed fusion_pixel_zh_hans.ttf.
+exported: 2026-07-27
+role: BattleArtScene/CellDetail pet information
+dynamic: pet name, element, quality, attack shape, and six stat values remain Godot runtime data
+resource_groups: PSD same groups are image collections only and do not become Godot nodes
+image_roots: image-backed functional roots directly carry one image and use its authored size
+layers:
+  panel_base_bronze.png: 底板/青铜底板 @ 28,29,449,516
+  panel_base_silver.png: 底板/白银底板 @ 28,29,449,516
+  panel_base_gold.png: 底板/黄金底板 @ 28,29,449,516
+  panel_base_crystal.png: 底板/水晶底板 @ 28,29,449,516
+  attack_grid_bronze.png: 攻击格式盘子/攻击棋盘/same/青铜攻击棋盘 @ 46,145,429,297
+  attack_grid_silver.png: 攻击格式盘子/攻击棋盘/same/白银攻击棋盘 @ 46,145,429,297
+  attack_grid_gold.png: 攻击格式盘子/攻击棋盘/same/黄金攻击棋盘 @ 46,146,429,298
+  attack_grid_crystal.png: 攻击格式盘子/攻击棋盘/same/水晶攻击棋盘 @ 46,146,429,298
+  stat_slots_bronze.png: 数值格子/same/青铜 @ 49,308,371,482
+  stat_slots_silver.png: 数值格子/same/白银 @ 49,308,371,482
+  stat_slots_gold.png: 数值格子/same/黄金 @ 49,308,371,482
+  stat_slots_crystal.png: 数值格子/same/水晶 @ 49,308,371,482
+  frame_bronze.png: 外框/same/青铜外框2 @ 11,14,464,533
+  frame_silver.png: 外框/same/白银外框2 @ 4,5,469,533
+  frame_gold.png: 外框/same/黄金外框2 @ 7,14,469,531
+  frame_crystal.png: 外框/same/水晶外框2 @ 0,-7,472,533
+  attack_origin.png: 攻击格式盘子/宠物 @ 218,201,261,243
+  attack_target.png: 攻击格式盘子/红色格子素材 @ 267,198,321,246
+  stat_hp.png: 数值UI/HP @ 55,316,104,363
+  stat_attack.png: 数值UI/ATK @ 214,315,259,361
+  stat_ap.png: 数值UI/AP @ 57,370,99,416
+  stat_defense.png: 数值UI/DEF @ 214,372,253,418
+  stat_shield.png: 数值UI/护盾 @ 56,427,94,472
+  stat_regen.png: 数值UI/再生 @ 213,426,255,471
+  trait_silver.png: 特性格子/白银特性/白银特性/护体 @ 378,315,426,363
+  trait_gold.png: 特性格子/黄金特性/通用属性/正向强化 @ 378,369,426,417
+  trait_crystal.png: 特性格子/水晶特性/棋盘留痕/流沙 @ 378,424,426,472
+  element_water.png: 属性/same/水 @ 160,172,316,366 normalized=78x95
+  element_fire.png: 属性/火 @ 371,18,449,113 normalized=78x95
+  element_wind.png: 属性/same/风 @ 158,179,317,360 normalized=78x95
+  element_earth.png: 属性/same/土 @ 159,181,316,358 normalized=78x95

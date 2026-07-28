@@ -2,33 +2,87 @@ extends Control
 class_name PetInfoPanelV2
 
 signal info_updated(snapshot: Dictionary)
+signal confirm_requested(command: Dictionary)
 
-const SOURCE_PSD := "/Users/ywh/Downloads/宠物信息栏2.psd"
+const SOURCE_PSD := "/Users/ywh/Downloads/宠物信息栏实装.psd"
 const SOURCE_CANVAS_SIZE := Vector2(476.0, 539.0)
-const COMPONENT_SOURCE := "res://art/prefabs/shared/pet/pet_info_panel_v2.tscn"
+const COMPONENT_SOURCE := "res://art/prefabs/pet/pet_detail.tscn"
 const ATTACK_COLUMNS := 7
 const ATTACK_ROWS := 3
 const ATTACK_ORIGIN_INDEX := 10
-const ATTACK_CELL_SIZE := Vector2(51.0, 48.0)
-const ATTACK_CELL_INSET := Vector2(1.0, 2.0)
+const ATTACK_CELL_SIZE := Vector2(383.0 / 7.0, 152.0 / 3.0)
+const ATTACK_CELL_INSET := Vector2.ZERO
+const TARGET_MARKER_SIZE := Vector2(54.0, 48.0)
+const ELEMENT_TEXTURES := {
+	"water": preload("res://art/images/shared/pets/info_panel/element_water.png"),
+	"fire": preload("res://art/images/shared/pets/info_panel/element_fire.png"),
+	"wind": preload("res://art/images/shared/pets/info_panel/element_wind.png"),
+	"earth": preload("res://art/images/shared/pets/info_panel/element_earth.png"),
+}
+const QUALITY_LAYERS := {
+	"bronze": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_bronze.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_bronze.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_bronze.png"),
+		"frame": preload("res://art/images/shared/pets/info_panel/frame_bronze.png"),
+		"attack_position": Vector2(46.0, 145.0),
+		"frame_position": Vector2(11.0, 14.0),
+	},
+	"silver": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_silver.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_silver.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_silver.png"),
+		"frame": preload("res://art/images/shared/pets/info_panel/frame_silver.png"),
+		"attack_position": Vector2(46.0, 145.0),
+		"frame_position": Vector2(4.0, 5.0),
+	},
+	"gold": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_gold.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_gold.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_gold.png"),
+		"frame": preload("res://art/images/shared/pets/info_panel/frame_gold.png"),
+		"attack_position": Vector2(46.0, 146.0),
+		"frame_position": Vector2(7.0, 14.0),
+	},
+	"crystal": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_crystal.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_crystal.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_crystal.png"),
+		"frame": preload("res://art/images/shared/pets/info_panel/frame_crystal.png"),
+		"attack_position": Vector2(46.0, 146.0),
+		"frame_position": Vector2(0.0, -7.0),
+	},
+}
 
-@onready var _name_label: Label = $NameLabel
-@onready var _attack_overlay: Control = $AttackOverlay
-@onready var _frame_bronze: TextureRect = $FrameBronze
-@onready var _frame_silver: TextureRect = $FrameSilver
-@onready var _hp_value: Label = $Stats/HpValue
-@onready var _attack_value: Label = $Stats/AttackValue
-@onready var _ap_value: Label = $Stats/ApValue
-@onready var _defense_value: Label = $Stats/DefenseValue
-@onready var _shield_value: Label = $Stats/ShieldValue
-@onready var _regen_value: Label = $Stats/RegenValue
+@onready var _name_label: Label = $PetName
+@onready var _element_icon: TextureRect = $ElementArt
+@onready var _attack_overlay: Control = $AttackFormatPlate/AttackOverlay
+@onready var _base_art: TextureRect = $BaseArt
+@onready var _attack_format_plate: TextureRect = $AttackFormatPlate
+@onready var _stat_slot_art: TextureRect = $StatSlotArt
+@onready var _frame_art: TextureRect = $FrameArt
+@onready var _hp_value: Label = $StatsUI/HpValue
+@onready var _attack_value: Label = $StatsUI/AttackValue
+@onready var _ap_value: Label = $StatsUI/ApValue
+@onready var _defense_value: Label = $StatsUI/DefenseValue
+@onready var _shield_value: Label = $StatsUI/ShieldValue
+@onready var _regen_value: Label = $StatsUI/RegenValue
 
 var _snapshot: Dictionary = {}
 var _target_cell_indices: Array[int] = []
 var _portrait_texture: Texture2D = null
+var _confirm_command: Dictionary = {}
+var _is_context_detail := false
+
+@onready var _close_button: Button = get_node_or_null("Actions/CloseButton") as Button
+@onready var _confirm_button: Button = get_node_or_null("Actions/ConfirmButton") as Button
 
 
 func _ready() -> void:
+	if _close_button != null and not _close_button.pressed.is_connected(close):
+		_close_button.pressed.connect(close)
+	if _confirm_button != null and not _confirm_button.pressed.is_connected(_on_confirm_pressed):
+		_confirm_button.pressed.connect(_on_confirm_pressed)
 	set_info({
 		"name": "李元芳",
 		"quality": "白银",
@@ -49,6 +103,48 @@ func _ready() -> void:
 	})
 
 
+func show_detail(record: Dictionary, texture: Texture2D = null, confirm_command: Dictionary = {}) -> void:
+	_is_context_detail = false
+	_confirm_command = confirm_command.duplicate(true)
+	set_info(record, texture)
+	if _close_button != null:
+		_close_button.visible = true
+	if _confirm_button != null:
+		_confirm_button.visible = not _confirm_command.is_empty()
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	visible = true
+	move_to_front()
+
+
+func show_context_detail(record: Dictionary, texture: Texture2D = null) -> void:
+	show_detail(record, texture)
+	_is_context_detail = true
+	if _close_button != null:
+		_close_button.visible = false
+	if _confirm_button != null:
+		_confirm_button.visible = false
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func close() -> void:
+	visible = false
+	_confirm_command.clear()
+	_is_context_detail = false
+
+
+func close_context_detail() -> void:
+	if _is_context_detail:
+		close()
+
+
+func is_context_detail() -> bool:
+	return _is_context_detail
+
+
+func get_detail_snapshot() -> Dictionary:
+	return get_info_snapshot()
+
+
 func set_info(record: Dictionary, texture: Texture2D = null) -> Dictionary:
 	_snapshot = _normalize_record(record)
 	_portrait_texture = texture
@@ -60,6 +156,7 @@ func set_info(record: Dictionary, texture: Texture2D = null) -> Dictionary:
 	_shield_value.text = str(int(_snapshot.get("shield", 0)))
 	_regen_value.text = str(int(_snapshot.get("regen", 0)))
 	_apply_quality(String(_snapshot.get("quality", "白银")))
+	_apply_element(String(_snapshot.get("element", "")))
 	_render_attack_shape(Dictionary(_snapshot.get("attack_shape", {})))
 	info_updated.emit(get_info_snapshot())
 	return get_info_snapshot()
@@ -98,6 +195,14 @@ func get_display_text() -> String:
 	])
 
 
+func _on_confirm_pressed() -> void:
+	if _confirm_command.is_empty():
+		return
+	var command := _confirm_command.duplicate(true)
+	close()
+	confirm_requested.emit(command)
+
+
 func _normalize_record(record: Dictionary) -> Dictionary:
 	var hp := int(_first_value(record, ["hp", "current_hp", "currentHp"], 0))
 	var max_hp := int(_first_value(record, ["max_hp", "maxHp", "hp_max"], hp))
@@ -122,9 +227,52 @@ func _normalize_record(record: Dictionary) -> Dictionary:
 
 func _apply_quality(quality: String) -> void:
 	var normalized := quality.strip_edges().to_lower()
-	var bronze := normalized.contains("bronze") or quality.contains("青铜")
-	_frame_bronze.visible = bronze
-	_frame_silver.visible = not bronze
+	var tier := "silver"
+	if normalized.contains("bronze") or quality.contains("青铜"):
+		tier = "bronze"
+	elif normalized.contains("gold") or quality.contains("黄金"):
+		tier = "gold"
+	elif normalized.contains("crystal") or normalized.contains("diamond") or quality.contains("水晶"):
+		tier = "crystal"
+	var layers: Dictionary = QUALITY_LAYERS[tier]
+	_apply_image_root(_base_art, layers["base"] as Texture2D, Vector2(28.0, 29.0))
+	_apply_image_root(
+		_attack_format_plate,
+		layers["attack"] as Texture2D,
+		layers["attack_position"] as Vector2
+	)
+	_apply_image_root(_stat_slot_art, layers["stats"] as Texture2D, Vector2(49.0, 308.0))
+	_apply_image_root(
+		_frame_art,
+		layers["frame"] as Texture2D,
+		layers["frame_position"] as Vector2
+	)
+
+
+func _apply_element(element: String) -> void:
+	var normalized := element.strip_edges().to_lower()
+	var texture_key := ""
+	if normalized in ["water", "水"]:
+		texture_key = "water"
+	elif normalized in ["fire", "火"]:
+		texture_key = "fire"
+	elif normalized in ["wind", "风"]:
+		texture_key = "wind"
+	elif normalized in ["earth", "土"]:
+		texture_key = "earth"
+	_element_icon.visible = ELEMENT_TEXTURES.has(texture_key)
+	if _element_icon.visible:
+		_apply_image_root(
+			_element_icon,
+			ELEMENT_TEXTURES[texture_key] as Texture2D,
+			Vector2(371.0, 18.0)
+		)
+
+
+func _apply_image_root(node: TextureRect, image: Texture2D, authored_position: Vector2) -> void:
+	node.texture = image
+	node.position = authored_position
+	node.size = image.get_size()
 
 
 func _render_attack_shape(shape: Dictionary) -> void:
@@ -159,10 +307,10 @@ func _render_attack_shape(shape: Dictionary) -> void:
 		target.name = "TargetCell%02d" % index
 		target.texture = preload("res://art/images/shared/pets/info_panel/attack_target.png")
 		target.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		target.stretch_mode = TextureRect.STRETCH_SCALE
+		target.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		target.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		target.position = _cell_position(index)
-		target.size = ATTACK_CELL_SIZE
+		target.position = _marker_position(index, TARGET_MARKER_SIZE)
+		target.size = TARGET_MARKER_SIZE
 		_attack_overlay.add_child(target)
 
 

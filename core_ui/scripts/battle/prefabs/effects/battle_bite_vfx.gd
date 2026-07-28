@@ -16,6 +16,7 @@ func play(frames: Array, frame_durations: Array = [], hit_frame_index: int = 3) 
 	_hit_frame_index = hit_frame_index
 	_hit_emitted = false
 	if _frames.is_empty():
+		_emit_hit_if_needed()
 		finished.emit()
 		queue_free()
 		return
@@ -32,12 +33,19 @@ func _play_frames() -> void:
 			return
 		texture = _frames[index] as Texture2D
 		if index + 1 == _hit_frame_index and not _hit_emitted:
-			_hit_emitted = true
-			hit_frame_reached.emit()
+			_emit_hit_if_needed()
 		var duration := 0.067
 		if index < _durations.size():
 			duration = float(_durations[index])
 		await get_tree().create_timer(maxf(duration, 0.01)).timeout
 	_playing = false
+	_emit_hit_if_needed()
 	finished.emit()
 	queue_free()
+
+
+func _emit_hit_if_needed() -> void:
+	if _hit_emitted:
+		return
+	_hit_emitted = true
+	hit_frame_reached.emit()

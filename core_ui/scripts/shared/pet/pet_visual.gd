@@ -6,7 +6,8 @@ const AUTHORED_CREATURE_TEXTURE := preload("res://art/images/shared/pets/battle_
 const ATTACK_RANGE_TEXTURE := preload("res://art/images/shared/pets/battle_complete/attack_range_cell.png")
 
 @onready var psd_root: Control = $CompleteBattleCreaturePrefab
-@onready var frame_rect: TextureRect = $RuntimeSupport/SelectionFrame
+@onready var status_view: PetStatusView = $"CompleteBattleCreaturePrefab/01_UnitVisual"
+@onready var frame_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/SelectionFrame"
 @onready var sprite_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/CreatureArt"
 @onready var shadow_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/Shadow"
 @onready var stats_root: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats"
@@ -21,14 +22,8 @@ const ATTACK_RANGE_TEXTURE := preload("res://art/images/shared/pets/battle_compl
 @onready var psd_shield_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield/Value_Text"
 @onready var psd_attack_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack/Value_Text"
 @onready var psd_damage_cap_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap/Value_Text"
-@onready var hp_label: Label = $RuntimeSupport/LegacyStatus/HpLabel
-@onready var life_label: Label = $RuntimeSupport/LegacyStatus/LifeLabel
-@onready var attack_label: Label = $RuntimeSupport/LegacyStatus/AttackLabel
-@onready var incoming_damage_label: Label = $RuntimeSupport/LegacyStatus/IncomingDamageLabel
-@onready var death_mark_rect: TextureRect = $RuntimeSupport/DeathMark
-@onready var status_view: PetStatusView = $Behavior/PetStatusView
-@onready var interaction: PetInteraction = $Behavior/PetInteraction
-@onready var animation: PetAnimation = $Behavior/PetAnimation
+@onready var death_mark_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/DeathMark"
+@onready var animation: PetAnimation = $"CompleteBattleCreaturePrefab/03_AttackActions"
 
 var cell_data: Dictionary = {}
 var side := ""
@@ -38,7 +33,6 @@ var _display_mode := &"battle"
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	interaction.configure(self, frame_rect)
 	animation.configure(self)
 	_layout_children()
 
@@ -60,7 +54,6 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 		sprite_rect.texture = AUTHORED_CREATURE_TEXTURE
 	enemy_marker_group.visible = side == "enemy" or side == "monster"
 	status_view.bind_battle_data(cell_data)
-	interaction.bind_context(&"battle", side, get_unit_id())
 	clear_dead_mark()
 
 
@@ -72,7 +65,6 @@ func set_collection_data(data: Dictionary, texture_resource: Texture2D) -> void:
 	frame_rect.visible = false
 	_set_collection_presentation(texture_resource)
 	status_view.set_mode(&"collection")
-	interaction.bind_context(&"collection", side, get_unit_id())
 	clear_dead_mark()
 
 
@@ -99,7 +91,7 @@ func reset_pet_view() -> void:
 	death_mark_rect.texture = null
 	clear_dead_mark()
 	status_view.reset()
-	interaction.reset()
+	_reset_interaction_state()
 	scale = Vector2.ONE
 	rotation = 0.0
 
@@ -160,11 +152,14 @@ func update_shield(value: int) -> void:
 
 
 func set_selected(selected: bool) -> void:
-	interaction.set_selected(selected)
+	if frame_rect != null:
+		frame_rect.modulate = Color(1.0, 0.92, 0.45, 1.0) if selected else Color.WHITE
 
 
 func set_dragging(is_dragging: bool) -> void:
-	interaction.set_dragging(is_dragging)
+	visible = not is_dragging
+	modulate = Color(1.0, 1.0, 1.0, 0.62) if is_dragging else Color.WHITE
+	z_index = 40 if is_dragging else 0
 
 
 func set_dead_mark(texture_resource: Texture2D) -> void:
@@ -201,7 +196,7 @@ func _notification(what: int) -> void:
 
 
 func _layout_children() -> void:
-	if frame_rect == null or sprite_rect == null or hp_label == null or life_label == null or attack_label == null or incoming_damage_label == null:
+	if frame_rect == null or sprite_rect == null:
 		return
 	sprite_rect.position = Vector2.ZERO
 	sprite_rect.size = Vector2(size.x, size.y * 120.0 / SOURCE_CANVAS_SIZE.y)
@@ -218,14 +213,6 @@ func _layout_children() -> void:
 	var value_font_size := maxi(9, int(round(18.0 * minf(size.x / SOURCE_CANVAS_SIZE.x, size.y / SOURCE_CANVAS_SIZE.y))))
 	for label in [psd_health_value, psd_shield_value, psd_attack_value, psd_damage_cap_value]:
 		label.add_theme_font_size_override("font_size", value_font_size)
-	hp_label.position = Vector2(6.0, 5.0)
-	hp_label.size = Vector2(maxf(size.x - 12.0, 0.0), 28.0)
-	life_label.position = Vector2(5.0, 3.0)
-	life_label.size = Vector2(maxf(size.x - 10.0, 0.0), 19.0)
-	attack_label.position = Vector2(5.0, maxf(size.y - 37.0, 0.0))
-	attack_label.size = Vector2(maxf(size.x - 10.0, 0.0), 17.0)
-	incoming_damage_label.position = Vector2(5.0, maxf(size.y - 19.0, 0.0))
-	incoming_damage_label.size = Vector2(maxf(size.x - 10.0, 0.0), 17.0)
 	if death_mark_rect != null:
 		death_mark_rect.position = Vector2(size.x * 0.32, 4.0)
 		death_mark_rect.size = Vector2(size.x * 0.36, size.y * 0.36)
@@ -271,3 +258,11 @@ func _set_authored_root_visible(visible_value: bool) -> void:
 		psd_root.visible = visible_value
 	if not visible_value and enemy_marker_group != null:
 		enemy_marker_group.visible = false
+
+
+func _reset_interaction_state() -> void:
+	visible = true
+	modulate = Color.WHITE
+	z_index = 0
+	if frame_rect != null:
+		frame_rect.modulate = Color.WHITE

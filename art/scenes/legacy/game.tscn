@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="PackedScene" path="res://art/scenes/art.tscn" id="1_art"]
-
-[node name="YsbzsSingleplayer" instance=ExtResource("1_art")]
-editor_description = "兼容旧测试和工具的别名。正式入口已经迁到 res://art/scenes/art.tscn；依赖方向是 game -> art。"

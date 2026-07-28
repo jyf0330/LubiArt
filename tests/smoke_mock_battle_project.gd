@@ -8,6 +8,12 @@ const BattleHudController := preload("res://core_ui/scripts/battle/controllers/b
 const BattleDetailController := preload("res://core_ui/scripts/battle/controllers/battle_detail_controller.gd")
 const BattleCommandBuilder := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
 const BattleTraceProjection := preload("res://core_ui/scripts/battle/controllers/battle_trace_projection.gd")
+const BattleProjectileScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_projectile.gd")
+const BattleBiteVfxScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_bite_vfx.gd")
+const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
+
+var _projectile_impact_count := 0
+var _bite_hit_count := 0
 
 
 func _initialize() -> void:
@@ -16,6 +22,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_assert_presentation_patterns_load()
+	await _assert_hit_sync_primitives()
 	var capture := _load_capture()
 	var capture_source := Dictionary(capture.get("source", {}))
 	assert(String(capture_source.get("project", "")) == "godot-latest")
@@ -79,7 +86,7 @@ func _run() -> void:
 	assert(not session_source.contains("_run_combat_round"))
 	assert(not session_source.contains("_damage_trace"))
 
-	var main_scene := load("res://art/scenes/art.tscn") as PackedScene
+	var main_scene := load("res://art/scenes/three_choice/three_choice_scene.tscn") as PackedScene
 	assert(main_scene != null)
 	var main_instance := main_scene.instantiate()
 	root.add_child(main_instance)
@@ -91,26 +98,20 @@ func _run() -> void:
 	await process_frame
 	await create_timer(1.0).timeout
 
-	var view_host := main_instance.get_node_or_null("ViewHost") as Control
-	assert(view_host != null)
-	assert(view_host.get_child_count() == 1)
-	var artist_view := view_host.get_child(0) as Control
-	assert(artist_view != null)
-	assert(artist_view.name == "UI")
-	var battle_view := artist_view.get_node_or_null("BattleFlow") as Control
+	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	assert(battle_view != null)
-	assert(battle_view.get_node_or_null("BattleVfxPlayer") != null)
-	assert(battle_view.get_node_or_null("BattleActionPanel") != null)
-	assert(battle_view.get_node_or_null("BattlePetDetailPanel") != null)
+	assert(battle_view.get_node_or_null("Board/BattleVfxPlayer") != null)
+	assert(battle_view.get_node_or_null("Board/BattleActionPanel") != null)
+	assert(battle_view.get_node_or_null("CellDetail/BattlePetDetailPanel") != null)
 
 	var game_session := main_instance.call("get_game_session") as RefCounted
 	assert(game_session != null)
 	assert(String(Dictionary(game_session.call("current_snapshot")).get("phase", "")) == "battle")
 	assert(int(game_session.call("replay_step_index")) == 0)
-	var board_grid := battle_view.get_node("BoardGrid") as Control
+	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
 	assert(board_grid.get_child_count() == 64)
-	assert(main_instance.call("get_active_view") == artist_view)
-	assert(artist_view.call("get_feature_controller", &"battle") == battle_view)
+	assert(main_instance.call("get_active_view") == main_instance)
+	assert(main_instance.call("get_active_feature_view") == battle_view)
 
 	var visible_pet_count := 0
 	for cell in board_grid.get_children():
@@ -125,7 +126,7 @@ func _run() -> void:
 	await process_frame
 	await create_timer(0.1).timeout
 	assert(visible_pet_count > 0)
-	assert((battle_view.get_node("BattlePetDetailPanel") as Control).visible)
+	assert((battle_view.get_node("CellDetail/BattlePetDetailPanel") as Control).visible)
 
 	var player_unit_id := _first_player_unit_id(Dictionary(game_session.call("current_snapshot")))
 	assert(player_unit_id != "")
@@ -133,7 +134,7 @@ func _run() -> void:
 		Dictionary(game_session.call("current_snapshot")),
 		player_unit_id
 	)
-	(battle_view.get_node("AutoArrangeButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("Board/AutoArrangeButton") as TextureButton).pressed.emit()
 	await process_frame
 	await process_frame
 	await process_frame
@@ -142,7 +143,7 @@ func _run() -> void:
 	assert(int(game_session.call("replay_step_index")) == 1)
 
 	var main_before_round := int(main_positioned.get("battle_round", 0))
-	(battle_view.get_node("BeginTurnButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("Board/BeginTurnButton") as TextureButton).pressed.emit()
 	await process_frame
 	await process_frame
 	await process_frame
@@ -151,6 +152,12 @@ func _run() -> void:
 		== main_before_round + 1
 	)
 	assert(int(game_session.call("replay_step_index")) == 2)
+	var vfx_player := battle_view.get_node("Board/BattleVfxPlayer")
+	var trace_deadline_msec := Time.get_ticks_msec() + 30000
+	while bool(vfx_player.get("_trace_sequence_playing")) and Time.get_ticks_msec() < trace_deadline_msec:
+		await process_frame
+	assert(not bool(vfx_player.get("_trace_sequence_playing")))
+	assert(Array(vfx_player.get("_trace_queue")).is_empty())
 	print("MOCK_BATTLE_PROJECT_SMOKE_PASS")
 	quit(0)
 
@@ -163,6 +170,47 @@ func _assert_presentation_patterns_load() -> void:
 	assert(BattleDetailController.new() != null)
 	assert(BattleCommandBuilder.new() != null)
 	assert(BattleTraceProjection.new() != null)
+
+
+func _assert_hit_sync_primitives() -> void:
+	var projectile := BattleProjectileScript.new() as Node2D
+	assert(projectile != null)
+	assert(projectile.has_signal("impact_reached"))
+	root.add_child(projectile)
+	await process_frame
+	_projectile_impact_count = 0
+	projectile.connect("impact_reached", _on_test_projectile_impact)
+	projectile.call("_finish_flight")
+	projectile.call("_finish_flight")
+	assert(_projectile_impact_count == 1)
+
+	var bite := BattleBiteVfxScript.new() as Control
+	assert(bite != null)
+	assert(bite.has_signal("hit_frame_reached"))
+	root.add_child(bite)
+	await process_frame
+	_bite_hit_count = 0
+	bite.connect("hit_frame_reached", _on_test_bite_hit)
+	bite.call("_emit_hit_if_needed")
+	bite.call("_emit_hit_if_needed")
+	assert(_bite_hit_count == 1)
+
+	var damage_number := BattleDamageNumberScript.new() as Control
+	assert(damage_number != null)
+	root.add_child(damage_number)
+	damage_number.size = Vector2(140.0, 40.0)
+	damage_number.call("show_damage", 7)
+	assert(String(damage_number.get("text")) == "-7")
+	assert(is_equal_approx(damage_number.scale.x, 0.72))
+	damage_number.queue_free()
+
+
+func _on_test_projectile_impact() -> void:
+	_projectile_impact_count += 1
+
+
+func _on_test_bite_hit() -> void:
+	_bite_hit_count += 1
 
 
 func _assert_snapshot_contract(snapshot: Dictionary) -> void:
