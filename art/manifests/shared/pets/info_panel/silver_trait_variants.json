@@ -1,0 +1,22 @@
+{
+  "sourceArchive": "白银特性.zip",
+  "targetNode": "TraitArt",
+  "targetSize": [48, 48],
+  "defaultVariant": "guard",
+  "variants": [
+    {"id": "self_heal", "displayName": "自愈", "source": "自愈.png", "resource": "trait_silver_self_heal.png"},
+    {"id": "signature_burst", "displayName": "本命爆发", "source": "本命爆发.png", "resource": "trait_silver_signature_burst.png"},
+    {"id": "guard", "displayName": "护体", "source": "护体.png", "resource": "trait_silver.png"},
+    {"id": "combo_multiplier", "displayName": "连击倍增", "source": "连击倍增.png", "resource": "trait_silver_combo_multiplier.png"},
+    {"id": "finisher_crit", "displayName": "收尾暴击", "source": "收尾暴击.png", "resource": "trait_silver_finisher_crit.png"},
+    {"id": "element_echo", "displayName": "元素回响", "source": "元素回响.png", "resource": "trait_silver_element_echo.png"},
+    {"id": "battle_growth", "displayName": "越战越勇", "source": "越战越勇.png", "resource": "trait_silver_battle_growth.png"},
+    {"id": "vitality", "displayName": "壮体", "source": "壮体.png", "resource": "trait_silver_vitality.png"}
+  ],
+  "lockOverlay": {
+    "source": "锁.png",
+    "targetNode": "TraitLockSilver",
+    "targetSize": [55, 52],
+    "resource": "trait_lock_silver.png"
+  }
+}

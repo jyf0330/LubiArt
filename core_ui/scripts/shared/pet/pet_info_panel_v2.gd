@@ -1,66 +1,160 @@
+@tool
 extends Control
 class_name PetInfoPanelV2
 
 signal info_updated(snapshot: Dictionary)
 signal confirm_requested(command: Dictionary)
 
-const SOURCE_PSD := "/Users/ywh/Downloads/宠物信息栏实装.psd"
+const SOURCE_PSD := "宠物信息栏实装(修改).psd"
 const SOURCE_CANVAS_SIZE := Vector2(476.0, 539.0)
-const COMPONENT_SOURCE := "res://art/prefabs/pet/pet_detail.tscn"
+const COMPONENT_SOURCE := "res://art/prefabs/pet/sprite_info_card.tscn"
 const ATTACK_COLUMNS := 7
 const ATTACK_ROWS := 3
 const ATTACK_ORIGIN_INDEX := 10
 const ATTACK_CELL_SIZE := Vector2(383.0 / 7.0, 152.0 / 3.0)
 const ATTACK_CELL_INSET := Vector2.ZERO
+const ORIGIN_MARKER_SIZE := Vector2(43.0, 42.0)
 const TARGET_MARKER_SIZE := Vector2(54.0, 48.0)
-const ELEMENT_TEXTURES := {
-	"water": preload("res://art/images/shared/pets/info_panel/element_water.png"),
-	"fire": preload("res://art/images/shared/pets/info_panel/element_fire.png"),
-	"wind": preload("res://art/images/shared/pets/info_panel/element_wind.png"),
-	"earth": preload("res://art/images/shared/pets/info_panel/element_earth.png"),
+const ATTACK_FORMAT_ART_SIZE := Vector2(383.0, 152.0)
+const BASE_ART_SIZE := Vector2(472.0, 540.0)
+const STAT_SLOT_ART_SIZE := Vector2(322.0, 174.0)
+const ELEMENT_ART_SIZE := Vector2(93.0, 115.0)
+const SILVER_TRAIT_ART_SIZE := Vector2(48.0, 48.0)
+const BASE_ART_ORDER := ["bronze", "silver", "gold", "crystal"]
+const BASE_ART_NAMES := ["青铜", "白银", "黄金", "水晶"]
+const ELEMENT_ORDER := ["dark", "water", "ice", "grass", "electric", "wind", "fire", "dragon", "earth"]
+const ELEMENT_NAMES := ["暗", "水", "冰", "草", "电", "风", "火", "龙", "土"]
+const SILVER_TRAIT_ORDER := [
+	"self_heal",
+	"signature_burst",
+	"guard",
+	"combo_multiplier",
+	"finisher_crit",
+	"element_echo",
+	"battle_growth",
+	"vitality",
+]
+const SILVER_TRAIT_NAMES := ["自愈", "本命爆发", "护体", "连击倍增", "收尾暴击", "元素回响", "越战越勇", "壮体"]
+const SILVER_TRAIT_TEXTURES := {
+	"self_heal": preload("res://art/images/shared/pets/info_panel/trait_silver_self_heal.png"),
+	"signature_burst": preload("res://art/images/shared/pets/info_panel/trait_silver_signature_burst.png"),
+	"guard": preload("res://art/images/shared/pets/info_panel/trait_silver.png"),
+	"combo_multiplier": preload("res://art/images/shared/pets/info_panel/trait_silver_combo_multiplier.png"),
+	"finisher_crit": preload("res://art/images/shared/pets/info_panel/trait_silver_finisher_crit.png"),
+	"element_echo": preload("res://art/images/shared/pets/info_panel/trait_silver_element_echo.png"),
+	"battle_growth": preload("res://art/images/shared/pets/info_panel/trait_silver_battle_growth.png"),
+	"vitality": preload("res://art/images/shared/pets/info_panel/trait_silver_vitality.png"),
+}
+const ELEMENT_LAYERS := {
+	"dark": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_dark.png"),
+	},
+	"water": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_water.png"),
+	},
+	"ice": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_ice.png"),
+	},
+	"grass": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_grass.png"),
+	},
+	"electric": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_electric.png"),
+	},
+	"fire": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_fire.png"),
+	},
+	"wind": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_wind.png"),
+	},
+	"dragon": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_dragon.png"),
+	},
+	"earth": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_earth.png"),
+	},
+}
+const ELEMENT_ALIASES := {
+	"dark": "dark",
+	"darkness": "dark",
+	"shadow": "dark",
+	"暗": "dark",
+	"water": "water",
+	"水": "water",
+	"ice": "ice",
+	"冰": "ice",
+	"grass": "grass",
+	"plant": "grass",
+	"nature": "grass",
+	"草": "grass",
+	"木": "grass",
+	"electric": "electric",
+	"electricity": "electric",
+	"lightning": "electric",
+	"thunder": "electric",
+	"电": "electric",
+	"雷": "electric",
+	"wind": "wind",
+	"风": "wind",
+	"fire": "fire",
+	"火": "fire",
+	"dragon": "dragon",
+	"龙": "dragon",
+	"earth": "earth",
+	"ground": "earth",
+	"soil": "earth",
+	"土": "earth",
 }
 const QUALITY_LAYERS := {
 	"bronze": {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_bronze.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_bronze.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_bronze.png"),
-		"frame": preload("res://art/images/shared/pets/info_panel/frame_bronze.png"),
-		"attack_position": Vector2(46.0, 145.0),
-		"frame_position": Vector2(11.0, 14.0),
+		"base_position": Vector2(14.0, 22.0),
 	},
 	"silver": {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_silver.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_silver.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_silver.png"),
-		"frame": preload("res://art/images/shared/pets/info_panel/frame_silver.png"),
-		"attack_position": Vector2(46.0, 145.0),
-		"frame_position": Vector2(4.0, 5.0),
+		"base_position": Vector2(7.0, 11.0),
 	},
 	"gold": {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_gold.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_gold.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_gold.png"),
-		"frame": preload("res://art/images/shared/pets/info_panel/frame_gold.png"),
-		"attack_position": Vector2(46.0, 146.0),
-		"frame_position": Vector2(7.0, 14.0),
+		"base_position": Vector2(10.0, 22.0),
 	},
 	"crystal": {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_crystal.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_crystal.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_crystal.png"),
-		"frame": preload("res://art/images/shared/pets/info_panel/frame_crystal.png"),
-		"attack_position": Vector2(46.0, 146.0),
-		"frame_position": Vector2(0.0, -7.0),
+		"base_position": Vector2(2.0, 0.0),
 	},
 }
 
+@export_enum("跟随宠物品质", "青铜", "白银", "黄金", "水晶")
+var base_art_selection := 0:
+	set(value):
+		base_art_selection = clampi(value, 0, BASE_ART_ORDER.size())
+		if is_inside_tree():
+			call_deferred("_apply_base_art")
+
+@export_enum("跟随宠物属性", "暗", "水", "冰", "草", "电", "风", "火", "龙", "土")
+var element_art_selection := 0:
+	set(value):
+		element_art_selection = clampi(value, 0, ELEMENT_ORDER.size())
+		if is_inside_tree():
+			call_deferred("_apply_element_art")
+
+@export_enum("自愈", "本命爆发", "护体", "连击倍增", "收尾暴击", "元素回响", "越战越勇", "壮体")
+var silver_trait_selection := 2:
+	set(value):
+		silver_trait_selection = clampi(value, 0, SILVER_TRAIT_ORDER.size() - 1)
+		if is_inside_tree():
+			call_deferred("_apply_silver_trait_art")
+
 @onready var _name_label: Label = $PetName
-@onready var _element_icon: TextureRect = $ElementArt
 @onready var _attack_overlay: Control = $AttackFormatPlate/AttackOverlay
-@onready var _base_art: TextureRect = $BaseArt
-@onready var _attack_format_plate: TextureRect = $AttackFormatPlate
-@onready var _stat_slot_art: TextureRect = $StatSlotArt
-@onready var _frame_art: TextureRect = $FrameArt
 @onready var _hp_value: Label = $StatsUI/HpValue
 @onready var _attack_value: Label = $StatsUI/AttackValue
 @onready var _ap_value: Label = $StatsUI/ApValue
@@ -73,6 +167,11 @@ var _target_cell_indices: Array[int] = []
 var _portrait_texture: Texture2D = null
 var _confirm_command: Dictionary = {}
 var _is_context_detail := false
+var _current_quality_tier := "crystal"
+var _current_element_key := "water"
+var _editor_base_art_selection := -1
+var _editor_element_art_selection := -1
+var _editor_silver_trait_selection := -1
 
 @onready var _close_button: Button = get_node_or_null("Actions/CloseButton") as Button
 @onready var _confirm_button: Button = get_node_or_null("Actions/ConfirmButton") as Button
@@ -84,8 +183,9 @@ func _ready() -> void:
 	if _confirm_button != null and not _confirm_button.pressed.is_connected(_on_confirm_pressed):
 		_confirm_button.pressed.connect(_on_confirm_pressed)
 	set_info({
-		"name": "李元芳",
-		"quality": "白银",
+		"name": "宠物名字",
+		"element": "水",
+		"quality": "水晶",
 		"hp": 24,
 		"max_hp": 24,
 		"attack": 4,
@@ -101,6 +201,15 @@ func _ready() -> void:
 			]
 		},
 	})
+
+
+func _process(_delta: float) -> void:
+	if Engine.is_editor_hint() and _editor_base_art_selection != base_art_selection:
+		_apply_base_art()
+	if Engine.is_editor_hint() and _editor_element_art_selection != element_art_selection:
+		_apply_element_art()
+	if Engine.is_editor_hint() and _editor_silver_trait_selection != silver_trait_selection:
+		_apply_silver_trait_art()
 
 
 func show_detail(record: Dictionary, texture: Texture2D = null, confirm_command: Dictionary = {}) -> void:
@@ -155,7 +264,7 @@ func set_info(record: Dictionary, texture: Texture2D = null) -> Dictionary:
 	_defense_value.text = str(int(_snapshot.get("defense", 0)))
 	_shield_value.text = str(int(_snapshot.get("shield", 0)))
 	_regen_value.text = str(int(_snapshot.get("regen", 0)))
-	_apply_quality(String(_snapshot.get("quality", "白银")))
+	_apply_quality(String(_snapshot.get("quality", "水晶")))
 	_apply_element(String(_snapshot.get("element", "")))
 	_render_attack_shape(Dictionary(_snapshot.get("attack_shape", {})))
 	info_updated.emit(get_info_snapshot())
@@ -186,10 +295,103 @@ func get_component_source() -> String:
 	return COMPONENT_SOURCE
 
 
+func set_base_art_by_index(index: int) -> bool:
+	return set_quality_art_exclusive_by_index(index)
+
+
+func set_quality_art_exclusive_by_index(index: int) -> bool:
+	if index < 0 or index >= BASE_ART_ORDER.size():
+		return false
+	base_art_selection = index + 1
+	if is_inside_tree():
+		_apply_base_art()
+	return true
+
+
+func set_base_art_by_name(variant_name: String) -> bool:
+	var normalized := variant_name.strip_edges().to_lower()
+	for index in range(BASE_ART_ORDER.size()):
+		if normalized == String(BASE_ART_ORDER[index]) or variant_name == BASE_ART_NAMES[index]:
+			return set_base_art_by_index(index)
+	return false
+
+
+func follow_quality_base_art() -> void:
+	base_art_selection = 0
+
+
+func get_base_art_index() -> int:
+	return BASE_ART_ORDER.find(_selected_base_art_tier())
+
+
+func get_base_art_variant_names() -> PackedStringArray:
+	return PackedStringArray(BASE_ART_NAMES)
+
+
+func get_base_art_size() -> Vector2:
+	return BASE_ART_SIZE
+
+
+func set_element_art_by_index(index: int) -> bool:
+	if index < 0 or index >= ELEMENT_ORDER.size():
+		return false
+	element_art_selection = index + 1
+	return true
+
+
+func set_element_art_by_name(element_name: String) -> bool:
+	var key := _normalize_element_key(element_name)
+	var index := ELEMENT_ORDER.find(key)
+	return set_element_art_by_index(index) if index >= 0 else false
+
+
+func follow_pet_element_art() -> void:
+	element_art_selection = 0
+
+
+func get_element_art_index() -> int:
+	return ELEMENT_ORDER.find(_selected_element_key())
+
+
+func get_element_art_variant_names() -> PackedStringArray:
+	return PackedStringArray(ELEMENT_NAMES)
+
+
+func get_element_art_size() -> Vector2:
+	return ELEMENT_ART_SIZE
+
+
+func set_silver_trait_by_index(index: int) -> bool:
+	if index < 0 or index >= SILVER_TRAIT_ORDER.size():
+		return false
+	silver_trait_selection = index
+	return true
+
+
+func set_silver_trait_by_name(trait_name: String) -> bool:
+	var normalized := trait_name.strip_edges().to_lower()
+	for index in range(SILVER_TRAIT_ORDER.size()):
+		if normalized == String(SILVER_TRAIT_ORDER[index]) or trait_name == SILVER_TRAIT_NAMES[index]:
+			return set_silver_trait_by_index(index)
+	return false
+
+
+func get_silver_trait_index() -> int:
+	return silver_trait_selection
+
+
+func get_silver_trait_variant_names() -> PackedStringArray:
+	return PackedStringArray(SILVER_TRAIT_NAMES)
+
+
+func get_silver_trait_art_size() -> Vector2:
+	return SILVER_TRAIT_ART_SIZE
+
+
 func get_display_text() -> String:
 	return "\n".join([
 		String(_snapshot.get("name", "未知宠物")),
-		"%s · %s" % [_snapshot.get("element", "未知元素"), _snapshot.get("quality", "白银")],
+		"%s · %s" % [_snapshot.get("element", "未知元素"), _snapshot.get("quality", "水晶")],
 		"生命 %s/%s    攻击力 %s    防御 %s" % [_snapshot.get("hp", 0), _snapshot.get("max_hp", 0), _snapshot.get("attack", 0), _snapshot.get("defense", 0)],
 		"护盾 %s    AP %s/%s    再生 %s" % [_snapshot.get("shield", 0), _snapshot.get("ap", 0), _snapshot.get("max_ap", 0), _snapshot.get("regen", 0)],
 	])
@@ -212,7 +414,7 @@ func _normalize_record(record: Dictionary) -> Dictionary:
 		"id": String(_first_value(record, ["id", "pet_id", "unit_id"], "")),
 		"name": String(_first_value(record, ["name", "display_name", "title"], "未知宠物")),
 		"element": String(_first_value(record, ["element", "element_name"], "未知元素")),
-		"quality": String(_first_value(record, ["quality", "rarity", "tier"], "白银")),
+		"quality": String(_first_value(record, ["quality", "rarity", "tier"], "水晶")),
 		"hp": hp,
 		"max_hp": max_hp,
 		"attack": int(_first_value(record, ["attack", "atk", "power"], 0)),
@@ -232,47 +434,87 @@ func _apply_quality(quality: String) -> void:
 		tier = "bronze"
 	elif normalized.contains("gold") or quality.contains("黄金"):
 		tier = "gold"
-	elif normalized.contains("crystal") or normalized.contains("diamond") or quality.contains("水晶"):
+	elif (
+		normalized.contains("crystal")
+		or normalized.contains("diamond")
+		or quality.contains("水晶")
+		or quality.contains("钻石")
+	):
 		tier = "crystal"
+	_current_quality_tier = tier
+	_apply_base_art()
+
+
+func _apply_base_art() -> void:
+	var base_art := get_node_or_null("BaseArt") as TextureRect
+	var attack_format_plate := get_node_or_null("AttackFormatPlate") as TextureRect
+	var stat_slot_art := get_node_or_null("StatSlotArt") as TextureRect
+	if base_art == null or attack_format_plate == null or stat_slot_art == null:
+		return
+	var tier := _selected_base_art_tier()
 	var layers: Dictionary = QUALITY_LAYERS[tier]
-	_apply_image_root(_base_art, layers["base"] as Texture2D, Vector2(28.0, 29.0))
-	_apply_image_root(
-		_attack_format_plate,
-		layers["attack"] as Texture2D,
-		layers["attack_position"] as Vector2
-	)
-	_apply_image_root(_stat_slot_art, layers["stats"] as Texture2D, Vector2(49.0, 308.0))
-	_apply_image_root(
-		_frame_art,
-		layers["frame"] as Texture2D,
-		layers["frame_position"] as Vector2
-	)
+	base_art.texture = layers["base"] as Texture2D
+	base_art.visible = true
+	base_art.position = Vector2(2.0, 0.0)
+	base_art.size = BASE_ART_SIZE
+	attack_format_plate.texture = layers["attack"] as Texture2D
+	attack_format_plate.visible = true
+	attack_format_plate.position = Vector2(46.0, 145.0)
+	attack_format_plate.size = ATTACK_FORMAT_ART_SIZE
+	stat_slot_art.texture = layers["stats"] as Texture2D
+	stat_slot_art.visible = true
+	stat_slot_art.position = Vector2(49.0, 308.0)
+	stat_slot_art.size = STAT_SLOT_ART_SIZE
+	base_art.set_meta("quality_tier", tier)
+	attack_format_plate.set_meta("quality_tier", tier)
+	stat_slot_art.set_meta("quality_tier", tier)
+	_editor_base_art_selection = base_art_selection
+
+
+func _selected_base_art_tier() -> String:
+	if base_art_selection <= 0:
+		return _current_quality_tier
+	return String(BASE_ART_ORDER[base_art_selection - 1])
 
 
 func _apply_element(element: String) -> void:
-	var normalized := element.strip_edges().to_lower()
-	var texture_key := ""
-	if normalized in ["water", "水"]:
-		texture_key = "water"
-	elif normalized in ["fire", "火"]:
-		texture_key = "fire"
-	elif normalized in ["wind", "风"]:
-		texture_key = "wind"
-	elif normalized in ["earth", "土"]:
-		texture_key = "earth"
-	_element_icon.visible = ELEMENT_TEXTURES.has(texture_key)
-	if _element_icon.visible:
-		_apply_image_root(
-			_element_icon,
-			ELEMENT_TEXTURES[texture_key] as Texture2D,
-			Vector2(371.0, 18.0)
-		)
+	_current_element_key = _normalize_element_key(element)
+	_apply_element_art()
 
 
-func _apply_image_root(node: TextureRect, image: Texture2D, authored_position: Vector2) -> void:
-	node.texture = image
-	node.position = authored_position
-	node.size = image.get_size()
+func _apply_element_art() -> void:
+	var element_art := get_node_or_null("ElementArt") as TextureRect
+	if element_art == null:
+		return
+	var key := _selected_element_key()
+	element_art.visible = ELEMENT_LAYERS.has(key)
+	if element_art.visible:
+		var layer: Dictionary = ELEMENT_LAYERS[key]
+		element_art.texture = layer["texture"] as Texture2D
+		element_art.position = Vector2(370.0, 20.0)
+		element_art.size = ELEMENT_ART_SIZE
+	_editor_element_art_selection = element_art_selection
+
+
+func _selected_element_key() -> String:
+	if element_art_selection <= 0:
+		return _current_element_key
+	return String(ELEMENT_ORDER[element_art_selection - 1])
+
+
+func _apply_silver_trait_art() -> void:
+	var trait_art := get_node_or_null("TraitArt") as TextureRect
+	if trait_art == null:
+		return
+	var key := String(SILVER_TRAIT_ORDER[silver_trait_selection])
+	trait_art.texture = SILVER_TRAIT_TEXTURES[key] as Texture2D
+	trait_art.position = Vector2(378.0, 315.0)
+	trait_art.size = SILVER_TRAIT_ART_SIZE
+	_editor_silver_trait_selection = silver_trait_selection
+
+
+func _normalize_element_key(element: String) -> String:
+	return String(ELEMENT_ALIASES.get(element.strip_edges().to_lower(), ""))
 
 
 func _render_attack_shape(shape: Dictionary) -> void:
@@ -286,8 +528,8 @@ func _render_attack_shape(shape: Dictionary) -> void:
 	origin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	origin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	origin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	origin.position = _marker_position(ATTACK_ORIGIN_INDEX, origin.texture.get_size())
-	origin.size = origin.texture.get_size()
+	origin.position = _marker_position(ATTACK_ORIGIN_INDEX, ORIGIN_MARKER_SIZE)
+	origin.size = ORIGIN_MARKER_SIZE
 	_attack_overlay.add_child(origin)
 
 	for offset_value in Array(shape.get("offsets", [])):
