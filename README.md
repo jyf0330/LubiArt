@@ -17,7 +17,7 @@
 
 `three_choice_scene.tscn -> MockGameSession -> FeatureRegistry -> SceneRouter -> battle_art_scene.tscn -> 四类 art/prefabs`
 
-美术可以直接修改本项目中的两个 UI Scene、四个 prefab、展示脚本、布局、动画和资源。图片、manifest 和脚本必须继续分别放在上述类型目录，再在类型目录内部按功能 scope 分类。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
+美术可以直接修改本项目中的两个 UI Scene、四个 prefab、展示脚本、布局、动画和资源。宠物详情卡面作为 `pet_detail.tscn` 内的 `SpriteInfoCard` 节点维护。图片、manifest 和脚本必须继续分别放在上述类型目录，再在类型目录内部按功能 scope 分类。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
 
 ## 验证
 

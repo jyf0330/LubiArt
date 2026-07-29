@@ -1,0 +1,68 @@
+{
+  "sourceArchive": "卡底.zip",
+  "sourceUpdated": "2026-07-29",
+  "sourceSize": {
+    "width": 472,
+    "height": 541
+  },
+  "statSlotSourceArchive": "数值格子.zip",
+  "attackGridSourceArchive": "攻击棋盘.zip",
+  "runtimeDependency": false,
+  "targetNode": "SpriteInfoCard/BaseArt",
+  "pairedTargetNode": "SpriteInfoCard/StatSlotArt",
+  "attackTargetNode": "SpriteInfoCard/AttackFormatPlate",
+  "targetSize": {
+    "width": 472,
+    "height": 540
+  },
+  "pairedTargetSize": {
+    "width": 322,
+    "height": 174
+  },
+  "attackTargetSize": {
+    "width": 383,
+    "height": 152
+  },
+  "variants": [
+    {
+      "id": "bronze",
+      "displayName": "青铜",
+      "sourceEntry": "青铜.png",
+      "resource": "res://art/images/shared/pets/info_panel/panel_base_bronze.png",
+      "statSlotSourceEntry": "青铜.png",
+      "statSlotResource": "res://art/images/shared/pets/info_panel/stat_slots_bronze.png",
+      "attackGridSourceEntry": "青铜攻击棋盘.png",
+      "attackGridResource": "res://art/images/shared/pets/info_panel/attack_grid_bronze.png"
+    },
+    {
+      "id": "silver",
+      "displayName": "白银",
+      "sourceEntry": "白银.png",
+      "resource": "res://art/images/shared/pets/info_panel/panel_base_silver.png",
+      "statSlotSourceEntry": "白银.png",
+      "statSlotResource": "res://art/images/shared/pets/info_panel/stat_slots_silver.png",
+      "attackGridSourceEntry": "白银攻击棋盘.png",
+      "attackGridResource": "res://art/images/shared/pets/info_panel/attack_grid_silver.png"
+    },
+    {
+      "id": "gold",
+      "displayName": "黄金",
+      "sourceEntry": "黄金.png",
+      "resource": "res://art/images/shared/pets/info_panel/panel_base_gold.png",
+      "statSlotSourceEntry": "黄金.png",
+      "statSlotResource": "res://art/images/shared/pets/info_panel/stat_slots_gold.png",
+      "attackGridSourceEntry": "黄金攻击棋盘.png",
+      "attackGridResource": "res://art/images/shared/pets/info_panel/attack_grid_gold.png"
+    },
+    {
+      "id": "crystal",
+      "displayName": "水晶",
+      "sourceEntry": "水晶.png",
+      "resource": "res://art/images/shared/pets/info_panel/panel_base_crystal.png",
+      "statSlotSourceEntry": "水晶.png",
+      "statSlotResource": "res://art/images/shared/pets/info_panel/stat_slots_crystal.png",
+      "attackGridSourceEntry": "水晶攻击棋盘.png",
+      "attackGridResource": "res://art/images/shared/pets/info_panel/attack_grid_crystal.png"
+    }
+  ]
+}

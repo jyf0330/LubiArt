@@ -1,0 +1,20 @@
+{
+  "sourceArchive": "9属性UI.zip",
+  "runtimeDependency": false,
+  "targetNode": "SpriteInfoCard/ElementArt",
+  "targetSize": {
+    "width": 93,
+    "height": 115
+  },
+  "variants": [
+    {"id": "dark", "displayName": "暗", "sourceEntry": "_0000_暗.png", "resource": "res://art/images/shared/pets/info_panel/element_dark.png"},
+    {"id": "water", "displayName": "水", "sourceEntry": "_0001_水.png", "resource": "res://art/images/shared/pets/info_panel/element_water.png"},
+    {"id": "ice", "displayName": "冰", "sourceEntry": "_0002_冰.png", "resource": "res://art/images/shared/pets/info_panel/element_ice.png"},
+    {"id": "grass", "displayName": "草", "sourceEntry": "_0003_草.png", "resource": "res://art/images/shared/pets/info_panel/element_grass.png"},
+    {"id": "electric", "displayName": "电", "sourceEntry": "_0004_电.png", "resource": "res://art/images/shared/pets/info_panel/element_electric.png"},
+    {"id": "wind", "displayName": "风", "sourceEntry": "_0005_风.png", "resource": "res://art/images/shared/pets/info_panel/element_wind.png"},
+    {"id": "fire", "displayName": "火", "sourceEntry": "_0006_火.png", "resource": "res://art/images/shared/pets/info_panel/element_fire.png"},
+    {"id": "dragon", "displayName": "龙", "sourceEntry": "_0007_龙.png", "resource": "res://art/images/shared/pets/info_panel/element_dragon.png"},
+    {"id": "earth", "displayName": "土", "sourceEntry": "_0008_土.png", "resource": "res://art/images/shared/pets/info_panel/element_earth.png"}
+  ]
+}

@@ -4,8 +4,8 @@
 
 ```text
 art/prefabs/
-├── pet/
-│   ├── pet.tscn
+ ├── pet/
+ │   ├── pet.tscn
 │   └── pet_detail.tscn
 └── terrain/
     ├── terrain.tscn
@@ -13,7 +13,7 @@ art/prefabs/
 ```
 
 - `pet.tscn`：三选一、队伍、背包和战斗共同使用的宠物视觉与交互根。
-- `pet_detail.tscn`：三选一和战斗共同使用的宠物详情、遮罩与确认操作。
+- `pet_detail.tscn`：三选一和战斗共同使用的宠物详情、遮罩、确认操作、卡面和数据调试容器。
 - `terrain.tscn`：战斗棋盘重复实例化的地形格。
 - `terrain_detail.tscn`：战斗中查看地形元素、威胁和预览的详情面板。
 
