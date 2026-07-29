@@ -1,12 +1,13 @@
-# 四个正式预制体
+# 四个公开预制体与一个内部卡片组件
 
-本目录只允许四个真正复用的 Godot prefab：
+本目录包含四个跨流程公开 prefab，以及一个可独立编辑和调试的卡片组件：
 
 ```text
 art/prefabs/
  ├── pet/
  │   ├── pet.tscn
-│   └── pet_detail.tscn
+│   ├── pet_detail.tscn
+│   └── sprite_info_card.tscn
 └── terrain/
     ├── terrain.tscn
     └── terrain_detail.tscn
@@ -14,6 +15,7 @@ art/prefabs/
 
 - `pet.tscn`：三选一、队伍、背包和战斗共同使用的宠物视觉与交互根。
 - `pet_detail.tscn`：三选一和战斗共同使用的宠物详情、遮罩、确认操作、卡面和数据调试容器。
+- `sprite_info_card.tscn`：由宠物详情实例化的内部卡片组件，可在独立美术调试 Scene 中直接检查。
 - `terrain.tscn`：战斗棋盘重复实例化的地形格。
 - `terrain_detail.tscn`：战斗中查看地形元素、威胁和预览的详情面板。
 
@@ -21,7 +23,7 @@ art/prefabs/
 
 宠物攻击、受击、移动、死亡、跨格投射物和伤害数字属于 `pet.tscn`；地面元素标记与命中特效属于 `terrain.tscn`。按钮、槽位、HUD、回合横幅、页面和调试入口仍直接放在所属正式 Scene 或由其脚本创建。
 
-对应脚本统一放在 `res://core_ui/scripts/`，图片统一放在 `res://art/images/`。新增第五个 `.tscn` 前必须先修改“两 Scene / 四 prefab”项目契约，不能仅以“它能被实例化”为理由。
+对应脚本统一放在 `res://core_ui/scripts/`，图片统一放在 `res://art/images/`。额外 prefab 必须是有独立编辑或调试价值的 UI 组件，不能复制正式运行实现。
 
 ## PSD 功能层与资源层
 

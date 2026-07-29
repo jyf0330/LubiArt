@@ -16,8 +16,10 @@ required_files=(
   "project.godot"
   "art/scenes/three_choice/three_choice_scene.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
+  "art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn"
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
+  "art/prefabs/pet/sprite_info_card.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"
   "session/mock_game_session.gd"
@@ -40,19 +42,21 @@ done
 
 expected_scenes=(
   "art/scenes/battle/battle_art_scene.tscn"
+  "art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn"
   "art/scenes/three_choice/three_choice_scene.tscn"
 )
 
 actual_scenes="$(cd "$MOCK_ROOT" && find art/scenes -type f -name "*.tscn" | sort)"
 expected_scenes_text="$(printf '%s\n' "${expected_scenes[@]}")"
 if [[ "$actual_scenes" != "$expected_scenes_text" ]]; then
-  printf '%s\n' "Standalone project must contain exactly the two formal UI scenes." >&2
+  printf '%s\n' "Standalone project must contain two formal UI scenes and the SpriteInfoCard debug scene." >&2
   exit 1
 fi
 
 expected_prefabs=(
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
+  "art/prefabs/pet/sprite_info_card.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"
 )
@@ -60,7 +64,7 @@ expected_prefabs=(
 actual_prefabs="$(cd "$MOCK_ROOT" && find art/prefabs -type f -name "*.tscn" | sort)"
 expected_prefabs_text="$(printf '%s\n' "${expected_prefabs[@]}")"
 if [[ "$actual_prefabs" != "$expected_prefabs_text" ]]; then
-  printf '%s\n' "Standalone project must contain exactly the four formal reusable prefabs." >&2
+  printf '%s\n' "Standalone project must contain four public prefabs and the SpriteInfoCard component." >&2
   exit 1
 fi
 

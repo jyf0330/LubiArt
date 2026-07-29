@@ -7,7 +7,7 @@ signal confirm_requested(command: Dictionary)
 
 const SOURCE_PSD := "宠物信息栏实装(修改).psd"
 const SOURCE_CANVAS_SIZE := Vector2(476.0, 539.0)
-const COMPONENT_SOURCE := "res://art/prefabs/pet/pet_detail.tscn#Panel/SpriteInfoCard"
+const COMPONENT_SOURCE := "res://art/prefabs/pet/sprite_info_card.tscn"
 const ATTACK_COLUMNS := 7
 const ATTACK_ROWS := 3
 const ATTACK_ORIGIN_INDEX := 10

@@ -21,7 +21,7 @@ func _run() -> void:
 	assert(int(detail.call("debug_current_index")) != before)
 	assert(String(Dictionary(next_result.get("normalized", {})).get("name", "")) != "")
 	assert(int(next_result.get("attack_cell_count", 0)) == 21)
-	assert(String(next_result.get("component_source", "")) == "res://art/prefabs/pet/pet_detail.tscn#Panel/SpriteInfoCard")
+	assert(String(next_result.get("component_source", "")) == "res://art/prefabs/pet/sprite_info_card.tscn")
 	var previous_result := Dictionary(detail.call("debug_previous_pet"))
 	assert(bool(previous_result.get("ok", false)))
 	assert(int(detail.call("debug_current_index")) == before)

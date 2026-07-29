@@ -44,11 +44,11 @@ BattleArtScene
 - 新格子信息 PSD 只读；切图统一放在 `art/images/shared/pets/info_panel/`，场景放 `art/prefabs/pet/`，表现脚本放 `core_ui/scripts/shared/pet/`。动态名称、元素、品质、攻击形状和六项数值不得烘进切图。
 - 需要输入、状态、动画或公开接口的视觉节点可以挂表现脚本；权威 Session、Snapshot 和战斗规则不能放进图片层。
 - `RoundFeedback` 是运行时创建的回合横幅图片根，直接挂 `battle_round_banner.gd` 并拥有 `Title`、`Subtitle`，不再有独立 `.tscn`。
-- 修改战斗整屏、HUD、事件时序、回合横幅或特效层级时直接改本 Scene 或 `core_ui/scripts/battle/`；修改宠物战斗表现、详情卡面、遮罩、操作、调试面板或地面元素表现时打开对应四个 prefab。
+- 修改战斗整屏、HUD、事件时序、回合横幅或特效层级时直接改本 Scene 或 `core_ui/scripts/battle/`；修改宠物战斗表现、详情容器、卡片组件、遮罩、操作、调试面板或地面元素表现时打开对应 prefab。
 
 ## 禁止事项
 
 - 不新建 Catalog、预览副本或第二套 Battle View。
-- 不把按钮、HUD、特效或调试面板再拆成新的 prefab。
+- 不把按钮、HUD 或一次性特效机械拆成新的 prefab；独立可编辑、可调试的 UI 组件可以拆分。
 - 不缩小正式节点来规避编辑器点击问题；应让视觉节点的矩形与图片实际范围一致。
 - 不复制权威玩法状态，不用固定延迟模拟真实命中。

@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/debug/sprite_info_card/sprite_info_card_debug_panel.gd" id="1_debug_panel"]
+
+[node name="SpriteInfoCardDebugScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0509804, 0.0901961, 0.133333, 1)
+
+[node name="SpriteInfoCardDebugPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 140.0
+offset_right = 1480.0
+offset_bottom = 900.0
+script = ExtResource("1_debug_panel")

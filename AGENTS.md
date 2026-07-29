@@ -20,8 +20,8 @@
 
 ## 目录职责
 
-- `art/scenes/`：只保留与正式项目同步的两个 Scene：`three_choice/three_choice_scene.tscn` 与 `battle/battle_art_scene.tscn`；项目直接从三选一 Scene 启动。
-- `art/prefabs/`：只保留四个可复用 prefab：`pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn`、`terrain/terrain_detail.tscn`。
+- `art/scenes/`：保留与正式项目同步的两个正式 Scene：`three_choice/three_choice_scene.tscn` 与 `battle/battle_art_scene.tscn`，以及独立美术调试 Scene `sprite_info_card_debug/sprite_info_card_debug_scene.tscn`；项目仍直接从三选一 Scene 启动。
+- `art/prefabs/`：保留四个公开 prefab：`pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn`、`terrain/terrain_detail.tscn`，以及宠物详情内部组件 `pet/sprite_info_card.tscn`。
 - `art/images/`：只放图片与相邻的 Godot `.import` 文件。
 - `art/manifests/`：只放图片资源映射和 manifest JSON。
 - `core_ui/scripts/`：按 scope 分类的 Controller、Presenter、Adapter 和预制体表现脚本。
@@ -36,8 +36,8 @@
 
 ## 文件类型规则
 
-- 三选一和战斗两个 `.tscn` 放 `art/scenes/<scope>/`；不得新增第三个正式 Scene。
-- 宠物、宠物详情、地形、地形详情四个 `.tscn` 放 `art/prefabs/<scope>/`；不得新增第五个 prefab。
+- 三选一和战斗两个正式 `.tscn` 放 `art/scenes/<scope>/`；独立美术调试 Scene 也放在独立 scope 下，不接入正式路由。
+- 宠物、宠物详情、地形、地形详情四个公开 `.tscn` 放 `art/prefabs/<scope>/`；允许把可独立编辑和调试的内部 UI 组件做成额外 prefab。
 - `.png`、`.jpg`、`.webp`、`.svg` 等图片放 `art/images/<scope>/`。
 - 图片映射和 manifest `.json` 放 `art/manifests/<scope>/`；Mock 回放数据仍放 `data/`。
 - UI `.gd` 与 `.gd.uid` 放 `core_ui/scripts/<scope>/`。

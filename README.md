@@ -4,8 +4,8 @@
 
 ## 结构
 
-- `art/scenes/`：只保留三选一和战斗两个正式 Scene；项目从 `art/scenes/three_choice/three_choice_scene.tscn` 启动
-- `art/prefabs/`：只保留宠物、宠物详情、地形、地形详情四个可复用 prefab
+- `art/scenes/`：保留三选一和战斗两个正式 Scene，以及独立的 SpriteInfoCard 美术调试 Scene；项目仍从 `art/scenes/three_choice/three_choice_scene.tscn` 启动
+- `art/prefabs/`：保留宠物、宠物详情、地形、地形详情四个公开 prefab，以及宠物详情内部使用的 `sprite_info_card.tscn`
 - `art/images/`：项目内完整图片资源
 - `art/manifests/`：图片 ID、切片和资源映射 JSON
 - `core_ui/scripts/`：Controller、Presenter、Adapter、Command Builder、Trace Projection 和预制体表现脚本
@@ -15,9 +15,9 @@
 
 运行时装配链为：
 
-`three_choice_scene.tscn -> MockGameSession -> FeatureRegistry -> SceneRouter -> battle_art_scene.tscn -> 四类 art/prefabs`
+`three_choice_scene.tscn -> MockGameSession -> FeatureRegistry -> SceneRouter -> battle_art_scene.tscn -> 四类公开 art/prefabs`
 
-美术可以直接修改本项目中的两个 UI Scene、四个 prefab、展示脚本、布局、动画和资源。宠物详情卡面作为 `pet_detail.tscn` 内的 `SpriteInfoCard` 节点维护。图片、manifest 和脚本必须继续分别放在上述类型目录，再在类型目录内部按功能 scope 分类。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
+美术可以直接修改本项目中的两个正式 UI Scene、四个公开 prefab、`sprite_info_card.tscn` 卡片组件、独立调试 Scene、展示脚本、布局、动画和资源。图片、manifest 和脚本必须继续分别放在上述类型目录，再在类型目录内部按功能 scope 分类。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
 
 ## 验证
 
@@ -31,6 +31,10 @@ godot \
   --headless \
   --path . \
   --script res://tests/smoke_battle_art_scene.gd
+godot \
+  --headless \
+  --path . \
+  --script res://tests/sprite_info_card_debug/smoke_sprite_info_card_debug.gd
 ```
 
 第一条默认只检查独立交付项目的必要目录和入口文件，不需要原项目。项目方在回集成时如需比较来源，可显式执行：
