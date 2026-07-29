@@ -66,6 +66,7 @@ var _initial_round_banner_requested := false
 var _last_debug_drag_command: Dictionary = {}
 var _command_tools: PanelContainer = null
 var _action_panel: Control = null
+var _direction_drawer: Control = null
 var _preview_highlights: Dictionary = {}
 var _detail_panel: Control = null
 var _element_detail_panel: PanelContainer = null
@@ -115,6 +116,7 @@ func _ready() -> void:
 	_update_position_difficulty_button({})
 	_ensure_detail_panel()
 	_ensure_action_panel()
+	_ensure_direction_drawer()
 
 
 func get_runtime_view() -> Control:
@@ -175,9 +177,11 @@ func render_snapshot(snap: Dictionary) -> void:
 	if stages_trace_from_previous:
 		_pending_action_panel_snapshot = snap.duplicate(true)
 		_render_action_panel(previous_snapshot)
+		_render_direction_drawer(previous_snapshot)
 	else:
 		_pending_action_panel_snapshot = {}
 		_render_action_panel(snap)
+		_render_direction_drawer(snap)
 	_play_initial_round_banner_if_needed(snap)
 	_play_new_trace_events(snap)
 	_update_position_difficulty_button(snap)
@@ -601,6 +605,7 @@ func _on_trace_sequence_finished() -> void:
 	_pending_enemy_move_final_cells.clear()
 	if not _pending_action_panel_snapshot.is_empty():
 		_render_action_panel(_pending_action_panel_snapshot)
+		_render_direction_drawer(_pending_action_panel_snapshot)
 		_pending_action_panel_snapshot = {}
 	_set_battle_input_locked(false)
 	GameLogScript.info("表现/战斗事件", "表现序列播放完成，最终快照已落位", {
@@ -690,10 +695,22 @@ func _cell_key(grid: Vector2i) -> String:
 
 
 func _cell_origin(x: int, y: int) -> Vector2:
+	var cell := _cell_at(x, y)
+	if cell != null and cell.has_method("uses_perspective_geometry") and bool(cell.call("uses_perspective_geometry")):
+		return cell.position
 	return _board_controller.call("cell_origin", _cell_size, CELL_GAP, x, y) as Vector2
 
 
 func _grid_from_board_position(local_position: Vector2) -> Vector2i:
+	var has_perspective_geometry := false
+	for cell in _cells:
+		if not cell.has_method("uses_perspective_geometry") or not bool(cell.call("uses_perspective_geometry")):
+			continue
+		has_perspective_geometry = true
+		if cell.has_method("contains_board_point") and bool(cell.call("contains_board_point", local_position)):
+			return cell.call("get_grid_position") as Vector2i
+	if has_perspective_geometry:
+		return Vector2i(-1, -1)
 	return _board_controller.call("grid_from_position", local_position, Vector2i(_board_columns, _board_rows), _cell_size, CELL_GAP) as Vector2i
 
 
@@ -1503,6 +1520,18 @@ func _render_action_panel(snap: Dictionary) -> void:
 	_ensure_action_panel()
 	if _action_panel != null and _action_panel.has_method("render_snapshot"):
 		_action_panel.call("render_snapshot", snap)
+
+
+func _ensure_direction_drawer() -> void:
+	if _direction_drawer != null:
+		return
+	_direction_drawer = board.call("get_attack_direction_drawer") as Control
+
+
+func _render_direction_drawer(snap: Dictionary) -> void:
+	_ensure_direction_drawer()
+	if _direction_drawer != null and _direction_drawer.has_method("render_snapshot"):
+		_direction_drawer.call("render_snapshot", snap)
 
 
 func _on_action_panel_command_requested(command: Dictionary) -> void:

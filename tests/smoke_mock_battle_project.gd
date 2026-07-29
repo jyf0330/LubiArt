@@ -8,9 +8,11 @@ const BattleHudController := preload("res://core_ui/scripts/battle/controllers/b
 const BattleDetailController := preload("res://core_ui/scripts/battle/controllers/battle_detail_controller.gd")
 const BattleCommandBuilder := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
 const BattleTraceProjection := preload("res://core_ui/scripts/battle/controllers/battle_trace_projection.gd")
+const BattleAssetRegistry := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
 const BattleProjectileScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_projectile.gd")
 const BattleBiteVfxScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_bite_vfx.gd")
 const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
+const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 
 var _projectile_impact_count := 0
 var _bite_hit_count := 0
@@ -22,6 +24,8 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_assert_presentation_patterns_load()
+	_assert_new_unit_assets()
+	await _assert_defensive_stat_semantics()
 	await _assert_hit_sync_primitives()
 	var capture := _load_capture()
 	var capture_source := Dictionary(capture.get("source", {}))
@@ -114,18 +118,42 @@ func _run() -> void:
 	assert(main_instance.call("get_active_feature_view") == battle_view)
 
 	var visible_pet_count := 0
+	var trimmed_pet_count := 0
+	var selected_first_pet := false
 	for cell in board_grid.get_children():
 		var pet_view := cell.call("get_unit_node") as Control
 		if pet_view == null or not pet_view.visible:
 			continue
 		visible_pet_count += 1
-		var grid := cell.call("get_grid_position") as Vector2i
-		cell.cell_selected.emit(grid.x, grid.y)
-		break
+		assert(pet_view.size.is_equal_approx(cell.size))
+		var visible_sprite_rect := Rect2(pet_view.call("get_battle_sprite_visible_rect"))
+		var required_bottom_inset := float(pet_view.call("get_battle_footline_bottom_inset"))
+		assert(visible_sprite_rect.size.x > 0.0)
+		assert(is_equal_approx(
+			pet_view.size.y - visible_sprite_rect.end.y,
+			required_bottom_inset
+		))
+		var creature_art := pet_view.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/CreatureArt") as TextureRect
+		var shadow := pet_view.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Shadow") as TextureRect
+		assert(shadow.visible)
+		assert(shadow.texture != null)
+		assert(shadow.z_index < creature_art.z_index)
+		assert(shadow.position.y >= 0.0)
+		assert(shadow.position.y + shadow.size.y <= pet_view.size.y)
+		var shadow_center_y := shadow.position.y + shadow.size.y * 0.5
+		assert(shadow_center_y < pet_view.size.y - required_bottom_inset)
+		assert(shadow_center_y >= pet_view.size.y - required_bottom_inset - 4.0)
+		if int(pet_view.call("get_battle_removed_bottom_pixels")) > 0:
+			trimmed_pet_count += 1
+		if not selected_first_pet:
+			var grid := cell.call("get_grid_position") as Vector2i
+			cell.cell_selected.emit(grid.x, grid.y)
+			selected_first_pet = true
 	await process_frame
 	await process_frame
 	await create_timer(0.1).timeout
 	assert(visible_pet_count > 0)
+	assert(trimmed_pet_count > 0)
 	assert((battle_view.get_node("CellDetail/BattlePetDetailPanel") as Control).visible)
 
 	var player_unit_id := _first_player_unit_id(Dictionary(game_session.call("current_snapshot")))
@@ -134,7 +162,7 @@ func _run() -> void:
 		Dictionary(game_session.call("current_snapshot")),
 		player_unit_id
 	)
-	(battle_view.get_node("Board/AutoArrangeButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("Board/BattlePrimaryActions/AutoArrangeButton") as TextureButton).pressed.emit()
 	await process_frame
 	await process_frame
 	await process_frame
@@ -143,7 +171,7 @@ func _run() -> void:
 	assert(int(game_session.call("replay_step_index")) == 1)
 
 	var main_before_round := int(main_positioned.get("battle_round", 0))
-	(battle_view.get_node("Board/BeginTurnButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("Board/BattlePrimaryActions/BeginTurnButton") as TextureButton).pressed.emit()
 	await process_frame
 	await process_frame
 	await process_frame
@@ -169,7 +197,80 @@ func _assert_presentation_patterns_load() -> void:
 	assert(BattleHudController.new() != null)
 	assert(BattleDetailController.new() != null)
 	assert(BattleCommandBuilder.new() != null)
-	assert(BattleTraceProjection.new() != null)
+	var trace_projection := BattleTraceProjection.new()
+	assert(trace_projection != null)
+	var projected_cell := {"buffs": [{"active": false, "max_damage_per_hit": 99}]}
+	trace_projection.copy_cell_unit_projection({
+		"unitId": "moving_guard",
+		"hp": 10,
+		"shield": 2,
+		"buffs": [{"active": true, "max_damage_per_hit": 8}],
+	}, projected_cell)
+	assert(int(Array(projected_cell.get("buffs", []))[0].get("max_damage_per_hit", 0)) == 8)
+	trace_projection.clear_cell_unit_projection(projected_cell)
+	assert(not projected_cell.has("buffs"))
+
+
+func _assert_new_unit_assets() -> void:
+	var assets := BattleAssetRegistry.new()
+	assert(assets.all_declared_runtime_assets_exist())
+	assert(assets.pet_image_by_id.size() == 103)
+	var cases := [
+		[{"unitId": "player_hero", "unitName": "孙悟空"}, "hero_leader", "hero_wukong.png"],
+		[{"unitId": "hero_tang_monk", "unitName": "唐僧"}, "hero_leader", "hero_tang_monk.png"],
+		[{"unitId": "hero_rabbit", "unitName": "玉兔"}, "hero_leader", "hero_rabbit.png"],
+		[{"unitId": "enemy_hero", "unitName": "蜘蛛精"}, "boss", "hero_spider.png"],
+		[{"pet_id": "pal_103"}, "player", "shop_creature_103_earth_riftknuckle.png"],
+	]
+	for test_case in cases:
+		var result := Dictionary(assets.texture_for_unit(test_case[0], test_case[1]))
+		var texture_resource := result.get("texture", null) as Texture2D
+		assert(texture_resource != null)
+		assert(texture_resource.resource_path.ends_with(test_case[2]))
+
+
+func _assert_defensive_stat_semantics() -> void:
+	var pet := BattleUnitScene.instantiate() as Control
+	assert(pet != null)
+	root.add_child(pet)
+	await process_frame
+
+	pet.call("set_unit_data", {
+		"unitId": "defense_semantics_test",
+		"hp": 20,
+		"shield": 2,
+		"atk": 5,
+		"damageCap": 8,
+		"threat": {"totalDamage": 10},
+	}, "player", null)
+	var lock_group := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap") as Control
+	var lock_value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap/Value_Text") as Label
+	var shield_value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield/Value_Text") as Label
+	assert(lock_group.visible)
+	assert(lock_value.text == "8")
+	assert(shield_value.text == "2")
+
+	pet.call("set_unit_data", {
+		"unitId": "active_guard_test",
+		"hp": 20,
+		"shield": 2,
+		"atk": 5,
+		"buffs": [{"id": "pet_guard", "active": true, "max_damage_per_hit": 4}],
+	}, "player", null)
+	assert(lock_group.visible)
+	assert(lock_value.text == "4")
+
+	pet.call("set_unit_data", {
+		"unitId": "no_cap_test",
+		"hp": 20,
+		"shield": 2,
+		"atk": 5,
+		"threat": {"totalDamage": 10},
+	}, "player", null)
+	assert(not lock_group.visible)
+	assert(lock_value.text == "")
+	assert(shield_value.text == "2")
+	pet.queue_free()
 
 
 func _assert_hit_sync_primitives() -> void:

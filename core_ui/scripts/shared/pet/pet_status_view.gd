@@ -1,6 +1,19 @@
 extends Control
 class_name PetStatusView
 
+## Battle stat semantics:
+## - DamageCap (grey lock) is the maximum damage the unit may receive from one hit.
+## - Shield (yellow shield) is the remaining shield consumed before HP by authoritative trace data.
+
+const DAMAGE_CAP_KEYS := [
+	"damage_cap",
+	"damageCap",
+	"incoming_damage_cap",
+	"incomingDamageCap",
+	"max_damage_per_hit",
+	"maxDamagePerHit",
+]
+
 @export var psd_health_value_path: NodePath
 @export var psd_shield_value_path: NodePath
 @export var psd_attack_value_path: NodePath
@@ -12,6 +25,7 @@ class_name PetStatusView
 @onready var psd_damage_cap_value: Label = get_node_or_null(psd_damage_cap_value_path) as Label
 
 var _data: Dictionary = {}
+var _battle_mode_enabled := false
 
 
 func _ready() -> void:
@@ -33,8 +47,10 @@ func bind_battle_data(data: Dictionary) -> void:
 
 func set_mode(mode: StringName) -> void:
 	var battle_visible := mode == &"battle"
+	_battle_mode_enabled = battle_visible
 	for label in _psd_value_labels():
 		label.visible = battle_visible
+	_set_damage_cap_visible(battle_visible and _damage_cap(_data) >= 0)
 
 
 func refresh() -> void:
@@ -57,11 +73,6 @@ func snapshot() -> Dictionary:
 	return _data.duplicate(true)
 
 
-func _incoming_damage(data: Dictionary) -> int:
-	var threat := Dictionary(data.get("threat", {}))
-	return max(0, int(threat.get("totalDamage", threat.get("damage", threat.get("threat", threat.get("atk", 0))))))
-
-
 func _refresh_psd_values() -> void:
 	if psd_health_value != null:
 		psd_health_value.text = str(max(0, int(_data.get("hp", 0))))
@@ -70,14 +81,33 @@ func _refresh_psd_values() -> void:
 	if psd_attack_value != null:
 		psd_attack_value.text = str(max(0, int(_data.get("atk", _data.get("attack", 0)))))
 	if psd_damage_cap_value != null:
-		psd_damage_cap_value.text = str(_damage_cap(_data))
+		var cap := _damage_cap(_data)
+		psd_damage_cap_value.text = str(cap) if cap >= 0 else ""
+		_set_damage_cap_visible(_battle_mode_enabled and cap >= 0)
 
 
 func _damage_cap(data: Dictionary) -> int:
-	for key in ["damage_cap", "damageCap", "incoming_damage_cap", "incomingDamageCap"]:
+	for key in DAMAGE_CAP_KEYS:
 		if data.has(key):
 			return max(0, int(data.get(key, 0)))
-	return _incoming_damage(data)
+	for buff_value in Array(data.get("buffs", [])):
+		if not buff_value is Dictionary:
+			continue
+		var buff := Dictionary(buff_value)
+		if not bool(buff.get("active", true)):
+			continue
+		for key in DAMAGE_CAP_KEYS:
+			if buff.has(key):
+				return max(0, int(buff.get(key, 0)))
+	return -1
+
+
+func _set_damage_cap_visible(visible_value: bool) -> void:
+	if psd_damage_cap_value == null:
+		return
+	var group := psd_damage_cap_value.get_parent() as Control
+	if group != null:
+		group.visible = visible_value
 
 
 func _psd_value_labels() -> Array[Label]:

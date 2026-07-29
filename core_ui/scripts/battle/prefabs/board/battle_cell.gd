@@ -1,3 +1,4 @@
+@tool
 extends Panel
 
 signal cell_selected(x: int, y: int)
@@ -21,6 +22,16 @@ const STYLE_SHADOW_SIZE := 5
 const STYLE_SHADOW_OFFSET := Vector2(0.0, 3.0)
 const HOVER_FRAME_SCALE := 0.82
 const HOVER_FRAME_OFFSET := Vector2.ZERO
+const PERSPECTIVE_DEFAULT_FILL := Color(0.82, 0.84, 0.86, 0.015)
+const PERSPECTIVE_DEFAULT_BORDER := Color(0.86, 0.89, 0.91, 0.12)
+
+@export var use_perspective_geometry := false
+@export var polygon := PackedVector2Array([
+	Vector2(0.0, 0.0),
+	Vector2(120.0, 0.0),
+	Vector2(120.0, 120.0),
+	Vector2(0.0, 120.0),
+])
 
 @onready var cell_image: TextureRect = $CellImage
 @onready var _prefab_anchor: Control = $PrefabAnchor
@@ -40,7 +51,11 @@ var _transient_element_visual_dirty := false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	add_theme_stylebox_override("panel", _make_cell_style())
+	if use_perspective_geometry:
+		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+		queue_redraw()
+	else:
+		add_theme_stylebox_override("panel", _make_cell_style())
 	if not gui_input.is_connected(_on_gui_input):
 		gui_input.connect(_on_gui_input)
 	if not mouse_entered.is_connected(_on_mouse_entered):
@@ -53,8 +68,18 @@ func setup_grid_position(x: int, y: int, cell_size: Vector2, origin: Vector2) ->
 	grid_x = x
 	grid_y = y
 	name = "BattleCell_%d_%d" % [grid_x, grid_y]
-	position = origin
-	size = cell_size
+	if not use_perspective_geometry:
+		position = origin
+		size = cell_size
+	queue_redraw()
+
+
+func uses_perspective_geometry() -> bool:
+	return use_perspective_geometry and polygon.size() >= 3
+
+
+func contains_board_point(board_position: Vector2) -> bool:
+	return _has_point(board_position - position)
 
 
 func get_grid_position() -> Vector2i:
@@ -95,10 +120,14 @@ func set_cell_data(data: Dictionary, assets: RefCounted) -> void:
 		return
 	_unit_node = BattleUnitScene.instantiate() as Control
 	_unit_node.name = "BattleUnit"
-	_unit_node.position = Vector2.ZERO
-	_unit_node.size = size
+	# The reusable pet prefab keeps its authored minimum size for collection UI.
+	# Battle cells must override it so the unit follows the board's perspective row size.
+	_unit_node.custom_minimum_size = Vector2.ZERO
 	_unit_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_prefab_anchor.add_child(_unit_node)
+	# Adding an instanced Control restores its authored offsets, so size it afterwards.
+	_unit_node.position = Vector2.ZERO
+	_unit_node.size = size
 	if _unit_node.has_method("set_unit_data"):
 		_unit_node.call("set_unit_data", cell_data, side, assets)
 	if _unit_node.has_method("get_missing_mapping"):
@@ -109,7 +138,10 @@ func set_cell_data(data: Dictionary, assets: RefCounted) -> void:
 
 func set_highlight(mode: String) -> void:
 	_highlight_mode = mode
-	add_theme_stylebox_override("panel", _make_cell_style(mode))
+	if use_perspective_geometry:
+		queue_redraw()
+	else:
+		add_theme_stylebox_override("panel", _make_cell_style(mode))
 	_update_highlight_frame(mode)
 
 
@@ -340,6 +372,32 @@ func _element_color(element: String) -> Color:
 			return Color(0.86, 0.28, 0.58, 0.9)
 		_:
 			return Color.WHITE
+
+
+func _has_point(point: Vector2) -> bool:
+	if uses_perspective_geometry():
+		return Geometry2D.is_point_in_polygon(point, polygon)
+	return Rect2(Vector2.ZERO, size).has_point(point)
+
+
+func _draw() -> void:
+	if not uses_perspective_geometry():
+		return
+	var colors := _perspective_colors()
+	draw_colored_polygon(polygon, colors[0])
+	var outline := polygon.duplicate()
+	outline.append(polygon[0])
+	draw_polyline(outline, colors[1], 2.0, true)
+
+
+func _perspective_colors() -> Array[Color]:
+	match _highlight_mode:
+		"deploy", "selected":
+			return [STYLE_DEPLOY_BG, STYLE_DEPLOY_BORDER]
+		"attack":
+			return [STYLE_ATTACK_BG, STYLE_ATTACK_BORDER]
+		_:
+			return [PERSPECTIVE_DEFAULT_FILL, PERSPECTIVE_DEFAULT_BORDER]
 
 
 func _on_gui_input(event: InputEvent) -> void:

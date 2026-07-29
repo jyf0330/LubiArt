@@ -46,7 +46,7 @@
   },
   "pet_assets": {
     "slice_dir": "res://art/images/shared/pets/sheets/slices",
-    "explicit_image_dir": "res://art/images/shared/pets/portraits"
+    "explicit_image_dir": "res://art/images/shared/pets/sheets/slices"
   },
   "coverage": {
     "player_pet_catalog": "res://data/ysbzs_singleplayer_data.json"
@@ -65,15 +65,19 @@
     "drag": "res://art/images/battle/runtime/prefabs/select_frames/selection-white-blue-shadow-64.png"
   },
   "leaders": {
-    "player": "res://art/images/battle/runtime/hero_images/sun_wukong_ai_220x210.png",
-    "enemy": "res://art/images/battle/runtime/hero_images/spider_spirit_ai_220x210.png"
+    "player": "res://art/images/battle/runtime/hero_images/hero_wukong.png",
+    "enemy": "res://art/images/battle/runtime/hero_images/hero_spider.png",
+    "wukong": "res://art/images/battle/runtime/hero_images/hero_wukong.png",
+    "spider": "res://art/images/battle/runtime/hero_images/hero_spider.png",
+    "tang_monk": "res://art/images/battle/runtime/hero_images/hero_tang_monk.png",
+    "rabbit": "res://art/images/battle/runtime/hero_images/hero_rabbit.png"
   },
   "fallback_units": {
-    "fire": "res://art/images/battle/runtime/sprite_images/Sprite_FlameCub.png",
-    "water": "res://art/images/battle/runtime/sprite_images/Sprite_WaterWisp.png",
-    "earth": "res://art/images/battle/runtime/sprite_images/Sprite_StoneTurtle.png",
-    "wind": "res://art/images/battle/runtime/sprite_images/Sprite_WindSprite.png",
-    "boss": "res://art/images/battle/runtime/sprite_images/Sprite_ShadowDragon.png"
+    "fire": "res://art/images/shared/pets/sheets/slices/shop_creature_057_fire_embercloud.png",
+    "water": "res://art/images/shared/pets/sheets/slices/shop_creature_001_water_tidewhisker.png",
+    "earth": "res://art/images/shared/pets/sheets/slices/shop_creature_025_earth_geodeshell.png",
+    "wind": "res://art/images/shared/pets/sheets/slices/shop_creature_033_wind_zephyrkit.png",
+    "boss": "res://art/images/shared/pets/sheets/slices/shop_creature_103_earth_riftknuckle.png"
   },
   "effects": {
     "bullets": {

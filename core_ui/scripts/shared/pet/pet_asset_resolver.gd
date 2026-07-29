@@ -64,7 +64,7 @@ func texture_for(record: Dictionary) -> Texture2D:
 
 func path_for(record: Dictionary) -> String:
 	var explicit_path := _explicit_image_path(record)
-	if explicit_path != "":
+	if explicit_path != "" and ResourceLoader.exists(explicit_path):
 		return explicit_path
 	var pet_id := canonical_id(record)
 	if pet_id != "" and image_by_id.has(pet_id):
@@ -108,16 +108,10 @@ func clear_texture_cache() -> void:
 
 func _resolve_map_path(value: Variant) -> String:
 	match typeof(value):
-		TYPE_INT, TYPE_FLOAT:
-			var index := int(value)
-			if index > 0 and _slice_dir != "":
-				return "%s/pet_sheet_%03d.png" % [_slice_dir, index]
 		TYPE_STRING:
 			var text := String(value).strip_edges()
 			if text == "":
 				return ""
-			if text.is_valid_int() and _slice_dir != "":
-				return "%s/pet_sheet_%03d.png" % [_slice_dir, int(text)]
 			if text.begins_with("res://"):
 				return text
 			if _slice_dir == "":

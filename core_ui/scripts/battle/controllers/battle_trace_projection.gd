@@ -2,7 +2,27 @@ extends RefCounted
 
 ## Owns the temporary board projection used while ordered battle VFX are playing.
 
-const UNIT_KEYS := ["unit_id", "unitId", "pet_id", "petId", "unitSide", "side", "unitName", "name", "hp", "shield", "atk", "leaderId"]
+const UNIT_KEYS := [
+	"unit_id",
+	"unitId",
+	"pet_id",
+	"petId",
+	"unitSide",
+	"side",
+	"unitName",
+	"name",
+	"hp",
+	"shield",
+	"atk",
+	"leaderId",
+	"damage_cap",
+	"damageCap",
+	"incoming_damage_cap",
+	"incomingDamageCap",
+	"max_damage_per_hit",
+	"maxDamagePerHit",
+	"buffs",
+]
 
 
 func new_events(snapshot: Dictionary, rendered_trace_count: int) -> Array:
@@ -68,11 +88,24 @@ func clear_cell_unit_projection(cell: Dictionary) -> void:
 	cell["shield"] = 0
 	cell["atk"] = 0
 	cell["leaderId"] = null
+	for key in [
+		"damage_cap",
+		"damageCap",
+		"incoming_damage_cap",
+		"incomingDamageCap",
+		"max_damage_per_hit",
+		"maxDamagePerHit",
+		"buffs",
+	]:
+		cell.erase(key)
 
 
 func copy_cell_unit_projection(source: Dictionary, target: Dictionary) -> void:
 	for key in UNIT_KEYS:
-		target[key] = source.get(key, null)
+		if source.has(key):
+			target[key] = source.get(key)
+		else:
+			target.erase(key)
 
 
 func _enemy_move_unit_ids(events: Array) -> Dictionary:

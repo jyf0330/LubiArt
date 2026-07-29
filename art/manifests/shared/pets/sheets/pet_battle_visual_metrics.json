@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "description": "Battle-only crop and footline overrides remove detached sheet seams and keep creature feet visually grounded above the shared prefab shadow.",
+  "by_texture_path": {
+    "res://art/images/shared/pets/sheets/slices/shop_creature_006_water_pondhopper.png": {
+      "footline_bottom_inset": 7
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_004_water_bubblebell.png": {
+      "crop_bottom": 170
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_011_water_pearlcrab.png": {
+      "crop_bottom": 131
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_028_earth_thornstone.png": {
+      "crop_bottom": 173
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_042_wind_twister.png": {
+      "crop_bottom": 154
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_044_wind_dewwing.png": {
+      "crop_bottom": 161
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_049_wind_sylphina.png": {
+      "crop_bottom": 167
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_052_wind_galeoracle.png": {
+      "crop_bottom": 158
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_058_fire_nightflame.png": {
+      "crop_bottom": 153
+    },
+    "res://art/images/shared/pets/sheets/slices/shop_creature_066_fire_lavahorn.png": {
+      "crop_bottom": 147
+    }
+  }
+}

@@ -35,7 +35,7 @@ func hover_frame_texture() -> Texture2D:
 func texture_for_unit(data: Dictionary, side: String) -> Dictionary:
 	if _is_player_side(side):
 		if side == "hero_leader":
-			return {"texture": _leader_texture("player"), "missing": {}}
+			return {"texture": _leader_texture_for_record(data, "player"), "missing": {}}
 		var pet_texture := _pet_texture(data)
 		if pet_texture != null:
 			return {"texture": pet_texture, "missing": {}}
@@ -45,7 +45,7 @@ func texture_for_unit(data: Dictionary, side: String) -> Dictionary:
 		}
 
 	if side == "boss":
-		return {"texture": _leader_texture("enemy"), "missing": {}}
+		return {"texture": _leader_texture_for_record(data, "enemy"), "missing": {}}
 
 	var enemy_texture := _enemy_texture(data)
 	if enemy_texture != null:
@@ -252,6 +252,28 @@ func _load_enemy_image_map() -> void:
 func _leader_texture(key: String) -> Texture2D:
 	var leaders := Dictionary(manifest.get("leaders", {}))
 	return _load_texture_if_exists(String(leaders.get(key, "")))
+
+
+func _leader_texture_for_record(record: Dictionary, default_key: String) -> Texture2D:
+	var identity_parts: Array[String] = []
+	for field in ["heroId", "hero_id", "unitId", "unit_id", "id", "unitName", "name"]:
+		var value := String(record.get(field, "")).strip_edges().to_lower()
+		if value != "":
+			identity_parts.append(value)
+	var identity := " ".join(identity_parts)
+	var key := default_key
+	if identity.contains("tang") or identity.contains("monk") or identity.contains("唐"):
+		key = "tang_monk"
+	elif identity.contains("rabbit") or identity.contains("兔"):
+		key = "rabbit"
+	elif identity.contains("spider") or identity.contains("蛛"):
+		key = "spider"
+	elif identity.contains("wukong") or identity.contains("monkey") or identity.contains("悟空") or identity.contains("孙"):
+		key = "wukong"
+	var texture_resource := _leader_texture(key)
+	if texture_resource == null:
+		texture_resource = _leader_texture(default_key)
+	return texture_resource
 
 
 func _pet_texture(record: Dictionary) -> Texture2D:

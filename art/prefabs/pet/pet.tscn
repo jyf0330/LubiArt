@@ -1,40 +1,48 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene format=3 uid="uid://7xfv6x36mgdm"]
 
-[ext_resource type="Script" path="res://core_ui/scripts/shared/pet/pet_visual.gd" id="1_script"]
-[ext_resource type="Script" path="res://core_ui/scripts/shared/pet/pet_status_view.gd" id="2_status"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/creature_art.png" id="5_pet"]
-[ext_resource type="Script" path="res://core_ui/scripts/shared/pet/pet_animation.gd" id="6_animation"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/shadow.png" id="7_shadow"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/stat_health.png" id="8_health"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/stat_shield.png" id="9_shield"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/stat_attack.png" id="10_attack"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/stat_damage_cap.png" id="11_damage_cap"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/enemy_marker.png" id="12_enemy"]
-[ext_resource type="FontFile" path="res://art/images/shared/pets/info_card/fonts/fusion_pixel_zh_hans.ttf" id="13_font"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/attack_range_cell.png" id="14_attack_range"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/bite_frame_001.png" id="15_bite_001"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/bite_frame_002.png" id="16_bite_002"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/bite_frame_003.png" id="17_bite_003"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/bite_frame_004.png" id="18_bite_004"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/bite_frame_005.png" id="19_bite_005"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/landing_fire.png" id="20_landing_fire"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/landing_water.png" id="21_landing_water"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/landing_earth.png" id="22_landing_earth"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/landing_wind.png" id="23_landing_wind"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/projectile_fire.png" id="24_projectile_fire"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/projectile_water.png" id="25_projectile_water"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/projectile_earth.png" id="26_projectile_earth"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/projectile_wind.png" id="27_projectile_wind"]
+[ext_resource type="Script" uid="uid://n17i06ofq5dy" path="res://core_ui/scripts/shared/pet/pet_visual.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cqm62yria3qeq" path="res://core_ui/scripts/shared/pet/pet_status_view.gd" id="2_status"]
+[ext_resource type="Texture2D" uid="uid://dqpgd8j333phj" path="res://art/images/shared/pets/battle_complete/creature_art.png" id="5_pet"]
+[ext_resource type="Script" uid="uid://iplg5lfn7fkh" path="res://core_ui/scripts/shared/pet/pet_animation.gd" id="6_animation"]
+[ext_resource type="Texture2D" uid="uid://xf3jkbat1ttd" path="res://art/images/shared/pets/battle_complete/shadow.png" id="7_shadow"]
+[ext_resource type="Texture2D" uid="uid://530lkr1iuvgv" path="res://art/images/shared/pets/battle_complete/stat_health.png" id="8_health"]
+[ext_resource type="Texture2D" uid="uid://ck36ri2msa8kc" path="res://art/images/shared/pets/battle_complete/stat_shield.png" id="9_shield"]
+[ext_resource type="Texture2D" uid="uid://byfxk3pw601mu" path="res://art/images/shared/pets/battle_complete/stat_attack.png" id="10_attack"]
+[ext_resource type="Texture2D" uid="uid://bt8fjaefvj2c4" path="res://art/images/shared/pets/battle_complete/stat_damage_cap.png" id="11_damage_cap"]
+[ext_resource type="Texture2D" uid="uid://2lg1ktvjedct" path="res://art/images/shared/pets/battle_complete/enemy_marker.png" id="12_enemy"]
+[ext_resource type="Texture2D" uid="uid://cxfqx730u1os8" path="res://art/images/shared/pets/battle_complete/bite_frame_001.png" id="15_bite_001"]
+[ext_resource type="Texture2D" uid="uid://cf2ibqnew10ey" path="res://art/images/shared/pets/battle_complete/bite_frame_002.png" id="16_bite_002"]
+[ext_resource type="Texture2D" uid="uid://dtkcblejeo20o" path="res://art/images/shared/pets/battle_complete/bite_frame_003.png" id="17_bite_003"]
+[ext_resource type="Texture2D" uid="uid://1yod3iyeypmf" path="res://art/images/shared/pets/battle_complete/bite_frame_004.png" id="18_bite_004"]
+[ext_resource type="Texture2D" uid="uid://b6hrtxocs8a85" path="res://art/images/shared/pets/battle_complete/bite_frame_005.png" id="19_bite_005"]
+[ext_resource type="Texture2D" uid="uid://cwmlmnmdhun7f" path="res://art/images/shared/pets/battle_complete/landing_fire.png" id="20_landing_fire"]
+[ext_resource type="Texture2D" uid="uid://c3yb51bn6gu2l" path="res://art/images/shared/pets/battle_complete/landing_water.png" id="21_landing_water"]
+[ext_resource type="Texture2D" uid="uid://hnr4a2mfxpli" path="res://art/images/shared/pets/battle_complete/landing_earth.png" id="22_landing_earth"]
+[ext_resource type="Texture2D" uid="uid://bcqeup0owpdue" path="res://art/images/shared/pets/battle_complete/landing_wind.png" id="23_landing_wind"]
+[ext_resource type="Texture2D" uid="uid://c8t7x70fxpgon" path="res://art/images/shared/pets/battle_complete/projectile_fire.png" id="24_projectile_fire"]
+[ext_resource type="Texture2D" uid="uid://cn0x7yy6n6rev" path="res://art/images/shared/pets/battle_complete/projectile_water.png" id="25_projectile_water"]
+[ext_resource type="Texture2D" uid="uid://btfv3gu4h4s5f" path="res://art/images/shared/pets/battle_complete/projectile_earth.png" id="26_projectile_earth"]
+[ext_resource type="Texture2D" uid="uid://eg5ubp6fc61j" path="res://art/images/shared/pets/battle_complete/projectile_wind.png" id="27_projectile_wind"]
 
-[node name="BattleUnit" type="Control"]
+[sub_resource type="LabelSettings" id="LabelSettings_stats"]
+font_size = 20
+outline_size = 2
+outline_color = Color(0.03, 0.03, 0.04, 1)
+shadow_color = Color(0, 0, 0, 0.95)
+
+[node name="BattleUnit" type="Control" unique_id=1347790051]
+texture_filter = 1
 custom_minimum_size = Vector2(171, 144)
-layout_mode = 0
+layout_mode = 3
+anchors_preset = 0
 offset_right = 171.0
 offset_bottom = 144.0
 mouse_filter = 2
 script = ExtResource("1_script")
+metadata/_prefab_size = Vector2i(180, 180)
 
-[node name="CompleteBattleCreaturePrefab" type="Control" parent="."]
+[node name="CompleteBattleCreaturePrefab" type="Control" parent="." unique_id=1666055571]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,8 +50,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_psd_source = "battle_creature_prefab_source.psd"
+metadata/_prefab_size = Vector2i(180, 180)
+metadata/_psd_canvas_size = Vector2i(171, 144)
 
-[node name="01_UnitVisual" type="Control" parent="CompleteBattleCreaturePrefab"]
+[node name="01_UnitVisual" type="Control" parent="CompleteBattleCreaturePrefab" unique_id=417249281]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -57,7 +68,8 @@ psd_shield_value_path = NodePath("Stats/Shield/Value_Text")
 psd_attack_value_path = NodePath("Stats/Attack/Value_Text")
 psd_damage_cap_value_path = NodePath("Stats/DamageCap/Value_Text")
 
-[node name="CreatureArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
+[node name="CreatureArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=1981691420]
+z_index = 1
 layout_mode = 0
 offset_right = 171.0
 offset_bottom = 120.0
@@ -66,7 +78,8 @@ texture = ExtResource("5_pet")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="SelectionFrame" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
+[node name="SelectionFrame" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=2043122973]
+visible = false
 z_index = 1
 layout_mode = 1
 anchors_preset = 15
@@ -78,8 +91,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Shadow" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
-z_index = -1
+[node name="Shadow" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=266784274]
 layout_mode = 0
 offset_left = 45.0
 offset_top = 104.0
@@ -90,7 +102,20 @@ texture = ExtResource("7_shadow")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Stats" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
+[node name="ShadowStrength" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Shadow"]
+modulate = Color(1, 1, 1, 0.55)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("7_shadow")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Stats" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=507778927]
 z_index = 2
 layout_mode = 1
 anchors_preset = 15
@@ -100,15 +125,16 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Health" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats"]
-layout_mode = 0
-offset_left = 16.0
-offset_top = 7.0
-offset_right = 62.0
-offset_bottom = 51.0
+[node name="Health" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=2011358017]
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 48.0
+offset_bottom = 46.0
 mouse_filter = 2
 
-[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health"]
+[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health" unique_id=1694569303]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -118,32 +144,27 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("8_health")
 expand_mode = 1
+stretch_mode = 5
 
-[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health"]
+[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health" unique_id=1256571486]
 layout_mode = 0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = 36.0
-offset_bottom = 29.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.08, 0.02, 0.01, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("13_font")
-theme_override_font_sizes/font_size = 18
+offset_right = 38.0
+offset_bottom = 36.0
 text = "30"
+label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Shield" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats"]
-layout_mode = 0
-offset_left = 114.0
-offset_top = 5.0
-offset_right = 149.0
-offset_bottom = 51.0
+[node name="Shield" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=1068781472]
+anchors_preset = 0
+offset_left = 126.0
+offset_top = 10.0
+offset_right = 161.0
+offset_bottom = 56.0
 mouse_filter = 2
 
-[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield"]
+[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield" unique_id=832097299]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -153,32 +174,27 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("9_shield")
 expand_mode = 1
+stretch_mode = 5
 
-[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield"]
+[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield" unique_id=2085006136]
 layout_mode = 0
-offset_left = 7.0
-offset_top = 12.0
-offset_right = 31.0
-offset_bottom = 33.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(1, 0.96, 0.62, 1)
-theme_override_colors/font_outline_color = Color(0.05, 0.04, 0.01, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("13_font")
-theme_override_font_sizes/font_size = 18
+offset_right = 35.0
+offset_bottom = 46.0
 text = "17"
+label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Attack" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats"]
-layout_mode = 0
-offset_left = 11.0
-offset_top = 93.0
-offset_right = 60.0
-offset_bottom = 144.0
+[node name="Attack" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=257570576]
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 83.0
+offset_right = 59.0
+offset_bottom = 134.0
 mouse_filter = 2
 
-[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack"]
+[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack" unique_id=521101300]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -188,32 +204,27 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("10_attack")
 expand_mode = 1
+stretch_mode = 5
 
-[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack"]
+[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack" unique_id=484701406]
 layout_mode = 0
-offset_left = 17.0
-offset_top = 17.0
-offset_right = 41.0
-offset_bottom = 38.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(1, 0.89, 0.82, 1)
-theme_override_colors/font_outline_color = Color(0.08, 0.02, 0.01, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("13_font")
-theme_override_font_sizes/font_size = 18
+offset_right = 49.0
+offset_bottom = 51.0
 text = "10"
+label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DamageCap" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats"]
-layout_mode = 0
-offset_left = 112.0
-offset_top = 92.0
-offset_right = 151.0
-offset_bottom = 139.0
+[node name="DamageCap" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=1568883896]
+anchors_preset = 0
+offset_left = 122.0
+offset_top = 87.0
+offset_right = 161.0
+offset_bottom = 134.0
 mouse_filter = 2
 
-[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap"]
+[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap" unique_id=255608356]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -223,34 +234,28 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("11_damage_cap")
 expand_mode = 1
+stretch_mode = 5
 
-[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap"]
+[node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap" unique_id=945114617]
 layout_mode = 0
-offset_left = 8.0
-offset_top = 20.0
-offset_right = 32.0
-offset_bottom = 41.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
-theme_override_colors/font_outline_color = Color(0.02, 0.025, 0.035, 1)
-theme_override_constants/outline_size = 3
-theme_override_fonts/font = ExtResource("13_font")
-theme_override_font_sizes/font_size = 18
+offset_right = 39.0
+offset_bottom = 47.0
 text = "10"
+label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EnemyMarker_Optional" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
+[node name="EnemyMarker_Optional" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=848150811]
 visible = false
 z_index = 3
-layout_mode = 0
+anchors_preset = 0
 offset_left = 65.0
 offset_top = -49.0
 offset_right = 104.0
 offset_bottom = -1.0
 mouse_filter = 2
 
-[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/EnemyMarker_Optional"]
+[node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/EnemyMarker_Optional" unique_id=199750989]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -262,7 +267,7 @@ texture = ExtResource("12_enemy")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="DeathMark" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
+[node name="DeathMark" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=1895525953]
 visible = false
 z_index = 5
 layout_mode = 0
@@ -274,7 +279,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="02_FrontTargetCell" type="Control" parent="CompleteBattleCreaturePrefab"]
+[node name="02_FrontTargetCell" type="Control" parent="CompleteBattleCreaturePrefab" unique_id=261275479]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -283,164 +288,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_grid_art_removed = true
 
-[node name="up" type="Control" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="cell_03" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/up"]
-layout_mode = 0
-offset_left = 29.0
-offset_top = -101.0
-offset_right = 142.0
-offset_bottom = 12.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_02" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/up"]
-layout_mode = 0
-offset_left = 29.0
-offset_top = -221.0
-offset_right = 142.0
-offset_bottom = -108.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_01" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/up"]
-layout_mode = 0
-offset_left = 29.0
-offset_top = -341.0
-offset_right = 142.0
-offset_bottom = -228.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="front" type="Control" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="cell_01" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/front"]
-layout_mode = 0
-offset_left = 149.0
-offset_top = 19.0
-offset_right = 262.0
-offset_bottom = 132.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_02" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/front"]
-layout_mode = 0
-offset_left = 269.0
-offset_top = 19.0
-offset_right = 382.0
-offset_bottom = 132.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_03" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/front"]
-layout_mode = 0
-offset_left = 389.0
-offset_top = 19.0
-offset_right = 502.0
-offset_bottom = 132.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="down" type="Control" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="cell_03" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/down"]
-layout_mode = 0
-offset_left = 29.0
-offset_top = 139.0
-offset_right = 142.0
-offset_bottom = 252.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_02" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/down"]
-layout_mode = 0
-offset_left = 29.0
-offset_top = 259.0
-offset_right = 142.0
-offset_bottom = 372.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_01" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/down"]
-layout_mode = 0
-offset_left = 29.0
-offset_top = 379.0
-offset_right = 142.0
-offset_bottom = 492.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="left" type="Control" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="cell_03" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/left"]
-layout_mode = 0
-offset_left = -91.0
-offset_top = 19.0
-offset_right = 22.0
-offset_bottom = 132.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_02" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/left"]
-layout_mode = 0
-offset_left = -211.0
-offset_top = 19.0
-offset_right = -98.0
-offset_bottom = 132.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="cell_01" type="TextureRect" parent="CompleteBattleCreaturePrefab/02_FrontTargetCell/left"]
-layout_mode = 0
-offset_left = -331.0
-offset_top = 19.0
-offset_right = -218.0
-offset_bottom = 132.0
-mouse_filter = 2
-texture = ExtResource("14_attack_range")
-expand_mode = 1
-
-[node name="03_AttackActions" type="Control" parent="CompleteBattleCreaturePrefab"]
+[node name="03_AttackActions" type="Control" parent="CompleteBattleCreaturePrefab" unique_id=1819342361]
 z_index = 4
 layout_mode = 1
 anchors_preset = 15
@@ -451,7 +301,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("6_animation")
 
-[node name="bite" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions"]
+[node name="bite" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions" unique_id=1837840644]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -460,7 +310,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="frame_001" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite"]
+[node name="frame_001" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite" unique_id=508272678]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -469,7 +319,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_001"]
+[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_001" unique_id=1376209347]
 visible = false
 layout_mode = 0
 offset_left = 159.0
@@ -481,7 +331,7 @@ texture = ExtResource("15_bite_001")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="frame_002" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite"]
+[node name="frame_002" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite" unique_id=309383504]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -490,7 +340,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_002"]
+[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_002" unique_id=1115957402]
 visible = false
 layout_mode = 0
 offset_left = 156.0
@@ -502,7 +352,7 @@ texture = ExtResource("16_bite_002")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="frame_003" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite"]
+[node name="frame_003" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite" unique_id=751229167]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -511,7 +361,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_003"]
+[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_003" unique_id=1108372917]
 visible = false
 layout_mode = 0
 offset_left = 150.0
@@ -523,7 +373,7 @@ texture = ExtResource("17_bite_003")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="frame_004" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite"]
+[node name="frame_004" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite" unique_id=1077983185]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -532,7 +382,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_004"]
+[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_004" unique_id=2054576152]
 visible = false
 layout_mode = 0
 offset_left = 140.0
@@ -544,7 +394,7 @@ texture = ExtResource("18_bite_004")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="frame_005" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite"]
+[node name="frame_005" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite" unique_id=1701458387]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -553,7 +403,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_005"]
+[node name="FrameArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/bite/frame_005" unique_id=129745302]
 visible = false
 layout_mode = 0
 offset_left = 141.0
@@ -565,7 +415,7 @@ texture = ExtResource("19_bite_005")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="element_projectile" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions"]
+[node name="element_projectile" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions" unique_id=1801368750]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -574,7 +424,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="LandingTileVariants" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile"]
+[node name="LandingTileVariants" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile" unique_id=2077806763]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -583,7 +433,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="fire" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants"]
+[node name="fire" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants" unique_id=265781174]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -592,7 +442,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/fire"]
+[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/fire" unique_id=859518294]
 visible = false
 layout_mode = 0
 offset_left = 164.0
@@ -604,7 +454,7 @@ texture = ExtResource("20_landing_fire")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="water" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants"]
+[node name="water" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants" unique_id=1986680696]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -613,7 +463,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/water"]
+[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/water" unique_id=1754605701]
 visible = false
 layout_mode = 0
 offset_left = 156.0
@@ -625,7 +475,7 @@ texture = ExtResource("21_landing_water")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="earth" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants"]
+[node name="earth" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants" unique_id=836008852]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -634,7 +484,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/earth"]
+[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/earth" unique_id=2043029903]
 visible = false
 layout_mode = 0
 offset_left = 155.0
@@ -646,7 +496,7 @@ texture = ExtResource("22_landing_earth")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="wind" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants"]
+[node name="wind" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants" unique_id=876536167]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -655,7 +505,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/wind"]
+[node name="TileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants/wind" unique_id=822313702]
 visible = false
 layout_mode = 0
 offset_left = 157.0
@@ -667,7 +517,7 @@ texture = ExtResource("23_landing_wind")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ProjectileVariants" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile"]
+[node name="ProjectileVariants" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile" unique_id=1382686641]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -676,7 +526,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="fire" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants"]
+[node name="fire" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants" unique_id=1001113844]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -685,7 +535,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/fire"]
+[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/fire" unique_id=1831882832]
 visible = false
 layout_mode = 0
 offset_left = 100.0
@@ -697,7 +547,7 @@ texture = ExtResource("24_projectile_fire")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="water" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants"]
+[node name="water" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants" unique_id=1531572926]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -706,7 +556,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/water"]
+[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/water" unique_id=381979035]
 visible = false
 layout_mode = 0
 offset_left = 99.0
@@ -718,7 +568,7 @@ texture = ExtResource("25_projectile_water")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="earth" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants"]
+[node name="earth" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants" unique_id=1642816540]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -727,7 +577,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/earth"]
+[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/earth" unique_id=448218324]
 visible = false
 layout_mode = 0
 offset_left = 100.0
@@ -739,7 +589,7 @@ texture = ExtResource("26_projectile_earth")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="wind" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants"]
+[node name="wind" type="Control" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants" unique_id=717125158]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -748,7 +598,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/wind"]
+[node name="ProjectileArt" type="TextureRect" parent="CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/ProjectileVariants/wind" unique_id=1330309282]
 visible = false
 layout_mode = 0
 offset_left = 100.0

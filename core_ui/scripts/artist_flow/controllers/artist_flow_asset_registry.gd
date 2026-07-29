@@ -9,7 +9,7 @@ const ROUTE_IMAGE_BY_KIND := {
 }
 const PET_IMAGE_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
 const PET_SHEET_SLICE_DIR := "res://art/images/shared/pets/sheets/slices"
-const PET_EXPLICIT_IMAGE_DIR := "res://art/images/shared/pets/portraits"
+const PET_EXPLICIT_IMAGE_DIR := "res://art/images/shared/pets/sheets/slices"
 const SHOP_CHARACTER_MAP_PATH := "res://art/manifests/route/shop/characters/shop_character_map.json"
 const REWARD_NODE_MAP_PATH := "res://art/manifests/route/rewards/reward_node_map.json"
 
