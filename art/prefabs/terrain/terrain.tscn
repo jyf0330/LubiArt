@@ -22,7 +22,49 @@ texture = ExtResource("2_anchor")
 expand_mode = 1
 stretch_mode = 0
 
+[node name="GroundElementEffects" type="Control" parent="."]
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PersistentMarker" type="TextureRect" parent="GroundElementEffects"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ElementMarkers" type="Control" parent="GroundElementEffects"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ImpactLayer" type="Control" parent="GroundElementEffects"]
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="PrefabAnchor" type="Control" parent="."]
+z_index = 2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

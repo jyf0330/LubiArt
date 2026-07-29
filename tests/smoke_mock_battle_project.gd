@@ -13,6 +13,7 @@ const BattleProjectileScript := preload("res://core_ui/scripts/battle/prefabs/ef
 const BattleBiteVfxScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_bite_vfx.gd")
 const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
 const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
+const BattleTerrainScene := preload("res://art/prefabs/terrain/terrain.tscn")
 
 var _projectile_impact_count := 0
 var _bite_hit_count := 0
@@ -26,6 +27,7 @@ func _run() -> void:
 	_assert_presentation_patterns_load()
 	_assert_new_unit_assets()
 	await _assert_defensive_stat_semantics()
+	await _assert_prefab_effect_ownership()
 	await _assert_hit_sync_primitives()
 	var capture := _load_capture()
 	var capture_source := Dictionary(capture.get("source", {}))
@@ -304,6 +306,46 @@ func _assert_hit_sync_primitives() -> void:
 	assert(String(damage_number.get("text")) == "-7")
 	assert(is_equal_approx(damage_number.scale.x, 0.72))
 	damage_number.queue_free()
+
+
+func _assert_prefab_effect_ownership() -> void:
+	var pet := BattleUnitScene.instantiate() as Control
+	assert(pet != null)
+	root.add_child(pet)
+	await process_frame
+	assert(pet.has_method("play_cross_cell_projectile"))
+	assert(pet.has_method("play_damage_feedback"))
+	assert(pet.has_method("play_grid_movement"))
+	assert(pet.has_method("play_death_fade"))
+	var projectile := pet.call(
+		"play_cross_cell_projectile",
+		"fire",
+		Vector2(20.0, 20.0),
+		Vector2(120.0, 80.0),
+		0.32,
+		72.0
+	) as Node
+	var damage := pet.call("play_damage_number", 7) as Node
+	var bite := pet.call("play_bite_impact") as Node
+	assert(projectile != null)
+	assert(projectile.get_parent().name == "ProjectileLayer")
+	assert(damage != null)
+	assert(damage.get_parent().name == "DamageNumberLayer")
+	assert(bite != null)
+	assert(bite.get_parent().name == "HitLayer")
+
+	var terrain := BattleTerrainScene.instantiate() as Control
+	assert(terrain != null)
+	root.add_child(terrain)
+	await process_frame
+	assert(terrain.has_method("play_element_impact"))
+	var impact := terrain.call("play_element_impact", "fire", null, false) as Node
+	assert(impact != null)
+	assert(impact.get_parent().name == "ImpactLayer")
+	assert(terrain.get_node_or_null("GroundElementEffects/PersistentMarker") != null)
+	pet.queue_free()
+	terrain.queue_free()
+	await process_frame
 
 
 func _on_test_projectile_impact() -> void:

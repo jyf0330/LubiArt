@@ -7,10 +7,7 @@ signal trace_sequence_finished
 signal pets_reset_reveal_requested(units: Array)
 signal enemy_move_projection_requested(event: Dictionary)
 
-const BattleProjectileScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_projectile.gd")
-const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
 const BattleRoundBannerScript := preload("res://core_ui/scripts/battle/prefabs/hud/battle_round_banner.gd")
-const BattleBiteVfxScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_bite_vfx.gd")
 const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const BattleVfxHandlerRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_vfx_handler_registry.gd")
 const ARTIST_ACTION_STEP_DELAY := 0.16
@@ -148,7 +145,7 @@ func _play_damage_trace_sequence(event: Dictionary) -> void:
 		var attack_translation := play_enemy_attack_translation(actor, target)
 		if attack_translation != null:
 			await get_tree().create_timer(ENEMY_ATTACK_TRANSLATION_OUT_DURATION).timeout
-		var bite := play_bite(target_grid)
+		var bite := _play_bite_on_unit(target_visual)
 		await _await_bite_impact(bite)
 	else:
 		var projectile := play_projectile(element, actor_grid, target_grid)
@@ -168,14 +165,8 @@ func _play_damage_trace_sequence(event: Dictionary) -> void:
 func _play_defeated_unit_fade(unit: Control) -> void:
 	if unit == null or not is_instance_valid(unit):
 		return
-	if unit.has_method("clear_dead_mark"):
-		unit.call("clear_dead_mark")
-	unit.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var fade := unit.create_tween()
-	fade.tween_property(unit, "modulate:a", 0.0, DEATH_FADE_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	await fade.finished
-	if is_instance_valid(unit):
-		unit.visible = false
+	if unit.has_method("play_death_fade"):
+		await unit.call("play_death_fade", DEATH_FADE_DURATION)
 
 
 func _play_attack_strike_trace_sequence(event: Dictionary) -> void:
@@ -267,8 +258,10 @@ func _prepare_damage_target_visual(event: Dictionary) -> Control:
 	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ghost.z_index = 70
 	ghost.size = cell.size
-	ghost.position = get_global_transform_with_canvas().affine_inverse() * cell.global_position
-	add_child(ghost)
+	var prefab_anchor := cell.call("get_prefab_anchor") as Control if cell.has_method("get_prefab_anchor") else cell
+	prefab_anchor.add_child(ghost)
+	ghost.position = Vector2.ZERO
+	ghost.size = cell.size
 	var cell_data := target.duplicate(true)
 	cell_data["unitId"] = String(target.get("id", ""))
 	cell_data["unitName"] = String(target.get("name", target.get("id", "")))
@@ -283,29 +276,11 @@ func _prepare_damage_target_visual(event: Dictionary) -> Control:
 func _apply_damage_impact(event: Dictionary, target_visual: Control = null) -> Node:
 	var target := Dictionary(event.get("target", {}))
 	var payload := Dictionary(event.get("payload", {}))
-	var target_grid := _dict_grid(target)
-	var final_damage: int = max(0, int(payload.get("finalDamage", 0)))
-	var shield_damage: int = max(0, int(payload.get("shieldDamage", 0)))
-	var hp_damage: int = max(0, int(payload.get("hpDamage", final_damage - shield_damage)))
-	var strike_index: int = max(1, int(payload.get("strikeIndex", 1)))
-	var strike_count: int = max(1, int(payload.get("strikeCount", 1)))
-	var strike_x_offset := 0.0
-	if strike_count > 1:
-		strike_x_offset = float(strike_index - 1) * 10.0 - float(strike_count - 1) * 5.0
-	if shield_damage > 0:
-		play_damage_number(target_grid, shield_damage, "shield", -13.0 if hp_damage > 0 else 0.0, strike_x_offset)
-	if hp_damage > 0:
-		play_damage_number(target_grid, hp_damage, "hp", 13.0 if shield_damage > 0 else 0.0, strike_x_offset)
-	if shield_damage <= 0 and hp_damage <= 0 and final_damage > 0:
-		play_damage_number(target_grid, final_damage, "hp", 0.0, strike_x_offset)
 	var unit := target_visual if target_visual != null else _unit_by_id(String(target.get("id", "")))
-	if unit != null:
-		if unit.has_method("play_shake"):
-			unit.call("play_shake")
-		if unit.has_method("update_hp"):
-			unit.call("update_hp", int(payload.get("hpTo", 0)))
-		if unit.has_method("update_shield"):
-			unit.call("update_shield", int(payload.get("shieldTo", 0)))
+	if unit == null:
+		unit = _unit_at(_dict_grid(target))
+	if unit != null and unit.has_method("play_damage_feedback"):
+		unit.call("play_damage_feedback", payload)
 	return unit
 
 
@@ -342,9 +317,8 @@ func _instant_spawn_trap(event: Dictionary) -> Node:
 
 func _instant_death(event: Dictionary) -> Node:
 	var unit := _unit_by_id(String(event.get("unit_id", "")))
-	if unit != null and unit.has_method("set_dead_mark") and assets != null:
-		var side := String(unit.get("side"))
-		unit.call("set_dead_mark", assets.call("death_mark_texture", side))
+	if unit != null and unit.has_method("show_death_mark_from_assets"):
+		unit.call("show_death_mark_from_assets")
 	return unit
 
 
@@ -355,14 +329,10 @@ func play_movement(event: Dictionary) -> Node:
 		return null
 	var from_grid := _dict_grid(Dictionary(event.get("from", {})))
 	var to_grid := _dict_grid(Dictionary(event.get("to", {})))
-	var target_parent := unit.get_parent() as Control
-	if target_parent != null:
-		var from_cell := _cell_at(from_grid)
-		var to_cell := _cell_at(to_grid)
-		if from_cell != null and to_cell != null:
-			unit.position = from_cell.position - to_cell.position
-	if unit.has_method("move_to_position"):
-		unit.call("move_to_position", Vector2.ZERO, 0.22)
+	var from_cell := _cell_at(from_grid)
+	var to_cell := _cell_at(to_grid)
+	if from_cell != null and to_cell != null and unit.has_method("play_grid_movement"):
+		unit.call("play_grid_movement", from_cell.global_position, to_cell.global_position, ARTIST_MOVE_DURATION)
 	return unit
 
 
@@ -383,47 +353,36 @@ func play_damage_trace(event: Dictionary) -> Node:
 
 func play_enemy_attack_translation(actor: Dictionary, target: Dictionary) -> Tween:
 	var actor_id := String(actor.get("id", ""))
-	var actor_grid := _dict_grid(actor)
 	var target_grid := _dict_grid(target)
 	var actor_visual := _unit_by_id(actor_id)
-	var actor_cell := _cell_at(actor_grid)
 	var target_cell := _cell_at(target_grid)
-	if actor_visual == null or actor_cell == null or target_cell == null or actor_grid == target_grid:
+	if actor_visual == null or target_cell == null or not actor_visual.has_method("play_attack_translation"):
 		return null
-	var parent := actor_visual.get_parent() as Control
-	if parent == null:
-		return null
-	var parent_inverse := parent.get_global_transform_with_canvas().affine_inverse()
-	var actor_center_global := actor_cell.global_position + actor_cell.size * 0.5
 	var target_center_global := target_cell.global_position + target_cell.size * 0.5
-	var travel_delta := (parent_inverse * target_center_global) - (parent_inverse * actor_center_global)
-	if travel_delta.length_squared() <= 0.01:
-		return null
-	var origin := actor_visual.position
-	var original_z_index := actor_visual.z_index
-	actor_visual.z_index = max(actor_visual.z_index, 86)
-	var tween := actor_visual.create_tween()
-	tween.tween_property(actor_visual, "position", origin + travel_delta * ENEMY_ATTACK_TRANSLATION_RATIO, ENEMY_ATTACK_TRANSLATION_OUT_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_interval(ENEMY_ATTACK_TRANSLATION_HOLD_DURATION)
-	tween.tween_property(actor_visual, "position", origin, ENEMY_ATTACK_TRANSLATION_RETURN_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-	tween.finished.connect(func():
-		if is_instance_valid(actor_visual):
-			actor_visual.position = origin
-			actor_visual.z_index = original_z_index
-	)
-	return tween
+	return actor_visual.call(
+		"play_attack_translation",
+		target_center_global,
+		ENEMY_ATTACK_TRANSLATION_RATIO,
+		ENEMY_ATTACK_TRANSLATION_OUT_DURATION,
+		ENEMY_ATTACK_TRANSLATION_HOLD_DURATION,
+		ENEMY_ATTACK_TRANSLATION_RETURN_DURATION
+	) as Tween
 
 
 func play_projectile(element: String, from_grid: Vector2i, to_grid: Vector2i) -> Node:
-	var projectile := BattleProjectileScript.new()
-	add_child(projectile)
-	projectile.z_index = 80
-	var texture_resource: Texture2D = null
-	if assets != null and assets.has_method("projectile_texture"):
-		texture_resource = assets.call("projectile_texture", _visual_element_id(element)) as Texture2D
-	if projectile.has_method("play"):
-		projectile.call("play", texture_resource, _cell_center(from_grid), _cell_center(to_grid), 0.32, _arc_height(from_grid, to_grid))
-	return projectile
+	var owner := _unit_at(from_grid)
+	if owner == null:
+		owner = _unit_at(to_grid)
+	if owner == null or not owner.has_method("play_cross_cell_projectile"):
+		return null
+	return owner.call(
+		"play_cross_cell_projectile",
+		_visual_element_id(element),
+		_cell_center_global(from_grid),
+		_cell_center_global(to_grid),
+		ARTIST_BULLET_FLIGHT_DURATION,
+		_arc_height(from_grid, to_grid)
+	) as Node
 
 
 func _visual_element_id(element: String) -> String:
@@ -451,36 +410,20 @@ func _visual_element_id(element: String) -> String:
 
 
 func play_bite(grid: Vector2i) -> Node:
-	var bite := BattleBiteVfxScript.new() as Control
-	add_child(bite)
-	bite.z_index = 85
-	bite.size = _monster_bite_size()
-	bite.position = _cell_center(grid) - bite.size * 0.5
-	var frames: Array = []
-	var durations: Array = []
-	if assets != null:
-		if assets.has_method("monster_bite_frames"):
-			frames = Array(assets.call("monster_bite_frames"))
-		if assets.has_method("monster_bite_frame_durations"):
-			durations = Array(assets.call("monster_bite_frame_durations"))
-	if bite.has_method("play"):
-		bite.call("play", frames, durations, 3)
-	return bite
+	return _play_bite_on_unit(_unit_at(grid))
+
+
+func _play_bite_on_unit(unit: Control) -> Node:
+	if unit == null or not unit.has_method("play_bite_impact"):
+		return null
+	return unit.call("play_bite_impact") as Node
 
 
 func play_damage_number(grid: Vector2i, amount: int, damage_kind: String = "hp", y_offset: float = 0.0, x_offset: float = 0.0) -> Node:
-	var number := BattleDamageNumberScript.new() as Control
-	add_child(number)
-	number.name = "ShieldDamageNumber" if damage_kind == "shield" else "HpDamageNumber"
-	number.z_index = 90
-	number.position = _cell_center(grid) - Vector2(70.0, 24.0) + Vector2(x_offset, y_offset)
-	number.size = Vector2(140.0, 40.0)
-	if number.has_method("show_damage"):
-		if damage_kind == "shield":
-			number.call("show_damage", amount, Color(0.18, 0.68, 1.0), 0.55, "护盾")
-		else:
-			number.call("show_damage", amount, Color(1.0, 0.22, 0.14), 0.55, "生命")
-	return number
+	var unit := _unit_at(grid)
+	if unit == null or not unit.has_method("play_damage_number"):
+		return null
+	return unit.call("play_damage_number", amount, damage_kind, y_offset, x_offset) as Node
 
 
 func _await_projectile_impact(projectile: Node) -> void:
@@ -509,62 +452,13 @@ func play_spawn_trap(element: String, grid: Vector2i, transient: bool = false) -
 
 func play_element_impact(element: String, grid: Vector2i, persist_marker: bool = true) -> Node:
 	var cell := _cell_at(grid)
-	if cell == null:
+	if cell == null or not cell.has_method("play_element_impact"):
 		return null
-	if persist_marker:
-		play_spawn_trap(_visual_element_id(element), grid, true)
-	var pulse := ColorRect.new()
-	pulse.name = "ElementImpact"
-	pulse.set_meta("element_impact", true)
-	pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pulse.z_index = 82
-	pulse.color = _element_impact_color(_visual_element_id(element))
-	pulse.size = cell.size * 0.82
-	pulse.pivot_offset = pulse.size * 0.5
-	var global_center := cell.global_position + cell.size * 0.5
-	pulse.position = get_global_transform_with_canvas().affine_inverse() * global_center - pulse.size * 0.5
-	pulse.scale = Vector2.ONE * 0.62
-	add_child(pulse)
-	var original_cell_modulate := cell.modulate
-	var cell_tint := _element_impact_color(_visual_element_id(element))
-	cell_tint.a = 1.0
-	var tween := pulse.create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(pulse, "scale", Vector2.ONE * 1.12, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(cell, "modulate", cell_tint, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.set_parallel(false)
-	tween.tween_interval(0.08)
-	tween.set_parallel(true)
-	tween.tween_property(pulse, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.tween_property(cell, "modulate", original_cell_modulate, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.finished.connect(func():
-		if is_instance_valid(cell):
-			cell.modulate = original_cell_modulate
-		pulse.queue_free()
-	)
-	return pulse
-
-
-func _element_impact_color(element: String) -> Color:
-	match element:
-		"neutral":
-			return Color(0.84, 0.84, 0.78, 0.72)
-		"water":
-			return Color(0.18, 0.68, 1.0, 0.72)
-		"grass":
-			return Color(0.3, 0.8, 0.28, 0.72)
-		"electric":
-			return Color(1.0, 0.84, 0.12, 0.76)
-		"ice":
-			return Color(0.56, 0.9, 1.0, 0.74)
-		"ground":
-			return Color(0.78, 0.58, 0.22, 0.72)
-		"dark":
-			return Color(0.5, 0.28, 0.7, 0.74)
-		"dragon":
-			return Color(0.9, 0.32, 0.6, 0.76)
-		_:
-			return Color(1.0, 0.28, 0.08, 0.76)
+	var visual_element := _visual_element_id(element)
+	var marker_texture: Texture2D = null
+	if assets != null and assets.has_method("buff_ring_texture"):
+		marker_texture = assets.call("buff_ring_texture", visual_element) as Texture2D
+	return cell.call("play_element_impact", visual_element, marker_texture, persist_marker) as Node
 
 
 func play_round_banner(round_number: int, side: String) -> Node:
@@ -652,12 +546,11 @@ func _event_grid(event: Dictionary, key: String) -> Vector2i:
 	return Vector2i.ZERO
 
 
-func _cell_center(grid: Vector2i) -> Vector2:
+func _cell_center_global(grid: Vector2i) -> Vector2:
 	var cell := _cell_at(grid)
 	if cell == null:
 		return Vector2.ZERO
-	var global_center := cell.global_position + cell.size * 0.5
-	return get_global_transform_with_canvas().affine_inverse() * global_center
+	return cell.global_position + cell.size * 0.5
 
 
 func _cell_at(grid: Vector2i) -> Control:
@@ -678,17 +571,16 @@ func _unit_by_id(unit_id: String) -> Control:
 	return null
 
 
+func _unit_at(grid: Vector2i) -> Control:
+	var cell := _cell_at(grid)
+	if cell == null or not cell.has_method("get_unit_node"):
+		return null
+	return cell.call("get_unit_node") as Control
+
+
 func _arc_height(from_grid: Vector2i, to_grid: Vector2i) -> float:
 	var distance: int = abs(from_grid.x - to_grid.x) + abs(from_grid.y - to_grid.y)
 	return 72.0 + float(distance) * 18.0
-
-
-func _monster_bite_size() -> Vector2:
-	var cell := _cell_at(Vector2i.ZERO)
-	if cell == null:
-		return Vector2(180.0, 180.0)
-	var target := minf(cell.size.x, cell.size.y) * 1.55
-	return Vector2(target, target)
 
 
 func _dict_grid(value: Dictionary) -> Vector2i:

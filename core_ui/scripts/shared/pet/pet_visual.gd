@@ -3,6 +3,9 @@ extends Control
 const SOURCE_PSD := "battle_creature_prefab_source.psd"
 const SOURCE_CANVAS_SIZE := Vector2(171.0, 144.0)
 const AUTHORED_CREATURE_TEXTURE := preload("res://art/images/shared/pets/battle_complete/creature_art.png")
+const BattleProjectileScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_projectile.gd")
+const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
+const BattleBiteVfxScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_bite_vfx.gd")
 const BATTLE_FOOTLINE_BOTTOM_INSET := 15.0
 const BATTLE_SHADOW_CENTER_Y_OFFSET := -3.0
 const BATTLE_VISUAL_METRICS_PATH := "res://art/manifests/shared/pets/sheets/pet_battle_visual_metrics.json"
@@ -38,14 +41,20 @@ static var _battle_visual_metrics_loaded := false
 @onready var psd_damage_cap_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap/Value_Text"
 @onready var death_mark_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/DeathMark"
 @onready var animation: PetAnimation = $"CompleteBattleCreaturePrefab/03_AttackActions"
+@onready var projectile_layer: Control = $"CompleteBattleCreaturePrefab/04_BattleEffects/ProjectileLayer"
+@onready var hit_layer: Control = $"CompleteBattleCreaturePrefab/04_BattleEffects/HitLayer"
+@onready var damage_number_layer: Control = $"CompleteBattleCreaturePrefab/04_BattleEffects/DamageNumberLayer"
 
 var cell_data: Dictionary = {}
 var side := ""
+var _assets: RefCounted = null
 var _missing_mapping: Dictionary = {}
 var _display_mode := &"battle"
 var _battle_sprite_visible_rect := Rect2()
 var _battle_removed_bottom_pixels := 0
 var _battle_footline_bottom_inset := BATTLE_FOOTLINE_BOTTOM_INSET
+var _death_tween: Tween = null
+var _attack_translation_tween: Tween = null
 
 
 func _ready() -> void:
@@ -58,6 +67,7 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 	reset_pet_view()
 	cell_data = data.duplicate(true)
 	side = unit_side
+	_assets = assets
 	_set_battle_presentation()
 	_layout_children()
 	frame_rect.texture = null
@@ -96,8 +106,16 @@ func clear_collection_data() -> void:
 
 func reset_pet_view() -> void:
 	animation.reset()
+	_clear_runtime_battle_effects()
+	if _death_tween != null and _death_tween.is_valid():
+		_death_tween.kill()
+	if _attack_translation_tween != null and _attack_translation_tween.is_valid():
+		_attack_translation_tween.kill()
+	_death_tween = null
+	_attack_translation_tween = null
 	cell_data = {}
 	side = ""
+	_assets = null
 	_missing_mapping = {}
 	_display_mode = &"none"
 	_battle_sprite_visible_rect = Rect2()
@@ -218,6 +236,172 @@ func play_attack_action(attack_type: String, element_id: String = "fire") -> voi
 
 func get_last_attack_action_snapshot() -> Dictionary:
 	return animation.get_last_attack_snapshot()
+
+
+func play_cross_cell_projectile(
+	element_id: String,
+	from_global_center: Vector2,
+	to_global_center: Vector2,
+	duration: float = 0.32,
+	arc_height: float = 96.0
+) -> Node:
+	if projectile_layer == null:
+		return null
+	var texture_resource: Texture2D = null
+	if _assets != null and _assets.has_method("projectile_texture"):
+		texture_resource = _assets.call("projectile_texture", element_id) as Texture2D
+	var projectile := BattleProjectileScript.new() as Sprite2D
+	if projectile == null:
+		return null
+	projectile.name = "CrossCellProjectile"
+	projectile_layer.add_child(projectile)
+	var layer_inverse := projectile_layer.get_global_transform_with_canvas().affine_inverse()
+	projectile.call(
+		"play",
+		texture_resource,
+		layer_inverse * from_global_center,
+		layer_inverse * to_global_center,
+		duration,
+		arc_height
+	)
+	return projectile
+
+
+func play_bite_impact() -> Node:
+	if hit_layer == null:
+		return null
+	var bite := BattleBiteVfxScript.new() as Control
+	if bite == null:
+		return null
+	bite.name = "BiteImpact"
+	hit_layer.add_child(bite)
+	var target_size := minf(size.x, size.y) * 1.55
+	bite.size = Vector2(target_size, target_size)
+	bite.position = size * 0.5 - bite.size * 0.5
+	var frames: Array = []
+	var durations: Array = []
+	if _assets != null:
+		if _assets.has_method("monster_bite_frames"):
+			frames = Array(_assets.call("monster_bite_frames"))
+		if _assets.has_method("monster_bite_frame_durations"):
+			durations = Array(_assets.call("monster_bite_frame_durations"))
+	bite.call("play", frames, durations, 3)
+	return bite
+
+
+func play_damage_number(
+	amount: int,
+	damage_kind: String = "hp",
+	y_offset: float = 0.0,
+	x_offset: float = 0.0
+) -> Node:
+	if damage_number_layer == null:
+		return null
+	var number := BattleDamageNumberScript.new() as Control
+	if number == null:
+		return null
+	number.name = "ShieldDamageNumber" if damage_kind == "shield" else "HpDamageNumber"
+	damage_number_layer.add_child(number)
+	number.position = size * 0.5 - Vector2(70.0, 24.0) + Vector2(x_offset, y_offset)
+	number.size = Vector2(140.0, 40.0)
+	if damage_kind == "shield":
+		number.call("show_damage", amount, Color(0.18, 0.68, 1.0), 0.55, "护盾")
+	else:
+		number.call("show_damage", amount, Color(1.0, 0.22, 0.14), 0.55, "生命")
+	return number
+
+
+func play_damage_feedback(payload: Dictionary) -> void:
+	var final_damage: int = max(0, int(payload.get("finalDamage", 0)))
+	var shield_damage: int = max(0, int(payload.get("shieldDamage", 0)))
+	var hp_damage: int = max(0, int(payload.get("hpDamage", final_damage - shield_damage)))
+	var strike_index: int = max(1, int(payload.get("strikeIndex", 1)))
+	var strike_count: int = max(1, int(payload.get("strikeCount", 1)))
+	var strike_x_offset := 0.0
+	if strike_count > 1:
+		strike_x_offset = float(strike_index - 1) * 10.0 - float(strike_count - 1) * 5.0
+	if shield_damage > 0:
+		play_damage_number(shield_damage, "shield", -13.0 if hp_damage > 0 else 0.0, strike_x_offset)
+	if hp_damage > 0:
+		play_damage_number(hp_damage, "hp", 13.0 if shield_damage > 0 else 0.0, strike_x_offset)
+	if shield_damage <= 0 and hp_damage <= 0 and final_damage > 0:
+		play_damage_number(final_damage, "hp", 0.0, strike_x_offset)
+	play_shake()
+	update_hp(int(payload.get("hpTo", int(cell_data.get("hp", 0)))))
+	update_shield(int(payload.get("shieldTo", int(cell_data.get("shield", 0)))))
+
+
+func play_attack_translation(
+	target_global_center: Vector2,
+	translation_ratio: float = 0.68,
+	out_duration: float = 0.18,
+	hold_duration: float = 0.08,
+	return_duration: float = 0.16
+) -> Tween:
+	var parent_control := get_parent() as Control
+	if parent_control == null:
+		return null
+	if _attack_translation_tween != null and _attack_translation_tween.is_valid():
+		_attack_translation_tween.kill()
+	var parent_inverse := parent_control.get_global_transform_with_canvas().affine_inverse()
+	var actor_global_center := get_global_transform_with_canvas() * (size * 0.5)
+	var travel_delta := (parent_inverse * target_global_center) - (parent_inverse * actor_global_center)
+	if travel_delta.length_squared() <= 0.01:
+		return null
+	var origin := position
+	var original_z_index := z_index
+	z_index = max(z_index, 26)
+	_attack_translation_tween = create_tween()
+	_attack_translation_tween.tween_property(self, "position", origin + travel_delta * translation_ratio, out_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_attack_translation_tween.tween_interval(hold_duration)
+	_attack_translation_tween.tween_property(self, "position", origin, return_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	_attack_translation_tween.finished.connect(func():
+		if is_instance_valid(self):
+			position = origin
+			z_index = original_z_index
+		_attack_translation_tween = null
+	)
+	return _attack_translation_tween
+
+
+func play_grid_movement(
+	from_global_position: Vector2,
+	to_global_position: Vector2,
+	duration: float = 0.22
+) -> void:
+	var parent_control := get_parent() as Control
+	if parent_control == null:
+		return
+	var parent_inverse := parent_control.get_global_transform_with_canvas().affine_inverse()
+	position = parent_inverse * from_global_position
+	animation.move_to_position(parent_inverse * to_global_position, duration)
+
+
+func play_death_fade(duration: float = 0.42) -> void:
+	clear_dead_mark()
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _death_tween != null and _death_tween.is_valid():
+		_death_tween.kill()
+	_death_tween = create_tween()
+	_death_tween.tween_property(self, "modulate:a", 0.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await _death_tween.finished
+	_death_tween = null
+	if is_instance_valid(self):
+		visible = false
+
+
+func show_death_mark_from_assets() -> void:
+	if _assets == null or not _assets.has_method("death_mark_texture"):
+		return
+	set_dead_mark(_assets.call("death_mark_texture", side) as Texture2D)
+
+
+func _clear_runtime_battle_effects() -> void:
+	for layer in [projectile_layer, hit_layer, damage_number_layer]:
+		if layer == null:
+			continue
+		for child in layer.get_children():
+			child.queue_free()
 
 
 func _notification(what: int) -> void:

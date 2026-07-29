@@ -27,14 +27,14 @@ BattleArtScene
 ```
 
 - `BattleArtScene` 根节点下只允许以上三个直接次级节点；新增战斗 UI 必须先归入对应职责，不得再平铺到根节点。
-- `Board` 管棋盘背景、格子、宠物、棋盘内特效和战斗行动控件，并直接挂 `battle_board.gd` 作为该次级分组的表现入口。
+- `Board` 管棋盘背景、格子、宠物实例、战斗事件编排和行动控件，并直接挂 `battle_board.gd` 作为该次级分组的表现入口。
 - `TopInfoBar` 直接挂 `battle_top_info_bar.gd`，只管用户截图所示的日程、回合、货币与顶部功能信息；当前没有正式上方信息栏切图时保留结构位，不用程序临时画图替代美术。
 - `CellDetail` 直接挂 `battle_cell_detail.gd`，只管点选格子后显示的宠物 / 地形信息。`/Users/ywh/Downloads/宠物信息栏实装.psd` 是其中宠物格子信息的正式美术源，原 476×539 画布、四档品质底板 / 攻击棋盘 / 数值格、特性位和动态数据接口都在 `pet_detail.tscn` 中维护。
 - 自动布置、摆位难度、开始行动、行动面板和调试命令都属于 `Board`，不得为了右侧位置而归入 `CellDetail`。
 - `BoardGrid` 重复使用地形 prefab。
 - 宠物由战斗控制器从宠物 prefab 取用并重置数据。
 - 宠物详情与地形详情分别使用对应详情 prefab。
-- HUD、按钮、回合反馈、投射物、伤害数字和咬击直接属于战斗 Scene 或由 `BattleVfxPlayer` 的脚本类型按真实事件创建，不是 prefab。
+- 宠物攻击、受击、移动、死亡、跨格投射物和伤害数字由 `pet.tscn` 内的对应表现层创建；地面元素标记与命中特效由 `terrain.tscn` 创建。`BattleVfxPlayer` 只保留真实事件的播放时序、预制体调用协调和回合横幅。
 
 ## 美术节点规则
 
@@ -44,7 +44,7 @@ BattleArtScene
 - 新格子信息 PSD 只读；切图统一放在 `art/images/shared/pets/info_panel/`，场景放 `art/prefabs/pet/`，表现脚本放 `core_ui/scripts/shared/pet/`。动态名称、元素、品质、攻击形状和六项数值不得烘进切图。
 - 需要输入、状态、动画或公开接口的视觉节点可以挂表现脚本；权威 Session、Snapshot 和战斗规则不能放进图片层。
 - `RoundFeedback` 是运行时创建的回合横幅图片根，直接挂 `battle_round_banner.gd` 并拥有 `Title`、`Subtitle`，不再有独立 `.tscn`。
-- 修改战斗整屏、HUD 或特效层级时直接改本 Scene 或 `core_ui/scripts/battle/`；修改宠物/地形及其详情时打开对应四个 prefab。
+- 修改战斗整屏、HUD、事件时序或回合横幅时直接改本 Scene 或 `core_ui/scripts/battle/`；修改宠物战斗表现、地面元素表现及其详情时打开对应四个 prefab。
 
 ## 禁止事项
 

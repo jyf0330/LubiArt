@@ -34,6 +34,10 @@ const PERSPECTIVE_DEFAULT_BORDER := Color(0.86, 0.89, 0.91, 0.12)
 ])
 
 @onready var cell_image: TextureRect = $CellImage
+@onready var _ground_element_effects: Control = $GroundElementEffects
+@onready var _effect_marker: TextureRect = $GroundElementEffects/PersistentMarker
+@onready var _element_markers: Control = $GroundElementEffects/ElementMarkers
+@onready var _element_impact_layer: Control = $GroundElementEffects/ImpactLayer
 @onready var _prefab_anchor: Control = $PrefabAnchor
 
 var grid_x := 0
@@ -45,7 +49,6 @@ var _highlight_mode := ""
 var _assets: RefCounted = null
 var _highlight_frame: TextureRect = null
 var _attack_order_marker: TextureRect = null
-var _effect_marker: TextureRect = null
 var _transient_element_visual_dirty := false
 
 
@@ -175,31 +178,21 @@ func show_effect_marker(texture_resource: Texture2D) -> void:
 	clear_effect_marker()
 	if texture_resource == null:
 		return
-	_effect_marker = TextureRect.new()
-	_effect_marker.name = "EffectMarker"
-	_effect_marker.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_effect_marker.custom_minimum_size = Vector2.ZERO
 	_effect_marker.texture = texture_resource
-	_effect_marker.position = Vector2.ZERO
-	_effect_marker.size = size
-	_effect_marker.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_effect_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_effect_marker.z_index = 3
-	_prefab_anchor.add_child(_effect_marker)
-	_prefab_anchor.move_child(_effect_marker, 0)
+	_effect_marker.visible = true
 
 
 func clear_effect_marker() -> void:
-	if is_instance_valid(_effect_marker):
-		_effect_marker.queue_free()
-	_effect_marker = null
+	if _effect_marker != null:
+		_effect_marker.texture = null
+		_effect_marker.modulate = Color.WHITE
+		_effect_marker.visible = false
 
 
 func clear_element_visuals() -> void:
 	clear_effect_marker()
-	for child in _prefab_anchor.get_children():
-		if String(child.name).begins_with("Element_"):
-			child.queue_free()
+	_clear_children(_element_markers)
+	_clear_children(_element_impact_layer)
 
 
 func show_transient_element_marker(texture_resource: Texture2D) -> void:
@@ -211,6 +204,39 @@ func consume_transient_element_visual_dirty() -> bool:
 	var was_dirty := _transient_element_visual_dirty
 	_transient_element_visual_dirty = false
 	return was_dirty
+
+
+func play_element_impact(
+	element: String,
+	marker_texture: Texture2D = null,
+	persist_marker: bool = true
+) -> Node:
+	if persist_marker:
+		show_transient_element_marker(marker_texture)
+	if _element_impact_layer == null:
+		return null
+	var pulse := ColorRect.new()
+	pulse.name = "ElementImpact"
+	pulse.set_meta("element_impact", true)
+	pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pulse.color = _element_color(element)
+	pulse.color.a = 0.72
+	pulse.size = size * 0.82
+	pulse.position = (size - pulse.size) * 0.5
+	pulse.pivot_offset = pulse.size * 0.5
+	pulse.scale = Vector2.ONE * 0.62
+	_element_impact_layer.add_child(pulse)
+	var tween := pulse.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(pulse, "scale", Vector2.ONE * 1.12, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.set_parallel(false)
+	tween.tween_interval(0.08)
+	tween.tween_property(pulse, "modulate:a", 0.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.finished.connect(func():
+		if is_instance_valid(pulse):
+			pulse.queue_free()
+	)
+	return pulse
 
 
 func has_player_unit() -> bool:
@@ -235,13 +261,15 @@ func get_missing_mapping_report() -> Array:
 func _clear_content() -> void:
 	for child in _prefab_anchor.get_children():
 		child.queue_free()
+	clear_element_visuals()
 	_unit_node = null
 	_highlight_frame = null
 	_attack_order_marker = null
-	_effect_marker = null
+	_transient_element_visual_dirty = false
 
 
 func _render_element_markers(elements: Dictionary) -> void:
+	_clear_children(_element_markers)
 	var element_configs := [
 		{"visual_id": "neutral", "keys": ["无", "neutral"]},
 		{"visual_id": "fire", "keys": ["火", "fire"]},
@@ -263,7 +291,7 @@ func _render_element_markers(elements: Dictionary) -> void:
 			primary_visual_id = String(config.get("visual_id", ""))
 	if primary_visual_id != "" and _assets != null and _assets.has_method("buff_ring_texture"):
 		show_effect_marker(_assets.call("buff_ring_texture", primary_visual_id) as Texture2D)
-		if is_instance_valid(_effect_marker):
+		if _effect_marker != null:
 			_effect_marker.modulate.a = 0.82
 
 	var visible_index := 0
@@ -281,8 +309,15 @@ func _render_element_markers(elements: Dictionary) -> void:
 			marker.size = Vector2(12.0, 12.0)
 			marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			marker.z_index = 5
-			_prefab_anchor.add_child(marker)
+			_element_markers.add_child(marker)
 			visible_index += 1
+
+
+func _clear_children(parent: Node) -> void:
+	if parent == null:
+		return
+	for child in parent.get_children():
+		child.queue_free()
 
 
 func _element_marker_position(visible_index: int) -> Vector2:

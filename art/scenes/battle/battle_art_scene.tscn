@@ -1,35 +1,163 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene format=3 uid="uid://c0am8pxw3phnn"]
 
-[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/battle_background_8x8.png" id="1_bg"]
-[ext_resource type="Script" path="res://core_ui/scripts/battle/controllers/battle_controller.gd" id="2_script"]
-[ext_resource type="Texture2D" path="res://art/images/battle/primary_actions/primary_actions_shadow.png" id="3_primary_shadow"]
-[ext_resource type="Texture2D" path="res://art/images/battle/primary_actions/begin_turn_normal.png" id="4_begin_normal"]
-[ext_resource type="Texture2D" path="res://art/images/battle/primary_actions/begin_turn_pressed.png" id="4_begin_pressed"]
-[ext_resource type="Texture2D" path="res://art/images/battle/primary_actions/auto_arrange_normal.png" id="4_auto_normal"]
-[ext_resource type="Texture2D" path="res://art/images/battle/primary_actions/auto_arrange_pressed.png" id="4_auto_pressed"]
-[ext_resource type="Script" path="res://core_ui/scripts/battle/controllers/battle_vfx_controller.gd" id="5_vfx"]
+[ext_resource type="Texture2D" uid="uid://yb7ngelwb4v5" path="res://art/images/battle/runtime/images/battle_background_8x8.png" id="1_bg"]
+[ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/controllers/battle_controller.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://cj4wnh87c8q0q" path="res://art/images/battle/primary_actions/primary_actions_shadow.png" id="3_primary_shadow"]
+[ext_resource type="Texture2D" uid="uid://dc50en6sk45t6" path="res://art/images/battle/primary_actions/auto_arrange_normal.png" id="4_auto_normal"]
+[ext_resource type="Texture2D" uid="uid://lr015ad4uapu" path="res://art/images/battle/primary_actions/auto_arrange_pressed.png" id="4_auto_pressed"]
+[ext_resource type="Texture2D" uid="uid://cjatfurk2g1lb" path="res://art/images/battle/primary_actions/begin_turn_normal.png" id="4_begin_normal"]
+[ext_resource type="Texture2D" uid="uid://c4upx43ihkv3" path="res://art/images/battle/primary_actions/begin_turn_pressed.png" id="4_begin_pressed"]
+[ext_resource type="Script" uid="uid://u854nu5t7opc" path="res://core_ui/scripts/battle/controllers/battle_vfx_controller.gd" id="5_vfx"]
 [ext_resource type="PackedScene" path="res://art/prefabs/terrain/terrain.tscn" id="6_cell"]
-[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/battle_action_panel.gd" id="7_action_panel"]
-[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_board.gd" id="8_board"]
-[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_top_info_bar.gd" id="9_top_info"]
-[ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_cell_detail.gd" id="10_cell_detail"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/layout/hud_status_bar_background_001.png" id="11_status_bar_bg"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/clock/clock_dial_002.png" id="12_clock_dial"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/clock/clock_pointer_010.png" id="13_clock_pointer"]
-[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/battle_direction_drawer.gd" id="14_direction_drawer"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/directions/direction_panel_parchment_corners_large_006.png" id="15_direction_panel"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/directions/direction_collapse_tab_parchment_clasp_003_full.png" id="16_direction_tab"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/directions/direction_collapse_triangle_001.png" id="17_direction_triangle"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/directions/direction_arrow_001.png" id="18_direction_left"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/directions/direction_arrow_002.png" id="19_direction_up"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/directions/direction_arrow_003.png" id="20_direction_right"]
-[ext_resource type="Texture2D" path="res://art/images/battle/hud/directions/direction_arrow_004.png" id="21_direction_down"]
+[ext_resource type="Script" uid="uid://vwiaygx1celj" path="res://core_ui/scripts/battle/prefabs/hud/battle_action_panel.gd" id="7_action_panel"]
+[ext_resource type="Script" uid="uid://mcfshqann0is" path="res://core_ui/scripts/battle/scenes/battle_board.gd" id="8_board"]
+[ext_resource type="Script" uid="uid://cpv43jj3mytyr" path="res://core_ui/scripts/battle/scenes/battle_top_info_bar.gd" id="9_top_info"]
+[ext_resource type="Script" uid="uid://dv05ssvdi8ki7" path="res://core_ui/scripts/battle/scenes/battle_cell_detail.gd" id="10_cell_detail"]
+[ext_resource type="Texture2D" uid="uid://dif3syit17gbl" path="res://art/images/battle/hud/layout/hud_status_bar_background_001.png" id="11_status_bar_bg"]
+[ext_resource type="Texture2D" uid="uid://1j51ky7dp3cs" path="res://art/images/battle/hud/clock/clock_dial_002.png" id="12_clock_dial"]
+[ext_resource type="Texture2D" uid="uid://1goj04hxtnsg" path="res://art/images/battle/hud/clock/clock_pointer_010.png" id="13_clock_pointer"]
+[ext_resource type="Script" uid="uid://drbbnnayu3755" path="res://core_ui/scripts/battle/prefabs/hud/battle_direction_drawer.gd" id="14_direction_drawer"]
+[ext_resource type="Texture2D" uid="uid://cfj800nbmvqiq" path="res://art/images/battle/hud/directions/direction_panel_parchment_corners_large_006.png" id="15_direction_panel"]
+[ext_resource type="Texture2D" uid="uid://cdawxnnhuruan" path="res://art/images/battle/hud/directions/direction_collapse_tab_parchment_clasp_003_full.png" id="16_direction_tab"]
+[ext_resource type="Texture2D" uid="uid://dmbax1dgplide" path="res://art/images/battle/hud/directions/direction_collapse_triangle_001.png" id="17_direction_triangle"]
+[ext_resource type="Texture2D" uid="uid://b181kcc4ismek" path="res://art/images/battle/hud/directions/direction_arrow_001.png" id="18_direction_left"]
+[ext_resource type="Texture2D" uid="uid://cjacju84yuovk" path="res://art/images/battle/hud/directions/direction_arrow_002.png" id="19_direction_up"]
+[ext_resource type="Texture2D" uid="uid://c4kin68tt6x1g" path="res://art/images/battle/hud/directions/direction_arrow_003.png" id="20_direction_right"]
+[ext_resource type="Texture2D" uid="uid://b5pyqg5qlenvv" path="res://art/images/battle/hud/directions/direction_arrow_004.png" id="21_direction_down"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gj48n"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jt4is"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mpd2j"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_j6ple"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pexeu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8m6k2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dwyqr"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_prx2w"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wtcqj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8o6yw"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_46ga7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k48ad"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6xq2p"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rbrnk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_205ga"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n7kb2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_arxy0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_smrxe"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_q785n"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ps77m"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_enenn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_evru6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cm4or"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bylhx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2nfse"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wxi8s"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_c1e38"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nx1cj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l3l45"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_d14vh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_r1tdp"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qr3fb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_12lwl"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lso2r"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qduen"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_iwr08"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1afs6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sil37"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3h1dm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p08pf"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2kaoy"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_buc5q"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bevdk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nd8aa"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tfx1d"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8nvwa"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_i4ivt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uqqao"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_q7isk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ljfr"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_eulkc"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ha61n"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_d4idb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0xt6c"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yiikn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xhye2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qnck4"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_45q06"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2akxg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vs4lj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pnhvy"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gobdo"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b7xpa"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sir5a"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_direction_tab"]
 atlas = ExtResource("16_direction_tab")
 region = Rect2(500, 305, 710, 305)
 
-[node name="BattleArtScene" type="Control"]
+[node name="BattleArtScene" type="Control" unique_id=1647309127]
 editor_description = "正式战斗 Scene。战斗 View、HUD、回合反馈、投射物与命中表现都属于本场景；只复用宠物、宠物详情、地形、地形详情四个 prefab。"
 layout_mode = 3
 anchors_preset = 15
@@ -40,7 +168,7 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("2_script")
 
-[node name="Board" type="Control" parent="."]
+[node name="Board" type="Control" parent="." unique_id=1608978655]
 editor_description = "棋盘：承载战斗背景、64 格地形、宠物和所有棋盘内命中表现。"
 layout_mode = 1
 anchors_preset = 15
@@ -51,671 +179,670 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("8_board")
 
-[node name="TopInfoBar" type="Control" parent="."]
-editor_description = "上方信息栏：只承载日程、回合、货币和顶部功能信息；不得放棋盘或详情节点。"
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 84.0
-grow_horizontal = 2
-mouse_filter = 2
-script = ExtResource("9_top_info")
-
-[node name="StatusBarBackground" type="NinePatchRect" parent="TopInfoBar"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 64.0
-grow_horizontal = 2
-mouse_filter = 2
-texture = ExtResource("11_status_bar_bg")
-patch_margin_left = 32
-patch_margin_right = 32
-
-[node name="BattleClock" type="Control" parent="TopInfoBar"]
-editor_description = "左上角战斗时钟。表盘可见半圆外轮廓直径为 220 px；表盘与指针共享原图画布，保持像素级对齐。"
-layout_mode = 0
-offset_top = 48.0
-offset_right = 252.0
-offset_bottom = 194.0
-mouse_filter = 2
-
-[node name="Dial" type="TextureRect" parent="TopInfoBar/BattleClock"]
-layout_mode = 0
-offset_left = 4.0
-offset_top = -16.5
-offset_right = 248.29448
-offset_bottom = 166.69937
-mouse_filter = 2
-texture = ExtResource("12_clock_dial")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Pointer" type="TextureRect" parent="TopInfoBar/BattleClock"]
-layout_mode = 0
-offset_left = 4.0
-offset_top = -16.5
-offset_right = 248.29448
-offset_bottom = 166.69937
-mouse_filter = 2
-texture = ExtResource("13_clock_pointer")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="CellDetail" type="Control" parent="."]
-editor_description = "格子详情：承载右侧操作区，以及运行时显示的宠物详情和地形详情。"
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("10_cell_detail")
-
-[node name="BoardBG" type="TextureRect" parent="Board"]
+[node name="BoardBG" type="TextureRect" parent="Board" unique_id=833552192]
 layout_mode = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
 texture = ExtResource("1_bg")
 
-[node name="BoardGrid" type="Control" parent="Board"]
+[node name="BoardGrid" type="Control" parent="Board" unique_id=703449358]
 custom_minimum_size = Vector2(1232, 962)
 anchors_preset = 0
-layout_mode = 0
 offset_left = 345.0
 offset_top = 89.0
 offset_right = 1577.0
 offset_bottom = 1051.0
 mouse_filter = 1
 
-[node name="Cell_R1_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
+[node name="Cell_R1_C1" parent="Board/BoardGrid" unique_id=351373496 instance=ExtResource("6_cell")]
 offset_left = 117.7881
-offset_top = 1
-offset_right = 253
-offset_bottom = 110.571429
+offset_top = 1.0
+offset_right = 253.0
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gj48n")
 use_perspective_geometry = true
-polygon = PackedVector2Array(15.2119, 0, 135.2119, 0, 123.888756, 109.571429, 0, 109.571429)
+polygon = PackedVector2Array(15.2119, 0, 135.2119, 0, 123.888756, 109.57143, 0, 109.57143)
 
-[node name="Cell_R1_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 241.676857
-offset_top = 1
-offset_right = 374
-offset_bottom = 110.571429
+[node name="Cell_R1_C2" parent="Board/BoardGrid" unique_id=449151770 instance=ExtResource("6_cell")]
+offset_left = 241.67686
+offset_top = 1.0
+offset_right = 374.0
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_jt4is")
 use_perspective_geometry = true
-polygon = PackedVector2Array(11.323143, 0, 132.323143, 0, 124.774381, 109.571429, 0, 109.571429)
+polygon = PackedVector2Array(11.323143, 0, 132.32314, 0, 124.77438, 109.57143, 0, 109.57143)
 
-[node name="Cell_R1_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 366.451238
-offset_top = 1
-offset_right = 494
-offset_bottom = 110.571429
+[node name="Cell_R1_C3" parent="Board/BoardGrid" unique_id=1115464159 instance=ExtResource("6_cell")]
+offset_left = 366.45123
+offset_top = 1.0
+offset_right = 494.0
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mpd2j")
 use_perspective_geometry = true
-polygon = PackedVector2Array(7.548762, 0, 127.548762, 0, 123.888756, 109.571429, 0, 109.571429)
+polygon = PackedVector2Array(7.548762, 0, 127.54876, 0, 123.888756, 109.57143, 0, 109.57143)
 
-[node name="Cell_R1_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 490.339994
-offset_top = 1
-offset_right = 615
-offset_bottom = 110.571429
+[node name="Cell_R1_C4" parent="Board/BoardGrid" unique_id=1720961101 instance=ExtResource("6_cell")]
+offset_left = 490.34
+offset_top = 1.0
+offset_right = 615.0
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_j6ple")
 use_perspective_geometry = true
-polygon = PackedVector2Array(3.660006, 0, 124.660006, 0, 124.660006, 109.571429, 0, 109.571429)
+polygon = PackedVector2Array(3.660006, 0, 124.66, 0, 124.66, 109.57143, 0, 109.57143)
 
-[node name="Cell_R1_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 615
-offset_top = 1
-offset_right = 738.888756
-offset_bottom = 110.571429
+[node name="Cell_R1_C5" parent="Board/BoardGrid" unique_id=1253574282 instance=ExtResource("6_cell")]
+offset_left = 615.0
+offset_top = 1.0
+offset_right = 738.88873
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_pexeu")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 120, 0, 123.888756, 109.571429, 0, 109.571429)
+polygon = PackedVector2Array(0, 0, 120, 0, 123.888756, 109.57143, 0, 109.57143)
 
-[node name="Cell_R1_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 735
-offset_top = 1
-offset_right = 862.777513
-offset_bottom = 110.571429
+[node name="Cell_R1_C6" parent="Board/BoardGrid" unique_id=257752411 instance=ExtResource("6_cell")]
+offset_left = 735.0
+offset_top = 1.0
+offset_right = 862.7775
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8m6k2")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 120, 0, 127.777513, 109.571429, 3.888756, 109.571429)
+polygon = PackedVector2Array(0, 0, 120, 0, 127.77751, 109.57143, 3.888756, 109.57143)
 
-[node name="Cell_R1_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 855
-offset_top = 1
-offset_right = 987.437519
-offset_bottom = 110.571429
+[node name="Cell_R1_C7" parent="Board/BoardGrid" unique_id=1738259182 instance=ExtResource("6_cell")]
+offset_left = 855.0
+offset_top = 1.0
+offset_right = 987.4375
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dwyqr")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 121, 0, 132.437519, 109.571429, 7.777513, 109.571429)
+polygon = PackedVector2Array(0, 0, 121, 0, 132.43752, 109.57143, 7.777513, 109.57143)
 
-[node name="Cell_R1_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 976
-offset_top = 1
-offset_right = 1111.44065
-offset_bottom = 110.571429
+[node name="Cell_R1_C8" parent="Board/BoardGrid" unique_id=1029126222 instance=ExtResource("6_cell")]
+offset_left = 976.0
+offset_top = 1.0
+offset_right = 1111.4407
+offset_bottom = 110.57143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_prx2w")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 120, 0, 135.44065, 109.571429, 11.437519, 109.571429)
+polygon = PackedVector2Array(0, 0, 120, 0, 135.44064, 109.57143, 11.437519, 109.57143)
 
-[node name="Cell_R2_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 101.326722
-offset_top = 110.571429
-offset_right = 241.676857
-offset_bottom = 229.142857
+[node name="Cell_R2_C1" parent="Board/BoardGrid" unique_id=1245487328 instance=ExtResource("6_cell")]
+offset_left = 101.32672
+offset_top = 110.57143
+offset_right = 241.67686
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_wtcqj")
 use_perspective_geometry = true
-polygon = PackedVector2Array(16.461378, 0, 140.350134, 0, 128.096928, 118.571428, 0, 118.571428)
+polygon = PackedVector2Array(16.461378, 0, 140.35013, 0, 128.09692, 118.57143, 0, 118.57143)
 
-[node name="Cell_R2_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
+[node name="Cell_R2_C2" parent="Board/BoardGrid" unique_id=318461715 instance=ExtResource("6_cell")]
 offset_left = 229.42365
-offset_top = 110.571429
-offset_right = 366.451238
-offset_bottom = 229.142857
+offset_top = 110.57143
+offset_right = 366.45123
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8o6yw")
 use_perspective_geometry = true
-polygon = PackedVector2Array(12.253206, 0, 137.027587, 0, 128.858783, 118.571428, 0, 118.571428)
+polygon = PackedVector2Array(12.253206, 0, 137.02759, 0, 128.85878, 118.57143, 0, 118.57143)
 
-[node name="Cell_R2_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 358.282434
-offset_top = 110.571429
-offset_right = 490.339994
-offset_bottom = 229.142857
+[node name="Cell_R2_C3" parent="Board/BoardGrid" unique_id=2134771024 instance=ExtResource("6_cell")]
+offset_left = 358.28244
+offset_top = 110.57143
+offset_right = 490.34
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_46ga7")
 use_perspective_geometry = true
-polygon = PackedVector2Array(8.168804, 0, 132.05756, 0, 128.096928, 118.571428, 0, 118.571428)
+polygon = PackedVector2Array(8.168804, 0, 132.05756, 0, 128.09692, 118.57143, 0, 118.57143)
 
-[node name="Cell_R2_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 486.379362
-offset_top = 110.571429
-offset_right = 615
-offset_bottom = 229.142857
+[node name="Cell_R2_C4" parent="Board/BoardGrid" unique_id=1545268709 instance=ExtResource("6_cell")]
+offset_left = 486.37936
+offset_top = 110.57143
+offset_right = 615.0
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_k48ad")
 use_perspective_geometry = true
-polygon = PackedVector2Array(3.960632, 0, 128.620638, 0, 128.620638, 118.571428, 0, 118.571428)
+polygon = PackedVector2Array(3.960632, 0, 128.62064, 0, 128.62064, 118.57143, 0, 118.57143)
 
-[node name="Cell_R2_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 615
-offset_top = 110.571429
-offset_right = 743.096928
-offset_bottom = 229.142857
+[node name="Cell_R2_C5" parent="Board/BoardGrid" unique_id=1632015103 instance=ExtResource("6_cell")]
+offset_left = 615.0
+offset_top = 110.57143
+offset_right = 743.0969
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_6xq2p")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 123.888756, 0, 128.096928, 118.571428, 0, 118.571428)
+polygon = PackedVector2Array(0, 0, 123.888756, 0, 128.09692, 118.57143, 0, 118.57143)
 
-[node name="Cell_R2_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 738.888756
-offset_top = 110.571429
-offset_right = 871.193856
-offset_bottom = 229.142857
+[node name="Cell_R2_C6" parent="Board/BoardGrid" unique_id=1272950049 instance=ExtResource("6_cell")]
+offset_left = 738.88873
+offset_top = 110.57143
+offset_right = 871.19385
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_rbrnk")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 123.888756, 0, 132.3051, 118.571428, 4.208172, 118.571428)
+polygon = PackedVector2Array(0, 0, 123.888756, 0, 132.3051, 118.57143, 4.208172, 118.57143)
 
-[node name="Cell_R2_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 862.777513
-offset_top = 110.571429
-offset_right = 999.814494
-offset_bottom = 229.142857
+[node name="Cell_R2_C7" parent="Board/BoardGrid" unique_id=1313703709 instance=ExtResource("6_cell")]
+offset_left = 862.7775
+offset_top = 110.57143
+offset_right = 999.8145
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_205ga")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 124.660006, 0, 137.036982, 118.571428, 8.416344, 118.571428)
+polygon = PackedVector2Array(0, 0, 124.66, 0, 137.03699, 118.57143, 8.416344, 118.57143)
 
-[node name="Cell_R2_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 987.437519
-offset_top = 110.571429
-offset_right = 1128.149568
-offset_bottom = 229.142857
+[node name="Cell_R2_C8" parent="Board/BoardGrid" unique_id=928065762 instance=ExtResource("6_cell")]
+offset_left = 987.4375
+offset_top = 110.57143
+offset_right = 1128.1495
+offset_bottom = 229.14285
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_n7kb2")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 124.003132, 0, 140.712049, 118.571428, 12.376976, 118.571428)
+polygon = PackedVector2Array(0, 0, 124.003136, 0, 140.71205, 118.57143, 12.376976, 118.57143)
 
-[node name="Cell_R3_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 83.734864
-offset_top = 229.142857
+[node name="Cell_R3_C1" parent="Board/BoardGrid" unique_id=474909502 instance=ExtResource("6_cell")]
+offset_left = 83.73486
+offset_top = 229.14285
 offset_right = 229.42365
-offset_bottom = 355.857143
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_arxy0")
 use_perspective_geometry = true
-polygon = PackedVector2Array(17.591858, 0, 145.688786, 0, 132.594095, 126.714286, 0, 126.714286)
+polygon = PackedVector2Array(17.591858, 0, 145.68878, 0, 132.5941, 126.71429, 0, 126.71429)
 
-[node name="Cell_R3_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 216.328959
-offset_top = 229.142857
-offset_right = 358.282434
-offset_bottom = 355.857143
+[node name="Cell_R3_C2" parent="Board/BoardGrid" unique_id=919207343 instance=ExtResource("6_cell")]
+offset_left = 216.32896
+offset_top = 229.14285
+offset_right = 358.28244
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_smrxe")
 use_perspective_geometry = true
-polygon = PackedVector2Array(13.094691, 0, 141.953475, 0, 133.22368, 126.714286, 0, 126.714286)
+polygon = PackedVector2Array(13.094691, 0, 141.95348, 0, 133.22368, 126.71429, 0, 126.71429)
 
-[node name="Cell_R3_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 349.552639
-offset_top = 229.142857
-offset_right = 486.379362
-offset_bottom = 355.857143
+[node name="Cell_R3_C3" parent="Board/BoardGrid" unique_id=69071443 instance=ExtResource("6_cell")]
+offset_left = 349.55264
+offset_top = 229.14285
+offset_right = 486.37936
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_q785n")
 use_perspective_geometry = true
-polygon = PackedVector2Array(8.729794, 0, 136.826722, 0, 132.594095, 126.714286, 0, 126.714286)
+polygon = PackedVector2Array(8.729794, 0, 136.82672, 0, 132.5941, 126.71429, 0, 126.71429)
 
-[node name="Cell_R3_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 482.146734
-offset_top = 229.142857
-offset_right = 615
-offset_bottom = 355.857143
+[node name="Cell_R3_C4" parent="Board/BoardGrid" unique_id=342061993 instance=ExtResource("6_cell")]
+offset_left = 482.14673
+offset_top = 229.14285
+offset_right = 615.0
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ps77m")
 use_perspective_geometry = true
-polygon = PackedVector2Array(4.232628, 0, 132.853266, 0, 132.853266, 126.714286, 0, 126.714286)
+polygon = PackedVector2Array(4.232628, 0, 132.85327, 0, 132.85327, 126.71429, 0, 126.71429)
 
-[node name="Cell_R3_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 615
-offset_top = 229.142857
-offset_right = 747.594095
-offset_bottom = 355.857143
+[node name="Cell_R3_C5" parent="Board/BoardGrid" unique_id=403982390 instance=ExtResource("6_cell")]
+offset_left = 615.0
+offset_top = 229.14285
+offset_right = 747.5941
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_enenn")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 128.096928, 0, 132.594095, 126.714286, 0, 126.714286)
+polygon = PackedVector2Array(0, 0, 128.09692, 0, 132.5941, 126.71429, 0, 126.71429)
 
-[node name="Cell_R3_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 743.096928
-offset_top = 229.142857
-offset_right = 880.18819
-offset_bottom = 355.857143
+[node name="Cell_R3_C6" parent="Board/BoardGrid" unique_id=825709873 instance=ExtResource("6_cell")]
+offset_left = 743.0969
+offset_top = 229.14285
+offset_right = 880.1882
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_evru6")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 128.096928, 0, 137.091262, 126.714286, 4.497167, 126.714286)
+polygon = PackedVector2Array(0, 0, 128.09692, 0, 137.09126, 126.71429, 4.497167, 126.71429)
 
-[node name="Cell_R3_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 871.193856
-offset_top = 229.142857
-offset_right = 1013.041455
-offset_bottom = 355.857143
+[node name="Cell_R3_C7" parent="Board/BoardGrid" unique_id=223949085 instance=ExtResource("6_cell")]
+offset_left = 871.19385
+offset_top = 229.14285
+offset_right = 1013.04144
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_cm4or")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 128.620638, 0, 141.847599, 126.714286, 8.994333, 126.714286)
+polygon = PackedVector2Array(0, 0, 128.62064, 0, 141.8476, 126.71429, 8.994333, 126.71429)
 
-[node name="Cell_R3_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 999.814494
-offset_top = 229.142857
-offset_right = 1146.005965
-offset_bottom = 355.857143
+[node name="Cell_R3_C8" parent="Board/BoardGrid" unique_id=2083461665 instance=ExtResource("6_cell")]
+offset_left = 999.8145
+offset_top = 229.14285
+offset_right = 1146.006
+offset_bottom = 355.85715
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_bylhx")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 128.335073, 0, 146.19147, 126.714286, 13.226961, 126.714286)
+polygon = PackedVector2Array(0, 0, 128.33507, 0, 146.19147, 126.71429, 13.226961, 126.71429)
 
-[node name="Cell_R4_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 65.012526
-offset_top = 355.857143
-offset_right = 216.328959
-offset_bottom = 490.714286
+[node name="Cell_R4_C1" parent="Board/BoardGrid" unique_id=706584509 instance=ExtResource("6_cell")]
+offset_left = 65.01253
+offset_top = 355.85715
+offset_right = 216.32896
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_2nfse")
 use_perspective_geometry = true
-polygon = PackedVector2Array(18.722338, 0, 151.316433, 0, 137.380256, 134.857143, 0, 134.857143)
+polygon = PackedVector2Array(18.722338, 0, 151.31644, 0, 137.38025, 134.85715, 0, 134.85715)
 
-[node name="Cell_R4_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 202.392783
-offset_top = 355.857143
-offset_right = 349.552639
-offset_bottom = 490.714286
+[node name="Cell_R4_C2" parent="Board/BoardGrid" unique_id=1588652603 instance=ExtResource("6_cell")]
+offset_left = 202.39278
+offset_top = 355.85715
+offset_right = 349.55264
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_wxi8s")
 use_perspective_geometry = true
-polygon = PackedVector2Array(13.936177, 0, 147.159857, 0, 137.869072, 134.857143, 0, 134.857143)
+polygon = PackedVector2Array(13.936177, 0, 147.15985, 0, 137.86908, 134.85715, 0, 134.85715)
 
-[node name="Cell_R4_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 340.261855
-offset_top = 355.857143
-offset_right = 482.146734
-offset_bottom = 490.714286
+[node name="Cell_R4_C3" parent="Board/BoardGrid" unique_id=1482148852 instance=ExtResource("6_cell")]
+offset_left = 340.26184
+offset_top = 355.85715
+offset_right = 482.14673
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_c1e38")
 use_perspective_geometry = true
-polygon = PackedVector2Array(9.290784, 0, 141.884879, 0, 137.380256, 134.857143, 0, 134.857143)
+polygon = PackedVector2Array(9.290784, 0, 141.88487, 0, 137.38025, 134.85715, 0, 134.85715)
 
-[node name="Cell_R4_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 477.642112
-offset_top = 355.857143
-offset_right = 615
-offset_bottom = 490.714286
+[node name="Cell_R4_C4" parent="Board/BoardGrid" unique_id=750024790 instance=ExtResource("6_cell")]
+offset_left = 477.64212
+offset_top = 355.85715
+offset_right = 615.0
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_nx1cj")
 use_perspective_geometry = true
-polygon = PackedVector2Array(4.504623, 0, 137.357888, 0, 137.357888, 134.857143, 0, 134.857143)
+polygon = PackedVector2Array(4.504623, 0, 137.3579, 0, 137.3579, 134.85715, 0, 134.85715)
 
-[node name="Cell_R4_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 615
-offset_top = 355.857143
-offset_right = 752.380256
-offset_bottom = 490.714286
+[node name="Cell_R4_C5" parent="Board/BoardGrid" unique_id=894996958 instance=ExtResource("6_cell")]
+offset_left = 615.0
+offset_top = 355.85715
+offset_right = 752.38025
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_l3l45")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 132.594095, 0, 137.380256, 134.857143, 0, 134.857143)
+polygon = PackedVector2Array(0, 0, 132.5941, 0, 137.38025, 134.85715, 0, 134.85715)
 
-[node name="Cell_R4_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 747.594095
-offset_top = 355.857143
-offset_right = 889.760513
-offset_bottom = 490.714286
+[node name="Cell_R4_C6" parent="Board/BoardGrid" unique_id=1213702135 instance=ExtResource("6_cell")]
+offset_left = 747.5941
+offset_top = 355.85715
+offset_right = 889.7605
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_d14vh")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 132.594095, 0, 142.166418, 134.857143, 4.786162, 134.857143)
+polygon = PackedVector2Array(0, 0, 132.5941, 0, 142.16641, 134.85715, 4.786162, 134.85715)
 
-[node name="Cell_R4_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 880.18819
-offset_top = 355.857143
-offset_right = 1027.118401
-offset_bottom = 490.714286
+[node name="Cell_R4_C7" parent="Board/BoardGrid" unique_id=223249909 instance=ExtResource("6_cell")]
+offset_left = 880.1882
+offset_top = 355.85715
+offset_right = 1027.1184
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_r1tdp")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 132.853266, 0, 146.930212, 134.857143, 9.572323, 134.857143)
+polygon = PackedVector2Array(0, 0, 132.85327, 0, 146.9302, 134.85715, 9.572323, 134.85715)
 
-[node name="Cell_R4_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 1013.041455
-offset_top = 355.857143
-offset_right = 1165.009842
-offset_bottom = 490.714286
+[node name="Cell_R4_C8" parent="Board/BoardGrid" unique_id=185690689 instance=ExtResource("6_cell")]
+offset_left = 1013.04144
+offset_top = 355.85715
+offset_right = 1165.0099
+offset_bottom = 490.7143
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_qr3fb")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 132.964509, 0, 151.968387, 134.857143, 14.076946, 134.857143)
+polygon = PackedVector2Array(0, 0, 132.96451, 0, 151.96838, 134.85715, 14.076946, 134.85715)
 
-[node name="Cell_R5_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 44.961378
-offset_top = 490.714286
-offset_right = 202.392783
-offset_bottom = 635.142857
+[node name="Cell_R5_C1" parent="Board/BoardGrid" unique_id=468707711 instance=ExtResource("6_cell")]
+offset_left = 44.961376
+offset_top = 490.7143
+offset_right = 202.39278
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_12lwl")
 use_perspective_geometry = true
-polygon = PackedVector2Array(20.051148, 0, 157.431405, 0, 142.506114, 144.428571, 0, 144.428571)
+polygon = PackedVector2Array(20.051147, 0, 157.43141, 0, 142.50612, 144.42857, 0, 144.42857)
 
-[node name="Cell_R5_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 187.467492
-offset_top = 490.714286
-offset_right = 340.261855
-offset_bottom = 635.142857
+[node name="Cell_R5_C2" parent="Board/BoardGrid" unique_id=661402394 instance=ExtResource("6_cell")]
+offset_left = 187.4675
+offset_top = 490.7143
+offset_right = 340.26184
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_lso2r")
 use_perspective_geometry = true
-polygon = PackedVector2Array(14.925291, 0, 152.794363, 0, 142.844169, 144.428571, 0, 144.428571)
+polygon = PackedVector2Array(14.925291, 0, 152.79436, 0, 142.84416, 144.42857, 0, 144.42857)
 
-[node name="Cell_R5_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 330.311661
-offset_top = 490.714286
-offset_right = 477.642112
-offset_bottom = 635.142857
+[node name="Cell_R5_C3" parent="Board/BoardGrid" unique_id=1981222698 instance=ExtResource("6_cell")]
+offset_left = 330.31168
+offset_top = 490.7143
+offset_right = 477.64212
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_qduen")
 use_perspective_geometry = true
-polygon = PackedVector2Array(9.950194, 0, 147.33045, 0, 142.506114, 144.428571, 0, 144.428571)
+polygon = PackedVector2Array(9.950194, 0, 147.33044, 0, 142.50612, 144.42857, 0, 144.42857)
 
-[node name="Cell_R5_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 472.817775
-offset_top = 490.714286
-offset_right = 615
-offset_bottom = 635.142857
+[node name="Cell_R5_C4" parent="Board/BoardGrid" unique_id=1444786932 instance=ExtResource("6_cell")]
+offset_left = 472.81778
+offset_top = 490.7143
+offset_right = 615.0
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_iwr08")
 use_perspective_geometry = true
-polygon = PackedVector2Array(4.824336, 0, 142.182225, 0, 142.182225, 144.428571, 0, 144.428571)
+polygon = PackedVector2Array(4.824336, 0, 142.18222, 0, 142.18222, 144.42857, 0, 144.42857)
 
-[node name="Cell_R5_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 615
-offset_top = 490.714286
-offset_right = 757.506114
-offset_bottom = 635.142857
+[node name="Cell_R5_C5" parent="Board/BoardGrid" unique_id=305350199 instance=ExtResource("6_cell")]
+offset_left = 615.0
+offset_top = 490.7143
+offset_right = 757.5061
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1afs6")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 137.380256, 0, 142.506114, 144.428571, 0, 144.428571)
+polygon = PackedVector2Array(0, 0, 137.38025, 0, 142.50612, 144.42857, 0, 144.42857)
 
-[node name="Cell_R5_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 752.380256
-offset_top = 490.714286
-offset_right = 900.012228
-offset_bottom = 635.142857
+[node name="Cell_R5_C6" parent="Board/BoardGrid" unique_id=285914130 instance=ExtResource("6_cell")]
+offset_left = 752.38025
+offset_top = 490.7143
+offset_right = 900.0122
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_sil37")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 137.380256, 0, 147.631971, 144.428571, 5.125857, 144.428571)
+polygon = PackedVector2Array(0, 0, 137.38025, 0, 147.63197, 144.42857, 5.125857, 144.42857)
 
-[node name="Cell_R5_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 889.760513
-offset_top = 490.714286
-offset_right = 1042.194453
-offset_bottom = 635.142857
+[node name="Cell_R5_C7" parent="Board/BoardGrid" unique_id=935928349 instance=ExtResource("6_cell")]
+offset_left = 889.7605
+offset_top = 490.7143
+offset_right = 1042.1945
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_3h1dm")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 137.357888, 0, 152.43394, 144.428571, 10.251715, 144.428571)
+polygon = PackedVector2Array(0, 0, 137.3579, 0, 152.43394, 144.42857, 10.251715, 144.42857)
 
-[node name="Cell_R5_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 1027.118401
-offset_top = 490.714286
-offset_right = 1185.362511
-offset_bottom = 635.142857
+[node name="Cell_R5_C8" parent="Board/BoardGrid" unique_id=140379010 instance=ExtResource("6_cell")]
+offset_left = 1027.1184
+offset_top = 490.7143
+offset_right = 1185.3625
+offset_bottom = 635.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_p08pf")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 137.891441, 0, 158.24411, 144.428571, 15.076051, 144.428571)
+polygon = PackedVector2Array(0, 0, 137.89143, 0, 158.24411, 144.42857, 15.076051, 144.42857)
 
-[node name="Cell_R6_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 23.303758
-offset_top = 635.142857
-offset_right = 187.467492
-offset_bottom = 791.142857
+[node name="Cell_R6_C1" parent="Board/BoardGrid" unique_id=3753907 instance=ExtResource("6_cell")]
+offset_left = 23.303759
+offset_top = 635.1429
+offset_right = 187.4675
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_2kaoy")
 use_perspective_geometry = true
-polygon = PackedVector2Array(21.65762, 0, 164.163734, 0, 148.042648, 156, 0, 156)
+polygon = PackedVector2Array(21.65762, 0, 164.16373, 0, 148.04265, 156, 0, 156)
 
-[node name="Cell_R6_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 171.346406
-offset_top = 635.142857
-offset_right = 330.311661
-offset_bottom = 791.142857
+[node name="Cell_R6_C2" parent="Board/BoardGrid" unique_id=1652473734 instance=ExtResource("6_cell")]
+offset_left = 171.3464
+offset_top = 635.1429
+offset_right = 330.31168
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_buc5q")
 use_perspective_geometry = true
-polygon = PackedVector2Array(16.121086, 0, 158.965255, 0, 148.217865, 156, 0, 156)
+polygon = PackedVector2Array(16.121086, 0, 158.96526, 0, 148.21786, 156, 0, 156)
 
-[node name="Cell_R6_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 319.564271
-offset_top = 635.142857
-offset_right = 472.817775
-offset_bottom = 791.142857
+[node name="Cell_R6_C3" parent="Board/BoardGrid" unique_id=1250029900 instance=ExtResource("6_cell")]
+offset_left = 319.56427
+offset_top = 635.1429
+offset_right = 472.81778
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_bevdk")
 use_perspective_geometry = true
-polygon = PackedVector2Array(10.74739, 0, 153.253504, 0, 148.042648, 156, 0, 156)
+polygon = PackedVector2Array(10.74739, 0, 153.25351, 0, 148.04265, 156, 0, 156)
 
-[node name="Cell_R6_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 467.606919
-offset_top = 635.142857
-offset_right = 615
-offset_bottom = 791.142857
+[node name="Cell_R6_C4" parent="Board/BoardGrid" unique_id=634513921 instance=ExtResource("6_cell")]
+offset_left = 467.60693
+offset_top = 635.1429
+offset_right = 615.0
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_nd8aa")
 use_perspective_geometry = true
-polygon = PackedVector2Array(5.210856, 0, 147.393081, 0, 147.393081, 156, 0, 156)
+polygon = PackedVector2Array(5.210856, 0, 147.39308, 0, 147.39308, 156, 0, 156)
 
-[node name="Cell_R6_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 615
-offset_top = 635.142857
-offset_right = 763.042648
-offset_bottom = 791.142857
+[node name="Cell_R6_C5" parent="Board/BoardGrid" unique_id=1903326403 instance=ExtResource("6_cell")]
+offset_left = 615.0
+offset_top = 635.1429
+offset_right = 763.04266
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_tfx1d")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 142.506114, 0, 148.042648, 156, 0, 156)
+polygon = PackedVector2Array(0, 0, 142.50612, 0, 148.04265, 156, 0, 156)
 
-[node name="Cell_R6_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 757.506114
-offset_top = 635.142857
-offset_right = 911.085297
-offset_bottom = 791.142857
+[node name="Cell_R6_C6" parent="Board/BoardGrid" unique_id=741667096 instance=ExtResource("6_cell")]
+offset_left = 757.5061
+offset_top = 635.1429
+offset_right = 911.0853
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8nvwa")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 142.506114, 0, 153.579183, 156, 5.536534, 156)
+polygon = PackedVector2Array(0, 0, 142.50612, 0, 153.57918, 156, 5.536534, 156)
 
-[node name="Cell_R6_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 900.012228
-offset_top = 635.142857
-offset_right = 1058.478378
-offset_bottom = 791.142857
+[node name="Cell_R6_C7" parent="Board/BoardGrid" unique_id=383978873 instance=ExtResource("6_cell")]
+offset_left = 900.0122
+offset_top = 635.1429
+offset_right = 1058.4784
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_i4ivt")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 142.182225, 0, 158.46615, 156, 11.073069, 156)
+polygon = PackedVector2Array(0, 0, 142.18222, 0, 158.46616, 156, 11.073069, 156)
 
-[node name="Cell_R6_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 1042.194453
-offset_top = 635.142857
-offset_right = 1207.34581
-offset_bottom = 791.142857
+[node name="Cell_R6_C8" parent="Board/BoardGrid" unique_id=1719018678 instance=ExtResource("6_cell")]
+offset_left = 1042.1945
+offset_top = 635.1429
+offset_right = 1207.3458
+offset_bottom = 791.1429
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_uqqao")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 143.168058, 0, 165.151357, 156, 16.283925, 156)
+polygon = PackedVector2Array(0, 0, 143.16806, 0, 165.15135, 156, 16.283924, 156)
 
-[node name="Cell_R7_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 0
-offset_top = 791.142857
-offset_right = 171.346406
-offset_bottom = 959
+[node name="Cell_R7_C1" parent="Board/BoardGrid" unique_id=2110258524 instance=ExtResource("6_cell")]
+offset_top = 791.1429
+offset_right = 171.3464
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_q7isk")
 use_perspective_geometry = true
-polygon = PackedVector2Array(23.303758, 0, 171.346406, 0, 154, 167.857143, 0, 167.857143)
+polygon = PackedVector2Array(23.303759, 0, 171.3464, 0, 154, 167.85715, 0, 167.85715)
 
-[node name="Cell_R7_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 154
-offset_top = 791.142857
-offset_right = 319.564271
-offset_bottom = 959
+[node name="Cell_R7_C2" parent="Board/BoardGrid" unique_id=1041131246 instance=ExtResource("6_cell")]
+offset_left = 154.0
+offset_top = 791.1429
+offset_right = 319.56427
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_3ljfr")
 use_perspective_geometry = true
-polygon = PackedVector2Array(17.346406, 0, 165.564271, 0, 154, 167.857143, 0, 167.857143)
+polygon = PackedVector2Array(17.346407, 0, 165.56427, 0, 154, 167.85715, 0, 167.85715)
 
-[node name="Cell_R7_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 308
-offset_top = 791.142857
-offset_right = 467.606919
-offset_bottom = 959
+[node name="Cell_R7_C3" parent="Board/BoardGrid" unique_id=1381915901 instance=ExtResource("6_cell")]
+offset_left = 308.0
+offset_top = 791.1429
+offset_right = 467.60693
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_eulkc")
 use_perspective_geometry = true
-polygon = PackedVector2Array(11.564271, 0, 159.606919, 0, 154, 167.857143, 0, 167.857143)
+polygon = PackedVector2Array(11.564271, 0, 159.60692, 0, 154, 167.85715, 0, 167.85715)
 
-[node name="Cell_R7_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 462
-offset_top = 791.142857
-offset_right = 615
-offset_bottom = 959
+[node name="Cell_R7_C4" parent="Board/BoardGrid" unique_id=1617603375 instance=ExtResource("6_cell")]
+offset_left = 462.0
+offset_top = 791.1429
+offset_right = 615.0
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ha61n")
 use_perspective_geometry = true
-polygon = PackedVector2Array(5.606919, 0, 153, 0, 153, 167.857143, 0, 167.857143)
+polygon = PackedVector2Array(5.606919, 0, 153, 0, 153, 167.85715, 0, 167.85715)
 
-[node name="Cell_R7_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 615
-offset_top = 791.142857
-offset_right = 769
-offset_bottom = 959
+[node name="Cell_R7_C5" parent="Board/BoardGrid" unique_id=1180567114 instance=ExtResource("6_cell")]
+offset_left = 615.0
+offset_top = 791.1429
+offset_right = 769.0
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_d4idb")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 148.042648, 0, 154, 167.857143, 0, 167.857143)
+polygon = PackedVector2Array(0, 0, 148.04265, 0, 154, 167.85715, 0, 167.85715)
 
-[node name="Cell_R7_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 763.042648
-offset_top = 791.142857
-offset_right = 923
-offset_bottom = 959
+[node name="Cell_R7_C6" parent="Board/BoardGrid" unique_id=183299295 instance=ExtResource("6_cell")]
+offset_left = 763.04266
+offset_top = 791.1429
+offset_right = 923.0
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0xt6c")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 148.042648, 0, 159.957352, 167.857143, 5.957352, 167.857143)
+polygon = PackedVector2Array(0, 0, 148.04265, 0, 159.95735, 167.85715, 5.957352, 167.85715)
 
-[node name="Cell_R7_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 911.085297
-offset_top = 791.142857
-offset_right = 1076
-offset_bottom = 959
+[node name="Cell_R7_C7" parent="Board/BoardGrid" unique_id=1452950851 instance=ExtResource("6_cell")]
+offset_left = 911.0853
+offset_top = 791.1429
+offset_right = 1076.0
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_yiikn")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 147.393081, 0, 164.914703, 167.857143, 11.914703, 167.857143)
+polygon = PackedVector2Array(0, 0, 147.39308, 0, 164.9147, 167.85715, 11.914703, 167.85715)
 
-[node name="Cell_R7_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
-layout_mode = 0
-offset_left = 1058.478378
-offset_top = 791.142857
-offset_right = 1231
-offset_bottom = 959
+[node name="Cell_R7_C8" parent="Board/BoardGrid" unique_id=1135413755 instance=ExtResource("6_cell")]
+offset_left = 1058.4784
+offset_top = 791.1429
+offset_right = 1231.0
+offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_xhye2")
 use_perspective_geometry = true
-polygon = PackedVector2Array(0, 0, 148.867432, 0, 172.521622, 167.857143, 17.521622, 167.857143)
+polygon = PackedVector2Array(0, 0, 148.86743, 0, 172.52162, 167.85715, 17.521622, 167.85715)
 
-[node name="Cell_R8_C1" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C1" parent="Board/BoardGrid" unique_id=996973744 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
-offset_left = 0.0
 offset_top = 811.0
 offset_right = 169.29436
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_qnck4")
 use_perspective_geometry = true
 polygon = PackedVector2Array(20.546972, 0, 169.29436, 0, 154, 148, 0, 148)
 
-[node name="Cell_R8_C2" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C2" parent="Board/BoardGrid" unique_id=1144647746 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
 offset_left = 154.0
 offset_top = 811.0
 offset_right = 318.19623
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_45q06")
 use_perspective_geometry = true
 polygon = PackedVector2Array(15.294357, 0, 164.19623, 0, 154, 148, 0, 148)
 
-[node name="Cell_R8_C3" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C3" parent="Board/BoardGrid" unique_id=980681016 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
 offset_left = 308.0
 offset_top = 811.0
 offset_right = 466.94363
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_2akxg")
 use_perspective_geometry = true
 polygon = PackedVector2Array(10.196228, 0, 158.94363, 0, 154, 148, 0, 148)
 
-[node name="Cell_R8_C4" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C4" parent="Board/BoardGrid" unique_id=515026457 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
 offset_left = 462.0
 offset_top = 811.0
 offset_right = 615.0
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_vs4lj")
 use_perspective_geometry = true
 polygon = PackedVector2Array(4.943634, 0, 153, 0, 153, 148, 0, 148)
 
-[node name="Cell_R8_C5" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C5" parent="Board/BoardGrid" unique_id=1696080006 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
 offset_left = 615.0
 offset_top = 811.0
 offset_right = 769.0
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_pnhvy")
 use_perspective_geometry = true
 polygon = PackedVector2Array(0, 0, 148.74738, 0, 154, 148, 0, 148)
 
-[node name="Cell_R8_C6" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C6" parent="Board/BoardGrid" unique_id=1069279733 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
 offset_left = 763.7474
 offset_top = 811.0
 offset_right = 923.0
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_gobdo")
 use_perspective_geometry = true
 polygon = PackedVector2Array(0, 0, 148.74738, 0, 159.25262, 148, 5.2526245, 148)
 
-[node name="Cell_R8_C7" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C7" parent="Board/BoardGrid" unique_id=791829300 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
 offset_left = 912.49475
 offset_top = 811.0
 offset_right = 1076.0
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_b7xpa")
 use_perspective_geometry = true
 polygon = PackedVector2Array(0, 0, 148.0564, 0, 163.50525, 148, 10.505249, 148)
 
-[node name="Cell_R8_C8" parent="Board/BoardGrid" instance=ExtResource("6_cell")]
+[node name="Cell_R8_C8" parent="Board/BoardGrid" unique_id=531249805 instance=ExtResource("6_cell")]
 visible = false
-layout_mode = 0
 offset_left = 1060.5511
 offset_top = 811.0
 offset_right = 1231.0
 offset_bottom = 959.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_sir5a")
 use_perspective_geometry = true
 polygon = PackedVector2Array(0, 0, 149.5929, 0, 170.44885, 148, 15.448853, 148)
 
-[node name="PositionDifficultyButton" type="Button" parent="Board"]
+[node name="PositionDifficultyButton" type="Button" parent="Board" unique_id=532000912]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -726,15 +853,15 @@ offset_right = -70.0
 offset_bottom = -446.0
 grow_horizontal = 0
 grow_vertical = 0
-mouse_default_cursor_shape = 2
 focus_mode = 0
+mouse_default_cursor_shape = 2
 toggle_mode = true
 text = "摆位难度：普通"
 
-[node name="BattlePrimaryActions" type="Control" parent="Board"]
+[node name="BattlePrimaryActions" type="Control" parent="Board" unique_id=469725293]
 editor_description = "Primary battle actions authored from the supplied PSD. This is a Board-owned HUD group, not a fifth reusable prefab."
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -747,36 +874,36 @@ grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 1
 
-[node name="Shadow" type="TextureRect" parent="Board/BattlePrimaryActions"]
+[node name="Shadow" type="TextureRect" parent="Board/BattlePrimaryActions" unique_id=1303967479]
 layout_mode = 0
 offset_right = 365.0
 offset_bottom = 415.0
 mouse_filter = 2
 texture = ExtResource("3_primary_shadow")
 
-[node name="BeginTurnButton" type="TextureButton" parent="Board/BattlePrimaryActions"]
+[node name="BeginTurnButton" type="TextureButton" parent="Board/BattlePrimaryActions" unique_id=1858225333]
 layout_mode = 0
 offset_left = 25.0
 offset_top = 21.0
 offset_right = 346.0
 offset_bottom = 400.0
-mouse_default_cursor_shape = 2
 focus_mode = 0
+mouse_default_cursor_shape = 2
 texture_normal = ExtResource("4_begin_normal")
 texture_pressed = ExtResource("4_begin_pressed")
 
-[node name="AutoArrangeButton" type="TextureButton" parent="Board/BattlePrimaryActions"]
+[node name="AutoArrangeButton" type="TextureButton" parent="Board/BattlePrimaryActions" unique_id=939757553]
 layout_mode = 0
 offset_left = 25.0
 offset_top = 21.0
 offset_right = 174.0
 offset_bottom = 154.0
-mouse_default_cursor_shape = 2
 focus_mode = 0
+mouse_default_cursor_shape = 2
 texture_normal = ExtResource("4_auto_normal")
 texture_pressed = ExtResource("4_auto_pressed")
 
-[node name="AttackDirectionDrawer" type="Control" parent="Board"]
+[node name="AttackDirectionDrawer" type="Control" parent="Board" unique_id=1250099311]
 editor_description = "右上攻击方向抽屉。四行对应我方出战精灵，每行三个 64x64 行动槽方向；面板、箭头、抽屉和三角按钮均锁定显示尺寸。"
 z_index = 40
 texture_filter = 1
@@ -796,20 +923,20 @@ arrow_up_texture = ExtResource("19_direction_up")
 arrow_right_texture = ExtResource("20_direction_right")
 arrow_down_texture = ExtResource("21_direction_down")
 
-[node name="Rows" type="Control" parent="Board/AttackDirectionDrawer"]
-layout_mode = 0
+[node name="Rows" type="Control" parent="Board/AttackDirectionDrawer" unique_id=991021793]
+anchors_preset = 0
 offset_right = 300.0
 offset_bottom = 383.0
 mouse_filter = 2
 
-[node name="Row1" type="Control" parent="Board/AttackDirectionDrawer/Rows"]
+[node name="Row1" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=846939937]
 custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
+anchors_preset = 0
 offset_right = 300.0
 offset_bottom = 110.0
 mouse_filter = 2
 
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1"]
+[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=121018017]
 custom_minimum_size = Vector2(300, 110)
 layout_mode = 0
 offset_right = 300.0
@@ -818,48 +945,45 @@ mouse_filter = 2
 texture = ExtResource("15_direction_panel")
 expand_mode = 1
 
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1"]
+[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=852490545]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 84.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1"]
+[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=1860895029]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 118.0
 offset_top = 20.0
 offset_right = 182.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1"]
+[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=163099748]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 216.0
 offset_top = 20.0
 offset_right = 280.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Row2" type="Control" parent="Board/AttackDirectionDrawer/Rows"]
+[node name="Row2" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=1061365551]
 custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
+anchors_preset = 0
 offset_top = 91.0
 offset_right = 300.0
 offset_bottom = 201.0
 mouse_filter = 2
 
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2"]
+[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=1445371862]
 custom_minimum_size = Vector2(300, 110)
 layout_mode = 0
 offset_right = 300.0
@@ -868,48 +992,45 @@ mouse_filter = 2
 texture = ExtResource("15_direction_panel")
 expand_mode = 1
 
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2"]
+[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=586514167]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 84.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2"]
+[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=1886789574]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 118.0
 offset_top = 20.0
 offset_right = 182.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2"]
+[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=2121919792]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 216.0
 offset_top = 20.0
 offset_right = 280.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Row3" type="Control" parent="Board/AttackDirectionDrawer/Rows"]
+[node name="Row3" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=1797073306]
 custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
+anchors_preset = 0
 offset_top = 182.0
 offset_right = 300.0
 offset_bottom = 292.0
 mouse_filter = 2
 
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3"]
+[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=2091917115]
 custom_minimum_size = Vector2(300, 110)
 layout_mode = 0
 offset_right = 300.0
@@ -918,48 +1039,45 @@ mouse_filter = 2
 texture = ExtResource("15_direction_panel")
 expand_mode = 1
 
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3"]
+[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=1663083865]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 84.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3"]
+[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=1384121927]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 118.0
 offset_top = 20.0
 offset_right = 182.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3"]
+[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=77839091]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 216.0
 offset_top = 20.0
 offset_right = 280.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Row4" type="Control" parent="Board/AttackDirectionDrawer/Rows"]
+[node name="Row4" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=2101182203]
 custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
+anchors_preset = 0
 offset_top = 273.0
 offset_right = 300.0
 offset_bottom = 383.0
 mouse_filter = 2
 
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4"]
+[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=99000892]
 custom_minimum_size = Vector2(300, 110)
 layout_mode = 0
 offset_right = 300.0
@@ -968,53 +1086,50 @@ mouse_filter = 2
 texture = ExtResource("15_direction_panel")
 expand_mode = 1
 
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4"]
+[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=1633931797]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 84.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4"]
+[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=2128427386]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 118.0
 offset_top = 20.0
 offset_right = 182.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4"]
+[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=1100088368]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_left = 216.0
 offset_top = 20.0
 offset_right = 280.0
 offset_bottom = 84.0
-mouse_filter = 1
 texture = ExtResource("20_direction_right")
 expand_mode = 1
 
-[node name="CollapseButton" type="TextureButton" parent="Board/AttackDirectionDrawer"]
+[node name="CollapseButton" type="TextureButton" parent="Board/AttackDirectionDrawer" unique_id=1106103617]
 custom_minimum_size = Vector2(110, 47)
 layout_mode = 0
 offset_left = 95.0
 offset_top = 374.0
 offset_right = 205.0
 offset_bottom = 421.0
-mouse_default_cursor_shape = 2
 focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = SubResource("AtlasTexture_direction_tab")
 ignore_texture_size = true
 stretch_mode = 0
-texture_normal = SubResource("AtlasTexture_direction_tab")
 
-[node name="Triangle" type="TextureRect" parent="Board/AttackDirectionDrawer/CollapseButton"]
+[node name="Triangle" type="TextureRect" parent="Board/AttackDirectionDrawer/CollapseButton" unique_id=659661335]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 0
 offset_left = 35.0
@@ -1025,80 +1140,145 @@ mouse_filter = 2
 texture = ExtResource("17_direction_triangle")
 expand_mode = 1
 
-[node name="BattleVfxPlayer" type="Control" parent="Board"]
+[node name="BattleVfxPlayer" type="Control" parent="Board" unique_id=1866107358]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -1920.0
+offset_bottom = -1080.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("5_vfx")
 
-[node name="BattleActionPanel" type="PanelContainer" parent="Board"]
+[node name="BattleActionPanel" type="PanelContainer" parent="Board" unique_id=194961701]
 z_index = 41
+layout_mode = 0
 offset_left = 18.0
 offset_top = 150.0
 offset_right = 354.0
 offset_bottom = 744.0
-mouse_filter = 0
 script = ExtResource("7_action_panel")
 
-[node name="Margin" type="MarginContainer" parent="Board/BattleActionPanel"]
+[node name="Margin" type="MarginContainer" parent="Board/BattleActionPanel" unique_id=1576212326]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="Content" type="VBoxContainer" parent="Board/BattleActionPanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="Board/BattleActionPanel/Margin" unique_id=358111874]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Title" type="Label" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="Title" type="Label" parent="Board/BattleActionPanel/Margin/Content" unique_id=450161868]
 layout_mode = 2
 text = "行动控制"
 
-[node name="Summary" type="Label" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="Summary" type="Label" parent="Board/BattleActionPanel/Margin/Content" unique_id=1047781424]
 layout_mode = 2
 autowrap_mode = 2
 
-[node name="ResetPetsButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="ResetPetsButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=946155231]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 text = "重置宠物"
 
-[node name="ActionSlotButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="ActionSlotButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=935990670]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 text = "行动槽"
 
-[node name="DirectionButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="DirectionButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=371704574]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 text = "方向"
 
-[node name="ActionApButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="ActionApButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=998937943]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 text = "行动 AP"
 
-[node name="CastButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="CastButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=1193848837]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 text = "施放行动"
 
-[node name="AllOutButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="AllOutButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=662421790]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "我方全部出击"
 
-[node name="EndTurnButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="EndTurnButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=1814120394]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "结束玩家回合"
 
-[node name="MonsterTurnButton" type="Button" parent="Board/BattleActionPanel/Margin/Content"]
+[node name="MonsterTurnButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=1436243110]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "执行敌方行动"
+
+[node name="TopInfoBar" type="Control" parent="." unique_id=1441578206]
+editor_description = "上方信息栏：只承载日程、回合、货币和顶部功能信息；不得放棋盘或详情节点。"
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 84.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("9_top_info")
+
+[node name="StatusBarBackground" type="NinePatchRect" parent="TopInfoBar" unique_id=1605873114]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+texture = ExtResource("11_status_bar_bg")
+patch_margin_left = 32
+patch_margin_right = 32
+
+[node name="BattleClock" type="Control" parent="TopInfoBar" unique_id=817913887]
+editor_description = "左上角战斗时钟。表盘可见半圆外轮廓直径为 220 px；表盘与指针共享原图画布，保持像素级对齐。"
+anchors_preset = 0
+offset_top = 48.0
+offset_right = 252.0
+offset_bottom = 194.0
+mouse_filter = 2
+
+[node name="Dial" type="TextureRect" parent="TopInfoBar/BattleClock" unique_id=353945319]
+layout_mode = 0
+offset_left = 4.0
+offset_top = -16.5
+offset_right = 248.29448
+offset_bottom = 166.69937
+mouse_filter = 2
+texture = ExtResource("12_clock_dial")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Pointer" type="TextureRect" parent="TopInfoBar/BattleClock" unique_id=1268194433]
+layout_mode = 0
+offset_left = 4.0
+offset_top = -16.5
+offset_right = 248.29448
+offset_bottom = 166.69937
+mouse_filter = 2
+texture = ExtResource("13_clock_pointer")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CellDetail" type="Control" parent="." unique_id=2079577934]
+editor_description = "格子详情：承载右侧操作区，以及运行时显示的宠物详情和地形详情。"
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1920.0
+offset_bottom = -1080.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("10_cell_detail")
