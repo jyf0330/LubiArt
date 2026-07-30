@@ -4,6 +4,7 @@ const PET_DETAIL_SCENE := preload("res://art/prefabs/pet/pet_detail.tscn")
 const EXPECTED_SIZE := Vector2(472.0, 540.0)
 const EXPECTED_ATTACK_SIZE := Vector2(383.0, 152.0)
 const EXPECTED_STAT_SLOT_SIZE := Vector2(322.0, 174.0)
+const EXPECTED_TRAIT_LOCK_SIZE := Vector2(55.0, 52.0)
 const EXPECTED_BASE_FILES := [
 	"panel_base_bronze.png",
 	"panel_base_silver.png",
@@ -23,6 +24,13 @@ const EXPECTED_ATTACK_FILES := [
 	"attack_grid_crystal.png",
 ]
 const EXPECTED_QUALITY_IDS := ["bronze", "silver", "gold", "crystal"]
+const EXPECTED_TRAIT_LOCK_FILES := [
+	"trait_lock_gold.png",
+	"trait_lock_silver.png",
+	"trait_lock_gold.png",
+	"trait_lock_crystal.png",
+]
+const TRAIT_LOCK_NODE_NAMES := ["TraitLockSilver", "TraitLockGold", "TraitLockCrystal"]
 
 
 func _initialize() -> void:
@@ -64,6 +72,13 @@ func _run() -> void:
 		assert(stat_slot_art.size == EXPECTED_STAT_SLOT_SIZE)
 		assert(stat_slot_art.texture.resource_path.get_file() == EXPECTED_STAT_SLOT_FILES[index])
 		assert(String(stat_slot_art.get_meta("quality_tier")) == EXPECTED_QUALITY_IDS[index])
+		for node_name in TRAIT_LOCK_NODE_NAMES:
+			var lock_art := card.get_node(node_name) as TextureRect
+			assert(lock_art.texture != null)
+			assert(lock_art.texture.get_size() == EXPECTED_TRAIT_LOCK_SIZE)
+			assert(lock_art.size == EXPECTED_TRAIT_LOCK_SIZE)
+			assert(lock_art.texture.resource_path.get_file() == EXPECTED_TRAIT_LOCK_FILES[index])
+			assert(String(lock_art.get_meta("quality_tier")) == EXPECTED_QUALITY_IDS[index])
 	assert(bool(card.call("set_base_art_by_name", "黄金")))
 	await process_frame
 	assert(int(card.call("get_base_art_index")) == 2)
