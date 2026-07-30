@@ -118,6 +118,13 @@ func _run() -> void:
 	assert(board_grid.get_child_count() == 64)
 	assert(main_instance.call("get_active_view") == main_instance)
 	assert(main_instance.call("get_active_feature_view") == battle_view)
+	var replay_step_before_empty_select := int(game_session.call("replay_step_index"))
+	var empty_select_response := Dictionary(game_session.call(
+		"submit_command",
+		{"type": "SELECT_CELL", "x": 4, "y": 4, "cell": {"x": 4, "y": 4}}
+	))
+	assert(not bool(empty_select_response.get("accepted", true)))
+	assert(int(game_session.call("replay_step_index")) == replay_step_before_empty_select)
 
 	var visible_pet_count := 0
 	var trimmed_pet_count := 0
@@ -147,7 +154,7 @@ func _run() -> void:
 		assert(shadow_center_y >= pet_view.size.y - required_bottom_inset - 4.0)
 		if int(pet_view.call("get_battle_removed_bottom_pixels")) > 0:
 			trimmed_pet_count += 1
-		if not selected_first_pet:
+		if not selected_first_pet and bool(cell.call("has_player_unit")):
 			var grid := cell.call("get_grid_position") as Vector2i
 			cell.cell_selected.emit(grid.x, grid.y)
 			selected_first_pet = true
@@ -157,6 +164,12 @@ func _run() -> void:
 	assert(visible_pet_count > 0)
 	assert(trimmed_pet_count > 0)
 	assert((battle_view.get_node("CellDetail/BattlePetDetailPanel") as Control).visible)
+	assert(int(game_session.call("replay_step_index")) == 0)
+	var selected_snapshot := Dictionary(game_session.call("current_snapshot"))
+	assert(String(selected_snapshot.get("selected_unit_id", "")) != "")
+	var range_summary := Dictionary(battle_view.call("debug_selected_action_range_summary"))
+	assert(String(range_summary.get("unitId", "")) == String(selected_snapshot.get("selected_unit_id", "")))
+	assert(int(range_summary.get("visibleCellCount", 0)) > 0)
 
 	var player_unit_id := _first_player_unit_id(Dictionary(game_session.call("current_snapshot")))
 	assert(player_unit_id != "")

@@ -169,6 +169,7 @@ func render_snapshot(snap: Dictionary) -> void:
 		)
 	_last_rendered_cell_count = 0
 	_render_board_cells(cells, pending_reset_ids)
+	_apply_selected_action_block_ranges(previous_snapshot if stages_trace_from_previous else snap)
 	if not stages_trace_from_previous:
 		_apply_artist_preview_highlights(snap)
 	_restore_drag_visual_state()
@@ -207,6 +208,63 @@ func _render_board_cells(cells: Array, pending_reset_ids: Dictionary = {}) -> vo
 			_render_cell_trace_effects(cell_node, cell)
 			_last_rendered_cell_count += 1
 		_collect_cell_missing_mappings(cell_node)
+
+
+func _apply_selected_action_block_ranges(snap: Dictionary) -> void:
+	for cell in _cells:
+		if cell == null or not cell.has_method("get_unit_node"):
+			continue
+		var unit_node := cell.call("get_unit_node") as Control
+		if unit_node != null and unit_node.has_method("hide_action_block_attack_ranges"):
+			unit_node.call("hide_action_block_attack_ranges")
+	if String(snap.get("phase", "")) != "battle":
+		return
+	var selected_unit_id := String(snap.get("selected_unit_id", snap.get("selectedUnitId", "")))
+	if selected_unit_id == "":
+		var selected := Dictionary(snap.get("selected", {}))
+		selected_unit_id = String(selected.get("unitId", selected.get("unit_id", "")))
+	if selected_unit_id == "":
+		return
+	var ranges_by_unit := Dictionary(snap.get(
+		"action_block_ranges_by_unit",
+		snap.get("actionBlockRangesByUnit", {})
+	))
+	if not ranges_by_unit.has(selected_unit_id):
+		return
+	var selected_unit := Dictionary(_detail_controller.call("unit_by_id", snap, selected_unit_id))
+	var selected_grid := Vector2i(
+		int(selected_unit.get("x", -1)),
+		int(selected_unit.get("y", -1))
+	)
+	if not _is_visible_board_cell(selected_grid.x, selected_grid.y):
+		return
+	var selected_cell := _cell_at(selected_grid.x, selected_grid.y)
+	if selected_cell == null or not selected_cell.has_method("get_unit_node"):
+		return
+	var selected_unit_node := selected_cell.call("get_unit_node") as Control
+	if selected_unit_node != null and selected_unit_node.has_method("show_action_block_attack_ranges"):
+		selected_unit_node.call(
+			"show_action_block_attack_ranges",
+			Array(ranges_by_unit[selected_unit_id]),
+			_cell_size,
+			selected_grid,
+			board_grid.size,
+			board_grid.global_position,
+			_attack_range_geometry()
+		)
+
+
+func _attack_range_geometry() -> Dictionary:
+	var geometry := {}
+	for cell in _cells:
+		if cell == null or not cell.has_method("get_grid_position"):
+			continue
+		var grid := cell.call("get_grid_position") as Vector2i
+		geometry["%d:%d" % [grid.x, grid.y]] = {
+			"position": cell.global_position,
+			"size": cell.size,
+		}
+	return geometry
 
 
 func get_missing_mapping_report() -> Array:
@@ -353,7 +411,7 @@ func debug_open_first_pet_detail() -> Dictionary:
 		var side := String(data.get("side", data.get("unitSide", "")))
 		if side != "player" and side != "hero" and side != "hero_leader":
 			continue
-		_request_cell_detail(grid)
+		_select_player_unit_and_request_detail(grid)
 		return row
 	if not fallback.is_empty():
 		var fallback_grid := Dictionary(fallback.get("grid", {}))
@@ -393,6 +451,24 @@ func debug_detail_panel_summary() -> Dictionary:
 		"text": "\n".join(labels),
 		"usesSharedPrefab": _detail_panel != null and _detail_panel.scene_file_path == "res://art/prefabs/pet/pet_detail.tscn",
 	}
+
+
+func debug_selected_action_range_summary() -> Dictionary:
+	var selected_unit_id := _selected_unit_id()
+	if selected_unit_id == "":
+		return {"unitId": "", "visibleCellCount": 0}
+	var grid := _grid_for_unit_id(selected_unit_id)
+	if not _is_visible_board_cell(grid.x, grid.y):
+		return {"unitId": selected_unit_id, "visibleCellCount": 0}
+	var cell := _cell_at(grid.x, grid.y)
+	if cell == null or not cell.has_method("get_unit_node"):
+		return {"unitId": selected_unit_id, "visibleCellCount": 0}
+	var unit := cell.call("get_unit_node") as Control
+	if unit == null or not unit.has_method("get_action_block_attack_range_snapshot"):
+		return {"unitId": selected_unit_id, "visibleCellCount": 0}
+	var summary := Dictionary(unit.call("get_action_block_attack_range_snapshot"))
+	summary["unitId"] = selected_unit_id
+	return summary
 
 
 func debug_cancel_active_drag() -> void:
@@ -603,6 +679,7 @@ func _on_trace_sequence_finished() -> void:
 			if cell_node != null and cell_node.has_method("set_cell_data"):
 				cell_node.call("set_cell_data", final_cell, _assets)
 	_pending_enemy_move_final_cells.clear()
+	_apply_selected_action_block_ranges(_last_snapshot)
 	if not _pending_action_panel_snapshot.is_empty():
 		_render_action_panel(_pending_action_panel_snapshot)
 		_render_direction_drawer(_pending_action_panel_snapshot)
@@ -721,6 +798,9 @@ func _on_cell_selected(x: int, y: int) -> void:
 		_suppress_next_select = false
 		return
 	var grid := Vector2i(x, y)
+	if _cell_has_player_unit(grid):
+		_select_player_unit_and_request_detail(grid)
+		return
 	if _cell_has_unit(grid) or _cell_has_visible_elements(grid):
 		_request_cell_detail(grid)
 		return
@@ -777,6 +857,7 @@ func _start_unit_drag(grid: Vector2i) -> void:
 	_drag_has_moved = false
 	if cell.has_method("set_unit_dragging"):
 		cell.call("set_unit_dragging", true)
+	_select_player_unit(grid)
 	_create_drag_preview(unit)
 	_update_drag_preview()
 
@@ -796,7 +877,7 @@ func _finish_unit_drag(target: Vector2i) -> void:
 		_free_drop_preview(settle_preview)
 		_set_cell_unit_dragging(origin, false)
 		_suppress_next_select = true
-		_request_cell_detail(origin)
+		_select_player_unit_and_request_detail(origin)
 		return
 	if target == origin:
 		_suppress_next_select = true
@@ -948,6 +1029,30 @@ func _request_cell_detail(grid: Vector2i) -> void:
 	_active_detail_grid = Vector2i(x, y)
 	_active_detail_unit_id = String(data.get("unitId", data.get("unit_id", "")))
 	command_requested.emit({"type": "GET_CELL_DETAIL", "x": x, "y": y, "cell": {"x": x, "y": y}})
+
+
+func _cell_has_player_unit(grid: Vector2i) -> bool:
+	var cell := _cell_at(grid.x, grid.y)
+	return cell != null and cell.has_method("has_player_unit") and bool(cell.call("has_player_unit"))
+
+
+func _select_player_unit_and_request_detail(grid: Vector2i) -> void:
+	if not _cell_has_player_unit(grid):
+		_request_cell_detail(grid)
+		return
+	_select_player_unit(grid)
+	_request_cell_detail(grid)
+
+
+func _select_player_unit(grid: Vector2i) -> void:
+	if not _cell_has_player_unit(grid):
+		return
+	command_requested.emit({
+		"type": "SELECT_CELL",
+		"x": grid.x,
+		"y": grid.y,
+		"cell": {"x": grid.x, "y": grid.y}
+	})
 
 
 func _create_drag_preview(unit: Control) -> void:

@@ -70,6 +70,10 @@ func submit_command(command: Dictionary) -> Dictionary:
 			command_type,
 			_projection_result(command_type, command)
 		)
+	if command_type == "SELECT_CELL":
+		var selection := _projection_result(command_type, command)
+		if bool(selection.get("ok", false)):
+			return _accepted_projection(command, command_type, selection)
 	return _replay_captured_command(command, command_type)
 
 
@@ -107,6 +111,7 @@ func reset(emit_change: bool = true) -> void:
 		capture.get("presentation_bootstrap_snapshot", {})
 	).duplicate(true)
 	_snapshot = Dictionary(capture.get("initial_snapshot", {})).duplicate(true)
+	_ensure_action_block_ranges_projection()
 	_steps = Array(capture.get("steps", [])).duplicate(true)
 	_step_index = 0
 	if emit_change:
@@ -189,6 +194,26 @@ func _apply_snapshot_delta(delta: Dictionary) -> void:
 		var key := String(key_value)
 		_snapshot[key] = Dictionary(delta.get("set", {}))[key_value]
 	_snapshot = _snapshot.duplicate(true)
+	_ensure_action_block_ranges_projection()
+
+
+func _ensure_action_block_ranges_projection() -> void:
+	var previews := Dictionary(_snapshot.get("action_preview_by_unit", {}))
+	var ranges_by_unit := {}
+	for unit_id_value in previews.keys():
+		var unit_id := String(unit_id_value)
+		var preview := Dictionary(previews[unit_id_value])
+		var ranges: Array[Dictionary] = []
+		for slot_index in range(3):
+			ranges.append({
+				"slotIndex": slot_index,
+				"origin": Dictionary(preview.get("origin", {})).duplicate(true),
+				"direction": String(preview.get("direction", "")),
+				"available": bool(preview.get("available", true)),
+				"cells": Array(preview.get("cells", [])).duplicate(true),
+			})
+		ranges_by_unit[unit_id] = ranges
+	_snapshot["action_block_ranges_by_unit"] = ranges_by_unit
 
 
 func _accepted_projection(
@@ -254,6 +279,37 @@ func _projection_result(command_type: String, command: Dictionary) -> Dictionary
 	var x := int(command.get("x", command.get("c", cell_arg.get("x", cell_arg.get("c", -1)))))
 	var y := int(command.get("y", command.get("r", cell_arg.get("y", cell_arg.get("r", -1)))))
 	var cell := _board_cell(x, y)
+	var unit := _unit_by_id(String(cell.get("unitId", cell.get("unit_id", ""))))
+	if command_type == "SELECT_CELL":
+		var side := String(unit.get("side", cell.get("side", "")))
+		var selected_unit_id := ""
+		if side in ["player", "hero", "hero_leader"]:
+			selected_unit_id = String(unit.get("id", unit.get("unitId", "")))
+		if selected_unit_id == "":
+			return {
+				"type": "SELECT_CELL",
+				"ok": false,
+				"x": x,
+				"y": y,
+				"unit_id": "",
+				"unit": unit,
+			}
+		_snapshot["selected_unit_id"] = selected_unit_id
+		if _snapshot.has("selectedUnitId"):
+			_snapshot["selectedUnitId"] = selected_unit_id
+		_snapshot["selected"] = {
+			"unitId": selected_unit_id,
+			"x": x,
+			"y": y,
+		}
+		return {
+			"type": "SELECT_CELL",
+			"ok": selected_unit_id != "",
+			"x": x,
+			"y": y,
+			"unit_id": selected_unit_id,
+			"unit": unit,
+		}
 	return {
 		"type": "GET_CELL_DETAIL",
 		"ok": not cell.is_empty(),
@@ -262,7 +318,7 @@ func _projection_result(command_type: String, command: Dictionary) -> Dictionary
 		"c": x,
 		"r": y,
 		"elements": Dictionary(cell.get("elements", {})).duplicate(true),
-		"unit": _unit_by_id(String(cell.get("unitId", cell.get("unit_id", "")))),
+		"unit": unit,
 	}
 
 

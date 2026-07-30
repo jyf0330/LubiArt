@@ -173,6 +173,10 @@ func _connect_buttons() -> void:
 		_prepare_slot_image_button(button)
 		if not button.pressed.is_connected(_on_three_pressed):
 			button.pressed.connect(_on_three_pressed.bind(index))
+		if not button.mouse_entered.is_connected(_on_three_mouse_entered):
+			button.mouse_entered.connect(_on_three_mouse_entered.bind(index))
+		if not button.mouse_exited.is_connected(_on_three_mouse_exited):
+			button.mouse_exited.connect(_on_three_mouse_exited.bind(index))
 
 	for index in range(_shop_buttons.size()):
 		var button := _shop_buttons[index]
@@ -429,14 +433,34 @@ func _on_three_pressed(index: int) -> void:
 		return
 	var snap := _current_snapshot()
 	if String(snap.get("phase", "")) == "reward":
-		var reward := Dictionary(_three_buttons[index].get_meta("detail_record", {}))
-		if not reward.is_empty():
-			_show_pet_detail(reward, command)
-		return
+		_close_pet_context_detail()
 	if not await _submit_core_command(command):
 		return
 	var target_view := _render_content_from_state(_take_core_command_snapshot())
 	await _transition_to_view(target_view)
+
+
+func _on_three_mouse_entered(index: int) -> void:
+	if _is_transitioning or _has_active_drag() or index < 0 or index >= _three_buttons.size():
+		return
+	if String(_current_snapshot().get("phase", "")) != "reward":
+		return
+	var reward := Dictionary(_three_buttons[index].get_meta("detail_record", {}))
+	if reward.is_empty():
+		return
+	_ensure_pet_detail_panel()
+	if _pet_detail_panel == null or not _pet_detail_panel.has_method("show_context_detail"):
+		return
+	var detail_record := Dictionary(reward.get("source", reward))
+	if detail_record.is_empty():
+		detail_record = reward
+	detail_record = _detail_record_with_display_skill(detail_record)
+	detail_record["attack_shape"] = _attack_shape_for_record(detail_record, _current_snapshot())
+	_pet_detail_panel.call("show_context_detail", detail_record, _pet_texture(detail_record))
+
+
+func _on_three_mouse_exited(_index: int) -> void:
+	_close_pet_context_detail()
 
 
 func _on_shop_button_down(index: int) -> void:

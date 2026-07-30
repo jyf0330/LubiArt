@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://n17i06ofq5dy" path="res://core_ui/scripts/shared/pet/pet_visual.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://cqm62yria3qeq" path="res://core_ui/scripts/shared/pet/pet_status_view.gd" id="2_status"]
+[ext_resource type="Script" path="res://core_ui/scripts/shared/pet/pet_attack_range.gd" id="3_attack_range"]
 [ext_resource type="Texture2D" uid="uid://dqpgd8j333phj" path="res://art/images/shared/pets/battle_complete/creature_art.png" id="5_pet"]
 [ext_resource type="Script" uid="uid://iplg5lfn7fkh" path="res://core_ui/scripts/shared/pet/pet_animation.gd" id="6_animation"]
 [ext_resource type="Texture2D" uid="uid://xf3jkbat1ttd" path="res://art/images/shared/pets/battle_complete/shadow.png" id="7_shadow"]
@@ -309,6 +310,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("3_attack_range")
 metadata/_grid_art_removed = true
 
 [node name="03_AttackActions" type="Control" parent="CompleteBattleCreaturePrefab" unique_id=1819342361]

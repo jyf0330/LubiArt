@@ -106,6 +106,8 @@ func clear_collection_data() -> void:
 
 func reset_pet_view() -> void:
 	animation.reset()
+	if front_target_cell != null and front_target_cell.has_method("reset"):
+		front_target_cell.call("reset")
 	_clear_runtime_battle_effects()
 	if _death_tween != null and _death_tween.is_valid():
 		_death_tween.kill()
@@ -202,6 +204,38 @@ func update_shield(value: int) -> void:
 func set_selected(selected: bool) -> void:
 	if frame_rect != null:
 		frame_rect.modulate = Color(1.0, 0.92, 0.45, 1.0) if selected else Color.WHITE
+
+
+func show_action_block_attack_ranges(
+	ranges: Array,
+	grid_cell_size: Vector2 = Vector2.ZERO,
+	origin_grid: Vector2i = Vector2i(-1, -1),
+	board_size: Vector2 = Vector2.ZERO,
+	board_global_position: Vector2 = Vector2.ZERO,
+	board_geometry: Dictionary = {}
+) -> void:
+	if front_target_cell == null or not front_target_cell.has_method("show_action_block_ranges"):
+		return
+	front_target_cell.call(
+		"show_action_block_ranges",
+		ranges,
+		grid_cell_size,
+		origin_grid,
+		board_size,
+		board_global_position,
+		board_geometry
+	)
+
+
+func hide_action_block_attack_ranges() -> void:
+	if front_target_cell != null and front_target_cell.has_method("reset"):
+		front_target_cell.call("reset")
+
+
+func get_action_block_attack_range_snapshot() -> Dictionary:
+	if front_target_cell == null or not front_target_cell.has_method("snapshot"):
+		return {}
+	return Dictionary(front_target_cell.call("snapshot"))
 
 
 func set_dragging(is_dragging: bool) -> void:
