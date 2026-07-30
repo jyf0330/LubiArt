@@ -52,7 +52,19 @@
     "player_pet_catalog": "res://data/ysbzs_singleplayer_data.json"
   },
   "background": {
-    "battle": "res://art/images/battle/runtime/images/battle_background.png"
+    "battle": "res://art/images/battle/maps/grassland_morning.png",
+    "maps": {
+      "grassland_morning": "res://art/images/battle/maps/grassland_morning.png",
+      "grassland_evening": "res://art/images/battle/maps/grassland_evening.png",
+      "pond_morning": "res://art/images/battle/maps/pond_morning.png",
+      "pond_evening": "res://art/images/battle/maps/pond_evening.png",
+      "wasteland_morning": "res://art/images/battle/maps/wasteland_morning.png",
+      "wasteland_evening": "res://art/images/battle/maps/wasteland_evening.png",
+      "mountain_morning": "res://art/images/battle/maps/mountain_morning.png",
+      "mountain_evening": "res://art/images/battle/maps/mountain_evening.png",
+      "lowland_morning": "res://art/images/battle/maps/lowland_morning.png",
+      "lowland_evening": "res://art/images/battle/maps/lowland_evening.png"
+    }
   },
   "buttons": {
     "auto_arrange": "res://art/images/battle/runtime/images/buttons/button_auto_deploy.png",
@@ -73,11 +85,11 @@
     "rabbit": "res://art/images/battle/runtime/hero_images/hero_rabbit.png"
   },
   "fallback_units": {
-    "fire": "res://art/images/shared/pets/sheets/slices/shop_creature_057_fire_embercloud.png",
-    "water": "res://art/images/shared/pets/sheets/slices/shop_creature_001_water_tidewhisker.png",
-    "earth": "res://art/images/shared/pets/sheets/slices/shop_creature_025_earth_geodeshell.png",
-    "wind": "res://art/images/shared/pets/sheets/slices/shop_creature_033_wind_zephyrkit.png",
-    "boss": "res://art/images/shared/pets/sheets/slices/shop_creature_103_earth_riftknuckle.png"
+    "fire": "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png",
+    "water": "res://art/images/shared/pets/sheets/slices/pet_style_003_blue_electric_shell.png",
+    "earth": "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png",
+    "wind": "res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png",
+    "boss": "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png"
   },
   "effects": {
     "bullets": {

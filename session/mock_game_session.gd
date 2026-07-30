@@ -70,6 +70,8 @@ func submit_command(command: Dictionary) -> Dictionary:
 			command_type,
 			_projection_result(command_type, command)
 		)
+	if command_type == "SET_ACTION_DIRECTION":
+		return _project_action_direction(command)
 	return _replay_captured_command(command, command_type)
 
 
@@ -216,6 +218,31 @@ func _accepted_projection(
 	})
 	snapshot_changed.emit(current_snapshot(), result.duplicate(true))
 	return response
+
+
+func _project_action_direction(command: Dictionary) -> Dictionary:
+	var unit_id := String(command.get("unitId", command.get("unit_id", "")))
+	var slot_index := int(command.get("slotId", command.get("slot_id", -1)))
+	var direction := String(command.get("dir", command.get("direction", ""))).to_lower()
+	if _unit_by_id(unit_id).is_empty() or slot_index < 0 or slot_index >= 3 \
+			or direction not in ["up", "right", "down", "left"]:
+		return _rejected_response(
+			command,
+			"SET_ACTION_DIRECTION",
+			"INVALID_DIRECTION_PREVIEW",
+			"攻击方向预览参数无效"
+		)
+	var action_dirs := Dictionary(_snapshot.get("action_dirs", _snapshot.get("actionDirs", {}))).duplicate(true)
+	action_dirs["%s:slot%d" % [unit_id, slot_index]] = direction
+	_snapshot["action_dirs"] = action_dirs
+	return _accepted_projection(command, "SET_ACTION_DIRECTION", {
+		"type": "SET_ACTION_DIRECTION",
+		"ok": true,
+		"unitId": unit_id,
+		"slotId": slot_index,
+		"dir": direction,
+		"previewOnly": true,
+	})
 
 
 func _rejected_response(
