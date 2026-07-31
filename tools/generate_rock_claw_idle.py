@@ -85,6 +85,21 @@ def main() -> None:
     FRAME_DIR.mkdir(parents=True, exist_ok=True)
     GIF_PATH.parent.mkdir(parents=True, exist_ok=True)
 
+    expected_frame_names = {
+        f"frame_{index:03d}.png" for index in range(1, len(FRAME_DURATION_MS) + 1)
+    }
+    for stale_frame in FRAME_DIR.glob("frame_*.png"):
+        if stale_frame.name not in expected_frame_names:
+            stale_frame.unlink()
+            stale_import = stale_frame.with_suffix(stale_frame.suffix + ".import")
+            if stale_import.exists():
+                stale_import.unlink()
+
+    for qa_name in ("rock_claw_neutral_v1_qa.png", "rock_claw_idle_preview_v1_qa.png"):
+        qa_path = ROOT / "output" / qa_name
+        if qa_path.exists():
+            qa_path.unlink()
+
     neutral = normalize_source()
     neutral.save(SOURCE_OUTPUT, optimize=False)
 
