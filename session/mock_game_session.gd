@@ -7,12 +7,23 @@ class_name MockGameSession
 signal snapshot_changed(snapshot: Dictionary, event: Dictionary)
 
 const CAPTURE_PATH := "res://data/mock_battle_snapshot.json"
+const DEFAULT_SKILLS := [
+	{"id": "skill_vanguard", "name": "先锋击"},
+	{"id": "skill_flank", "name": "侧翼击"},
+	{"id": "skill_pierce", "name": "穿阵击"},
+	{"id": "skill_revolve", "name": "回旋击"},
+	{"id": "skill_chase", "name": "追风击"},
+	{"id": "skill_break", "name": "裂阵击"},
+	{"id": "skill_suppress", "name": "压制击"},
+	{"id": "skill_finale", "name": "终幕击"},
+]
 
 var _capture_source: Dictionary = {}
 var _presentation_bootstrap_snapshot: Dictionary = {}
 var _snapshot: Dictionary = {}
 var _steps: Array = []
 var _step_index := 0
+var _skill_orders: Dictionary = {}
 
 
 func _init(_options: Dictionary = {}) -> void:
@@ -70,6 +81,8 @@ func submit_command(command: Dictionary) -> Dictionary:
 			command_type,
 			_projection_result(command_type, command)
 		)
+	if command_type == "SET_SKILL_ORDER":
+		return _accepted_projection(command, command_type, _set_skill_order(command))
 	if command_type == "SELECT_CELL":
 		var selection := _projection_result(command_type, command)
 		if bool(selection.get("ok", false)):
@@ -111,7 +124,9 @@ func reset(emit_change: bool = true) -> void:
 		capture.get("presentation_bootstrap_snapshot", {})
 	).duplicate(true)
 	_snapshot = Dictionary(capture.get("initial_snapshot", {})).duplicate(true)
+	_skill_orders = {}
 	_ensure_action_block_ranges_projection()
+	_ensure_skill_queue_projection()
 	_steps = Array(capture.get("steps", [])).duplicate(true)
 	_step_index = 0
 	if emit_change:
@@ -195,6 +210,7 @@ func _apply_snapshot_delta(delta: Dictionary) -> void:
 		_snapshot[key] = Dictionary(delta.get("set", {}))[key_value]
 	_snapshot = _snapshot.duplicate(true)
 	_ensure_action_block_ranges_projection()
+	_ensure_skill_queue_projection()
 
 
 func _ensure_action_block_ranges_projection() -> void:
@@ -214,6 +230,52 @@ func _ensure_action_block_ranges_projection() -> void:
 			})
 		ranges_by_unit[unit_id] = ranges
 	_snapshot["action_block_ranges_by_unit"] = ranges_by_unit
+
+
+func _ensure_skill_queue_projection() -> void:
+	var unit_id := String(_snapshot.get("selected_unit_id", _snapshot.get("selectedUnitId", "")))
+	var order := Array(_skill_orders.get(unit_id, _default_skill_ids())).duplicate()
+	var entries: Array = []
+	for index in range(order.size()):
+		var skill_id := String(order[index])
+		entries.append({
+			"entryId": "%s:%s" % [unit_id, skill_id],
+			"ownerUnitId": unit_id,
+			"skillId": skill_id,
+			"label": _skill_name(skill_id),
+			"orderIndex": index,
+		})
+	_snapshot["selected_skill_queue"] = entries
+	_snapshot["selectedSkillQueue"] = entries.duplicate(true)
+
+
+func _set_skill_order(command: Dictionary) -> Dictionary:
+	var unit_id := String(command.get("unitId", command.get("unit_id", "")))
+	var requested := Array(command.get("orderedSkillIds", command.get("ordered_skill_ids", [])))
+	var current := Array(_skill_orders.get(unit_id, _default_skill_ids()))
+	if requested.size() != current.size():
+		return {"type": "SET_SKILL_ORDER", "ok": false, "message": "技能顺序必须包含全部8个技能"}
+	for skill_id in current:
+		if requested.count(skill_id) != 1:
+			return {"type": "SET_SKILL_ORDER", "ok": false, "message": "技能顺序包含重复或缺失技能"}
+	_skill_orders[unit_id] = requested.duplicate()
+	_ensure_skill_queue_projection()
+	return {"type": "SET_SKILL_ORDER", "ok": true, "unitId": unit_id, "skillQueue": Array(_snapshot["selectedSkillQueue"]).duplicate(true)}
+
+
+func _default_skill_ids() -> Array:
+	var result: Array = []
+	for definition in DEFAULT_SKILLS:
+		result.append(String(Dictionary(definition).get("id", "")))
+	return result
+
+
+func _skill_name(skill_id: String) -> String:
+	for definition in DEFAULT_SKILLS:
+		var row := Dictionary(definition)
+		if String(row.get("id", "")) == skill_id:
+			return String(row.get("name", skill_id))
+	return skill_id
 
 
 func _accepted_projection(
@@ -269,6 +331,9 @@ func _projection_result(command_type: String, command: Dictionary) -> Dictionary
 	if command_type == "SELECT_UNIT":
 		var unit_id := String(command.get("unit_id", command.get("unitId", "")))
 		var unit := _unit_by_id(unit_id)
+		if not unit.is_empty():
+			_snapshot["selected_unit_id"] = unit_id
+			_ensure_skill_queue_projection()
 		return {
 			"type": "SELECT_UNIT",
 			"ok": not unit.is_empty(),
@@ -302,6 +367,7 @@ func _projection_result(command_type: String, command: Dictionary) -> Dictionary
 			"x": x,
 			"y": y,
 		}
+		_ensure_skill_queue_projection()
 		return {
 			"type": "SELECT_CELL",
 			"ok": selected_unit_id != "",

@@ -5,23 +5,21 @@ signal command_requested(command: Dictionary)
 @onready var title_label: Label = $Margin/Content/Title
 @onready var summary_label: Label = $Margin/Content/Summary
 @onready var reset_pets_button: Button = $Margin/Content/ResetPetsButton
-@onready var action_slot_button: Button = $Margin/Content/ActionSlotButton
-@onready var direction_button: Button = $Margin/Content/DirectionButton
-@onready var action_ap_button: Button = $Margin/Content/ActionApButton
-@onready var cast_button: Button = $Margin/Content/CastButton
+@onready var skill_queue_title: Label = $Margin/Content/SkillQueueTitle
+@onready var skill_queue_grid: GridContainer = $Margin/Content/SkillQueueGrid
 @onready var all_out_button: Button = $Margin/Content/AllOutButton
 @onready var end_turn_button: Button = $Margin/Content/EndTurnButton
 @onready var monster_turn_button: Button = $Margin/Content/MonsterTurnButton
 
 var _snapshot := {}
+var _picked_skill_index := -1
 
 
 func _ready() -> void:
 	reset_pets_button.pressed.connect(func(): _emit("RESET_PETS"))
-	action_slot_button.pressed.connect(func(): _emit("SELECT_ACTION_SLOT"))
-	direction_button.pressed.connect(func(): _emit("SET_ACTION_DIRECTION"))
-	action_ap_button.pressed.connect(func(): _emit("SET_ACTION_AP"))
-	cast_button.pressed.connect(func(): _emit("USE_ACTION_SLOT"))
+	for child in skill_queue_grid.get_children():
+		child.move_requested.connect(_move_skill)
+		child.slot_pressed.connect(_pick_or_move_skill)
 	all_out_button.pressed.connect(func(): _emit("RUN_PLAYER_ALL_OUT"))
 	end_turn_button.pressed.connect(func(): _emit("END_PLAYER_TURN"))
 	monster_turn_button.pressed.connect(func(): _emit("RUN_MONSTER_TURN"))
@@ -32,16 +30,11 @@ func render_snapshot(snap: Dictionary) -> void:
 	_snapshot = snap.duplicate(true)
 	var selected_id := String(snap.get("selected_unit_id", snap.get("selectedUnitId", "")))
 	var selected := _selected_unit(selected_id)
-	var slots := Array(snap.get("selected_action_slots", snap.get("selectedActionSlots", [])))
-	var slot_index := int(snap.get("selected_action_slot_index", snap.get("selectedActionSlotIndex", 0)))
-	var slot := Dictionary(slots[slot_index]) if slot_index >= 0 and slot_index < slots.size() else {}
+	var queue := Array(snap.get("selectedSkillQueue", snap.get("selected_skill_queue", [])))
 	title_label.text = "行动控制 · 回合%d" % int(snap.get("battle_round", 0))
-	summary_label.text = "%s\n槽位 %d/%d · AP %d · 方向 %s" % [
+	summary_label.text = "%s\n%d 个技能 · 从左到右触发" % [
 		String(selected.get("name", selected_id if selected_id != "" else "未选中宠物")),
-		slot_index + 1,
-		slots.size(),
-		int(slot.get("selected_ap", slot.get("selectedAp", snap.get("selected_action_ap", 0)))),
-		_direction_label(String(slot.get("direction", "right")))
+		queue.size()
 	]
 	var reset_state := Dictionary(Dictionary(snap.get("pet_reset", {})).get("player", {}))
 	var reset_ready := bool(reset_state.get("eligible", false))
@@ -57,10 +50,16 @@ func render_snapshot(snap: Dictionary) -> void:
 		reset_pets_button.text = "重置宠物（需存活≤%d，次数%d）" % [alive_threshold, reset_charges]
 	else:
 		reset_pets_button.text = "重置宠物（第%d回合+1次，等%d回合）" % [next_charge_round, cooldown_remaining]
-	action_slot_button.text = "切换行动槽（%d/%d）" % [slot_index + 1, slots.size()]
-	direction_button.text = "调整方向：%s" % _direction_label(String(slot.get("direction", "right")))
-	action_ap_button.text = "调整 AP：%d" % int(slot.get("selected_ap", slot.get("selectedAp", snap.get("selected_action_ap", 0))))
-	cast_button.disabled = selected_id == "" or slots.is_empty()
+	var skill_catalog := Dictionary(snap.get("skill_catalog", {}))
+	for index in range(skill_queue_grid.get_child_count()):
+		var entry := Dictionary(queue[index]) if index < queue.size() else {}
+		var skill_id := String(entry.get("skillId", entry.get("skill_id", "")))
+		if String(entry.get("label", "")).strip_edges() == "" and skill_id != "":
+			entry["label"] = String(Dictionary(skill_catalog.get(skill_id, {})).get("name", skill_id))
+		skill_queue_grid.get_child(index).configure(index, entry)
+	skill_queue_title.text = "技能行动条 · 拖拽排序"
+	all_out_button.text = "按顺序触发全部技能"
+	all_out_button.disabled = selected_id == "" or queue.is_empty()
 	visible = String(snap.get("phase", "")) == "battle"
 
 
@@ -79,6 +78,36 @@ func _emit(command_type: String) -> void:
 			command_requested.emit({"type": command_type, "unitId": selected_id, "slotId": slot_index, "ap": _selected_ap()})
 		_:
 			command_requested.emit({"type": command_type})
+
+
+func _move_skill(from_index: int, to_index: int) -> void:
+	var queue := Array(_snapshot.get("selectedSkillQueue", _snapshot.get("selected_skill_queue", [])))
+	if from_index < 0 or from_index >= queue.size() or to_index < 0 or to_index >= queue.size():
+		return
+	var ordered_ids: Array = []
+	for entry_value in queue:
+		var entry := Dictionary(entry_value)
+		ordered_ids.append(String(entry.get("skillId", entry.get("skill_id", ""))))
+	var moved: Variant = ordered_ids.pop_at(from_index)
+	ordered_ids.insert(to_index, moved)
+	command_requested.emit({
+		"type": "SET_SKILL_ORDER",
+		"unitId": String(_snapshot.get("selected_unit_id", _snapshot.get("selectedUnitId", ""))),
+		"orderedSkillIds": ordered_ids,
+	})
+	_picked_skill_index = -1
+
+
+func _pick_or_move_skill(index: int) -> void:
+	if _picked_skill_index < 0:
+		_picked_skill_index = index
+		skill_queue_title.text = "已选第%d格 · 再点目标格移动" % (index + 1)
+		return
+	if _picked_skill_index == index:
+		_picked_skill_index = -1
+		skill_queue_title.text = "技能行动条 · 拖拽排序"
+		return
+	_move_skill(_picked_skill_index, index)
 
 
 func _selected_unit(id: String) -> Dictionary:
@@ -132,11 +161,11 @@ func _apply_style() -> void:
 	summary_label.add_theme_font_size_override("font_size", 18)
 	summary_label.add_theme_color_override("font_color", Color("f2ead7"))
 	summary_label.add_theme_stylebox_override("normal", _flat_style(Color(0.12, 0.09, 0.055, 0.9), Color(0.55, 0.4, 0.2, 0.85), 1, 7, 8.0))
+	skill_queue_title.add_theme_font_size_override("font_size", 17)
+	skill_queue_title.add_theme_color_override("font_color", Color("e8c77a"))
 	_apply_button_palette(reset_pets_button, Color("5c8a62"), true)
-	_apply_button_palette(action_slot_button, Color("665638"), false)
-	_apply_button_palette(direction_button, Color("665638"), false)
-	_apply_button_palette(action_ap_button, Color("665638"), false)
-	_apply_button_palette(cast_button, Color("9b6d2f"), true)
+	for child in skill_queue_grid.get_children():
+		_apply_button_palette(child as Button, Color("665638"), false)
 	_apply_button_palette(all_out_button, Color("9b4938"), true)
 	_apply_button_palette(end_turn_button, Color("615944"), false)
 	_apply_button_palette(monster_turn_button, Color("615944"), false)

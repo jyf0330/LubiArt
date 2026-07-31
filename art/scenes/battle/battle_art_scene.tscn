@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://1j51ky7dp3cs" path="res://art/images/battle/hud/clock/clock_dial_002.png" id="12_clock_dial"]
 [ext_resource type="Texture2D" uid="uid://1goj04hxtnsg" path="res://art/images/battle/hud/clock/clock_pointer_010.png" id="13_clock_pointer"]
 [ext_resource type="Script" uid="uid://drbbnnayu3755" path="res://core_ui/scripts/battle/prefabs/hud/battle_direction_drawer.gd" id="14_direction_drawer"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/skill_queue_slot.gd" id="14_skill_queue_slot"]
 [ext_resource type="Texture2D" uid="uid://cfj800nbmvqiq" path="res://art/images/battle/hud/directions/direction_panel_parchment_corners_large_006.png" id="15_direction_panel"]
 [ext_resource type="Texture2D" uid="uid://cdawxnnhuruan" path="res://art/images/battle/hud/directions/direction_collapse_tab_parchment_clasp_003_full.png" id="16_direction_tab"]
 [ext_resource type="Texture2D" uid="uid://dmbax1dgplide" path="res://art/images/battle/hud/directions/direction_collapse_triangle_001.png" id="17_direction_triangle"]
@@ -1185,30 +1186,68 @@ custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 text = "重置宠物"
 
-[node name="ActionSlotButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=935990670]
-custom_minimum_size = Vector2(0, 46)
+[node name="SkillQueueTitle" type="Label" parent="Board/BattleActionPanel/Margin/Content"]
 layout_mode = 2
-text = "行动槽"
+text = "技能行动条 · 拖拽排序"
 
-[node name="DirectionButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=371704574]
-custom_minimum_size = Vector2(0, 46)
+[node name="SkillQueueGrid" type="GridContainer" parent="Board/BattleActionPanel/Margin/Content"]
 layout_mode = 2
-text = "方向"
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 7
+columns = 2
 
-[node name="ActionApButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=998937943]
-custom_minimum_size = Vector2(0, 46)
+[node name="SkillSlot1" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
 layout_mode = 2
-text = "行动 AP"
+text = "1  技能"
+script = ExtResource("14_skill_queue_slot")
 
-[node name="CastButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=1193848837]
-custom_minimum_size = Vector2(0, 46)
+[node name="SkillSlot2" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
 layout_mode = 2
-text = "施放行动"
+text = "2  技能"
+script = ExtResource("14_skill_queue_slot")
+
+[node name="SkillSlot3" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "3  技能"
+script = ExtResource("14_skill_queue_slot")
+
+[node name="SkillSlot4" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "4  技能"
+script = ExtResource("14_skill_queue_slot")
+
+[node name="SkillSlot5" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "5  技能"
+script = ExtResource("14_skill_queue_slot")
+
+[node name="SkillSlot6" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "6  技能"
+script = ExtResource("14_skill_queue_slot")
+
+[node name="SkillSlot7" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "7  技能"
+script = ExtResource("14_skill_queue_slot")
+
+[node name="SkillSlot8" type="Button" parent="Board/BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "8  技能"
+script = ExtResource("14_skill_queue_slot")
 
 [node name="AllOutButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=662421790]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-text = "我方全部出击"
+text = "按顺序触发全部技能"
 
 [node name="EndTurnButton" type="Button" parent="Board/BattleActionPanel/Margin/Content" unique_id=1814120394]
 custom_minimum_size = Vector2(0, 42)

@@ -56,6 +56,20 @@ func _run() -> void:
 	var isolated_session := MockSession.new()
 	var boot_snapshot := Dictionary(isolated_session.current_snapshot())
 	_assert_snapshot_contract(boot_snapshot)
+	var boot_skill_queue := Array(boot_snapshot.get("selectedSkillQueue", []))
+	assert(boot_skill_queue.size() == 8)
+	var reversed_skill_ids := _skill_queue_ids(boot_skill_queue)
+	reversed_skill_ids.reverse()
+	var reorder_response := Dictionary(isolated_session.submit_command({
+		"type": "SET_SKILL_ORDER",
+		"unitId": String(boot_snapshot.get("selected_unit_id", "")),
+		"orderedSkillIds": reversed_skill_ids,
+	}))
+	assert(bool(reorder_response.get("accepted", false)))
+	assert(_skill_queue_ids(Array(isolated_session.current_snapshot().get("selectedSkillQueue", []))) == reversed_skill_ids)
+	assert(isolated_session.replay_step_index() == 0)
+	isolated_session.reset(false)
+	boot_snapshot = Dictionary(isolated_session.current_snapshot())
 	var captured_initial := Dictionary(capture.get("initial_snapshot", {}))
 	assert(_same_snapshot_identity(boot_snapshot, captured_initial))
 	assert(String(boot_snapshot.get("phase", "")) == "battle")
@@ -108,6 +122,7 @@ func _run() -> void:
 	assert(battle_view != null)
 	assert(battle_view.get_node_or_null("Board/BattleVfxPlayer") != null)
 	assert(battle_view.get_node_or_null("Board/BattleActionPanel") != null)
+	assert(battle_view.get_node("Board/BattleActionPanel/Margin/Content/SkillQueueGrid").get_child_count() == 8)
 	assert(battle_view.get_node_or_null("CellDetail/BattlePetDetailPanel") != null)
 
 	var game_session := main_instance.call("get_game_session") as RefCounted
@@ -203,6 +218,13 @@ func _run() -> void:
 	assert(Array(vfx_player.get("_trace_queue")).is_empty())
 	print("MOCK_BATTLE_PROJECT_SMOKE_PASS")
 	quit(0)
+
+
+func _skill_queue_ids(entries: Array) -> Array:
+	var result: Array = []
+	for entry_value in entries:
+		result.append(String(Dictionary(entry_value).get("skillId", "")))
+	return result
 
 
 func _assert_presentation_patterns_load() -> void:

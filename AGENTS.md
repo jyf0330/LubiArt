@@ -68,7 +68,7 @@
 ## 完成与验收
 
 - 每次美术/UI 修改必须至少覆盖 `5` 个不同且有意义的真实操作点；重复同一点击、无状态变化的空操作或只拍静态首屏不能凑数。每个操作都要在修改前保存一张 `before`，修改后在相同入口、Mock Snapshot、窗口/视口尺寸、1920×1080 基准、缩放、操作步骤和稳定帧保存对应 `after`，因此每轮至少保存 `5` 组、`10` 张截图。开工前漏截时，必须从修改前提交或可靠备份建立隔离项目补拍，不能把改后画面当成 `before`。
-- 每组使用 `python3 tools/qa/compare_screenshots.py <before> <after> --report <json>` 做像素级比较，并用 `python3 tools/qa/compare_operation_screenshots.py <manifest.json> --report <summary.json>` 汇总；只有至少 `5` 个不同操作的每组截图都尺寸一致且差异像素数为 `0` 才通过。少于 `5` 组、缺任一截图、采集条件不一致、缺报告或任一组存在像素差异，一律 `BLOCKED`，不得交付或提交“通过”。截图、操作清单和报告默认只作为本机证据，不加入 Git。
+- 每组使用 `python3 tools/qa/compare_screenshots.py <before> <after> --report <json>` 做像素级比较，并用 `python3 tools/qa/compare_operation_screenshots.py <manifest.json> --report <summary.json>` 汇总。保真/非视觉任务使用默认 `preserve` 模式，要求至少 `5` 个不同操作全部尺寸一致且差异像素数为 `0`；目标明确包含视觉替换时可使用 `intentional_change` 模式，但 manifest 必须记录用户批准依据，并为每个操作填写 `expected_change`，且每组必须尺寸相同、差异像素数大于 `0`。少于 `5` 组、缺图、采集条件不一致、缺报告、模式与任务目标不符或缺少有意变更说明，一律 `BLOCKED`。截图、操作清单和报告默认只作为本机证据，不加入 Git。
 - 每次改动后运行 `./tests/verify_ui_mirror.sh`，确认独立项目结构完整且文件类型没有串目录；默认检查不需要原项目。
 - 运行 README 中的独立项目契约 smoke，确认 Mock Snapshot 和装配链仍可工作。
 - 涉及布局、交互或动画时，必须在真实 Godot 窗口检查；headless smoke 不能代替可见结果。
