@@ -56,6 +56,7 @@ var _transient_element_visual_dirty := false
 var _unit_stat_layout_scale := 1.0
 var _active_element_tile_variant := ""
 var _is_hovered := false
+var _attack_highlight_blink_tween: Tween = null
 
 
 func _ready() -> void:
@@ -172,6 +173,8 @@ func set_highlight(mode: String) -> void:
 	if mode == "selected":
 		mode = ""
 	_highlight_mode = mode
+	if mode != "attack":
+		set_attack_highlight_blinking(false)
 	_update_attack_highlight()
 	if use_perspective_geometry:
 		queue_redraw()
@@ -192,20 +195,35 @@ func clear_highlight() -> void:
 	set_highlight("")
 
 
-func show_attack_order_marker(texture_resource: Texture2D) -> void:
-	clear_attack_order_marker()
-	if texture_resource == null:
+func set_attack_highlight_blinking(active: bool) -> void:
+	if _attack_highlight_blink_tween != null and _attack_highlight_blink_tween.is_valid():
+		_attack_highlight_blink_tween.kill()
+	_attack_highlight_blink_tween = null
+	_set_attack_highlight_alpha(1.0)
+	if not active or _highlight_mode != "attack":
 		return
-	_attack_order_marker = TextureRect.new()
-	_attack_order_marker.name = "AttackOrderMarker"
-	_attack_order_marker.texture = texture_resource
-	_attack_order_marker.size = Vector2(34.0, 34.0)
-	_attack_order_marker.position = Vector2(size.x - 40.0, 6.0)
-	_attack_order_marker.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_attack_order_marker.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_attack_order_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_attack_order_marker.z_index = 30
-	_prefab_anchor.add_child(_attack_order_marker)
+	_attack_highlight_blink_tween = create_tween().set_loops()
+	_attack_highlight_blink_tween.tween_method(_set_attack_highlight_alpha, 1.0, 0.22, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_attack_highlight_blink_tween.tween_method(_set_attack_highlight_alpha, 0.22, 1.0, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func is_attack_highlight_blinking() -> bool:
+	return (
+		_highlight_mode == "attack"
+		and _attack_highlight_blink_tween != null
+		and _attack_highlight_blink_tween.is_valid()
+	)
+
+
+func _set_attack_highlight_alpha(alpha: float) -> void:
+	if _attack_highlight != null:
+		_attack_highlight.modulate.a = alpha
+	if _attack_highlight_border != null:
+		_attack_highlight_border.modulate.a = alpha
+
+
+func show_attack_order_marker(_texture_resource: Texture2D) -> void:
+	clear_attack_order_marker()
 
 
 func clear_attack_order_marker() -> void:

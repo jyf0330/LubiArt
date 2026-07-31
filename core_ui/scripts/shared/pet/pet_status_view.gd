@@ -13,6 +13,14 @@ const DAMAGE_CAP_KEYS := [
 	"max_damage_per_hit",
 	"maxDamagePerHit",
 ]
+const HEALTH_PREFIX := "HP:"
+const SHIELD_PREFIX := "SHLD:"
+const ATTACK_PREFIX := "ATK:"
+const DAMAGE_CAP_PREFIX := "CAP:"
+const HEALTH_COLOR := Color("ffffff")
+const ATTACK_COLOR := Color("ffffff")
+const SHIELD_COLOR := Color("ffffff")
+const DAMAGE_CAP_COLOR := Color("ffffff")
 
 @export var psd_health_value_path: NodePath
 @export var psd_shield_value_path: NodePath
@@ -34,6 +42,7 @@ func _ready() -> void:
 
 func reset() -> void:
 	_data = {}
+	_apply_stat_colors()
 	for label in _psd_value_labels():
 		label.text = ""
 	set_mode(&"none")
@@ -60,13 +69,13 @@ func refresh() -> void:
 func update_hp(value: int) -> void:
 	_data["hp"] = value
 	if psd_health_value != null:
-		psd_health_value.text = str(max(0, value))
+		psd_health_value.text = _stat_text(HEALTH_PREFIX, value)
 
 
 func update_shield(value: int) -> void:
 	_data["shield"] = max(0, value)
 	if psd_shield_value != null:
-		psd_shield_value.text = str(max(0, value))
+		psd_shield_value.text = _stat_text(SHIELD_PREFIX, value)
 
 
 func snapshot() -> Dictionary:
@@ -75,15 +84,33 @@ func snapshot() -> Dictionary:
 
 func _refresh_psd_values() -> void:
 	if psd_health_value != null:
-		psd_health_value.text = str(max(0, int(_data.get("hp", 0))))
+		psd_health_value.text = _stat_text(HEALTH_PREFIX, int(_data.get("hp", 0)))
 	if psd_shield_value != null:
-		psd_shield_value.text = str(max(0, int(_data.get("shield", 0))))
+		psd_shield_value.text = _stat_text(SHIELD_PREFIX, int(_data.get("shield", 0)))
 	if psd_attack_value != null:
-		psd_attack_value.text = str(max(0, int(_data.get("atk", _data.get("attack", 0)))))
+		psd_attack_value.text = _stat_text(
+			ATTACK_PREFIX,
+			int(_data.get("atk", _data.get("attack", 0)))
+		)
 	if psd_damage_cap_value != null:
 		var cap := _damage_cap(_data)
-		psd_damage_cap_value.text = str(cap) if cap >= 0 else ""
+		psd_damage_cap_value.text = _stat_text(DAMAGE_CAP_PREFIX, cap) if cap >= 0 else ""
 		_set_damage_cap_visible(_battle_mode_enabled and cap >= 0)
+
+
+func _stat_text(prefix: String, value: int) -> String:
+	return "%s%d" % [prefix, max(0, value)]
+
+
+func _apply_stat_colors() -> void:
+	if psd_health_value != null:
+		psd_health_value.self_modulate = HEALTH_COLOR
+	if psd_attack_value != null:
+		psd_attack_value.self_modulate = ATTACK_COLOR
+	if psd_shield_value != null:
+		psd_shield_value.self_modulate = SHIELD_COLOR
+	if psd_damage_cap_value != null:
+		psd_damage_cap_value.self_modulate = DAMAGE_CAP_COLOR
 
 
 func _damage_cap(data: Dictionary) -> int:

@@ -48,6 +48,7 @@ func _run() -> void:
 	var drawer_collapses := false
 	var direction_scroll_hint_works := false
 	var direction_wheel_sequence := false
+	var direction_hover_signal_works := false
 	var asset_registry := BattleAssetRegistryScript.new()
 	var background_variants_match: bool = (
 		asset_registry.call("battle_background_key", {"day": 1, "battle_period": "上午"}) == "grassland_morning"
@@ -82,8 +83,12 @@ func _run() -> void:
 			direction_scroll_hint_works = direction_scroll_hint_works and not direction_scroll_hint.visible
 	if direction_drawer != null and direction_arrow != null:
 		var direction_commands: Array[Dictionary] = []
+		var direction_hover_previews: Array[Dictionary] = []
 		direction_drawer.command_requested.connect(func(command: Dictionary) -> void:
 			direction_commands.append(command.duplicate(true))
+		)
+		direction_drawer.direction_preview_changed.connect(func(preview: Dictionary) -> void:
+			direction_hover_previews.append(preview.duplicate(true))
 		)
 		direction_drawer.call("render_snapshot", {
 			"phase": "battle",
@@ -110,6 +115,17 @@ func _run() -> void:
 			and String(direction_commands[0].get("unitId", "")) == "wheel_test"
 			and int(direction_commands[0].get("slotId", -1)) == 0
 			and direction_arrow.texture.resource_path.get_file() == "direction_arrow_002.png"
+		)
+		direction_arrow.mouse_entered.emit()
+		await process_frame
+		direction_arrow.mouse_exited.emit()
+		await process_frame
+		direction_hover_signal_works = (
+			direction_hover_previews.size() >= 2
+			and String(direction_hover_previews[direction_hover_previews.size() - 2].get("unit_id", "")) == "wheel_test"
+			and int(direction_hover_previews[direction_hover_previews.size() - 2].get("slot_index", -1)) == 0
+			and String(direction_hover_previews[direction_hover_previews.size() - 2].get("direction", "")) == "up"
+			and direction_hover_previews[direction_hover_previews.size() - 1].is_empty()
 		)
 	if direction_drawer != null and direction_collapse_button != null and direction_rows != null:
 		direction_collapse_button.pressed.emit()
@@ -193,6 +209,7 @@ func _run() -> void:
 		and direction_scroll_animation != null
 		and direction_scroll_hint_works
 		and direction_wheel_sequence
+		and direction_hover_signal_works
 		and drawer_collapses
 		and art_scene.get_node_or_null("Board/AutoArrangeButton") == null
 		and art_scene.get_node_or_null("Board/BeginTurnButton") == null

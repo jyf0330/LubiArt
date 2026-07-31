@@ -851,7 +851,7 @@ toggle_mode = true
 text = "摆位难度：普通"
 
 [node name="BattlePrimaryActions" type="Control" parent="Board" unique_id=469725293]
-editor_description = "Primary battle actions authored from the supplied PSD. This is a Board-owned HUD group, not a fifth reusable prefab."
+editor_description = "战斗主要操作区：依据提供的 PSD 制作。该节点是棋盘自有的 HUD 组，不是第五个可复用预制体。"
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0

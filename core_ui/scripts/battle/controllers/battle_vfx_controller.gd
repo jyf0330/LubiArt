@@ -141,12 +141,6 @@ func _play_damage_trace_sequence(event: Dictionary) -> void:
 		play_element_impact(element, target_grid, false)
 	elif source_type == "element_settlement" or bool(payload.get("suppressProjectile", false)):
 		pass
-	elif String(actor.get("side", "")) == "enemy":
-		var attack_translation := play_enemy_attack_translation(actor, target)
-		if attack_translation != null:
-			await get_tree().create_timer(ENEMY_ATTACK_TRANSLATION_OUT_DURATION).timeout
-		var bite := _play_bite_on_unit(target_visual)
-		await _await_bite_impact(bite)
 	else:
 		var projectile := play_projectile(element, actor_grid, target_grid)
 		await _await_projectile_impact(projectile)
@@ -183,19 +177,13 @@ func _play_attack_strike_trace_sequence(event: Dictionary) -> void:
 		var target_grid := _dict_grid(Dictionary(target_value))
 		if target_grid.x >= 0 and target_grid.y >= 0:
 			target_grids.append(target_grid)
-	if String(actor.get("side", "")) == "enemy":
-		if play_enemy_attack_translation(actor, target) != null:
-			await get_tree().create_timer(ENEMY_ATTACK_TRANSLATION_OUT_DURATION).timeout
-		var bite := play_bite(target_grids[0]) if not target_grids.is_empty() else null
-		await _await_bite_impact(bite)
-	else:
-		var projectiles: Array[Node] = []
-		for target_grid in target_grids:
-			var projectile := play_projectile(element, actor_grid, target_grid)
-			if projectile != null:
-				projectiles.append(projectile)
-		if not projectiles.is_empty():
-			await _await_projectile_impact(projectiles[0])
+	var projectiles: Array[Node] = []
+	for target_grid in target_grids:
+		var projectile := play_projectile(element, actor_grid, target_grid)
+		if projectile != null:
+			projectiles.append(projectile)
+	if not projectiles.is_empty():
+		await _await_projectile_impact(projectiles[0])
 	var apply_element_on_impact := bool(payload.get("applyElementOnImpact", false))
 	for target_grid in target_grids:
 		play_element_impact(element, target_grid, apply_element_on_impact)
@@ -357,10 +345,7 @@ func play_damage_trace(event: Dictionary) -> Node:
 	var actor_grid := _dict_grid(actor)
 	var target_grid := _dict_grid(target)
 	var element := String(payload.get("element", "fire"))
-	if String(actor.get("side", "")) == "enemy":
-		play_enemy_attack_translation(actor, target)
-		play_bite(target_grid)
-	elif actor_grid.x >= 0 and target_grid.x >= 0:
+	if actor_grid.x >= 0 and target_grid.x >= 0:
 		play_projectile(element, actor_grid, target_grid)
 	return _apply_damage_impact(event)
 

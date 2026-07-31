@@ -40,9 +40,16 @@ func _run() -> void:
 	if not await _capture_frames(idle_dir, "earth_slime_idle", original_center, 36, 0.06):
 		return
 
-	pet.call("play_attack_translation", original_center + Vector2(110.0, 0.0), 0.46, 0.12, 0.06, 0.16)
+	pet.call(
+		"play_cross_cell_projectile",
+		"earth",
+		original_center,
+		original_center + Vector2(220.0, 0.0),
+		0.48,
+		58.0
+	)
 	var attack_dir := _capture_dir("attack")
-	if not await _capture_frames(attack_dir, "earth_slime_attack", original_center + Vector2(25.0, 0.0), 18, 0.03):
+	if not await _capture_frames(attack_dir, "earth_slime_attack", original_center + Vector2(90.0, 0.0), 20, 0.03):
 		return
 	await create_timer(0.12).timeout
 

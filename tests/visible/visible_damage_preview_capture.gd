@@ -1,8 +1,8 @@
 extends SceneTree
 
 const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
-const PROJECTED_CAPTURE := "lubi_damage_preview_projected.png"
-const CURRENT_CAPTURE := "lubi_damage_preview_current.png"
+const VISIBLE_CAPTURE := "lubi_damage_preview_visible.png"
+const HIDDEN_CAPTURE := "lubi_damage_preview_hidden.png"
 const LOOP_CAPTURE := "lubi_damage_preview_loop.png"
 
 
@@ -20,68 +20,128 @@ func _run() -> void:
 
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	var session := main_instance.call("get_game_session") as RefCounted
-	var auto_button := battle_view.get_node_or_null("Board/BattlePrimaryActions/AutoArrangeButton") as TextureButton if battle_view != null else null
-	if battle_view == null or session == null or auto_button == null:
+	if battle_view == null or session == null:
 		_fail("battle view is unavailable")
 		return
 
-	var before_step := int(session.call("replay_step_index"))
-	auto_button.pressed.emit()
-	if not await _wait_for_step(session, before_step + 1):
-		_fail("auto-position did not advance")
+	var drag_pair := _first_drag_pair(Dictionary(session.call("current_snapshot")))
+	if drag_pair.is_empty():
+		_fail("no pre-auto-arrange drag target was available")
 		return
-	await create_timer(0.25).timeout
-
-	var preview_pet := _first_preview_pet(battle_view)
+	var drag_origin := Vector2i(
+		int(Dictionary(drag_pair.get("origin", {})).get("x", -1)),
+		int(Dictionary(drag_pair.get("origin", {})).get("y", -1))
+	)
+	var drag_target := Vector2i(
+		int(Dictionary(drag_pair.get("drag_target", {})).get("x", drag_origin.x)),
+		int(Dictionary(drag_pair.get("drag_target", {})).get("y", drag_origin.y))
+	)
+	battle_view.call("_start_unit_drag", drag_origin)
+	battle_view.call("_debug_update_drag_preview_position", drag_target)
+	await process_frame
+	var preview_pet := _preview_pet_by_unit_id(battle_view, String(drag_pair.get("target_unit_id", "")))
 	if preview_pet == null:
-		_fail("enemy damage preview was not displayed")
+		_fail("dragged attack range did not pin the enemy HP preview")
 		return
-	var projected := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
-	if String(projected.get("state", "")) != "projected":
-		_fail("preview did not start from projected HP")
+	var visible_preview := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
+	if String(visible_preview.get("state", "")) != "visible" \
+			or not bool(visible_preview.get("pinned", false)):
+		_fail("held drag preview was not continuously visible")
+		return
+	await create_timer(1.25).timeout
+	visible_preview = Dictionary(preview_pet.call("get_damage_preview_snapshot"))
+	if String(visible_preview.get("state", "")) != "visible" \
+			or not bool(visible_preview.get("pinned", false)):
+		_fail("held drag preview blinked before mouse release")
 		return
 	await RenderingServer.frame_post_draw
-	_save_capture(PROJECTED_CAPTURE)
+	_save_capture(VISIBLE_CAPTURE)
 
-	if not await _wait_for_state(preview_pet, "current", 3500):
-		_fail("preview did not flash back to current HP")
+	battle_view.call("_finish_unit_drag", drag_target)
+	var released_preview := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
+	if bool(released_preview.get("pinned", true)) \
+			or float(released_preview.get("seconds_to_switch", 0.0)) < 0.85:
+		_fail("released preview did not keep its one-second hold")
+		return
+	if not await _wait_for_state(preview_pet, "hidden", 2500):
+		_fail("released preview did not fade out after one second")
 		return
 	await RenderingServer.frame_post_draw
-	_save_capture(CURRENT_CAPTURE)
+	_save_capture(HIDDEN_CAPTURE)
 
-	if not await _wait_for_state(preview_pet, "projected", 2500):
-		_fail("preview did not loop back to projected HP")
+	if not await _wait_for_state(preview_pet, "visible", 2500):
+		_fail("preview did not fade back in")
 		return
 	await RenderingServer.frame_post_draw
 	_save_capture(LOOP_CAPTURE)
-	print("VISIBLE_DAMAGE_PREVIEW_PASS projected=%s current=%s loop=%s" % [
-		_capture_path(PROJECTED_CAPTURE),
-		_capture_path(CURRENT_CAPTURE),
+	print("VISIBLE_DAMAGE_PREVIEW_PASS visible=%s hidden=%s loop=%s" % [
+		_capture_path(VISIBLE_CAPTURE),
+		_capture_path(HIDDEN_CAPTURE),
 		_capture_path(LOOP_CAPTURE),
 	])
 	quit(0)
 
 
-func _first_preview_pet(battle_view: Control) -> Control:
+func _preview_pet_by_unit_id(battle_view: Control, unit_id: String) -> Control:
 	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
 	for cell in board_grid.get_children():
 		if not cell.has_method("get_unit_node"):
 			continue
 		var pet := cell.call("get_unit_node") as Control
-		if pet == null or not pet.has_method("get_damage_preview_snapshot"):
+		if pet == null or not pet.has_method("get_unit_id"):
 			continue
-		if bool(Dictionary(pet.call("get_damage_preview_snapshot")).get("active", false)):
+		if String(pet.call("get_unit_id")) == unit_id:
 			return pet
 	return null
 
 
-func _wait_for_step(session: RefCounted, expected_step: int) -> bool:
-	var deadline := Time.get_ticks_msec() + 10000
-	while Time.get_ticks_msec() < deadline:
-		if int(session.call("replay_step_index")) == expected_step:
-			return true
-		await process_frame
-	return false
+func _first_drag_pair(snapshot: Dictionary) -> Dictionary:
+	var board := Dictionary(snapshot.get("board", {}))
+	var board_cells := Array(board.get("cells", []))
+	var columns := int(board.get("width", snapshot.get("board_width", 8)))
+	var rows := int(board.get("height", snapshot.get("board_height", 7)))
+	var cell_by_key := {}
+	for board_cell_value in board_cells:
+		var board_cell := Dictionary(board_cell_value)
+		cell_by_key["%d,%d" % [int(board_cell.get("x", -1)), int(board_cell.get("y", -1))]] = board_cell
+	var previews := Dictionary(snapshot.get("action_preview_by_unit", {}))
+	for actor_value in previews.keys():
+		var actor_id := String(actor_value)
+		var preview := Dictionary(previews[actor_value])
+		var origin_data := Dictionary(preview.get("origin", {}))
+		var origin := Vector2i(int(origin_data.get("x", -1)), int(origin_data.get("y", -1)))
+		var original_target_ids := {}
+		for cell_value in Array(preview.get("cells", [])):
+			var cell := Dictionary(cell_value)
+			var target_unit_id := String(cell.get("target_unit_id", cell.get("targetUnitId", "")))
+			if target_unit_id != "":
+				original_target_ids[target_unit_id] = true
+		for shape_cell_value in Array(preview.get("cells", [])):
+			var shape_cell := Dictionary(shape_cell_value)
+			var offset := Vector2i(
+				int(shape_cell.get("x", shape_cell.get("c", -1))),
+				int(shape_cell.get("y", shape_cell.get("r", -1)))
+			) - origin
+			for target_cell_value in board_cells:
+				var target_cell := Dictionary(target_cell_value)
+				var target_unit_id := String(target_cell.get("unitId", target_cell.get("unit_id", "")))
+				if not target_unit_id.begins_with("enemy_") or original_target_ids.has(target_unit_id):
+					continue
+				var target_grid := Vector2i(int(target_cell.get("x", -1)), int(target_cell.get("y", -1)))
+				var candidate := target_grid - offset
+				if candidate.x < 0 or candidate.y < 0 or candidate.x >= columns or candidate.y >= rows:
+					continue
+				var candidate_cell := Dictionary(cell_by_key.get("%d,%d" % [candidate.x, candidate.y], {}))
+				var occupying_unit_id := String(candidate_cell.get("unitId", candidate_cell.get("unit_id", "")))
+				if occupying_unit_id != "" and occupying_unit_id != actor_id:
+					continue
+				return {
+					"actor_id": actor_id,
+					"origin": origin_data.duplicate(true),
+					"drag_target": {"x": candidate.x, "y": candidate.y},
+					"target_unit_id": target_unit_id,
+				}
+	return {}
 
 
 func _wait_for_state(pet: Control, expected_state: String, timeout_msec: int) -> bool:

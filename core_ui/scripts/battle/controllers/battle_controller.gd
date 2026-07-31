@@ -54,6 +54,9 @@ var _drag_preview_target := Vector2i(-1, -1)
 var _debug_drag_preview_target := Vector2i(-1, -1)
 var _drag_attack_highlight_keys: Array[String] = []
 var _drag_attack_marker_keys: Array[String] = []
+var _drag_damage_preview_unit_ids: Array[String] = []
+var _manual_incoming_damage_previews_by_unit := {}
+var _direction_hover_highlight_keys: Array[String] = []
 var _drag_hover_grid := Vector2i(-1, -1)
 var _drag_start_mouse_position := Vector2.ZERO
 var _drag_has_moved := false
@@ -198,6 +201,10 @@ func _input(event: InputEvent) -> void:
 
 func render_snapshot(snap: Dictionary) -> void:
 	var previous_snapshot := _last_snapshot.duplicate(true)
+	if not previous_snapshot.is_empty() \
+			and (int(previous_snapshot.get("stateVersion", -1)) != int(snap.get("stateVersion", -1)) \
+			or String(previous_snapshot.get("stateHash", "")) != String(snap.get("stateHash", ""))):
+		_manual_incoming_damage_previews_by_unit.clear()
 	var new_trace_events := Array(_trace_projection.call("new_events", snap, _rendered_trace_count))
 	var stages_trace_from_previous := not new_trace_events.is_empty() and not previous_snapshot.is_empty()
 	_last_snapshot = snap.duplicate(true)
@@ -860,6 +867,7 @@ func _start_unit_drag(grid: Vector2i) -> void:
 		return
 	_clear_active_detail()
 	_drag_unit_id = String(unit.call("get_unit_id"))
+	_stop_enemy_damage_previews()
 	_set_cursor_pet_hover(false)
 	_set_cursor_grabbing(true)
 	set_process(true)
@@ -882,7 +890,8 @@ func _finish_unit_drag(target: Vector2i) -> void:
 	var can_drop := _can_drop_dragged_unit_at(target)
 	var settle_preview := _take_drag_preview()
 	_clear_cell_highlight(origin)
-	_clear_drag_attack_preview()
+	_release_drag_damage_previews()
+	_clear_drag_attack_preview(false)
 	_clear_drag_hover_highlight()
 	_reset_drag_tracking()
 	_set_cursor_grabbing(false)
@@ -890,6 +899,7 @@ func _finish_unit_drag(target: Vector2i) -> void:
 	if target == origin and not was_dragged:
 		_free_drop_preview(settle_preview)
 		_set_cell_unit_dragging(origin, false)
+		_sync_enemy_damage_previews()
 		_suppress_next_select = true
 		_request_cell_detail(origin)
 		_refresh_cursor_hover_at(target)
@@ -902,6 +912,7 @@ func _finish_unit_drag(target: Vector2i) -> void:
 	var command := {}
 	var settled_grid := origin
 	if can_drop and _apply_local_unit_drop(dragged_unit_id, origin, target):
+		_cache_manual_incoming_damage_preview(dragged_unit_id, target)
 		command = {
 			"type": "MOVE_HERO",
 			"unitId": dragged_unit_id,
@@ -992,6 +1003,7 @@ func _start_drop_settle(preview: Control, unit_id: String, origin: Vector2i, req
 	}
 	if preview == null or not is_instance_valid(preview):
 		_set_cell_unit_dragging(settled, false)
+		_sync_enemy_damage_previews(true)
 		_last_drop_settle_summary["active"] = false
 		_last_drop_settle_summary["completed"] = true
 		return
@@ -1022,6 +1034,7 @@ func _finish_drop_settle(preview: Control, unit_id: String, settled: Vector2i) -
 	_drop_settle_active = false
 	_drop_settle_unit_id = ""
 	_drop_settle_grid = Vector2i(-1, -1)
+	_sync_enemy_damage_previews(true)
 	_last_drop_settle_summary["active"] = false
 	_last_drop_settle_summary["completed"] = true
 	_last_drop_settle_summary["unitId"] = unit_id
@@ -1153,6 +1166,7 @@ func _debug_update_drag_preview_position(target: Vector2i) -> void:
 func _restore_drag_visual_state() -> void:
 	if _drag_unit_id == "":
 		return
+	_stop_enemy_damage_previews()
 	var origin_cell := _cell_at(_drag_origin.x, _drag_origin.y)
 	if origin_cell != null and origin_cell.has_method("set_unit_dragging"):
 		origin_cell.call("set_unit_dragging", true)
@@ -1168,12 +1182,47 @@ func _refresh_drag_attack_preview(target: Vector2i, force: bool = false) -> void
 		return
 	_clear_drag_attack_preview()
 	_drag_preview_target = target
+	_refresh_drag_incoming_damage_preview(target)
 	if not _is_visible_board_cell(target.x, target.y):
 		return
 	_show_drag_attack_cells(_drag_attack_cells_for_target(target))
 
 
-func _clear_drag_attack_preview() -> void:
+func _refresh_drag_incoming_damage_preview(target: Vector2i) -> void:
+	if _drag_preview == null or not is_instance_valid(_drag_preview) \
+			or not _drag_preview.has_method("start_damage_preview"):
+		return
+	if not _can_drag_preview_at(target):
+		if _drag_preview.has_method("stop_damage_preview"):
+			_drag_preview.call("stop_damage_preview")
+		return
+	var origin_cell := _cell_at(_drag_origin.x, _drag_origin.y)
+	if origin_cell == null:
+		return
+	var cell_data := _cell_data_for_cell(origin_cell)
+	var preview := _incoming_player_drag_damage_preview(cell_data)
+	if preview.is_empty():
+		if _drag_preview.has_method("stop_damage_preview"):
+			_drag_preview.call("stop_damage_preview")
+		return
+	var current_hp := int(cell_data.get("hp", 0))
+	var current_shield := int(cell_data.get("shield", 0))
+	_drag_preview.call(
+		"start_damage_preview",
+		current_hp,
+		int(preview.get("hpTo", preview.get("predictedHpTo", current_hp))),
+		-1,
+		int(preview.get("totalDamage", preview.get("damage", 0))),
+		current_shield,
+		int(preview.get("shieldTo", preview.get("predictedShieldTo", current_shield))),
+		int(cell_data.get("max_hp", cell_data.get("maxHp", current_hp))),
+		true
+	)
+
+
+func _clear_drag_attack_preview(stop_damage_previews: bool = true) -> void:
+	if stop_damage_previews:
+		_clear_drag_damage_previews()
 	for key in _drag_attack_highlight_keys:
 		var parts := key.split(",")
 		if parts.size() != 2:
@@ -1186,6 +1235,101 @@ func _clear_drag_attack_preview() -> void:
 			continue
 		_clear_cell_attack_order_marker(Vector2i(int(parts[0]), int(parts[1])))
 	_drag_attack_marker_keys.clear()
+
+
+func _clear_direction_hover_preview() -> void:
+	for key in _direction_hover_highlight_keys:
+		var parts := key.split(",")
+		if parts.size() != 2:
+			continue
+		var grid := Vector2i(int(parts[0]), int(parts[1]))
+		var cell := _cell_at(grid.x, grid.y)
+		if cell != null and cell.has_method("set_attack_highlight_blinking"):
+			cell.call("set_attack_highlight_blinking", false)
+		if not _drag_attack_highlight_keys.has(key):
+			_clear_cell_highlight(grid)
+	_direction_hover_highlight_keys.clear()
+
+
+func _show_direction_hover_preview(unit_id: String, direction: String) -> void:
+	_clear_direction_hover_preview()
+	if _drag_unit_id != "" or _battle_input_locked:
+		return
+	for grid in _direction_preview_cells(unit_id, direction):
+		if not _cell_allows_attack_highlight(grid):
+			continue
+		_set_cell_highlight(grid, "attack")
+		var cell := _cell_at(grid.x, grid.y)
+		if cell != null and cell.has_method("set_attack_highlight_blinking"):
+			cell.call("set_attack_highlight_blinking", true)
+		_direction_hover_highlight_keys.append(_cell_key(grid))
+
+
+func _direction_preview_cells(unit_id: String, direction: String) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var previews := Dictionary(_last_snapshot.get("action_preview_by_unit", _last_snapshot.get("actionPreviewByUnit", {})))
+	if not previews.has(unit_id):
+		return result
+	var preview := Dictionary(previews[unit_id])
+	var source_cells := Array(preview.get("cells", []))
+	if source_cells.is_empty():
+		return result
+	var current_origin := _rendered_grid_for_unit_id(unit_id)
+	if current_origin.x < 0 or current_origin.y < 0:
+		return result
+	var source_origin_data := Dictionary(preview.get("origin", {}))
+	var source_origin := Vector2i(
+		int(source_origin_data.get("x", current_origin.x)),
+		int(source_origin_data.get("y", current_origin.y))
+	)
+	var source_direction := _normalized_attack_direction(String(preview.get("direction", "right")))
+	var target_direction := _normalized_attack_direction(direction)
+	var clockwise_turns := posmod(
+		_attack_direction_index(target_direction) - _attack_direction_index(source_direction),
+		4
+	)
+	var by_key := {}
+	for cell_value in source_cells:
+		var row := Dictionary(cell_value)
+		var source_grid := Vector2i(
+			int(row.get("x", row.get("c", -1))),
+			int(row.get("y", row.get("r", -1)))
+		)
+		var grid := current_origin + _rotate_grid_offset(source_grid - source_origin, clockwise_turns)
+		if _is_visible_board_cell(grid.x, grid.y):
+			by_key[_cell_key(grid)] = grid
+	for grid_value in by_key.values():
+		result.append(grid_value as Vector2i)
+	return result
+
+
+func _rendered_grid_for_unit_id(unit_id: String) -> Vector2i:
+	for cell in _cells:
+		var data := _cell_data_for_cell(cell)
+		if String(data.get("unitId", data.get("unit_id", ""))) == unit_id:
+			return cell.call("get_grid_position") as Vector2i
+	return Vector2i(-1, -1)
+
+
+func _normalized_attack_direction(direction: String) -> String:
+	var normalized := direction.strip_edges().to_lower()
+	return normalized if normalized in ["up", "right", "down", "left"] else "right"
+
+
+func _attack_direction_index(direction: String) -> int:
+	return ["up", "right", "down", "left"].find(_normalized_attack_direction(direction))
+
+
+func _rotate_grid_offset(offset: Vector2i, clockwise_turns: int) -> Vector2i:
+	match posmod(clockwise_turns, 4):
+		1:
+			return Vector2i(-offset.y, offset.x)
+		2:
+			return -offset
+		3:
+			return Vector2i(offset.y, -offset.x)
+		_:
+			return offset
 
 
 func _refresh_drag_hover_highlight(target: Vector2i, force: bool = false) -> void:
@@ -1213,10 +1357,70 @@ func _show_drag_attack_cells(cells: Array[Vector2i]) -> void:
 		if _cell_is_enemy_occupied(grid):
 			enemy_attack_cells.append(grid)
 	if not enemy_attack_cells.is_empty():
+		_show_drag_damage_previews(enemy_attack_cells)
 		var marker_grid := enemy_attack_cells[enemy_attack_cells.size() - 1]
 		var preview := _drag_action_preview()
 		_set_cell_attack_order_marker(marker_grid, int(preview.get("slotIndex", _selected_slot_index())) + 1)
 		_drag_attack_marker_keys.append(_cell_key(marker_grid))
+
+
+func _show_drag_damage_previews(enemy_cells: Array[Vector2i]) -> void:
+	for grid in enemy_cells:
+		var cell := _cell_at(grid.x, grid.y)
+		if cell == null or not cell.has_method("get_unit_node"):
+			continue
+		var unit := cell.call("get_unit_node") as Control
+		if unit == null or not unit.has_method("start_damage_preview"):
+			continue
+		var cell_data := _cell_data_for_cell(cell)
+		var preview := _enemy_damage_preview_for_actor(cell_data, _drag_unit_id)
+		if preview.is_empty():
+			continue
+		var unit_id := String(cell_data.get("unitId", cell_data.get("unit_id", "")))
+		var current_hp := int(cell_data.get("hp", 0))
+		var current_shield := int(cell_data.get("shield", 0))
+		unit.call(
+			"start_damage_preview",
+			current_hp,
+			int(preview.get("predictedHpTo", preview.get("predicted_hp_to", current_hp))),
+			-1,
+			int(preview.get("predictedDamage", preview.get("predicted_damage", 0))),
+			current_shield,
+			int(preview.get(
+				"predictedShieldTo",
+				preview.get("predicted_shield_to", current_shield)
+			)),
+			int(cell_data.get("max_hp", cell_data.get("maxHp", current_hp))),
+			true
+		)
+		if unit_id != "" and not _drag_damage_preview_unit_ids.has(unit_id):
+			_drag_damage_preview_unit_ids.append(unit_id)
+
+
+func _clear_drag_damage_previews() -> void:
+	for unit_id in _drag_damage_preview_unit_ids:
+		var unit := _rendered_unit_node(unit_id)
+		if unit != null and unit.has_method("stop_damage_preview"):
+			unit.call("stop_damage_preview")
+	_drag_damage_preview_unit_ids.clear()
+
+
+func _release_drag_damage_previews() -> void:
+	for unit_id in _drag_damage_preview_unit_ids:
+		var unit := _rendered_unit_node(unit_id)
+		if unit != null and unit.has_method("release_damage_preview"):
+			unit.call("release_damage_preview", 1.0)
+	_drag_damage_preview_unit_ids.clear()
+
+
+func _rendered_unit_node(unit_id: String) -> Control:
+	for cell in _cells:
+		var cell_data := _cell_data_for_cell(cell)
+		if String(cell_data.get("unitId", cell_data.get("unit_id", ""))) != unit_id:
+			continue
+		if cell.has_method("get_unit_node"):
+			return cell.call("get_unit_node") as Control
+	return null
 
 
 func _can_drag_preview_at(target: Vector2i) -> bool:
@@ -1354,12 +1558,13 @@ func _clear_cell_highlight(grid: Vector2i) -> void:
 
 
 func _clear_all_cell_highlights() -> void:
+	_direction_hover_highlight_keys.clear()
 	for cell in _cells:
 		if cell != null and cell.has_method("clear_highlight"):
 			cell.call("clear_highlight")
 
 
-func _sync_enemy_damage_previews() -> void:
+func _sync_enemy_damage_previews(preserve_active_enemy_previews: bool = false) -> void:
 	if _enemy_damage_preview_sync_epoch_msec < 0:
 		_enemy_damage_preview_sync_epoch_msec = Time.get_ticks_msec()
 	var active_preview_count := 0
@@ -1370,16 +1575,118 @@ func _sync_enemy_damage_previews() -> void:
 		if unit == null or not unit.has_method("start_damage_preview"):
 			continue
 		var cell_data := _cell_data_for_cell(cell)
-		var preview := _enemy_damage_preview(cell_data)
+		var preview := _incoming_player_damage_preview(cell_data) \
+			if _cell_data_is_friendly(cell_data) else _enemy_damage_preview(cell_data)
 		if preview.is_empty():
+			if preserve_active_enemy_previews and not _cell_data_is_friendly(cell_data) \
+					and unit.has_method("get_damage_preview_snapshot") \
+					and bool(Dictionary(unit.call(
+						"get_damage_preview_snapshot"
+					)).get("active", false)):
+				continue
 			unit.call("stop_damage_preview")
 			continue
 		var current_hp := int(cell_data.get("hp", 0))
-		var projected_hp := int(preview.get("predictedHpTo", preview.get("predicted_hp_to", current_hp)))
+		var projected_hp := int(preview.get(
+			"predictedHpTo",
+			preview.get("predicted_hp_to", preview.get("hpTo", current_hp))
+		))
+		var current_shield := int(cell_data.get("shield", 0))
+		var projected_shield := int(preview.get(
+			"predictedShieldTo",
+			preview.get("predicted_shield_to", preview.get("shieldTo", current_shield))
+		))
+		var predicted_damage := int(preview.get(
+			"predictedDamage",
+			preview.get(
+				"predicted_damage",
+				preview.get("totalDamage", preview.get("damage", current_hp - projected_hp))
+			)
+		))
 		active_preview_count += 1
-		unit.call("start_damage_preview", current_hp, projected_hp, _enemy_damage_preview_sync_epoch_msec)
+		unit.call(
+			"start_damage_preview",
+			current_hp,
+			projected_hp,
+			_enemy_damage_preview_sync_epoch_msec,
+			predicted_damage,
+			current_shield,
+			projected_shield,
+			int(cell_data.get("max_hp", cell_data.get("maxHp", current_hp)))
+		)
 	if active_preview_count == 0:
 		_enemy_damage_preview_sync_epoch_msec = -1
+
+
+func _incoming_player_damage_preview(cell_data: Dictionary) -> Dictionary:
+	var unit_id := String(cell_data.get("unitId", cell_data.get("unit_id", "")))
+	if unit_id == "":
+		return {}
+	var damage_by_unit := Dictionary(_last_snapshot.get(
+		"placement_damage_by_unit",
+		_last_snapshot.get("placementDamageByUnit", {})
+	))
+	var preview := Dictionary(damage_by_unit.get(
+		unit_id,
+		_manual_incoming_damage_previews_by_unit.get(unit_id, {})
+	))
+	if preview.is_empty():
+		return {}
+	var predicted_damage := int(preview.get(
+		"totalDamage",
+		preview.get("damage", preview.get("threat", 0))
+	))
+	if predicted_damage <= 0:
+		return {}
+	return preview
+
+
+func _incoming_player_drag_damage_preview(cell_data: Dictionary) -> Dictionary:
+	var preview := _incoming_player_damage_preview(cell_data)
+	if not preview.is_empty():
+		return preview
+	return _project_exported_incoming_drag_preview(cell_data)
+
+
+func _project_exported_incoming_drag_preview(cell_data: Dictionary) -> Dictionary:
+	var template := Dictionary(_last_snapshot.get("mock_incoming_damage_preview_template", {}))
+	var predicted_damage := maxi(0, int(template.get(
+		"totalDamage",
+		template.get("damage", template.get("threat", 0))
+	)))
+	if predicted_damage <= 0:
+		return {}
+	# Presentation-only manual-placement fallback: reuse damage captured from the
+	# formal public Snapshot and apply it to the dragged prefab's exported stats.
+	# No combat formula or balance value is introduced in this standalone Mock.
+	var current_hp := maxi(0, int(cell_data.get("hp", 0)))
+	var current_shield := maxi(0, int(cell_data.get("shield", 0)))
+	var shield_damage := mini(current_shield, predicted_damage)
+	var hp_damage := mini(current_hp, maxi(0, predicted_damage - shield_damage))
+	var projected := template.duplicate(true)
+	projected["source"] = "mock_exported_manual_placement_preview"
+	projected["unitId"] = String(cell_data.get("unitId", cell_data.get("unit_id", "")))
+	projected["totalDamage"] = shield_damage + hp_damage
+	projected["damage"] = shield_damage + hp_damage
+	projected["shieldDamage"] = shield_damage
+	projected["hpDamage"] = hp_damage
+	projected["shieldFrom"] = current_shield
+	projected["shieldTo"] = current_shield - shield_damage
+	projected["hpFrom"] = current_hp
+	projected["hpTo"] = current_hp - hp_damage
+	projected["presentationProjection"] = true
+	return projected
+
+
+func _cache_manual_incoming_damage_preview(unit_id: String, grid: Vector2i) -> void:
+	var cell := _cell_at(grid.x, grid.y)
+	if cell == null:
+		return
+	var preview := _incoming_player_drag_damage_preview(_cell_data_for_cell(cell))
+	if preview.is_empty():
+		_manual_incoming_damage_previews_by_unit.erase(unit_id)
+		return
+	_manual_incoming_damage_previews_by_unit[unit_id] = preview.duplicate(true)
 
 
 func _stop_enemy_damage_previews() -> void:
@@ -1395,6 +1702,83 @@ func _stop_enemy_damage_previews() -> void:
 func _enemy_damage_preview(cell_data: Dictionary) -> Dictionary:
 	if not bool(cell_data.get("action_preview", cell_data.get("actionPreview", false))):
 		return {}
+	for preview in _enemy_damage_preview_candidates(cell_data):
+		if _preview_row_is_enemy(preview) \
+				and (preview.has("predictedHpTo") or preview.has("predicted_hp_to")):
+			return preview
+	return {}
+
+
+func _enemy_damage_preview_for_actor(cell_data: Dictionary, actor_id: String) -> Dictionary:
+	if actor_id == "":
+		return {}
+	for preview in _enemy_damage_preview_candidates(cell_data):
+		var preview_actor_id := String(preview.get(
+			"actorId",
+			preview.get("actor_id", preview.get("unitId", preview.get("unit_id", "")))
+		))
+		if preview_actor_id != actor_id or not _preview_row_is_enemy(preview):
+			continue
+		if preview.has("predictedHpTo") or preview.has("predicted_hp_to"):
+			return preview
+	return _project_exported_drag_preview(cell_data, actor_id)
+
+
+func _project_exported_drag_preview(cell_data: Dictionary, actor_id: String) -> Dictionary:
+	var template := _exported_enemy_preview_for_actor(actor_id)
+	if template.is_empty():
+		return {}
+	# Presentation-only drag fallback: reuse the exported final damage for this
+	# attacker, then apply it to the target's exported HP/shield snapshot. This
+	# keeps the art Mock responsive without introducing an attack formula.
+	var predicted_damage := maxi(0, int(template.get(
+		"predictedDamage",
+		template.get("predicted_damage", 0)
+	)))
+	if predicted_damage <= 0:
+		return {}
+	var current_hp := maxi(0, int(cell_data.get("hp", 0)))
+	var current_shield := maxi(0, int(cell_data.get("shield", 0)))
+	var shield_damage := mini(current_shield, predicted_damage)
+	var hp_damage := mini(current_hp, maxi(0, predicted_damage - shield_damage))
+	var projected := template.duplicate(true)
+	projected["predictedDamage"] = shield_damage + hp_damage
+	projected["predictedShieldDamage"] = shield_damage
+	projected["predictedHpDamage"] = hp_damage
+	projected["predictedShieldFrom"] = current_shield
+	projected["predictedShieldTo"] = current_shield - shield_damage
+	projected["predictedHpFrom"] = current_hp
+	projected["predictedHpTo"] = current_hp - hp_damage
+	projected["targetId"] = String(cell_data.get("unitId", cell_data.get("unit_id", "")))
+	projected["target_unit_id"] = projected["targetId"]
+	projected["hitEnemy"] = true
+	projected["preview_type"] = "target"
+	projected["presentationProjection"] = true
+	return projected
+
+
+func _exported_enemy_preview_for_actor(actor_id: String) -> Dictionary:
+	var mock_templates := Dictionary(_last_snapshot.get(
+		"mock_damage_preview_templates_by_actor",
+		{}
+	))
+	if mock_templates.has(actor_id):
+		return Dictionary(mock_templates[actor_id]).duplicate(true)
+	var board := Dictionary(_last_snapshot.get("board", {}))
+	for cell_value in Array(board.get("cells", [])):
+		var source_cell := Dictionary(cell_value)
+		for preview in _enemy_damage_preview_candidates(source_cell):
+			var preview_actor_id := String(preview.get(
+				"actorId",
+				preview.get("actor_id", preview.get("unitId", preview.get("unit_id", "")))
+			))
+			if preview_actor_id == actor_id and _preview_row_is_enemy(preview) \
+					and int(preview.get("predictedDamage", preview.get("predicted_damage", 0))) > 0:
+				return preview
+	return {}
+
+
+func _enemy_damage_preview_candidates(cell_data: Dictionary) -> Array[Dictionary]:
 	var candidates: Array = []
 	for key in ["action_preview_data", "actionPreviewData", "preview"]:
 		var candidate = cell_data.get(key, null)
@@ -1403,13 +1787,10 @@ func _enemy_damage_preview(cell_data: Dictionary) -> Dictionary:
 	for value in Array(cell_data.get("previews", [])):
 		if value is Dictionary:
 			candidates.append(value)
+	var result: Array[Dictionary] = []
 	for value in candidates:
-		var preview := Dictionary(value)
-		if not _preview_row_is_enemy(preview):
-			continue
-		if preview.has("predictedHpTo") or preview.has("predicted_hp_to"):
-			return preview
-	return {}
+		result.append(Dictionary(value))
+	return result
 
 
 func _preview_row_is_enemy(row: Dictionary) -> bool:
@@ -1731,6 +2112,10 @@ func _ensure_direction_drawer() -> void:
 		var callback := Callable(self, "_on_direction_drawer_command_requested")
 		if not _direction_drawer.is_connected("command_requested", callback):
 			_direction_drawer.connect("command_requested", callback)
+	if _direction_drawer != null and _direction_drawer.has_signal("direction_preview_changed"):
+		var preview_callback := Callable(self, "_on_direction_preview_changed")
+		if not _direction_drawer.is_connected("direction_preview_changed", preview_callback):
+			_direction_drawer.connect("direction_preview_changed", preview_callback)
 
 
 func _render_direction_drawer(snap: Dictionary) -> void:
@@ -1748,6 +2133,16 @@ func _on_action_panel_command_requested(command: Dictionary) -> void:
 
 func _on_direction_drawer_command_requested(command: Dictionary) -> void:
 	_on_action_panel_command_requested(command)
+
+
+func _on_direction_preview_changed(preview: Dictionary) -> void:
+	if preview.is_empty():
+		_clear_direction_hover_preview()
+		return
+	_show_direction_hover_preview(
+		String(preview.get("unit_id", preview.get("unitId", ""))),
+		String(preview.get("direction", "right"))
+	)
 
 
 func _add_command_tool_button(parent: Control, label_text: String, button_name: String, command_type: String) -> void:

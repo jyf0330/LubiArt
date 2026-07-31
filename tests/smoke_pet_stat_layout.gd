@@ -21,20 +21,19 @@ func _run() -> void:
 	var shield := stats.get_node("Shield") as Control
 	var attack := stats.get_node("Attack") as Control
 	var damage_cap := stats.get_node("DamageCap") as Control
-	var groups: Array[Control] = [health, shield, attack, damage_cap]
+	var groups: Array[Control] = [health, attack, shield, damage_cap]
 	var authored_sizes := [
-		Vector2(38.0, 36.0),
-		Vector2(35.0, 46.0),
-		Vector2(49.0, 51.0),
-		Vector2(39.0, 47.0),
+		Vector2(88.0, 24.0),
+		Vector2(88.0, 24.0),
+		Vector2(88.0, 24.0),
+		Vector2(88.0, 24.0),
 	]
-	var authored_icon_rects: Array[Rect2] = []
 	var authored_label_rects: Array[Rect2] = []
 	for index in range(groups.size()):
 		_assert_vector_close(groups[index].size, authored_sizes[index])
 		var icon := groups[index].get_node("Icon") as Control
 		var label := groups[index].get_node("Value_Text") as Label
-		authored_icon_rects.append(Rect2(icon.position, icon.size))
+		assert(not icon.visible)
 		authored_label_rects.append(Rect2(label.position, label.size))
 	pet.call("set_unit_data", {
 		"unitId": "stat_layout_test",
@@ -52,32 +51,36 @@ func _run() -> void:
 		Vector2(0.0, pet.size.y),
 	])
 	pet.call("set_battle_stat_layout_scale", 1.0, front_corners)
-	# Every row keeps the prefab-authored icon and text rectangles, while each
-	# complete badge is centered directly on its cell corner.
+	# Every row keeps its prefab-authored text rectangle and is placed in the
+	# same vertical column along the cell's right edge.
 	for index in range(groups.size()):
 		_assert_vector_close(groups[index].size, authored_sizes[index])
 		assert(groups[index].scale == Vector2.ONE)
 		var icon := groups[index].get_node("Icon") as Control
 		var label := groups[index].get_node("Value_Text") as Label
-		assert(Rect2(icon.position, icon.size).is_equal_approx(authored_icon_rects[index]))
+		assert(not icon.visible)
 		assert(Rect2(label.position, label.size).is_equal_approx(authored_label_rects[index]))
 	var labels := [
 		health.get_node("Value_Text") as Label,
-		shield.get_node("Value_Text") as Label,
 		attack.get_node("Value_Text") as Label,
+		shield.get_node("Value_Text") as Label,
 		damage_cap.get_node("Value_Text") as Label,
 	]
-	assert(labels[0].text == "17")
-	assert(labels[1].text == "9")
-	assert(labels[2].text == "5")
-	assert(labels[3].text == "16")
+	assert(labels[0].text == "HP:17")
+	assert(labels[1].text == "ATK:5")
+	assert(labels[2].text == "SHLD:9")
+	assert(labels[3].text == "CAP:16")
+	assert(labels[0].self_modulate.is_equal_approx(Color("ffffff")))
+	assert(labels[1].self_modulate.is_equal_approx(Color("ffffff")))
+	assert(labels[2].self_modulate.is_equal_approx(Color("ffffff")))
+	assert(labels[3].self_modulate.is_equal_approx(Color("ffffff")))
 	for index in range(labels.size()):
 		var label := labels[index] as Label
-		assert(label.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER)
+		assert(label.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT)
 		assert(label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER)
-	_assert_badges_at_corners(health, shield, attack, damage_cap, front_corners)
-	# Rebinding data triggers the pet's normal layout pass; the corner lock must
-	# survive it without accumulating offsets or falling back to sprite bounds.
+	_assert_rows_in_right_column(groups, front_corners)
+	# Rebinding data triggers the pet's normal layout pass; the right-side column
+	# must survive it without accumulating offsets or falling back to sprite bounds.
 	pet.call("set_unit_data", {
 		"unitId": "stat_layout_test_rebound",
 		"hp": 16,
@@ -86,7 +89,7 @@ func _run() -> void:
 		"damageCap": 15,
 	}, "player", null)
 	await process_frame
-	_assert_badges_at_corners(health, shield, attack, damage_cap, front_corners)
+	_assert_rows_in_right_column(groups, front_corners)
 
 	# Exercise a narrower, trapezoidal back row as well as the front-row rectangle.
 	pet.size = Vector2(135.0, 110.0)
@@ -104,9 +107,23 @@ func _run() -> void:
 		_assert_vector_close(groups[index].scale, Vector2.ONE * back_row_scale)
 		var icon := groups[index].get_node("Icon") as Control
 		var label := groups[index].get_node("Value_Text") as Label
-		assert(Rect2(icon.position, icon.size).is_equal_approx(authored_icon_rects[index]))
+		assert(not icon.visible)
 		assert(Rect2(label.position, label.size).is_equal_approx(authored_label_rects[index]))
-	_assert_badges_at_corners(health, shield, attack, damage_cap, back_corners)
+	_assert_rows_in_right_column(groups, back_corners)
+	assert(not stats.visible)
+	pet.call("set_dragging", true)
+	assert(not pet.visible)
+	assert(stats.visible)
+	pet.call("set_dragging", false)
+	assert(pet.visible)
+	assert(stats.visible)
+	await create_timer(1.05).timeout
+	assert(not stats.visible)
+	pet.name = "BattleUnitDragPreview"
+	pet.call("set_dragging", false)
+	assert(stats.visible)
+	await create_timer(1.05).timeout
+	assert(stats.visible)
 
 	print("PET_STAT_LAYOUT_SMOKE_PASS")
 	quit(0)
@@ -116,49 +133,38 @@ func _assert_vector_close(actual: Vector2, expected: Vector2) -> void:
 	assert(actual.is_equal_approx(expected), "%s != %s" % [actual, expected])
 
 
-func _assert_badges_at_corners(
-	health: Control,
-	shield: Control,
-	attack: Control,
-	damage_cap: Control,
+func _assert_rows_in_right_column(
+	groups: Array[Control],
 	corners: PackedVector2Array
 ) -> void:
-	_assert_icon_inside_corner(health, 0, corners)
-	_assert_icon_inside_corner(damage_cap, 1, corners)
-	_assert_icon_inside_corner(shield, 2, corners)
-	_assert_icon_inside_corner(attack, 3, corners)
-
-
-func _assert_icon_inside_corner(
-	group: Control,
-	corner_index: int,
-	corners: PackedVector2Array
-) -> void:
-	var icon := group.get_node("Icon") as Control
-	var label := group.get_node("Value_Text") as Control
-	var icon_bounds := Rect2(
-		group.position + icon.position * group.scale,
-		icon.size * group.scale
+	var previous_bottom := -INF
+	var aligned_right := -INF
+	for group in groups:
+		var icon := group.get_node("Icon") as Control
+		var label := group.get_node("Value_Text") as Control
+		assert(not icon.visible)
+		var row_bounds := Rect2(group.position, group.size * group.scale)
+		assert(row_bounds.position.y > previous_bottom)
+		var row_center_y := row_bounds.get_center().y
+		var left_at_center := _edge_x_at_y(corners[0], corners[3], row_center_y)
+		var right_at_center := _edge_x_at_y(corners[1], corners[2], row_center_y)
+		assert(row_bounds.get_center().x > (left_at_center + right_at_center) * 0.5)
+		if is_inf(aligned_right):
+			aligned_right = row_bounds.end.x
+		else:
+			assert(is_equal_approx(row_bounds.end.x, aligned_right))
+		assert(is_zero_approx(group.rotation))
+		assert(is_zero_approx(label.rotation))
+		previous_bottom = row_bounds.end.y
+	var column_top := groups[0].position.y
+	assert(is_equal_approx(column_top, minf(corners[0].y, corners[1].y)))
+	var last_group := groups[groups.size() - 1]
+	var column_bottom := last_group.position.y + last_group.size.y * last_group.scale.y
+	var shared_right_edge := minf(
+		_edge_x_at_y(corners[1], corners[2], column_top),
+		_edge_x_at_y(corners[1], corners[2], column_bottom)
 	)
-	var is_top := corner_index <= 1
-	var is_left := corner_index == 0 or corner_index == 3
-	var side_top := corners[0] if is_left else corners[1]
-	var side_bottom := corners[3] if is_left else corners[2]
-	var side_x_at_top := _edge_x_at_y(side_top, side_bottom, icon_bounds.position.y)
-	var side_x_at_bottom := _edge_x_at_y(side_top, side_bottom, icon_bounds.end.y)
-	_assert_vector_close(
-		Vector2(icon_bounds.position.y, icon_bounds.end.y),
-		Vector2(corners[corner_index].y, corners[corner_index].y + icon_bounds.size.y) if is_top else \
-			Vector2(corners[corner_index].y - icon_bounds.size.y, corners[corner_index].y)
-	)
-	var expected_side_x := maxf(side_x_at_top, side_x_at_bottom) if is_left else \
-		minf(side_x_at_top, side_x_at_bottom)
-	assert(is_equal_approx(
-		icon_bounds.position.x if is_left else icon_bounds.end.x,
-		expected_side_x
-	))
-	assert(is_zero_approx(group.rotation))
-	assert(is_zero_approx(label.rotation))
+	assert(is_equal_approx(shared_right_edge - aligned_right, 4.0 * groups[0].scale.x))
 
 
 func _edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> float:

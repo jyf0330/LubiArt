@@ -1,6 +1,7 @@
 extends Control
 
 signal command_requested(command: Dictionary)
+signal direction_preview_changed(preview: Dictionary)
 
 ## Battle HUD that mirrors the three action-slot directions for up to four
 ## player pets. Mouse-wheel input only requests a public direction command; it
@@ -35,6 +36,8 @@ const CLOCKWISE_DIRECTIONS: Array[String] = ["up", "right", "down", "left"]
 var _expanded := true
 var _display_directions: Array = []
 var _hovered_arrow: TextureRect = null
+var _hovered_row_index := -1
+var _hovered_slot_index := -1
 
 
 func _ready() -> void:
@@ -83,6 +86,7 @@ func render_snapshot(snapshot: Dictionary) -> void:
 			"unit_name": unit_name,
 			"directions": unit_directions,
 		})
+	_emit_hovered_direction_preview()
 
 
 func is_expanded() -> bool:
@@ -137,7 +141,7 @@ func _bind_arrow_hover_signals() -> void:
 			var arrow := row.get_node("Arrow%d" % (slot_index + 1)) as TextureRect
 			arrow.mouse_filter = Control.MOUSE_FILTER_STOP
 			arrow.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-			arrow.mouse_entered.connect(_on_arrow_mouse_entered.bind(arrow))
+			arrow.mouse_entered.connect(_on_arrow_mouse_entered.bind(arrow, row_index, slot_index))
 			arrow.mouse_exited.connect(_on_arrow_mouse_exited.bind(arrow))
 			arrow.gui_input.connect(_on_arrow_gui_input.bind(row_index, slot_index))
 
@@ -169,6 +173,8 @@ func _on_arrow_gui_input(event: InputEvent, row_index: int, slot_index: int) -> 
 	arrow.texture = _texture_for_direction(next)
 	arrow.tooltip_text = _arrow_tooltip(String(row_state.get("unit_name", "")), slot_index, next)
 	arrow.accept_event()
+	if _hovered_arrow == arrow:
+		_emit_hovered_direction_preview()
 	command_requested.emit({
 		"type": "SET_ACTION_DIRECTION",
 		"unitId": String(row_state.get("unit_id", "")),
@@ -177,11 +183,14 @@ func _on_arrow_gui_input(event: InputEvent, row_index: int, slot_index: int) -> 
 	})
 
 
-func _on_arrow_mouse_entered(arrow: TextureRect) -> void:
+func _on_arrow_mouse_entered(arrow: TextureRect, row_index: int, slot_index: int) -> void:
 	_hovered_arrow = arrow
+	_hovered_row_index = row_index
+	_hovered_slot_index = slot_index
 	scroll_hint.visible = true
 	scroll_hint_animation.play(&"scroll_hint_blink")
 	_update_scroll_hint_position()
+	_emit_hovered_direction_preview()
 
 
 func _on_arrow_mouse_exited(arrow: TextureRect) -> void:
@@ -190,10 +199,31 @@ func _on_arrow_mouse_exited(arrow: TextureRect) -> void:
 
 
 func _hide_scroll_hint() -> void:
+	var had_hovered_arrow := _hovered_arrow != null
 	_hovered_arrow = null
+	_hovered_row_index = -1
+	_hovered_slot_index = -1
 	scroll_hint.visible = false
 	scroll_hint_animation.stop()
 	scroll_hint_highlight.modulate.a = 1.0
+	if had_hovered_arrow:
+		direction_preview_changed.emit({})
+
+
+func _emit_hovered_direction_preview() -> void:
+	if _hovered_arrow == null \
+			or _hovered_row_index < 0 \
+			or _hovered_row_index >= _display_directions.size():
+		return
+	var row_state := Dictionary(_display_directions[_hovered_row_index])
+	var directions := Array(row_state.get("directions", []))
+	if _hovered_slot_index < 0 or _hovered_slot_index >= directions.size():
+		return
+	direction_preview_changed.emit({
+		"unit_id": String(row_state.get("unit_id", "")),
+		"slot_index": _hovered_slot_index,
+		"direction": _normalized_direction(String(directions[_hovered_slot_index])),
+	})
 
 
 func _update_scroll_hint_position() -> void:

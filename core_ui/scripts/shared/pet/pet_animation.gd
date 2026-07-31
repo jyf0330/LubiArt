@@ -143,32 +143,38 @@ func play_sprite_attack(direction: Vector2, duration: float = 0.42) -> void:
 	var sprite := _idle_sprite
 	var direction_sign := -1.0 if direction.x < 0.0 else 1.0
 	var safe_duration := maxf(duration, 0.18)
-	var charge_duration := safe_duration * 0.24
-	var release_duration := safe_duration * 0.26
+	var charge_duration := safe_duration * 0.34
+	var release_duration := safe_duration * 0.20
 	var recover_duration := safe_duration - charge_duration - release_duration
 	_sprite_action_tween = sprite.create_tween()
 	_sprite_action_tween.tween_property(
 		sprite,
 		"scale",
-		_idle_base_scale * Vector2(1.12, 0.88),
+		_idle_base_scale * Vector2(1.06, 0.94),
 		charge_duration
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	_sprite_action_tween.parallel().tween_property(
 		sprite,
 		"rotation",
-		_idle_base_rotation - direction_sign * 0.035,
+		_idle_base_rotation - direction_sign * 0.025,
 		charge_duration
 	)
 	_sprite_action_tween.tween_property(
 		sprite,
 		"scale",
-		_idle_base_scale * Vector2(0.94, 1.10),
+		_idle_base_scale * Vector2(1.02, 0.98),
 		release_duration
-	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_sprite_action_tween.parallel().tween_property(
 		sprite,
 		"rotation",
-		_idle_base_rotation + direction_sign * 0.075,
+		_idle_base_rotation - direction_sign * 0.045,
+		release_duration
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_sprite_action_tween.parallel().tween_property(
+		sprite,
+		"position:x",
+		_idle_base_position.x - direction_sign * 5.0,
 		release_duration
 	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_sprite_action_tween.tween_property(
@@ -183,6 +189,12 @@ func play_sprite_attack(direction: Vector2, duration: float = 0.42) -> void:
 		_idle_base_rotation,
 		recover_duration
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_sprite_action_tween.parallel().tween_property(
+		sprite,
+		"position:x",
+		_idle_base_position.x,
+		recover_duration
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_sprite_action_tween.finished.connect(_finish_sprite_action.bind(sprite))
 
 
@@ -337,6 +349,33 @@ func play_attack_action(attack_type: String, element_id: String = "fire") -> Nod
 	return _play_element_projectile(normalized_element)
 
 
+func play_projectile_between(
+	element_id: String,
+	from_global_center: Vector2,
+	to_global_center: Vector2,
+	duration: float = 0.32,
+	arc_height: float = 96.0
+) -> Node:
+	if _view == null:
+		return null
+	if _attack_tween != null and _attack_tween.is_valid():
+		_attack_tween.kill()
+	_hide_all_action_art()
+	var normalized_element := _normalized_element(element_id)
+	_last_attack_snapshot = {
+		"attack_type": "projectile",
+		"element_id": normalized_element,
+		"hit_frame": 1,
+	}
+	return _play_element_projectile_between(
+		normalized_element,
+		from_global_center,
+		to_global_center,
+		duration,
+		arc_height
+	)
+
+
 func get_last_attack_snapshot() -> Dictionary:
 	return _last_attack_snapshot.duplicate(true)
 
@@ -382,6 +421,46 @@ func _play_element_projectile(element_id: String) -> Node:
 	_attack_tween = _view.create_tween()
 	_attack_tween.tween_property(projectile, "position:x", _view.size.x * 0.82, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_attack_tween.parallel().tween_property(projectile, "modulate:a", 0.35, 0.18)
+	_attack_tween.tween_callback(_hide_rect.bind(projectile))
+	_attack_tween.tween_callback(impact_reached.emit)
+	return self
+
+
+func _play_element_projectile_between(
+	element_id: String,
+	from_global_center: Vector2,
+	to_global_center: Vector2,
+	duration: float,
+	arc_height: float
+) -> Node:
+	var projectile := _projectile
+	var projectile_parent := projectile.get_parent() as Control if projectile != null else null
+	if projectile == null or projectile_parent == null:
+		return null
+	projectile.texture = PROJECTILE_TEXTURES[element_id]
+	_last_attack_snapshot["projectile_node_path"] = String(_view.get_path_to(projectile))
+	var parent_inverse := projectile_parent.get_global_transform_with_canvas().affine_inverse()
+	var start_center := parent_inverse * from_global_center
+	var end_center := parent_inverse * to_global_center
+	var arc_offset := (parent_inverse * (from_global_center + Vector2(0.0, -arc_height))) - start_center
+	projectile.position = start_center - projectile.size * 0.5
+	projectile.modulate.a = 1.0
+	projectile.visible = true
+	_attack_tween = _view.create_tween()
+	_attack_tween.tween_method(
+		func(weight: float) -> void:
+			var center := start_center.lerp(end_center, weight) + arc_offset * (4.0 * weight * (1.0 - weight))
+			projectile.position = center - projectile.size * 0.5,
+		0.0,
+		1.0,
+		maxf(duration, 0.01)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_attack_tween.parallel().tween_property(
+		projectile,
+		"modulate:a",
+		0.55,
+		maxf(duration, 0.01)
+	)
 	_attack_tween.tween_callback(_hide_rect.bind(projectile))
 	_attack_tween.tween_callback(impact_reached.emit)
 	return self

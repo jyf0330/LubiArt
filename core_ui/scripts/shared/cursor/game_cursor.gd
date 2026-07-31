@@ -25,6 +25,7 @@ const LOADING_FRAME_DURATIONS := [
 const POINTER_HOTSPOT := Vector2(15.0, 8.0)
 const HAND_HOTSPOT := Vector2(32.0, 34.0)
 const LOADING_HOTSPOT := Vector2(32.0, 32.0)
+const NATIVE_CURSOR_SHAPES := [Input.CURSOR_ARROW, Input.CURSOR_POINTING_HAND]
 
 @onready var cursor_visual: TextureRect = $CursorVisual
 
@@ -41,17 +42,17 @@ var _previous_mouse_mode := Input.MOUSE_MODE_VISIBLE
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_previous_mouse_mode = Input.mouse_mode
-	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	cursor_visual.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_refresh_state()
-	_update_position()
 
 
 func _exit_tree() -> void:
+	_clear_native_cursors()
 	Input.mouse_mode = _previous_mouse_mode
 
 
 func _process(delta: float) -> void:
-	_update_position()
 	if _state == STATE_LOADING:
 		_advance_loading_animation(delta)
 
@@ -118,7 +119,8 @@ func _refresh_state() -> void:
 		_:
 			_hotspot = POINTER_HOTSPOT
 			cursor_visual.texture = POINTER_TEXTURE
-	_update_position()
+	_apply_native_cursor(cursor_visual.texture, _hotspot)
+	set_process(_state == STATE_LOADING)
 
 
 func _advance_loading_animation(delta: float) -> void:
@@ -127,9 +129,14 @@ func _advance_loading_animation(delta: float) -> void:
 		_loading_elapsed -= LOADING_FRAME_DURATIONS[_loading_frame_index]
 		_loading_frame_index = (_loading_frame_index + 1) % LOADING_TEXTURES.size()
 		cursor_visual.texture = LOADING_TEXTURES[_loading_frame_index]
+		_apply_native_cursor(cursor_visual.texture, _hotspot)
 
 
-func _update_position() -> void:
-	if cursor_visual == null or not is_inside_tree():
-		return
-	cursor_visual.position = get_viewport().get_mouse_position() - _hotspot
+func _apply_native_cursor(texture: Texture2D, hotspot: Vector2) -> void:
+	for cursor_shape in NATIVE_CURSOR_SHAPES:
+		Input.set_custom_mouse_cursor(texture, cursor_shape, hotspot)
+
+
+func _clear_native_cursors() -> void:
+	for cursor_shape in NATIVE_CURSOR_SHAPES:
+		Input.set_custom_mouse_cursor(null, cursor_shape)

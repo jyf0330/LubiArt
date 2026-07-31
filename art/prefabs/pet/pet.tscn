@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://n17i06ofq5dy" path="res://core_ui/scripts/shared/pet/pet_visual.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://cqm62yria3qeq" path="res://core_ui/scripts/shared/pet/pet_status_view.gd" id="2_status"]
-[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/creature_art_gold.png" id="5_pet"]
+[ext_resource type="Texture2D" uid="uid://bf0b4hr88ud1k" path="res://art/images/shared/pets/battle_complete/creature_art_gold.png" id="5_pet"]
 [ext_resource type="Script" uid="uid://iplg5lfn7fkh" path="res://core_ui/scripts/shared/pet/pet_animation.gd" id="6_animation"]
 [ext_resource type="Texture2D" uid="uid://xf3jkbat1ttd" path="res://art/images/shared/pets/battle_complete/shadow.png" id="7_shadow"]
 [ext_resource type="Texture2D" uid="uid://530lkr1iuvgv" path="res://art/images/shared/pets/battle_complete/stat_health.png" id="8_health"]
@@ -30,6 +30,7 @@
 [ext_resource type="Texture2D" uid="uid://bn0w8nyj38puu" path="res://art/images/battle/effects/shield_hit/shield_hit_frame_004.png" id="39_shield_hit_004"]
 [ext_resource type="Texture2D" uid="uid://b7jgs08dhuly6" path="res://art/images/battle/effects/shield_hit/shield_hit_frame_005.png" id="40_shield_hit_005"]
 [ext_resource type="Texture2D" uid="uid://cvkhs3jot21nn" path="res://art/images/battle/effects/shield_hit/shield_hit_frame_006.png" id="41_shield_hit_006"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/battle_complete/incoming_damage_badge.png" id="42_incoming_damage"]
 
 [sub_resource type="Shader" id="Shader_hit_flash"]
 code = "shader_type canvas_item;
@@ -49,10 +50,16 @@ shader = SubResource("Shader_hit_flash")
 shader_parameter/flash_amount = 0.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_stats"]
-font_size = 20
-outline_size = 2
+font_size = 15
+outline_size = 3
 outline_color = Color(0.03, 0.03, 0.04, 1)
 shadow_color = Color(0, 0, 0, 0.95)
+
+[sub_resource type="LabelSettings" id="LabelSettings_incoming_damage"]
+font_size = 20
+font_color = Color(1, 1, 1, 1)
+outline_size = 2
+outline_color = Color(0.32, 0.035, 0.045, 1)
 
 [node name="BattleUnit" type="Control" unique_id=1347790051]
 texture_filter = 1
@@ -102,6 +109,40 @@ mouse_filter = 2
 texture = ExtResource("5_pet")
 expand_mode = 1
 stretch_mode = 6
+
+[node name="IncomingDamagePreview" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
+visible = false
+z_index = 12
+layout_mode = 0
+offset_right = 48.0
+offset_bottom = 48.0
+mouse_filter = 2
+
+[node name="Background" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("42_incoming_damage")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+text = "15"
+label_settings = SubResource("LabelSettings_incoming_damage")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HitEffectAnchor" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=8791049]
 z_index = 4
@@ -195,6 +236,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Stats" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=507778927]
+visible = false
 z_index = 2
 layout_mode = 1
 anchors_preset = 15
@@ -206,13 +248,14 @@ mouse_filter = 2
 
 [node name="Health" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=2011358017]
 anchors_preset = 0
-offset_left = 10.0
-offset_top = 7.0
-offset_right = 48.0
-offset_bottom = 43.0
+offset_left = 88.0
+offset_top = 38.0
+offset_right = 176.0
+offset_bottom = 62.0
 mouse_filter = 2
 
 [node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health" unique_id=1694569303]
+visible = false
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -230,24 +273,24 @@ stretch_mode = 5
 
 [node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health" unique_id=1256571486]
 layout_mode = 0
-offset_left = 5.0
-offset_top = -8.0
-offset_right = 43.0
-offset_bottom = 28.0
-text = "30"
+offset_right = 88.0
+offset_bottom = 24.0
+text = "HP:30"
+self_modulate = Color(1, 1, 1, 1)
 label_settings = SubResource("LabelSettings_stats")
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="Shield" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=1068781472]
 anchors_preset = 0
-offset_left = 135.0
-offset_top = 136.0
-offset_right = 170.0
-offset_bottom = 182.0
+offset_left = 88.0
+offset_top = 86.0
+offset_right = 176.0
+offset_bottom = 110.0
 mouse_filter = 2
 
 [node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield" unique_id=832097299]
+visible = false
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -265,24 +308,24 @@ stretch_mode = 5
 
 [node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield" unique_id=2085006136]
 layout_mode = 0
-offset_left = 5.0
-offset_top = -8.0
-offset_right = 40.0
-offset_bottom = 38.0
-text = "17"
+offset_right = 88.0
+offset_bottom = 24.0
+text = "SHLD:17"
+self_modulate = Color(1, 1, 1, 1)
 label_settings = SubResource("LabelSettings_stats")
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="Attack" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=257570576]
 anchors_preset = 0
-offset_left = -5.0
-offset_top = 130.0
-offset_right = 44.0
-offset_bottom = 181.0
+offset_left = 88.0
+offset_top = 62.0
+offset_right = 176.0
+offset_bottom = 86.0
 mouse_filter = 2
 
 [node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack" unique_id=521101300]
+visible = false
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -301,23 +344,24 @@ stretch_mode = 5
 
 [node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack" unique_id=484701406]
 layout_mode = 0
-offset_top = -1.0
-offset_right = 49.0
-offset_bottom = 50.0
-text = "10"
+offset_right = 88.0
+offset_bottom = 24.0
+text = "ATK:10"
+self_modulate = Color(1, 1, 1, 1)
 label_settings = SubResource("LabelSettings_stats")
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="DamageCap" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=1568883896]
 anchors_preset = 0
-offset_left = 129.0
-offset_top = -8.0
-offset_right = 168.0
-offset_bottom = 39.0
+offset_left = 88.0
+offset_top = 110.0
+offset_right = 176.0
+offset_bottom = 134.0
 mouse_filter = 2
 
 [node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap" unique_id=255608356]
+visible = false
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
@@ -336,13 +380,12 @@ stretch_mode = 5
 
 [node name="Value_Text" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap" unique_id=945114617]
 layout_mode = 0
-offset_left = 8.0
-offset_top = 2.0
-offset_right = 47.0
-offset_bottom = 49.0
-text = "10"
+offset_right = 88.0
+offset_bottom = 24.0
+text = "CAP:10"
+self_modulate = Color(1, 1, 1, 1)
 label_settings = SubResource("LabelSettings_stats")
-horizontal_alignment = 1
+horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="EnemyMarker_Optional" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=848150811]
@@ -362,6 +405,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+modulate = Color(1, 1, 1, 0.1)
+pivot_offset = Vector2(19.5, 24)
+scale = Vector2(1.02, 1.02)
 mouse_filter = 2
 texture = ExtResource("12_enemy")
 expand_mode = 1
