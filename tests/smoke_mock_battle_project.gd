@@ -53,7 +53,9 @@ func _run() -> void:
 	)
 	assert(String(presentation_bootstrap.get("stateHash", "")) != "")
 
-	var isolated_session := MockSession.new()
+	var default_session := MockSession.new()
+	assert(String(Dictionary(default_session.current_snapshot()).get("phase", "")) == "route")
+	var isolated_session := MockSession.new({"start_phase": "battle"})
 	var boot_snapshot := Dictionary(isolated_session.current_snapshot())
 	_assert_snapshot_contract(boot_snapshot)
 	var captured_initial := Dictionary(capture.get("initial_snapshot", {}))
@@ -79,13 +81,18 @@ func _run() -> void:
 		assert(String(actual.get("stateHash", "")) == String(identity.get("stateHash", "")))
 		assert(String(actual.get("phase", "")) == String(identity.get("phase", "")))
 	assert(String(Dictionary(isolated_session.current_snapshot()).get("phase", "")) == "battle_end")
-	assert(
-		not bool(Dictionary(
-			isolated_session.submit_command({"type": "AUTO_POSITION_HEROES"})
-		).get("accepted", true))
-	)
+	var finished_response := Dictionary(isolated_session.submit_command({"type": "AUTO_POSITION_HEROES"}))
+	assert(bool(finished_response.get("accepted", false)))
+	assert(bool(Dictionary(finished_response.get("result", {})).get("mock_noop", false)))
 	isolated_session.reset(false)
 	assert(_same_snapshot_identity(isolated_session.current_snapshot(), captured_initial))
+	var mismatch_response := Dictionary(isolated_session.submit_command({"type": "DROP_ITEM_ON_TARGET"}))
+	assert(bool(mismatch_response.get("accepted", false)))
+	assert(bool(Dictionary(mismatch_response.get("result", {})).get("mock_noop", false)))
+	assert(_same_snapshot_identity(isolated_session.current_snapshot(), captured_initial))
+	var direct_round_response := Dictionary(isolated_session.submit_command({"type": "RUN_COMBAT_ROUND"}))
+	assert(bool(direct_round_response.get("accepted", false)))
+	assert(int(direct_round_response.get("captureStep", 0)) == 2)
 	assert(not isolated_session.supports_persistence())
 	var session_source := FileAccess.get_file_as_string("res://session/mock_game_session.gd")
 	assert(not session_source.contains("MOCK_ELEMENT_CELLS"))
@@ -94,7 +101,22 @@ func _run() -> void:
 
 	var main_scene := load("res://art/scenes/three_choice/three_choice_scene.tscn") as PackedScene
 	assert(main_scene != null)
+
+	var route_main_instance := main_scene.instantiate()
+	root.add_child(route_main_instance)
+	for _frame in range(8):
+		await process_frame
+	await create_timer(0.25).timeout
+	var route_game_session := route_main_instance.call("get_game_session") as RefCounted
+	assert(route_game_session != null)
+	assert(String(Dictionary(route_game_session.call("current_snapshot")).get("phase", "")) == "route")
+	assert(route_main_instance.call("get_feature_controller", &"battle") == null)
+	assert(route_main_instance.call("get_active_feature_view") == null)
+	route_main_instance.queue_free()
+	await process_frame
+
 	var main_instance := main_scene.instantiate()
+	main_instance.call("set_game_session", MockSession.new({"start_phase": "battle"}))
 	root.add_child(main_instance)
 	await process_frame
 	await process_frame

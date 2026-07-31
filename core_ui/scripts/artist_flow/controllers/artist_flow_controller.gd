@@ -30,17 +30,27 @@ const TARGET_BAG := &"bag"
 const TARGET_SELL := &"sell"
 const RUN_TOOL_SIZE := Vector2(92.0, 48.0)
 const FIXED_TEST_PLAY_SEED := "ysbzs-test-play-20260715-v1"
+const BAG_CLOSED_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_closed.png")
+const BAG_OPEN_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_open.png")
+const ITEM_SELECTED_HIGHLIGHT_TEXTURE := preload("res://art/images/route/three_choice_psd/item_selected_highlight.png")
+
+@export_group("Item Slot Highlight")
+@export var item_slot_highlight_offset := Vector2.ZERO
+@export var item_slot_highlight_size := Vector2(110.0, 110.0)
 
 @onready var animation_player: AnimationPlayer = $"../../../AnimationPlayer"
-@onready var middle_three_option: GridContainer = $Middle_Three_Option
-@onready var middle_shop: GridContainer = $Middle_Shop
-@onready var middle_bag: GridContainer = $Middle_Bag
+@onready var middle_three_option: Control = $Middle_Three_Option
+@onready var bag_overlay_mask: Control = $BagOverlayMask
+@onready var middle_shop: Control = $Middle_Shop
+@onready var middle_bag: Control = $Middle_Bag
 @onready var party_container: GridContainer = $"../Party/Party_Container"
-@onready var top_shop: GridContainer = $"../Top/Top_Shop"
-@onready var top_sell_button: Button = $"../Top/Top_Sell"
-@onready var shop_back_button: TextureButton = $"../Top/Top_Shop/Shop_BackButton"
+@onready var top_shop: Control = get_node_or_null("../Top/Top_Shop") as Control
+@onready var top_sell_button: Button = get_node_or_null("../Top/Top_Sell") as Button
+@onready var shop_back_button: TextureButton = get_node_or_null("../Top/Top_Shop/Shop_BackButton") as TextureButton
 @onready var bags_panel: Control = $"../Bags"
 @onready var bag_button: TextureButton = $"../Bags/Bag_Button"
+@onready var time_label: Label = get_node_or_null("../Top/Hud/TimeLabel") as Label
+@onready var coin_label: Label = get_node_or_null("../Top/Hud/CoinLabel") as Label
 
 var _session_bridge := SessionBridgeScript.new()
 var _stage_presenter := StagePresenterScript.new()
@@ -77,11 +87,13 @@ var _drag_hidden_texture: Texture2D = null
 var _drag_hidden_restore := false
 var _is_toggling_bag := false
 var _bag_page := 0
+var _hovered_route_index := -1
 var _battle_view: Control = null
 var _pet_detail_panel: Control = null
 var _bazaar_info_panel: Control = null
 var _run_tools: PanelContainer = null
 var _run_status_label: Label = null
+var _item_slot_hover_highlight: TextureRect = null
 var _visible_auto_battle_running := false
 var _route_presenter := RoutePresenterScript.new()
 var _shop_presenter := ShopPresenterScript.new()
@@ -156,13 +168,13 @@ func get_battle_missing_mapping_report() -> Array:
 
 
 func _collect_slots() -> void:
-	_three_slots = _get_direct_control_children(middle_three_option)
+	_three_slots = _get_direct_control_children(_slot_root(middle_three_option))
 	_three_buttons = _get_texture_buttons(middle_three_option)
-	_shop_slots = _get_direct_control_children(middle_shop)
+	_shop_slots = _get_direct_control_children(_slot_root(middle_shop))
 	_shop_buttons = _get_texture_buttons(middle_shop)
 	_party_slots = _get_direct_control_children(party_container)
 	_party_buttons = _get_texture_buttons(party_container)
-	_bag_slots = _get_direct_control_children(middle_bag)
+	_bag_slots = _get_direct_control_children(_slot_root(middle_bag))
 	_bag_buttons = _get_texture_buttons(middle_bag)
 
 
@@ -173,6 +185,8 @@ func _connect_buttons() -> void:
 		_prepare_slot_image_button(button)
 		if not button.pressed.is_connected(_on_three_pressed):
 			button.pressed.connect(_on_three_pressed.bind(index))
+		if not button.mouse_entered.is_connected(_on_three_mouse_entered):
+			button.mouse_entered.connect(_on_three_mouse_entered.bind(index))
 
 	for index in range(_shop_buttons.size()):
 		var button := _shop_buttons[index]
@@ -191,6 +205,10 @@ func _connect_buttons() -> void:
 		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_party_button_down):
 			button.button_down.connect(_on_party_button_down.bind(index))
+		if not button.mouse_entered.is_connected(_on_party_pet_mouse_entered):
+			button.mouse_entered.connect(_on_party_pet_mouse_entered.bind(index))
+		if not button.mouse_exited.is_connected(_on_party_pet_mouse_exited):
+			button.mouse_exited.connect(_on_party_pet_mouse_exited.bind(index))
 
 	for index in range(_bag_buttons.size()):
 		var button := _bag_buttons[index]
@@ -198,11 +216,16 @@ func _connect_buttons() -> void:
 		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_bag_slot_button_down):
 			button.button_down.connect(_on_bag_slot_button_down.bind(index))
+		if not button.mouse_entered.is_connected(_on_bag_pet_mouse_entered):
+			button.mouse_entered.connect(_on_bag_pet_mouse_entered.bind(index))
+		if not button.mouse_exited.is_connected(_on_bag_pet_mouse_exited):
+			button.mouse_exited.connect(_on_bag_pet_mouse_exited.bind(index))
 
-	if not shop_back_button.pressed.is_connected(_on_shop_back_pressed):
+	if shop_back_button != null and not shop_back_button.pressed.is_connected(_on_shop_back_pressed):
 		shop_back_button.pressed.connect(_on_shop_back_pressed)
-	top_shop.mouse_filter = Control.MOUSE_FILTER_STOP
-	if not top_shop.gui_input.is_connected(_on_top_shop_gui_input):
+	if top_shop != null:
+		top_shop.mouse_filter = Control.MOUSE_FILTER_STOP
+	if top_shop != null and not top_shop.gui_input.is_connected(_on_top_shop_gui_input):
 		top_shop.gui_input.connect(_on_top_shop_gui_input)
 	if not bag_button.pressed.is_connected(_on_bag_pressed):
 		bag_button.pressed.connect(_on_bag_pressed)
@@ -219,6 +242,7 @@ func _render_from_state() -> void:
 
 func _render_content_from_state(snap: Dictionary) -> StringName:
 	_asset_registry.clear_missing_report()
+	_render_hud(snap)
 	_render_roster(snap)
 	var target_view := VIEW_THREE_OPTION
 	match String(snap.get("phase", "route")):
@@ -239,6 +263,7 @@ func _render_content_from_state(snap: Dictionary) -> StringName:
 
 
 func _render_route(snap: Dictionary) -> void:
+	_hovered_route_index = -1
 	var cards := Array(_route_presenter.call("cards", snap))
 	for index in range(_three_buttons.size()):
 		var card := Dictionary(cards[index]) if index < cards.size() else {}
@@ -248,12 +273,12 @@ func _render_route(snap: Dictionary) -> void:
 		var has_option := not card.is_empty()
 		button.disabled = not has_option
 		if has_option:
-			var kind := String(card.get("kind", "event"))
-			button.texture_normal = _route_texture(option, kind)
+			_render_route_card(slot, button, _route_slot_texture(index), _route_slot_icon_texture(index), index)
 			button.set_meta("command", Dictionary(card.get("command", {})))
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
 		else:
+			_clear_route_card(slot, button)
 			button.set_meta("command", {})
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
@@ -270,13 +295,14 @@ func _render_reward(snap: Dictionary) -> void:
 		button.disabled = not has_reward
 		if has_reward:
 			var texture := _pet_texture(reward)
-			button.texture_normal = texture
+			_render_route_card(slot, button, texture, _route_icon_texture("reward"), index)
 			button.set_meta("command", Dictionary(card.get("command", {})))
 			button.set_meta("detail_record", reward)
 			_clear_runtime_overlays(slot)
 			if texture == null:
 				_record_missing_image("reward", reward)
 		else:
+			_clear_route_card(slot, button)
 			button.set_meta("command", {})
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
@@ -345,12 +371,13 @@ func _render_terminal_choice(snap: Dictionary) -> void:
 		button.disabled = index != 0
 		if index == 0:
 			button.tooltip_text = title
-			button.texture_normal = _route_texture({}, "reward")
+			_render_route_card(slot, button, _route_texture({}, "reward"), _route_icon_texture("reward"), index)
 			button.set_meta("command", command)
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
 		else:
 			button.tooltip_text = ""
+			_clear_route_card(slot, button)
 			button.set_meta("command", {})
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
@@ -460,21 +487,59 @@ func _on_shop_button_down(index: int) -> void:
 func _on_shop_pet_mouse_entered(index: int) -> void:
 	if _is_transitioning or _has_active_drag() or _current_view != VIEW_SHOP:
 		return
+	_show_item_slot_highlight(_shop_slots[index] if index >= 0 and index < _shop_slots.size() else null)
 	_show_shop_pet_context(index)
 
 
 func _on_shop_pet_mouse_exited(_index: int) -> void:
 	if _has_active_drag() or _current_view != VIEW_SHOP:
 		return
+	_hide_item_slot_highlight()
 	_close_pet_context_detail()
+
+
+func _on_three_mouse_entered(index: int) -> void:
+	if _is_transitioning or _has_active_drag() or _current_view != VIEW_THREE_OPTION:
+		return
+	if index < 0 or index >= _three_slots.size():
+		return
+	if _three_buttons[index].disabled:
+		return
+	_set_hovered_route_card(index)
 
 
 func _on_party_button_down(index: int) -> void:
 	_start_storage_drag_candidate(DRAG_SOURCE_PARTY, index)
 
 
+func _on_party_pet_mouse_entered(index: int) -> void:
+	if _is_transitioning or _has_active_drag() or _current_view == VIEW_BATTLE:
+		return
+	_show_storage_pet_context(DRAG_SOURCE_PARTY, index)
+
+
+func _on_party_pet_mouse_exited(_index: int) -> void:
+	if _has_active_drag():
+		return
+	_close_pet_context_detail()
+
+
 func _on_bag_slot_button_down(index: int) -> void:
 	_start_storage_drag_candidate(DRAG_SOURCE_BAG, index)
+
+
+func _on_bag_pet_mouse_entered(index: int) -> void:
+	if _is_transitioning or _has_active_drag() or _current_view != VIEW_BAG:
+		return
+	_show_item_slot_highlight(_bag_slots[index] if index >= 0 and index < _bag_slots.size() else null)
+	_show_storage_pet_context(DRAG_SOURCE_BAG, index)
+
+
+func _on_bag_pet_mouse_exited(_index: int) -> void:
+	if _has_active_drag() or _current_view != VIEW_BAG:
+		return
+	_hide_item_slot_highlight()
+	_close_pet_context_detail()
 
 
 func _start_storage_drag_candidate(source: StringName, index: int) -> void:
@@ -541,7 +606,7 @@ func _has_active_drag() -> bool:
 
 
 func _can_sell_storage_items() -> bool:
-	return _current_view == VIEW_SHOP or _current_view == VIEW_BAG
+	return _current_view != VIEW_BATTLE and party_container != null and party_container.is_visible_in_tree()
 
 
 func _can_start_storage_drag(source: StringName) -> bool:
@@ -587,7 +652,6 @@ func _drop_dragged_storage_item(mouse_position: Vector2) -> void:
 	var kind := String(target.get("kind", ""))
 	if (kind == TARGET_PARTY and _drag_candidate_source == DRAG_SOURCE_PARTY and int(target.get("index", -1)) == _drag_candidate_index) \
 		or (kind == TARGET_BAG and _drag_candidate_source == DRAG_SOURCE_BAG and int(target.get("index", -1)) == _drag_candidate_index):
-		_show_pet_detail(record)
 		return
 	var unit_id := _record_ref(record)
 	if unit_id == "":
@@ -772,6 +836,7 @@ func _clear_drag_state() -> void:
 	_is_dragging_shop_item = false
 	_is_dragging_storage_item = false
 	_set_sell_button_visible(false)
+	_hide_item_slot_highlight()
 
 
 func _prepare_sell_button() -> void:
@@ -837,6 +902,7 @@ func _show_view(view: StringName) -> void:
 	_current_view = view
 	_stage_presenter.show_immediate(view)
 	_set_persistent_hud_visible(view != VIEW_BATTLE)
+	_set_bag_button_open(view == VIEW_BAG)
 	_set_run_tools_visible(true)
 	_release_battle_view_after_transition(previous_view, view)
 
@@ -855,6 +921,7 @@ func _show_initial_view() -> void:
 	await _stage_presenter.show_initial(target_view)
 	_current_view = target_view
 	_ensure_persistent_hud_visible()
+	_set_bag_button_open(target_view == VIEW_BAG)
 	_set_run_tools_visible(true)
 	_is_transitioning = false
 
@@ -868,6 +935,7 @@ func _transition_to_view(target_view: StringName) -> void:
 	await _stage_presenter.switch_view(_current_view, target_view)
 	_current_view = target_view
 	_ensure_persistent_hud_visible()
+	_set_bag_button_open(target_view == VIEW_BAG)
 	_set_run_tools_visible(true)
 	_is_transitioning = false
 	_release_battle_view_after_transition(previous_view, target_view)
@@ -876,9 +944,17 @@ func _transition_to_view(target_view: StringName) -> void:
 func _open_bag() -> void:
 	_is_transitioning = true
 	_view_before_bag = _current_view
-	await _stage_presenter.switch_view(_current_view, VIEW_BAG)
+	_set_bag_overlay_visible(true)
+	_set_bag_view_visible(true)
+	if _view_before_bag == VIEW_SHOP:
+		middle_shop.visible = false
+		if top_shop != null:
+			top_shop.visible = false
+	middle_three_option.visible = true
+	_set_canvas_alpha(middle_three_option, 1.0)
 	_current_view = VIEW_BAG
 	_ensure_persistent_hud_visible()
+	_set_bag_button_open(true)
 	_set_run_tools_visible(true)
 	_render_bazaar_information(_current_snapshot(), VIEW_BAG)
 	_is_transitioning = false
@@ -886,12 +962,44 @@ func _open_bag() -> void:
 
 func _close_bag() -> void:
 	_is_transitioning = true
-	await _stage_presenter.switch_view(VIEW_BAG, _view_before_bag)
+	_set_bag_overlay_visible(false)
+	_set_bag_view_visible(false)
+	if _view_before_bag == VIEW_SHOP:
+		middle_three_option.visible = false
+		middle_shop.visible = true
+		if top_shop != null:
+			top_shop.visible = true
+	else:
+		middle_three_option.visible = true
+	_set_canvas_alpha(middle_three_option, 1.0)
 	_current_view = _view_before_bag
 	_ensure_persistent_hud_visible()
+	_set_bag_button_open(false)
 	_set_run_tools_visible(true)
 	_render_bazaar_information(_current_snapshot(), _current_view)
 	_is_transitioning = false
+
+
+func _set_bag_overlay_visible(is_visible: bool) -> void:
+	if bag_overlay_mask == null:
+		return
+	bag_overlay_mask.visible = is_visible
+	_set_canvas_alpha(bag_overlay_mask, 1.0)
+
+
+func _set_bag_view_visible(is_visible: bool) -> void:
+	if middle_bag == null:
+		return
+	middle_bag.visible = is_visible
+	_set_canvas_alpha(middle_bag, 1.0)
+
+
+func _set_canvas_alpha(node: CanvasItem, alpha: float) -> void:
+	if node == null:
+		return
+	var color := node.modulate
+	color.a = alpha
+	node.modulate = color
 
 
 func _target_view_from_state() -> StringName:
@@ -906,12 +1014,14 @@ func _target_view_from_state() -> StringName:
 
 func _before_stage_clear() -> void:
 	_close_pet_context_detail()
+	_hide_item_slot_highlight()
 	_ensure_persistent_hud_visible()
 
 
 func _configure_stage_presenter() -> void:
 	_stage_presenter.configure(self, animation_player, {
 		&"three_option": middle_three_option,
+		&"bag_overlay": bag_overlay_mask,
 		&"shop": middle_shop,
 		&"bag": middle_bag,
 		&"shop_top": top_shop,
@@ -1022,9 +1132,55 @@ func _show_shop_pet_context(index: int) -> void:
 	_pet_detail_panel.call("show_context_detail", detail_record, _pet_texture(detail_record))
 
 
+func _show_storage_pet_context(source: StringName, index: int) -> void:
+	var record := _drag_record_for_source(source, index)
+	if record.is_empty():
+		_close_pet_context_detail()
+		return
+	_ensure_pet_detail_panel()
+	if _pet_detail_panel == null or not _pet_detail_panel.has_method("show_context_detail"):
+		return
+	var detail_record := _detail_record_with_display_skill(record)
+	detail_record["attack_shape"] = _attack_shape_for_record(detail_record, _current_snapshot())
+	_pet_detail_panel.call("show_context_detail", detail_record, _pet_texture(detail_record))
+
+
 func _close_pet_context_detail() -> void:
 	if _pet_detail_panel != null and _pet_detail_panel.has_method("close_context_detail"):
 		_pet_detail_panel.call("close_context_detail")
+
+
+func _show_item_slot_highlight(slot: Control) -> void:
+	if slot == null:
+		return
+	_ensure_item_slot_hover_highlight()
+	if _item_slot_hover_highlight == null:
+		return
+	var rect := slot.get_global_rect()
+	_item_slot_hover_highlight.size = item_slot_highlight_size
+	_item_slot_hover_highlight.global_position = rect.position + item_slot_highlight_offset
+	_item_slot_hover_highlight.visible = true
+	_item_slot_hover_highlight.move_to_front()
+
+
+func _hide_item_slot_highlight() -> void:
+	if _item_slot_hover_highlight != null:
+		_item_slot_hover_highlight.visible = false
+
+
+func _ensure_item_slot_hover_highlight() -> void:
+	if is_instance_valid(_item_slot_hover_highlight):
+		return
+	_item_slot_hover_highlight = TextureRect.new()
+	_item_slot_hover_highlight.name = "ItemSlotHoverHighlight"
+	_item_slot_hover_highlight.texture = ITEM_SELECTED_HIGHLIGHT_TEXTURE
+	_item_slot_hover_highlight.custom_minimum_size = item_slot_highlight_size
+	_item_slot_hover_highlight.size = item_slot_highlight_size
+	_item_slot_hover_highlight.stretch_mode = TextureRect.STRETCH_SCALE
+	_item_slot_hover_highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_item_slot_hover_highlight.visible = false
+	_item_slot_hover_highlight.z_index = 80
+	add_child(_item_slot_hover_highlight)
 
 
 func _detail_record_with_display_skill(record: Dictionary) -> Dictionary:
@@ -1239,7 +1395,7 @@ func _session_supports_persistence() -> bool:
 func _set_run_tools_visible(is_visible: bool) -> void:
 	if _run_tools != null:
 		_run_tools.position.y = 14.0 if _current_view == VIEW_BATTLE else 22.0
-		_run_tools.visible = is_visible
+		_run_tools.visible = is_visible and _current_view == VIEW_BATTLE
 
 
 func _submit_core_command(command: Dictionary) -> bool:
@@ -1294,6 +1450,12 @@ func _prepare_slot_image_button(button: TextureButton) -> void:
 	var parent := button.get_parent() as Control
 	if parent == null:
 		return
+	if parent.has_method("set_portrait"):
+		button.texture_normal = null
+		button.custom_minimum_size = parent.custom_minimum_size
+		button.position = Vector2.ZERO
+		button.size = parent.custom_minimum_size
+		return
 	var image_size := parent.size - Vector2(24, 24)
 	if image_size.x <= 0 or image_size.y <= 0:
 		image_size = parent.custom_minimum_size - Vector2(24, 24)
@@ -1315,6 +1477,16 @@ func _refresh_slot_button_layouts() -> void:
 		_prepare_slot_image_button(button)
 
 
+func _slot_root(root: Node) -> Node:
+	if root == null:
+		return null
+	for name in ["Slots", "CardGrid"]:
+		var child := root.get_node_or_null(name)
+		if child != null:
+			return child
+	return root
+
+
 func _clear_runtime_overlays(slot: Control) -> void:
 	if slot == null:
 		return
@@ -1326,6 +1498,60 @@ func _clear_runtime_overlays(slot: Control) -> void:
 		icon.queue_free()
 
 
+func _render_route_card(
+	slot: Control,
+	button: TextureButton,
+	texture_resource: Texture2D,
+	icon_resource: Texture2D,
+	_slot_index: int = -1
+) -> void:
+	button.texture_normal = null
+	var card := slot
+	if card != null and card.has_method("set_portrait"):
+		card.call("set_portrait", texture_resource)
+		card.call("set_kind_icon", icon_resource)
+		if card.has_method("set_route_highlight"):
+			card.call("set_route_highlight", _route_slot_highlight_texture(_slot_index))
+		card.call("set_hovered", false)
+		return
+	button.texture_normal = texture_resource
+
+
+func _clear_route_card(slot: Control, button: TextureButton) -> void:
+	button.texture_normal = null
+	if slot != null and slot.has_method("clear"):
+		slot.call("clear")
+
+
+func _render_hud(snap: Dictionary) -> void:
+	if time_label != null:
+		var day := int(snap.get("day", 1))
+		var node_index := int(snap.get("node_index", snap.get("nodeIndex", 1)))
+		time_label.text = "第%d天 第%d节点" % [day, node_index]
+	if coin_label != null:
+		coin_label.text = str(int(snap.get("coins", 0)))
+
+
+func _set_bag_button_open(is_open: bool) -> void:
+	if bag_button == null:
+		return
+	bag_button.texture_normal = BAG_OPEN_TEXTURE if is_open else BAG_CLOSED_TEXTURE
+	if is_open:
+		bag_button.position = Vector2(56.0, 0.0)
+		bag_button.size = Vector2(158.0, 182.0)
+	else:
+		bag_button.position = Vector2(55.0, 51.0)
+		bag_button.size = Vector2(161.0, 123.0)
+
+
+func _set_hovered_route_card(index: int) -> void:
+	_hovered_route_index = index
+	for slot_index in range(_three_slots.size()):
+		var slot := _three_slots[slot_index]
+		if slot != null and slot.has_method("set_hovered"):
+			slot.call("set_hovered", slot_index == _hovered_route_index)
+
+
 func _render_shared_pet(slot: Control, button: TextureButton, record: Dictionary, texture_resource: Texture2D) -> void:
 	button.texture_normal = null
 	button.set_meta("pet_texture", texture_resource)
@@ -1334,7 +1560,10 @@ func _render_shared_pet(slot: Control, button: TextureButton, record: Dictionary
 		return
 	visual.visible = texture_resource != null
 	if visual.has_method("set_collection_data"):
-		visual.call("set_collection_data", record, texture_resource)
+		if visual.is_node_ready():
+			visual.call("set_collection_data", record, texture_resource)
+		else:
+			visual.call_deferred("set_collection_data", record, texture_resource)
 
 
 func _clear_shared_pet(slot: Control, button: TextureButton) -> void:
@@ -1344,7 +1573,10 @@ func _clear_shared_pet(slot: Control, button: TextureButton) -> void:
 	if visual == null:
 		return
 	if visual.has_method("clear_collection_data"):
-		visual.call("clear_collection_data")
+		if visual.is_node_ready():
+			visual.call("clear_collection_data")
+		else:
+			visual.call_deferred("clear_collection_data")
 	visual.visible = false
 
 
@@ -1356,6 +1588,22 @@ func _shared_pet_visual(slot: Control) -> Control:
 
 func _route_texture(option: Dictionary, kind: String) -> Texture2D:
 	return _asset_registry.route_texture(option, kind)
+
+
+func _route_slot_texture(index: int) -> Texture2D:
+	return _asset_registry.route_slot_texture(index)
+
+
+func _route_icon_texture(kind: String) -> Texture2D:
+	return _asset_registry.route_icon_texture(kind)
+
+
+func _route_slot_icon_texture(index: int) -> Texture2D:
+	return _asset_registry.route_slot_icon_texture(index)
+
+
+func _route_slot_highlight_texture(index: int) -> Texture2D:
+	return _asset_registry.route_slot_highlight_texture(index)
 
 
 func _pet_texture(record: Dictionary) -> Texture2D:

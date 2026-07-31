@@ -48,7 +48,7 @@ func render_snapshot(snap: Dictionary, view: StringName) -> void:
 			primary_button.visible = true
 	else:
 		_render_phase_snapshot(snap, phase, header)
-	visible = view != &"battle"
+	visible = view == &"shop" or view == &"reward" or view == &"battle_end" or view == &"day_end" or view == &"game_over"
 
 
 func _render_phase_snapshot(snap: Dictionary, phase: String, header: String) -> void:

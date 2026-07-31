@@ -46,10 +46,11 @@ func dispose() -> void:
 
 func set_initial() -> void:
 	reset_alpha()
-	_set_visible(&"three_option", true, Vector2(27.0, 0.0))
-	_set_visible(&"shop", false, Vector2(15.0, 0.0))
-	_set_visible(&"bag", false, Vector2(12.0, 0.0))
-	_set_visible(&"shop_top", false, Vector2(1046.0, 112.0))
+	_set_visible(&"three_option", true)
+	_set_visible(&"bag_overlay", false)
+	_set_visible(&"shop", false)
+	_set_visible(&"bag", false)
+	_set_visible(&"shop_top", false)
 	_set_visible(&"battle", false)
 
 
@@ -61,14 +62,17 @@ func show_initial(view: StringName) -> void:
 
 
 func switch_view(from_view: StringName, target_view: StringName) -> void:
-	await _fade(from_view, DIM_ALPHA, FADE_SECONDS)
-	await _play_hide(from_view)
-	clear()
+	var shared_keys := _shared_node_keys(from_view, target_view)
+	await _fade(from_view, DIM_ALPHA, FADE_SECONDS, shared_keys)
+	if shared_keys.is_empty():
+		await _play_hide(from_view)
+	_clear_except(target_view)
 	if _host != null:
 		await _host.get_tree().create_timer(HOLD_SECONDS).timeout
-	prepare_show(target_view)
-	await _play_show(target_view)
-	await _fade(target_view, 1.0, FADE_SECONDS)
+	prepare_show(target_view, shared_keys)
+	if shared_keys.is_empty():
+		await _play_show(target_view)
+	await _fade(target_view, 1.0, FADE_SECONDS, shared_keys)
 	reset_alpha()
 
 
@@ -81,11 +85,11 @@ func clear() -> void:
 			node.visible = false
 
 
-func prepare_show(view: StringName) -> void:
+func prepare_show(view: StringName, excluded_keys: Dictionary = {}) -> void:
 	for node in _nodes_for_view(view):
 		if node != null:
 			node.visible = true
-	_set_alpha(view, DIM_ALPHA)
+	_set_alpha(view, DIM_ALPHA, excluded_keys)
 
 
 func reset_alpha() -> void:
@@ -129,8 +133,8 @@ func _play_animation(animation_name: StringName) -> void:
 	await _animation_player.animation_finished
 
 
-func _fade(view: StringName, alpha: float, seconds: float) -> void:
-	var nodes := _nodes_for_view(view)
+func _fade(view: StringName, alpha: float, seconds: float, excluded_keys: Dictionary = {}) -> void:
+	var nodes := _nodes_for_view(view, excluded_keys)
 	if nodes.is_empty() or _host == null:
 		return
 	var tween := _host.create_tween()
@@ -141,8 +145,8 @@ func _fade(view: StringName, alpha: float, seconds: float) -> void:
 	await tween.finished
 
 
-func _set_alpha(view: StringName, alpha: float) -> void:
-	for node in _nodes_for_view(view):
+func _set_alpha(view: StringName, alpha: float, excluded_keys: Dictionary = {}) -> void:
+	for node in _nodes_for_view(view, excluded_keys):
 		if node == null:
 			continue
 		var color: Color = node.modulate
@@ -150,16 +154,42 @@ func _set_alpha(view: StringName, alpha: float) -> void:
 		node.modulate = color
 
 
-func _nodes_for_view(view: StringName) -> Array:
+func _clear_except(view: StringName) -> void:
+	if _before_clear.is_valid():
+		_before_clear.call()
+	for key in _nodes.keys():
+		var node := _node(StringName(key))
+		if node != null:
+			node.visible = _view_owns_node(view, StringName(key))
+
+
+func _nodes_for_view(view: StringName, excluded_keys: Dictionary = {}) -> Array:
+	var nodes := []
+	for key in _node_keys_for_view(view):
+		if excluded_keys.has(key):
+			continue
+		nodes.append(_node(key))
+	return nodes
+
+
+func _node_keys_for_view(view: StringName) -> Array[StringName]:
 	match view:
 		VIEW_SHOP:
-			return [_node(&"shop"), _node(&"shop_top")]
+			return [&"shop", &"shop_top"]
 		VIEW_BAG:
-			return [_node(&"bag")]
+			return [&"three_option", &"bag_overlay", &"bag"]
 		VIEW_BATTLE:
-			return [_node(&"battle")] if _node(&"battle") != null else []
+			return [&"battle"] if _node(&"battle") != null else []
 		_:
-			return [_node(&"three_option")]
+			return [&"three_option"]
+
+
+func _shared_node_keys(from_view: StringName, target_view: StringName) -> Dictionary:
+	var result := {}
+	for key in _node_keys_for_view(from_view):
+		if _view_owns_node(target_view, key):
+			result[key] = true
+	return result
 
 
 func _view_owns_node(view: StringName, key: StringName) -> bool:
@@ -167,7 +197,7 @@ func _view_owns_node(view: StringName, key: StringName) -> bool:
 		VIEW_SHOP:
 			return key == &"shop" or key == &"shop_top"
 		VIEW_BAG:
-			return key == &"bag"
+			return key == &"three_option" or key == &"bag_overlay" or key == &"bag"
 		VIEW_BATTLE:
 			return key == &"battle"
 		_:
