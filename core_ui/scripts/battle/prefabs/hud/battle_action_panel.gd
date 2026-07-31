@@ -34,7 +34,7 @@ func render_snapshot(snap: Dictionary) -> void:
 	title_label.text = "行动控制 · 回合%d" % int(snap.get("battle_round", 0))
 	summary_label.text = "%s\n%d 个技能 · 从左到右触发" % [
 		String(selected.get("name", selected_id if selected_id != "" else "未选中宠物")),
-		queue.size()
+		queue.size(),
 	]
 	var reset_state := Dictionary(Dictionary(snap.get("pet_reset", {})).get("player", {}))
 	var reset_ready := bool(reset_state.get("eligible", false))

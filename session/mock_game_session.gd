@@ -17,6 +17,12 @@ const DEFAULT_SKILLS := [
 	{"id": "skill_suppress", "name": "压制击"},
 	{"id": "skill_finale", "name": "终幕击"},
 ]
+const DEFAULT_COMBOS := [
+	{"id": "combo_pincer", "name": "前后夹击", "skills": ["skill_vanguard", "skill_flank"]},
+	{"id": "combo_piercing_arc", "name": "穿回连携", "skills": ["skill_pierce", "skill_revolve"]},
+	{"id": "combo_breakthrough", "name": "追裂连携", "skills": ["skill_chase", "skill_break"]},
+	{"id": "combo_finale", "name": "压制终幕", "skills": ["skill_suppress", "skill_finale"]},
+]
 
 var _capture_source: Dictionary = {}
 var _presentation_bootstrap_snapshot: Dictionary = {}
@@ -247,6 +253,12 @@ func _ensure_skill_queue_projection() -> void:
 		})
 	_snapshot["selected_skill_queue"] = entries
 	_snapshot["selectedSkillQueue"] = entries.duplicate(true)
+	var traits := [_mock_trait_for_selected_unit()]
+	var combos := _mock_combos_for_order(order)
+	_snapshot["selected_traits"] = traits
+	_snapshot["selectedTraits"] = traits.duplicate(true)
+	_snapshot["selected_skill_combos"] = combos
+	_snapshot["selectedSkillCombos"] = combos.duplicate(true)
 
 
 func _set_skill_order(command: Dictionary) -> Dictionary:
@@ -276,6 +288,35 @@ func _skill_name(skill_id: String) -> String:
 		if String(row.get("id", "")) == skill_id:
 			return String(row.get("name", skill_id))
 	return skill_id
+
+
+func _mock_trait_for_selected_unit() -> Dictionary:
+	var unit := _unit_by_id(String(_snapshot.get("selected_unit_id", _snapshot.get("selectedUnitId", ""))))
+	var role := String(unit.get("role", ""))
+	if role.contains("输出") or role.contains("机动"):
+		return {"id": "trait_relentless", "name": "猛攻本能"}
+	if role.contains("治疗") or role.contains("控制"):
+		return {"id": "trait_element_affinity", "name": "元素亲和"}
+	if role.contains("坦克") or role.contains("防御") or role.contains("抗压"):
+		return {"id": "trait_combo_mastery", "name": "连携精通"}
+	return {"id": "trait_combo_resonance", "name": "连携共鸣"}
+
+
+func _mock_combos_for_order(order: Array) -> Array:
+	var result: Array = []
+	for combo_value in DEFAULT_COMBOS:
+		var combo := Dictionary(combo_value)
+		var pattern := Array(combo.get("skills", []))
+		for index in range(max(0, order.size() - pattern.size() + 1)):
+			if order.slice(index, index + pattern.size()) != pattern:
+				continue
+			var entry := combo.duplicate(true)
+			entry["start_index"] = index
+			entry["end_index"] = index + pattern.size() - 1
+			entry["matched_skill_ids"] = pattern.duplicate()
+			result.append(entry)
+			break
+	return result
 
 
 func _accepted_projection(

@@ -58,6 +58,8 @@ func _run() -> void:
 	_assert_snapshot_contract(boot_snapshot)
 	var boot_skill_queue := Array(boot_snapshot.get("selectedSkillQueue", []))
 	assert(boot_skill_queue.size() == 8)
+	assert(Array(boot_snapshot.get("selectedTraits", [])).size() == 1)
+	assert(Array(boot_snapshot.get("selectedSkillCombos", [])).size() == 4)
 	var reversed_skill_ids := _skill_queue_ids(boot_skill_queue)
 	reversed_skill_ids.reverse()
 	var reorder_response := Dictionary(isolated_session.submit_command({
@@ -67,6 +69,7 @@ func _run() -> void:
 	}))
 	assert(bool(reorder_response.get("accepted", false)))
 	assert(_skill_queue_ids(Array(isolated_session.current_snapshot().get("selectedSkillQueue", []))) == reversed_skill_ids)
+	assert(Array(isolated_session.current_snapshot().get("selectedSkillCombos", [])).is_empty())
 	assert(isolated_session.replay_step_index() == 0)
 	isolated_session.reset(false)
 	boot_snapshot = Dictionary(isolated_session.current_snapshot())
