@@ -7,6 +7,7 @@ extends "res://core_ui/scripts/artist_flow/controllers/artist_flow_view_adapter.
 const SessionFactoryScript := preload("res://session/session_factory.gd")
 const FeatureRegistryScript := preload("res://core_ui/scripts/app/feature_registry.gd")
 const SceneRouterScript := preload("res://core_ui/scripts/app/scene_router.gd")
+const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 const DEFAULT_RUN_SEED := "ysbzs-test-play-20260715-v1"
 
 @onready var feature_host: Control = $FeatureHost
@@ -26,6 +27,11 @@ var _feature_router: RefCounted = null
 
 
 func _ready() -> void:
+	RuntimeUiPolicy.install()
+	var debug_button := get_node_or_null("MainBG/DebugButton") as Control
+	if debug_button != null:
+		debug_button.visible = RuntimeUiPolicy.developer_tools_enabled()
+		debug_button.mouse_filter = Control.MOUSE_FILTER_STOP if debug_button.visible else Control.MOUSE_FILTER_IGNORE
 	if feature_registry == null:
 		feature_registry = FeatureRegistryScript.new()
 	if game_session == null:

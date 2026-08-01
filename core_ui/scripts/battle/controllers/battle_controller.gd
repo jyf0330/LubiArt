@@ -11,6 +11,7 @@ const BattleDetailControllerScript := preload("res://core_ui/scripts/battle/cont
 const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
 const BattleTraceProjectionScript := preload("res://core_ui/scripts/battle/controllers/battle_trace_projection.gd")
 const GameLogScript := preload("res://core/logging/game_log.gd")
+const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 const BattleCellScene := preload("res://art/prefabs/terrain/terrain.tscn")
 const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const PetDetailPanelScene := preload("res://art/prefabs/pet/pet_detail.tscn")
@@ -1959,7 +1960,7 @@ func _on_auto_arrange_pressed() -> void:
 	})
 	_auto_position_feedback_pending = true
 	_position_feedback_serial += 1
-	position_difficulty_button.text = "摆位计算中…"
+	position_difficulty_button.text = RuntimeUiPolicy.text("UI_POSITION_CALCULATING")
 	auto_arrange_button.disabled = true
 	auto_arrange_button.modulate = Color("#fff0ad")
 	var pulse := create_tween()

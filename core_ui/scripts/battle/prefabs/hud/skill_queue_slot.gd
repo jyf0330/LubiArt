@@ -3,12 +3,15 @@ extends Button
 signal move_requested(from_index: int, to_index: int)
 signal slot_pressed(index: int)
 
+const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
+
 var queue_index := -1
 var skill_id := ""
 var _picked := false
 
 
 func _ready() -> void:
+	RuntimeUiPolicy.install()
 	pressed.connect(func(): slot_pressed.emit(queue_index))
 
 
@@ -19,7 +22,7 @@ func configure(index: int, entry: Dictionary) -> void:
 	if label == "":
 		label = skill_id
 	text = "%d  %s" % [index + 1, label]
-	tooltip_text = "拖拽到其他槽位，或按确认键选中后再确认目标槽位"
+	tooltip_text = RuntimeUiPolicy.text("UI_ACTION_SKILL_TOOLTIP")
 	disabled = skill_id == ""
 
 

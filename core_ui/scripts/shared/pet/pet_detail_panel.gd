@@ -2,6 +2,8 @@ extends Control
 
 signal confirm_requested(command: Dictionary)
 
+const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
+
 @onready var dim: ColorRect = $Dim
 @onready var info_card: Control = $Panel/SpriteInfoCard
 @onready var close_button: Button = get_node_or_null("Panel/Actions/CloseButton") as Button
@@ -13,9 +15,12 @@ var _detail_snapshot := {}
 var _confirm_command := {}
 var _is_context_detail := false
 var _mouse_filters_by_id := {}
+var _developer_tools := false
 
 
 func _ready() -> void:
+	RuntimeUiPolicy.install()
+	_developer_tools = RuntimeUiPolicy.developer_tools_enabled()
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if close_button != null:
@@ -26,6 +31,10 @@ func _ready() -> void:
 		debug_toggle_button.pressed.connect(_on_debug_toggle_pressed)
 	_apply_button_style()
 	_apply_debug_button_style()
+	if debug_toggle_button != null:
+		debug_toggle_button.visible = _developer_tools
+	if debug_panel != null:
+		debug_panel.visible = false
 	_capture_mouse_filters(self)
 
 
@@ -44,7 +53,7 @@ func show_detail(record: Dictionary, texture: Texture2D = null, confirm_command:
 		confirm_button.visible = not _confirm_command.is_empty()
 	_set_debug_enabled(false)
 	if debug_toggle_button != null:
-		debug_toggle_button.visible = true
+		debug_toggle_button.visible = _developer_tools
 	visible = true
 	move_to_front()
 
@@ -74,7 +83,7 @@ func close() -> void:
 	if close_button != null:
 		close_button.visible = true
 	if debug_toggle_button != null:
-		debug_toggle_button.visible = true
+		debug_toggle_button.visible = _developer_tools
 
 
 func close_context_detail() -> void:
@@ -127,7 +136,7 @@ func get_display_text() -> String:
 
 
 func set_debug_enabled(enabled: bool) -> void:
-	_set_debug_enabled(enabled)
+	_set_debug_enabled(enabled and _developer_tools)
 
 
 func is_debug_enabled() -> bool:
@@ -188,14 +197,17 @@ func _on_confirm_pressed() -> void:
 
 
 func _on_debug_toggle_pressed() -> void:
+	if not _developer_tools:
+		return
 	_set_debug_enabled(not is_debug_enabled())
 
 
 func _set_debug_enabled(enabled: bool) -> void:
+	enabled = enabled and _developer_tools
 	if debug_panel != null:
 		debug_panel.visible = enabled
 	if debug_toggle_button != null:
-		debug_toggle_button.text = "收起调试" if enabled else "数据调试"
+		debug_toggle_button.text = RuntimeUiPolicy.text("UI_DEBUG_COLLAPSE" if enabled else "UI_DEBUG_DATA")
 
 
 func _apply_button_style() -> void:

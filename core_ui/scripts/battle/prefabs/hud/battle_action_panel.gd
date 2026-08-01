@@ -2,6 +2,8 @@ extends PanelContainer
 
 signal command_requested(command: Dictionary)
 
+const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
+
 const STATE_SELECT := &"select"
 const STATE_PREVIEW := &"preview"
 const STATE_EXECUTING := &"executing"
@@ -26,6 +28,7 @@ var _selected_unit_id_cache := ""
 
 
 func _ready() -> void:
+	RuntimeUiPolicy.install()
 	reset_pets_button.pressed.connect(func(): _emit("RESET_PETS"))
 	for child in skill_queue_grid.get_children():
 		child.move_requested.connect(_move_skill)
@@ -49,9 +52,9 @@ func render_snapshot(snap: Dictionary) -> void:
 		_selected_unit_id_cache = selected_id
 	var selected := _selected_unit(selected_id)
 	var queue := Array(snap.get("selectedSkillQueue", snap.get("selected_skill_queue", [])))
-	title_label.text = "行动控制 · 回合%d" % int(snap.get("battle_round", 0))
+	title_label.text = RuntimeUiPolicy.text("UI_ACTION_TITLE", [int(snap.get("battle_round", 0))])
 	var summary_lines := [
-		String(selected.get("name", selected_id if selected_id != "" else "未选中宠物")),
+		String(selected.get("name", selected_id if selected_id != "" else RuntimeUiPolicy.text("UI_ACTION_NO_SELECTION"))),
 		_preview_summary(snap, selected_id, queue),
 	]
 	if _latest_result_text != "":
@@ -64,11 +67,11 @@ func render_snapshot(snap: Dictionary) -> void:
 	var next_charge_round := int(reset_state.get("nextChargeRound", 5))
 	var cooldown_remaining := int(reset_state.get("cooldownRemaining", 0))
 	if reset_ready:
-		reset_pets_button.text = "重置宠物（可用%d次）" % reset_charges
+		reset_pets_button.text = RuntimeUiPolicy.text("UI_ACTION_RESET_READY", [reset_charges])
 	elif reset_charges > 0:
-		reset_pets_button.text = "重置宠物（需存活≤%d，次数%d）" % [alive_threshold, reset_charges]
+		reset_pets_button.text = RuntimeUiPolicy.text("UI_ACTION_RESET_THRESHOLD", [alive_threshold, reset_charges])
 	else:
-		reset_pets_button.text = "重置宠物（第%d回合+1次，等%d回合）" % [next_charge_round, cooldown_remaining]
+		reset_pets_button.text = RuntimeUiPolicy.text("UI_ACTION_RESET_WAIT", [next_charge_round, cooldown_remaining])
 	var skill_catalog := Dictionary(snap.get("skill_catalog", {}))
 	for index in range(skill_queue_grid.get_child_count()):
 		var entry := Dictionary(queue[index]) if index < queue.size() else {}
@@ -76,7 +79,9 @@ func render_snapshot(snap: Dictionary) -> void:
 		if String(entry.get("label", "")).strip_edges() == "" and skill_id != "":
 			entry["label"] = String(Dictionary(skill_catalog.get(skill_id, {})).get("name", skill_id))
 		skill_queue_grid.get_child(index).configure(index, entry)
-	all_out_button.text = "按顺序触发全部技能"
+	all_out_button.text = RuntimeUiPolicy.text("UI_ACTION_ALL_OUT")
+	end_turn_button.text = RuntimeUiPolicy.text("UI_ACTION_END_TURN")
+	monster_turn_button.text = RuntimeUiPolicy.text("UI_ACTION_MONSTER_TURN")
 	visible = String(snap.get("phase", "")) == "battle"
 	_apply_control_availability()
 	_refresh_skill_queue_title()
@@ -197,9 +202,9 @@ func _pick_or_move_skill(index: int) -> void:
 
 func _preview_summary(snap: Dictionary, selected_id: String, queue: Array) -> String:
 	if selected_id == "":
-		return "先在棋盘选择我方宠物"
+		return RuntimeUiPolicy.text("UI_ACTION_SELECT_PET")
 	var cells := Array(snap.get("selected_action_cells", snap.get("selectedActionCells", [])))
-	return "预览：红色作用格 %d 个 · %d 个技能从左到右触发" % [cells.size(), queue.size()]
+	return RuntimeUiPolicy.text("UI_ACTION_PREVIEW", [cells.size(), queue.size()])
 
 
 func _update_result_feedback(snap: Dictionary) -> void:
@@ -230,13 +235,13 @@ func _update_result_feedback(snap: Dictionary) -> void:
 	_trace_cursor = events.size()
 	var parts: Array[String] = []
 	if skill_count > 0:
-		parts.append("%d 个技能" % skill_count)
+		parts.append(RuntimeUiPolicy.text("UI_ACTION_SKILL_COUNT", [skill_count]))
 	if combo_count > 0:
-		parts.append("%d 个组合" % combo_count)
+		parts.append(RuntimeUiPolicy.text("UI_ACTION_COMBO_COUNT", [combo_count]))
 	if final_damage > 0:
-		parts.append("伤害 %d（生命 %d / 护盾 %d）" % [final_damage, hp_damage, shield_damage])
+		parts.append(RuntimeUiPolicy.text("UI_ACTION_DAMAGE", [final_damage, hp_damage, shield_damage]))
 	if not parts.is_empty():
-		_latest_result_text = "结果：%s" % " · ".join(PackedStringArray(parts))
+		_latest_result_text = RuntimeUiPolicy.text("UI_ACTION_RESULT", [" · ".join(PackedStringArray(parts))])
 
 
 func _apply_control_availability() -> void:
@@ -257,11 +262,11 @@ func _apply_control_availability() -> void:
 
 func _refresh_skill_queue_title() -> void:
 	if _input_locked:
-		skill_queue_title.text = "正在执行 · 等待权威 Trace 结算"
+		skill_queue_title.text = RuntimeUiPolicy.text("UI_ACTION_EXECUTING")
 	elif _picked_skill_index >= 0:
-		skill_queue_title.text = "已选第%d格 · 再点目标格移动" % (_picked_skill_index + 1)
+		skill_queue_title.text = RuntimeUiPolicy.text("UI_ACTION_PICKED", [_picked_skill_index + 1])
 	else:
-		skill_queue_title.text = "技能行动条 · 拖拽或确认键排序"
+		skill_queue_title.text = RuntimeUiPolicy.text("UI_ACTION_QUEUE_HINT")
 
 
 func _refresh_skill_slot_states() -> void:
@@ -285,13 +290,13 @@ func _refresh_visual_state() -> void:
 	var accent := _state_accent(state)
 	match state:
 		STATE_EXECUTING:
-			flow_state_label.text = "1  已选择   →   2  已确认   →   3  执行中…"
+			flow_state_label.text = RuntimeUiPolicy.text("UI_ACTION_FLOW_EXECUTING")
 		STATE_RESULT:
-			flow_state_label.text = "✓  执行完成   ·   查看结果后继续行动"
+			flow_state_label.text = RuntimeUiPolicy.text("UI_ACTION_FLOW_RESULT")
 		STATE_PREVIEW:
-			flow_state_label.text = "1  已选择   →   2  红色范围   →   3  可执行"
+			flow_state_label.text = RuntimeUiPolicy.text("UI_ACTION_FLOW_PREVIEW")
 		_:
-			flow_state_label.text = "1  选择宠物   ·   2  查看范围   ·   3  执行"
+			flow_state_label.text = RuntimeUiPolicy.text("UI_ACTION_FLOW_SELECT")
 	add_theme_stylebox_override("panel", _panel_style(accent))
 	title_label.add_theme_color_override("font_color", accent.lightened(0.42))
 	flow_state_label.add_theme_color_override("font_color", Color("fff8e5"))

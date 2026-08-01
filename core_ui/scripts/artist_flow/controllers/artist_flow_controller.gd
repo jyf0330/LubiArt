@@ -13,6 +13,7 @@ const ShopPresenterScript := preload("res://core_ui/scripts/shop/presenters/shop
 const InventoryPresenterScript := preload("res://core_ui/scripts/inventory/presenters/inventory_presenter.gd")
 const PartyPresenterScript := preload("res://core_ui/scripts/party/presenters/party_presenter.gd")
 const SettlementPresenterScript := preload("res://core_ui/scripts/settlement/presenters/settlement_presenter.gd")
+const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 
 const VIEW_THREE_OPTION := &"three_option"
 const VIEW_SHOP := &"shop"
@@ -88,9 +89,12 @@ var _shop_presenter := ShopPresenterScript.new()
 var _inventory_presenter := InventoryPresenterScript.new()
 var _party_presenter := PartyPresenterScript.new()
 var _settlement_presenter := SettlementPresenterScript.new()
+var _developer_tools := false
 
 
 func _ready() -> void:
+	RuntimeUiPolicy.install()
+	_developer_tools = RuntimeUiPolicy.developer_tools_enabled()
 	if not _session_bridge.asynchronous_snapshot_received.is_connected(_on_session_bridge_snapshot_received):
 		_session_bridge.asynchronous_snapshot_received.connect(_on_session_bridge_snapshot_received)
 	_ensure_game_session()
@@ -98,14 +102,18 @@ func _ready() -> void:
 	_collect_slots()
 	_ensure_pet_detail_panel()
 	_ensure_bazaar_info_panel()
-	_ensure_run_tools()
+	_apply_runtime_ui_mode()
+	if _developer_tools:
+		_ensure_run_tools()
 	_configure_stage_presenter()
 	_connect_buttons()
+	_configure_focus_navigation()
 	_prepare_sell_button()
 	_render_content_from_state(_current_snapshot())
 	_set_initial_state()
 	call_deferred("_show_initial_view")
 	call_deferred("_refresh_slot_button_layouts")
+	call_deferred("_grab_focus_for_current_view")
 
 
 func _game_cursor() -> Node:
@@ -181,6 +189,7 @@ func _collect_slots() -> void:
 func _connect_buttons() -> void:
 	for index in range(_three_buttons.size()):
 		var button := _three_buttons[index]
+		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_prepare_slot_image_button(button)
 		if not button.pressed.is_connected(_on_three_pressed):
@@ -192,6 +201,7 @@ func _connect_buttons() -> void:
 
 	for index in range(_shop_buttons.size()):
 		var button := _shop_buttons[index]
+		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_shop_button_down):
@@ -200,9 +210,13 @@ func _connect_buttons() -> void:
 			button.mouse_entered.connect(_on_shop_pet_mouse_entered.bind(index))
 		if not button.mouse_exited.is_connected(_on_shop_pet_mouse_exited):
 			button.mouse_exited.connect(_on_shop_pet_mouse_exited.bind(index))
+		var keyboard_callback := Callable(self, "_on_shop_gui_input").bind(index)
+		if not button.gui_input.is_connected(keyboard_callback):
+			button.gui_input.connect(keyboard_callback)
 
 	for index in range(_party_buttons.size()):
 		var button := _party_buttons[index]
+		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_party_button_down):
@@ -210,6 +224,7 @@ func _connect_buttons() -> void:
 
 	for index in range(_bag_buttons.size()):
 		var button := _bag_buttons[index]
+		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_bag_slot_button_down):
@@ -217,14 +232,110 @@ func _connect_buttons() -> void:
 
 	if not shop_back_button.pressed.is_connected(_on_shop_back_pressed):
 		shop_back_button.pressed.connect(_on_shop_back_pressed)
+	shop_back_button.focus_mode = Control.FOCUS_ALL
 	top_shop.mouse_filter = Control.MOUSE_FILTER_STOP
 	if not top_shop.gui_input.is_connected(_on_top_shop_gui_input):
 		top_shop.gui_input.connect(_on_top_shop_gui_input)
 	if not bag_button.pressed.is_connected(_on_bag_pressed):
 		bag_button.pressed.connect(_on_bag_pressed)
+	bag_button.focus_mode = Control.FOCUS_ALL
 	bags_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	if not bags_panel.gui_input.is_connected(_on_bags_gui_input):
 		bags_panel.gui_input.connect(_on_bags_gui_input)
+
+
+func _configure_focus_navigation() -> void:
+	for button in _all_focus_buttons():
+		button.focus_mode = Control.FOCUS_ALL
+		var entered := Callable(self, "_on_focus_entered").bind(button)
+		var exited := Callable(self, "_on_focus_exited").bind(button)
+		if not button.focus_entered.is_connected(entered):
+			button.focus_entered.connect(entered)
+		if not button.focus_exited.is_connected(exited):
+			button.focus_exited.connect(exited)
+	_configure_current_focus_ring()
+
+
+func _configure_current_focus_ring() -> void:
+	var controls := _focus_controls_for_view()
+	if controls.is_empty():
+		return
+	for index in range(controls.size()):
+		var control := controls[index]
+		var previous := controls[(index - 1 + controls.size()) % controls.size()]
+		var next := controls[(index + 1) % controls.size()]
+		control.focus_neighbor_left = control.get_path_to(previous)
+		control.focus_neighbor_right = control.get_path_to(next)
+		control.focus_neighbor_top = control.get_path_to(previous)
+		control.focus_neighbor_bottom = control.get_path_to(next)
+		control.focus_previous = control.get_path_to(previous)
+		control.focus_next = control.get_path_to(next)
+
+
+func _focus_controls_for_view() -> Array[Control]:
+	var candidates: Array[Control] = []
+	match _current_view:
+		VIEW_SHOP:
+			candidates.append_array(_shop_buttons)
+		VIEW_BAG:
+			candidates.append_array(_bag_buttons)
+		_:
+			candidates.append_array(_three_buttons)
+	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("focus_controls"):
+		candidates.append_array(Array(_bazaar_info_panel.call("focus_controls")))
+	if _current_view == VIEW_SHOP:
+		candidates.append(shop_back_button)
+	if _current_view != VIEW_BATTLE:
+		candidates.append(bag_button)
+	var controls: Array[Control] = []
+	for control in candidates:
+		if control == null or not control.visible:
+			continue
+		if control is BaseButton and (control as BaseButton).disabled:
+			continue
+		controls.append(control)
+	return controls
+
+
+func _all_focus_buttons() -> Array[BaseButton]:
+	var buttons: Array[BaseButton] = []
+	for group in [_three_buttons, _shop_buttons, _party_buttons, _bag_buttons]:
+		for value in group:
+			buttons.append(value as BaseButton)
+	for button in [shop_back_button, bag_button]:
+		if button != null:
+			buttons.append(button)
+	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("focus_controls"):
+		for value in Array(_bazaar_info_panel.call("focus_controls")):
+			if value is BaseButton:
+				buttons.append(value as BaseButton)
+	return buttons
+
+
+func _grab_focus_for_current_view() -> void:
+	_configure_current_focus_ring()
+	if get_viewport().gui_get_focus_owner() != null and get_viewport().gui_get_focus_owner().is_visible_in_tree():
+		return
+	var controls := _focus_controls_for_view()
+	if not controls.is_empty():
+		controls[0].grab_focus()
+
+
+func _on_focus_entered(button: BaseButton) -> void:
+	var surface := button.get_parent() as CanvasItem
+	if surface != null:
+		surface.modulate = Color(1.18, 1.08, 0.72, 1.0)
+
+
+func _on_focus_exited(button: BaseButton) -> void:
+	_restore_button_tint(button)
+
+
+func _restore_button_tint(button: BaseButton) -> void:
+	var surface := button.get_parent() as CanvasItem
+	if surface == null:
+		return
+	surface.modulate = button.get_meta("base_tint", Color.WHITE) as Color
 
 
 func _render_from_state() -> void:
@@ -273,6 +384,9 @@ func _render_route(snap: Dictionary) -> void:
 			button.set_meta("command", {})
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
+		button.set_meta("base_tint", Color.WHITE)
+		_restore_button_tint(button)
+	call_deferred("_configure_current_focus_ring")
 
 
 func _render_reward(snap: Dictionary) -> void:
@@ -296,6 +410,9 @@ func _render_reward(snap: Dictionary) -> void:
 			button.set_meta("command", {})
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
+		button.set_meta("base_tint", Color.WHITE)
+		_restore_button_tint(button)
+	call_deferred("_configure_current_focus_ring")
 
 
 func _render_battle_view(snap: Dictionary) -> void:
@@ -370,6 +487,9 @@ func _render_terminal_choice(snap: Dictionary) -> void:
 			button.set_meta("command", {})
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
+		button.set_meta("base_tint", Color.WHITE)
+		_restore_button_tint(button)
+	call_deferred("_configure_current_focus_ring")
 
 
 func _render_shop(snap: Dictionary) -> void:
@@ -379,8 +499,12 @@ func _render_shop(snap: Dictionary) -> void:
 		var offer := Dictionary(card.get("record", {}))
 		var button := _shop_buttons[index]
 		var slot := _shop_slots[index] if index < _shop_slots.size() else button.get_parent()
-		var has_offer := bool(card.get("available", false))
+		var has_offer := not offer.is_empty() and bool(card.get("available", false))
+		var purchasable := bool(card.get("purchasable", false))
 		button.disabled = not has_offer
+		button.set_meta("purchasable", purchasable)
+		button.set_meta("availability", Dictionary(card.get("availability", {})))
+		button.set_meta("base_tint", Color.WHITE if purchasable else Color(0.56, 0.56, 0.56, 1.0))
 		if has_offer:
 			var texture := _pet_texture(offer)
 			button.texture_normal = texture
@@ -396,6 +520,8 @@ func _render_shop(snap: Dictionary) -> void:
 			button.set_meta("command", {})
 			button.set_meta("drag_record", {})
 			_clear_runtime_overlays(slot)
+		_restore_button_tint(button)
+	call_deferred("_configure_current_focus_ring")
 
 
 func _render_roster(snap: Dictionary) -> void:
@@ -481,6 +607,9 @@ func _on_shop_button_down(index: int) -> void:
 	var command := Dictionary(_shop_buttons[index].get_meta("command", {}))
 	if command.is_empty():
 		return
+	if not bool(_shop_buttons[index].get_meta("purchasable", false)):
+		_show_shop_unavailable_feedback(index)
+		return
 	var offer := Dictionary(_shop_buttons[index].get_meta("drag_record", {}))
 	var item_type := String(offer.get("item_type", "宠物" if String(offer.get("pet_id", "")) != "" else ""))
 	if item_type != "宠物":
@@ -491,6 +620,42 @@ func _on_shop_button_down(index: int) -> void:
 	_close_pet_context_detail()
 	_start_drag_candidate(DRAG_SOURCE_SHOP, index)
 	_start_shop_item_drag()
+
+
+func _on_shop_gui_input(event: InputEvent, index: int) -> void:
+	if event is InputEventMouseButton or not event.is_action_pressed("ui_accept"):
+		return
+	accept_event()
+	_clear_drag_state()
+	await _purchase_shop_offer_with_focus(index)
+
+
+func _purchase_shop_offer_with_focus(index: int) -> void:
+	if _is_transitioning or _current_view != VIEW_SHOP or index < 0 or index >= _shop_buttons.size():
+		return
+	var button := _shop_buttons[index]
+	var command := Dictionary(button.get_meta("command", {}))
+	if command.is_empty():
+		return
+	if not bool(button.get_meta("purchasable", false)):
+		_show_shop_unavailable_feedback(index)
+		return
+	_close_pet_context_detail()
+	if await _submit_core_command(command):
+		_render_content_from_state(_take_core_command_snapshot())
+		call_deferred("_grab_focus_for_current_view")
+
+
+func _show_shop_unavailable_feedback(index: int) -> void:
+	if index < 0 or index >= _shop_buttons.size():
+		return
+	var offer := Dictionary(_shop_buttons[index].get_meta("drag_record", {}))
+	var availability := Dictionary(_shop_buttons[index].get_meta("availability", {}))
+	var message := RuntimeUiPolicy.text("UI_RESULT_NO_COINS", [
+		int(availability.get("coins", _current_snapshot().get("coins", 0))),
+		int(availability.get("price", offer.get("price", 0))),
+	])
+	_show_bazaar_feedback(message, false)
 
 
 func _on_shop_pet_mouse_entered(index: int) -> void:
@@ -813,7 +978,7 @@ func _clear_drag_state() -> void:
 func _prepare_sell_button() -> void:
 	if top_sell_button == null:
 		return
-	top_sell_button.text = "出售"
+	top_sell_button.text = RuntimeUiPolicy.text("UI_SELL")
 	top_sell_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	top_sell_button.focus_mode = Control.FOCUS_NONE
 	_set_sell_button_visible(false)
@@ -875,12 +1040,14 @@ func _show_view(view: StringName) -> void:
 	_set_persistent_hud_visible(view != VIEW_BATTLE)
 	_set_run_tools_visible(true)
 	_release_battle_view_after_transition(previous_view, view)
+	call_deferred("_grab_focus_for_current_view")
 
 
 func _set_initial_state() -> void:
 	_ensure_persistent_hud_visible()
 	_set_run_tools_visible(true)
 	_stage_presenter.set_initial()
+	call_deferred("_grab_focus_for_current_view")
 
 
 func _show_initial_view() -> void:
@@ -895,6 +1062,7 @@ func _show_initial_view() -> void:
 	_set_run_tools_visible(true)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
+	call_deferred("_grab_focus_for_current_view")
 
 
 func _transition_to_view(target_view: StringName) -> void:
@@ -911,6 +1079,7 @@ func _transition_to_view(target_view: StringName) -> void:
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 	_release_battle_view_after_transition(previous_view, target_view)
+	call_deferred("_grab_focus_for_current_view")
 
 
 func _open_bag() -> void:
@@ -924,6 +1093,7 @@ func _open_bag() -> void:
 	_render_bazaar_information(_current_snapshot(), VIEW_BAG)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
+	call_deferred("_grab_focus_for_current_view")
 
 
 func _close_bag() -> void:
@@ -936,6 +1106,7 @@ func _close_bag() -> void:
 	_render_bazaar_information(_current_snapshot(), _current_view)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
+	call_deferred("_grab_focus_for_current_view")
 
 
 func _target_view_from_state() -> StringName:
@@ -1014,6 +1185,17 @@ func _ensure_bazaar_info_panel() -> void:
 		return
 	if _bazaar_info_panel.has_signal("command_requested"):
 		_bazaar_info_panel.connect("command_requested", Callable(self, "_on_bazaar_info_command_requested"))
+
+
+func _apply_runtime_ui_mode() -> void:
+	var scene_root := owner as Control
+	if scene_root == null:
+		return
+	var debug_button := scene_root.get_node_or_null("MainBG/DebugButton") as Control
+	if debug_button != null:
+		debug_button.visible = _developer_tools
+		debug_button.mouse_filter = Control.MOUSE_FILTER_STOP if _developer_tools else Control.MOUSE_FILTER_IGNORE
+		debug_button.focus_mode = Control.FOCUS_ALL if _developer_tools else Control.FOCUS_NONE
 
 
 func _render_bazaar_information(snap: Dictionary, target_view: StringName) -> void:
@@ -1160,6 +1342,8 @@ func _run_visible_auto_battle() -> void:
 
 
 func _ensure_run_tools() -> void:
+	if not _developer_tools:
+		return
 	if _run_tools != null:
 		return
 	var scene_root := owner as Control
@@ -1183,10 +1367,10 @@ func _ensure_run_tools() -> void:
 	for slot in range(1, slot_count + 1):
 		var save_button_name := "SaveButton" if slot == 1 else "SaveSlot%dButton" % slot
 		var load_button_name := "LoadButton" if slot == 1 else "LoadSlot%dButton" % slot
-		_add_run_tool_button(row, "保存%d" % slot, save_button_name, _on_save_slot_pressed.bind(slot))
-		_add_run_tool_button(row, "读档%d" % slot, load_button_name, _on_load_slot_pressed.bind(slot))
-	_add_run_tool_button(row, "导出回放", "ExportReplayButton", _on_export_replay_pressed)
-	_add_run_tool_button(row, "导出战报", "ExportBattleTraceButton", _on_export_battle_trace_pressed)
+		_add_run_tool_button(row, RuntimeUiPolicy.text("UI_SAVE_SLOT", [slot]), save_button_name, _on_save_slot_pressed.bind(slot))
+		_add_run_tool_button(row, RuntimeUiPolicy.text("UI_LOAD_SLOT", [slot]), load_button_name, _on_load_slot_pressed.bind(slot))
+	_add_run_tool_button(row, RuntimeUiPolicy.text("UI_EXPORT_REPLAY"), "ExportReplayButton", _on_export_replay_pressed)
+	_add_run_tool_button(row, RuntimeUiPolicy.text("UI_EXPORT_TRACE"), "ExportBattleTraceButton", _on_export_battle_trace_pressed)
 
 	_run_status_label = Label.new()
 	_run_status_label.name = "RunToolsStatus"
@@ -1194,7 +1378,7 @@ func _ensure_run_tools() -> void:
 	_run_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_run_status_label.add_theme_font_size_override("font_size", 18)
 	_run_status_label.add_theme_color_override("font_color", Color("#f4edd8"))
-	_run_status_label.text = "本地存档"
+	_run_status_label.text = RuntimeUiPolicy.text("UI_LOCAL_SAVE")
 	row.add_child(_run_status_label)
 	scene_root.add_child.call_deferred(_run_tools)
 
@@ -1204,7 +1388,7 @@ func _add_run_tool_button(row: HBoxContainer, label_text: String, button_name: S
 	button.name = button_name
 	button.text = label_text
 	button.custom_minimum_size = RUN_TOOL_SIZE
-	button.focus_mode = Control.FOCUS_NONE
+	button.focus_mode = Control.FOCUS_ALL
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.add_theme_font_size_override("font_size", 20)
 	button.pressed.connect(callback)
@@ -1283,22 +1467,68 @@ func _session_supports_persistence() -> bool:
 func _set_run_tools_visible(is_visible: bool) -> void:
 	if _run_tools != null:
 		_run_tools.position.y = 14.0 if _current_view == VIEW_BATTLE else 22.0
-		_run_tools.visible = is_visible
+		_run_tools.visible = _developer_tools and is_visible
 
 
 func _submit_core_command(command: Dictionary) -> bool:
 	_ensure_game_session()
+	var before_snapshot := _current_snapshot()
 	_set_game_cursor_loading(&"session_command", true)
 	var response := Dictionary(await _session_bridge.submit_command(command))
 	_set_game_cursor_loading(&"session_command", false)
+	var after_snapshot := Dictionary(response.get("snapshot", before_snapshot))
 	if bool(response.get("accepted", false)):
+		_publish_command_feedback(command, response, before_snapshot, after_snapshot, true)
 		return true
 	var command_type := String(response.get("command", command.get("type", "")))
 	var error := Dictionary(response.get("error", {}))
 	var reason := String(error.get("message", error.get("code", "rejected")))
-	_set_run_tools_status("操作未生效")
+	_publish_command_feedback(command, response, before_snapshot, after_snapshot, false)
+	_set_run_tools_status(RuntimeUiPolicy.text("UI_RESULT_COMMAND_REJECTED", [reason]))
 	GameLogScript.warning("界面/核心命令", "核心拒绝界面命令", {"命令": command_type, "原因": reason, "当前视图": _current_view})
 	return false
+
+
+func _publish_command_feedback(command: Dictionary, response: Dictionary, before: Dictionary, after: Dictionary, success: bool) -> void:
+	if _current_view == VIEW_BATTLE:
+		return
+	var command_type := String(command.get("type", response.get("command", "")))
+	var message := ""
+	if command_type == "BUY_OFFER":
+		var offer := _offer_for_command(before, command)
+		var name := String(offer.get("name", offer.get("id", command.get("offer_id", "商品"))))
+		var price := int(offer.get("price", 0))
+		if success:
+			message = RuntimeUiPolicy.text("UI_RESULT_PURCHASED", [name, int(after.get("coins", 0))])
+		elif int(before.get("coins", 0)) < price:
+			message = RuntimeUiPolicy.text("UI_RESULT_NO_COINS", [int(before.get("coins", 0)), price])
+	if message == "" and success and command_type == "ROLL_SHOP":
+		message = RuntimeUiPolicy.text("UI_RESULT_REFRESHED", [int(after.get("coins", 0))])
+	if message == "":
+		message = _latest_log_line(after)
+	if message == "":
+		message = RuntimeUiPolicy.text("UI_RESULT_COMMAND_ACCEPTED" if success else "UI_RESULT_COMMAND_REJECTED", [command_type])
+	_show_bazaar_feedback(message, success)
+
+
+func _offer_for_command(snap: Dictionary, command: Dictionary) -> Dictionary:
+	var offer_id := String(command.get("offer_id", command.get("offerId", command.get("id", ""))))
+	for value in Array(snap.get("shop_offers", [])):
+		var offer := Dictionary(value)
+		if String(offer.get("id", offer.get("offer_id", ""))) == offer_id:
+			return offer
+	return {}
+
+
+func _latest_log_line(snap: Dictionary) -> String:
+	var lines := Array(snap.get("log_lines", snap.get("logLines", [])))
+	return String(lines.back()).strip_edges() if not lines.is_empty() else ""
+
+
+func _show_bazaar_feedback(message: String, success: bool) -> void:
+	_ensure_bazaar_info_panel()
+	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("show_command_feedback"):
+		_bazaar_info_panel.call("show_command_feedback", message, success)
 
 
 func _take_core_command_snapshot() -> Dictionary:
@@ -1312,6 +1542,14 @@ func set_game_session(session: RefCounted) -> void:
 func get_game_session() -> RefCounted:
 	_ensure_game_session()
 	return _session_bridge.session()
+
+
+func set_developer_tools_enabled(enabled: bool) -> void:
+	_developer_tools = enabled
+	_apply_runtime_ui_mode()
+	if enabled:
+		_ensure_run_tools()
+	_set_run_tools_visible(true)
 
 
 func _ensure_game_session() -> void:
