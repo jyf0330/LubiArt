@@ -82,6 +82,7 @@ var _drag_candidate_index := -1
 var _is_dragging_shop_item := false
 var _is_dragging_storage_item := false
 var _drag_preview: TextureRect = null
+var _drag_preview_locked_size := DRAG_PREVIEW_SIZE
 var _drag_hidden_button: TextureButton = null
 var _drag_hidden_visual: Control = null
 var _drag_hidden_texture: Texture2D = null
@@ -762,14 +763,14 @@ func _input(event: InputEvent) -> void:
 	if _drag_candidate_source == DRAG_SOURCE_NONE or _drag_candidate_index < 0:
 		return
 	if event is InputEventMouseMotion:
-		var mouse_position := get_global_mouse_position()
+		var mouse_position := (event as InputEventMouseMotion).global_position
 		if _has_active_drag():
 			_update_drag_preview(mouse_position)
 	if event is InputEventMouseButton:
 		var mouse_button_event := event as InputEventMouseButton
 		if mouse_button_event.button_index != MOUSE_BUTTON_LEFT or mouse_button_event.pressed:
 			return
-		var mouse_position := get_global_mouse_position()
+		var mouse_position := mouse_button_event.global_position
 		if _is_dragging_shop_item:
 			await _drop_dragged_shop_item(mouse_position)
 		elif _is_dragging_storage_item:
@@ -969,21 +970,30 @@ func _drag_preview_size_for_candidate() -> Vector2:
 
 func _create_drag_preview(texture: Texture2D, preview_size: Vector2) -> void:
 	_clear_drag_preview()
+	_drag_preview_locked_size = preview_size
 	_drag_preview = TextureRect.new()
 	_drag_preview.name = "DragPreview"
 	_drag_preview.texture = texture
+	_drag_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_drag_preview.custom_minimum_size = preview_size
-	_drag_preview.size = preview_size
 	_drag_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_drag_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_drag_preview.modulate = Color(1.0, 1.0, 1.0, 0.82)
 	_drag_preview.z_index = 100
 	get_tree().root.add_child(_drag_preview)
+	# A Window assigns a newly added Control its initial zero rect. Apply the
+	# authored slot size after parenting so the preview stays locked to it.
+	_drag_preview.size = preview_size
 
 
 func _update_drag_preview(mouse_position: Vector2) -> void:
 	if _drag_preview == null:
 		return
+	# Root Window layout can clear the rect after parenting. Reapply the captured
+	# source-slot size on every motion so neither texture size nor grid reflow can
+	# resize the preview during a drag.
+	_drag_preview.custom_minimum_size = _drag_preview_locked_size
+	_drag_preview.size = _drag_preview_locked_size
 	_drag_preview.global_position = mouse_position - _drag_preview.size * 0.5
 
 
@@ -992,6 +1002,7 @@ func _clear_drag_preview() -> void:
 		return
 	_drag_preview.queue_free()
 	_drag_preview = null
+	_drag_preview_locked_size = DRAG_PREVIEW_SIZE
 
 
 func _hide_drag_source_texture(texture: Texture2D) -> void:

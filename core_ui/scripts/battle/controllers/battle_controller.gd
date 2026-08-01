@@ -874,7 +874,11 @@ func _cell_origin(x: int, y: int) -> Vector2:
 
 func _grid_from_board_position(local_position: Vector2) -> Vector2i:
 	var has_perspective_geometry := false
-	for cell in _cells:
+	# Authored perspective cells overlap. Match Godot's topmost Control input
+	# order by testing the later-drawn cells first, otherwise the previous row
+	# can swallow every point in the optional eighth row.
+	for index in range(_cells.size() - 1, -1, -1):
+		var cell := _cells[index]
 		if not cell.has_method("uses_perspective_geometry") or not bool(cell.call("uses_perspective_geometry")):
 			continue
 		has_perspective_geometry = true
