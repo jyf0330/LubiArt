@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c0am8pxw3phnn"]
 
-[ext_resource type="Texture2D" uid="uid://yb7ngelwb4v5" path="res://art/images/battle/runtime/images/battle_background_8x8.png" id="1_bg"]
+[ext_resource type="Texture2D" path="res://art/images/battle/maps/grassland_morning.png" id="1_bg"]
 [ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/controllers/battle_controller.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cj4wnh87c8q0q" path="res://art/images/battle/primary_actions/primary_actions_shadow.png" id="3_primary_shadow"]
 [ext_resource type="Texture2D" uid="uid://dc50en6sk45t6" path="res://art/images/battle/primary_actions/auto_arrange_normal.png" id="4_auto_normal"]
@@ -16,15 +16,8 @@
 [ext_resource type="Texture2D" uid="uid://dif3syit17gbl" path="res://art/images/battle/hud/layout/hud_status_bar_background_001.png" id="11_status_bar_bg"]
 [ext_resource type="Texture2D" uid="uid://1j51ky7dp3cs" path="res://art/images/battle/hud/clock/clock_dial_002.png" id="12_clock_dial"]
 [ext_resource type="Texture2D" uid="uid://1goj04hxtnsg" path="res://art/images/battle/hud/clock/clock_pointer_010.png" id="13_clock_pointer"]
-[ext_resource type="Script" uid="uid://drbbnnayu3755" path="res://core_ui/scripts/battle/prefabs/hud/battle_direction_drawer.gd" id="14_direction_drawer"]
 [ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/skill_queue_slot.gd" id="14_skill_queue_slot"]
-[ext_resource type="Texture2D" uid="uid://cfj800nbmvqiq" path="res://art/images/battle/hud/directions/direction_panel_parchment_corners_large_006.png" id="15_direction_panel"]
-[ext_resource type="Texture2D" uid="uid://cdawxnnhuruan" path="res://art/images/battle/hud/directions/direction_collapse_tab_parchment_clasp_003_full.png" id="16_direction_tab"]
-[ext_resource type="Texture2D" uid="uid://dmbax1dgplide" path="res://art/images/battle/hud/directions/direction_collapse_triangle_001.png" id="17_direction_triangle"]
-[ext_resource type="Texture2D" uid="uid://b181kcc4ismek" path="res://art/images/battle/hud/directions/direction_arrow_001.png" id="18_direction_left"]
-[ext_resource type="Texture2D" uid="uid://cjacju84yuovk" path="res://art/images/battle/hud/directions/direction_arrow_002.png" id="19_direction_up"]
-[ext_resource type="Texture2D" uid="uid://c4kin68tt6x1g" path="res://art/images/battle/hud/directions/direction_arrow_003.png" id="20_direction_right"]
-[ext_resource type="Texture2D" uid="uid://b5pyqg5qlenvv" path="res://art/images/battle/hud/directions/direction_arrow_004.png" id="21_direction_down"]
+[ext_resource type="PackedScene" uid="uid://d0813nw0iiwx3" path="res://art/prefabs/battle/hud/attack_direction_drawer.tscn" id="14_direction_drawer"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gj48n"]
 
@@ -154,10 +147,6 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sir5a"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_direction_tab"]
-atlas = ExtResource("16_direction_tab")
-region = Rect2(500, 305, 710, 305)
-
 [node name="BattleArtScene" type="Control" unique_id=1647309127]
 editor_description = "正式战斗 Scene。战斗 View、HUD、回合反馈、投射物与命中表现都属于本场景；只复用宠物、宠物详情、地形、地形详情四个 prefab。"
 layout_mode = 3
@@ -185,6 +174,8 @@ layout_mode = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
 texture = ExtResource("1_bg")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="BoardGrid" type="Control" parent="Board" unique_id=703449358]
 custom_minimum_size = Vector2(1232, 962)
@@ -842,6 +833,7 @@ use_perspective_geometry = true
 polygon = PackedVector2Array(0, 0, 149.5929, 0, 170.44885, 148, 15.448853, 148)
 
 [node name="PositionDifficultyButton" type="Button" parent="Board" unique_id=532000912]
+editor_description = "摆位难度切换按钮。点击可在普通与简单之间切换，并把所选难度交给自动布置；计算期间也会显示摆位反馈。"
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -860,7 +852,7 @@ toggle_mode = true
 text = "摆位难度：普通"
 
 [node name="BattlePrimaryActions" type="Control" parent="Board" unique_id=469725293]
-editor_description = "Primary battle actions authored from the supplied PSD. This is a Board-owned HUD group, not a fifth reusable prefab."
+editor_description = "战斗主要操作区：依据提供的 PSD 制作。该节点是棋盘自有的 HUD 组，不是第五个可复用预制体。"
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -904,244 +896,10 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("4_auto_normal")
 texture_pressed = ExtResource("4_auto_pressed")
 
-[node name="AttackDirectionDrawer" type="Control" parent="Board" unique_id=1250099311]
-editor_description = "右上攻击方向抽屉。四行对应我方出战精灵，每行三个 64x64 行动槽方向；面板、箭头、抽屉和三角按钮均锁定显示尺寸。"
-z_index = 40
-texture_filter = 1
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -382.0
-offset_top = 56.0
-offset_right = -82.0
-offset_bottom = 477.0
-grow_horizontal = 0
-mouse_filter = 1
-script = ExtResource("14_direction_drawer")
-arrow_left_texture = ExtResource("18_direction_left")
-arrow_up_texture = ExtResource("19_direction_up")
-arrow_right_texture = ExtResource("20_direction_right")
-arrow_down_texture = ExtResource("21_direction_down")
-
-[node name="Rows" type="Control" parent="Board/AttackDirectionDrawer" unique_id=991021793]
-anchors_preset = 0
-offset_right = 300.0
-offset_bottom = 383.0
-mouse_filter = 2
-
-[node name="Row1" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=846939937]
-custom_minimum_size = Vector2(300, 110)
-anchors_preset = 0
-offset_right = 300.0
-offset_bottom = 110.0
-mouse_filter = 2
-
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=121018017]
-custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
-offset_right = 300.0
-offset_bottom = 110.0
-mouse_filter = 2
-texture = ExtResource("15_direction_panel")
-expand_mode = 1
-
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=852490545]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=1860895029]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 118.0
-offset_top = 20.0
-offset_right = 182.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row1" unique_id=163099748]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 216.0
-offset_top = 20.0
-offset_right = 280.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Row2" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=1061365551]
-custom_minimum_size = Vector2(300, 110)
-anchors_preset = 0
-offset_top = 91.0
-offset_right = 300.0
-offset_bottom = 201.0
-mouse_filter = 2
-
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=1445371862]
-custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
-offset_right = 300.0
-offset_bottom = 110.0
-mouse_filter = 2
-texture = ExtResource("15_direction_panel")
-expand_mode = 1
-
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=586514167]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=1886789574]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 118.0
-offset_top = 20.0
-offset_right = 182.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row2" unique_id=2121919792]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 216.0
-offset_top = 20.0
-offset_right = 280.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Row3" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=1797073306]
-custom_minimum_size = Vector2(300, 110)
-anchors_preset = 0
-offset_top = 182.0
-offset_right = 300.0
-offset_bottom = 292.0
-mouse_filter = 2
-
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=2091917115]
-custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
-offset_right = 300.0
-offset_bottom = 110.0
-mouse_filter = 2
-texture = ExtResource("15_direction_panel")
-expand_mode = 1
-
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=1663083865]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=1384121927]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 118.0
-offset_top = 20.0
-offset_right = 182.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row3" unique_id=77839091]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 216.0
-offset_top = 20.0
-offset_right = 280.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Row4" type="Control" parent="Board/AttackDirectionDrawer/Rows" unique_id=2101182203]
-custom_minimum_size = Vector2(300, 110)
-anchors_preset = 0
-offset_top = 273.0
-offset_right = 300.0
-offset_bottom = 383.0
-mouse_filter = 2
-
-[node name="Background" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=99000892]
-custom_minimum_size = Vector2(300, 110)
-layout_mode = 0
-offset_right = 300.0
-offset_bottom = 110.0
-mouse_filter = 2
-texture = ExtResource("15_direction_panel")
-expand_mode = 1
-
-[node name="Arrow1" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=1633931797]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 84.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow2" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=2128427386]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 118.0
-offset_top = 20.0
-offset_right = 182.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="Arrow3" type="TextureRect" parent="Board/AttackDirectionDrawer/Rows/Row4" unique_id=1100088368]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_left = 216.0
-offset_top = 20.0
-offset_right = 280.0
-offset_bottom = 84.0
-texture = ExtResource("20_direction_right")
-expand_mode = 1
-
-[node name="CollapseButton" type="TextureButton" parent="Board/AttackDirectionDrawer" unique_id=1106103617]
-custom_minimum_size = Vector2(110, 47)
-layout_mode = 0
-offset_left = 95.0
-offset_top = 374.0
-offset_right = 205.0
-offset_bottom = 421.0
-focus_mode = 0
-mouse_default_cursor_shape = 2
-texture_normal = SubResource("AtlasTexture_direction_tab")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Triangle" type="TextureRect" parent="Board/AttackDirectionDrawer/CollapseButton" unique_id=659661335]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 0
-offset_left = 35.0
-offset_top = 4.0
-offset_right = 75.0
-offset_bottom = 44.0
-mouse_filter = 2
-texture = ExtResource("17_direction_triangle")
-expand_mode = 1
+[node name="AttackDirectionDrawer" parent="Board" instance=ExtResource("14_direction_drawer")]
 
 [node name="BattleVfxPlayer" type="Control" parent="Board" unique_id=1866107358]
+editor_description = "战斗表现播放协调节点，本身没有可见图片。负责按事件顺序协调宠物攻击、受击、移动、死亡、投射物、伤害数字、地面命中特效和回合横幅。"
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

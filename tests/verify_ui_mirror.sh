@@ -20,6 +20,8 @@ required_files=(
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
+  "art/prefabs/battle/hud/attack_direction_drawer.tscn"
+  "art/prefabs/shared/cursor/game_cursor.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"
   "session/mock_game_session.gd"
@@ -54,9 +56,11 @@ if [[ "$actual_scenes" != "$expected_scenes_text" ]]; then
 fi
 
 expected_prefabs=(
+  "art/prefabs/battle/hud/attack_direction_drawer.tscn"
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
+  "art/prefabs/shared/cursor/game_cursor.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"
 )
@@ -64,7 +68,7 @@ expected_prefabs=(
 actual_prefabs="$(cd "$MOCK_ROOT" && find art/prefabs -type f -name "*.tscn" | sort)"
 expected_prefabs_text="$(printf '%s\n' "${expected_prefabs[@]}")"
 if [[ "$actual_prefabs" != "$expected_prefabs_text" ]]; then
-  printf '%s\n' "Standalone project must contain four public prefabs and the SpriteInfoCard component." >&2
+  printf '%s\n' "Standalone project must contain four public prefabs and the required internal UI components, including the game cursor." >&2
   exit 1
 fi
 

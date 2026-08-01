@@ -141,12 +141,6 @@ func _play_damage_trace_sequence(event: Dictionary) -> void:
 		play_element_impact(element, target_grid, false)
 	elif source_type == "element_settlement" or bool(payload.get("suppressProjectile", false)):
 		pass
-	elif String(actor.get("side", "")) == "enemy":
-		var attack_translation := play_enemy_attack_translation(actor, target)
-		if attack_translation != null:
-			await get_tree().create_timer(ENEMY_ATTACK_TRANSLATION_OUT_DURATION).timeout
-		var bite := _play_bite_on_unit(target_visual)
-		await _await_bite_impact(bite)
 	else:
 		var projectile := play_projectile(element, actor_grid, target_grid)
 		await _await_projectile_impact(projectile)
@@ -183,19 +177,13 @@ func _play_attack_strike_trace_sequence(event: Dictionary) -> void:
 		var target_grid := _dict_grid(Dictionary(target_value))
 		if target_grid.x >= 0 and target_grid.y >= 0:
 			target_grids.append(target_grid)
-	if String(actor.get("side", "")) == "enemy":
-		if play_enemy_attack_translation(actor, target) != null:
-			await get_tree().create_timer(ENEMY_ATTACK_TRANSLATION_OUT_DURATION).timeout
-		var bite := play_bite(target_grids[0]) if not target_grids.is_empty() else null
-		await _await_bite_impact(bite)
-	else:
-		var projectiles: Array[Node] = []
-		for target_grid in target_grids:
-			var projectile := play_projectile(element, actor_grid, target_grid)
-			if projectile != null:
-				projectiles.append(projectile)
-		if not projectiles.is_empty():
-			await _await_projectile_impact(projectiles[0])
+	var projectiles: Array[Node] = []
+	for target_grid in target_grids:
+		var projectile := play_projectile(element, actor_grid, target_grid)
+		if projectile != null:
+			projectiles.append(projectile)
+	if not projectiles.is_empty():
+		await _await_projectile_impact(projectiles[0])
 	var apply_element_on_impact := bool(payload.get("applyElementOnImpact", false))
 	for target_grid in target_grids:
 		play_element_impact(element, target_grid, apply_element_on_impact)
@@ -280,8 +268,22 @@ func _apply_damage_impact(event: Dictionary, target_visual: Control = null) -> N
 	if unit == null:
 		unit = _unit_at(_dict_grid(target))
 	if unit != null and unit.has_method("play_damage_feedback"):
-		unit.call("play_damage_feedback", payload)
+		unit.call("play_damage_feedback", payload, _damage_reaction_direction(event))
 	return unit
+
+
+func _damage_reaction_direction(event: Dictionary) -> Vector2:
+	var actor_grid := _dict_grid(Dictionary(event.get("actor", {})))
+	var target_grid := _dict_grid(Dictionary(event.get("target", {})))
+	var actor_cell := _cell_at(actor_grid)
+	var target_cell := _cell_at(target_grid)
+	if actor_cell == null or target_cell == null:
+		return Vector2.RIGHT
+	var direction := (
+		target_cell.global_position + target_cell.size * 0.5
+		- actor_cell.global_position - actor_cell.size * 0.5
+	)
+	return direction.normalized() if direction.length_squared() > 0.001 else Vector2.RIGHT
 
 
 func play_event(event: Dictionary) -> Node:
@@ -307,8 +309,8 @@ func _instant_bite(event: Dictionary) -> Node:
 	return play_bite(_event_grid(event, "at"))
 
 
-func _instant_damage(event: Dictionary) -> Node:
-	return play_damage_number(_event_grid(event, "at"), int(event.get("amount", 0)))
+func _instant_damage(_event: Dictionary) -> Node:
+	return null
 
 
 func _instant_spawn_trap(event: Dictionary) -> Node:
@@ -343,10 +345,7 @@ func play_damage_trace(event: Dictionary) -> Node:
 	var actor_grid := _dict_grid(actor)
 	var target_grid := _dict_grid(target)
 	var element := String(payload.get("element", "fire"))
-	if String(actor.get("side", "")) == "enemy":
-		play_enemy_attack_translation(actor, target)
-		play_bite(target_grid)
-	elif actor_grid.x >= 0 and target_grid.x >= 0:
+	if actor_grid.x >= 0 and target_grid.x >= 0:
 		play_projectile(element, actor_grid, target_grid)
 	return _apply_damage_impact(event)
 
@@ -419,13 +418,6 @@ func _play_bite_on_unit(unit: Control) -> Node:
 	return unit.call("play_bite_impact") as Node
 
 
-func play_damage_number(grid: Vector2i, amount: int, damage_kind: String = "hp", y_offset: float = 0.0, x_offset: float = 0.0) -> Node:
-	var unit := _unit_at(grid)
-	if unit == null or not unit.has_method("play_damage_number"):
-		return null
-	return unit.call("play_damage_number", amount, damage_kind, y_offset, x_offset) as Node
-
-
 func _await_projectile_impact(projectile: Node) -> void:
 	if projectile != null and projectile.has_signal("impact_reached"):
 		await projectile.impact_reached
@@ -440,25 +432,21 @@ func _await_bite_impact(bite: Node) -> void:
 
 func play_spawn_trap(element: String, grid: Vector2i, transient: bool = false) -> Node:
 	var cell := _cell_at(grid)
-	if cell == null or assets == null or not assets.has_method("buff_ring_texture"):
+	if cell == null:
 		return cell
-	var marker_texture = assets.call("buff_ring_texture", element)
-	if transient and cell.has_method("show_transient_element_marker"):
-		cell.call("show_transient_element_marker", marker_texture)
-	elif cell.has_method("show_effect_marker"):
-		cell.call("show_effect_marker", marker_texture)
+	if transient and cell.has_method("show_transient_element_tile"):
+		cell.call("show_transient_element_tile", _visual_element_id(element))
+	elif cell.has_method("show_element_tile"):
+		cell.call("show_element_tile", _visual_element_id(element))
 	return cell
 
 
-func play_element_impact(element: String, grid: Vector2i, persist_marker: bool = true) -> Node:
+func play_element_impact(element: String, grid: Vector2i, persist_tile: bool = true) -> Node:
 	var cell := _cell_at(grid)
 	if cell == null or not cell.has_method("play_element_impact"):
 		return null
 	var visual_element := _visual_element_id(element)
-	var marker_texture: Texture2D = null
-	if assets != null and assets.has_method("buff_ring_texture"):
-		marker_texture = assets.call("buff_ring_texture", visual_element) as Texture2D
-	return cell.call("play_element_impact", visual_element, marker_texture, persist_marker) as Node
+	return cell.call("play_element_impact", visual_element, persist_tile) as Node
 
 
 func play_round_banner(round_number: int, side: String) -> Node:
@@ -520,18 +508,17 @@ func _new_round_banner() -> Control:
 func debug_spawn_prefab_samples() -> Dictionary:
 	var before := get_child_count()
 	var projectile := play_projectile("fire", Vector2i(1, 6), Vector2i(5, 2))
-	var damage := play_damage_number(Vector2i(5, 2), 7)
 	var banner := play_round_banner(1, "player")
 	var bite := play_bite(Vector2i(5, 2))
 	var trap := play_spawn_trap("fire", Vector2i(2, 6))
 	return {
 		"before": before,
 		"after": get_child_count(),
-		"projectile_ok": projectile != null and projectile.has_method("play"),
-		"damage_ok": damage != null and damage.has_method("show_damage"),
+		"projectile_ok": projectile != null and String(projectile.get_path()).ends_with("/03_AttackActions"),
+		"damage_ok": false,
 		"banner_ok": banner != null and banner.has_method("show_round"),
-		"bite_ok": bite != null and bite.has_method("play"),
-		"trap_ok": trap != null and trap.has_method("show_effect_marker")
+		"bite_ok": bite != null and String(bite.get_path()).ends_with("/03_AttackActions"),
+		"trap_ok": trap != null and trap.has_method("show_element_tile")
 	}
 
 

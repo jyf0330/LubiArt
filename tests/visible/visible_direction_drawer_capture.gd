@@ -2,6 +2,7 @@ extends SceneTree
 
 const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
 const EXPANDED_CAPTURE := "res://output/battle_direction_drawer_expanded.png"
+const SCROLL_HINT_CAPTURE := "res://output/battle_direction_drawer_scroll_hint.png"
 const COLLAPSED_CAPTURE := "res://output/battle_direction_drawer_collapsed.png"
 
 
@@ -19,8 +20,10 @@ func _run() -> void:
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	var drawer := battle_view.get_node_or_null("Board/AttackDirectionDrawer") as Control if battle_view != null else null
 	var rows := drawer.get_node_or_null("Rows") as Control if drawer != null else null
+	var first_arrow := drawer.get_node_or_null("Rows/Row1/Arrow1") as TextureRect if drawer != null else null
+	var scroll_hint := drawer.get_node_or_null("ScrollHint") as TextureRect if drawer != null else null
 	var collapse_button := drawer.get_node_or_null("CollapseButton") as TextureButton if drawer != null else null
-	if drawer == null or rows == null or collapse_button == null:
+	if drawer == null or rows == null or first_arrow == null or scroll_hint == null or collapse_button == null:
 		_fail("attack direction drawer is unavailable")
 		return
 	var display_directions := Array(drawer.call("debug_display_directions"))
@@ -34,6 +37,18 @@ func _run() -> void:
 	if not _save_capture(EXPANDED_CAPTURE):
 		return
 
+	var hover_position := first_arrow.global_position + first_arrow.size * 0.5
+	Input.warp_mouse(hover_position)
+	first_arrow.mouse_entered.emit()
+	for _frame in range(4):
+		await process_frame
+	await create_timer(0.12).timeout
+	if not scroll_hint.visible:
+		_fail("scroll hint did not appear while the pointer hovered an arrow")
+		return
+	if not _save_capture(SCROLL_HINT_CAPTURE):
+		return
+
 	collapse_button.pressed.emit()
 	await create_timer(0.25).timeout
 	if rows.visible or bool(drawer.call("is_expanded")) or collapse_button.position != Vector2(95.0, 0.0):
@@ -42,8 +57,9 @@ func _run() -> void:
 	if not _save_capture(COLLAPSED_CAPTURE):
 		return
 
-	print("VISIBLE_DIRECTION_DRAWER_PASS rows=4 slots=3 expanded=%s collapsed=%s" % [
+	print("VISIBLE_DIRECTION_DRAWER_PASS rows=4 slots=3 expanded=%s scroll_hint=%s collapsed=%s" % [
 		ProjectSettings.globalize_path(EXPANDED_CAPTURE),
+		ProjectSettings.globalize_path(SCROLL_HINT_CAPTURE),
 		ProjectSettings.globalize_path(COLLAPSED_CAPTURE),
 	])
 	quit(0)

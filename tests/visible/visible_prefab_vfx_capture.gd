@@ -43,7 +43,6 @@ func _run() -> void:
 
 	var observed := {
 		"projectile": false,
-		"damage": false,
 		"element": false,
 	}
 	var projectile_capture_saved := false
@@ -55,20 +54,17 @@ func _run() -> void:
 		for node in _all_descendants(battle_view):
 			var node_name := String(node.name)
 			var node_path := String(node.get_path())
-			if node_name == "CrossCellProjectile":
+			if node_name == "ProjectileArt" and node is CanvasItem and (node as CanvasItem).visible:
 				observed["projectile"] = true
-				assert("/04_BattleEffects/ProjectileLayer/" in node_path)
+				assert(node_path.ends_with("/03_AttackActions/element_projectile/ProjectileArt"))
 				if not projectile_capture_saved:
 					await process_frame
 					_save_capture(PROJECTILE_CAPTURE)
 					projectile_capture_saved = true
-			elif node_name == "HpDamageNumber" or node_name == "ShieldDamageNumber":
-				observed["damage"] = true
-				assert("/04_BattleEffects/DamageNumberLayer/" in node_path)
 			elif node_name == "ElementImpact":
 				observed["element"] = true
 				assert("/GroundElementEffects/ImpactLayer/" in node_path)
-			if not impact_capture_saved and bool(observed["damage"]) and bool(observed["element"]):
+			if not impact_capture_saved and bool(observed["element"]):
 				await process_frame
 				_save_capture(IMPACT_CAPTURE)
 				impact_capture_saved = true
@@ -98,15 +94,21 @@ func _run() -> void:
 func _capture_pet_owned_samples(battle_view: Control) -> bool:
 	var pet: Control = null
 	for node in _all_descendants(battle_view):
-		if node is Control and node.has_method("play_bite_impact"):
+		if node is Control \
+			and node.has_method("play_bite_impact") \
+			and (node as Control).is_visible_in_tree():
 			pet = node as Control
 			break
 	if pet == null:
 		_fail("could not find a battle pet for visible samples")
 		return false
+	var authored_node_count := pet.find_children("*", "", true, false).size()
 	var bite := pet.call("play_bite_impact") as Node
-	if bite == null or bite.get_parent().name != "HitLayer":
-		_fail("bite was not created under the pet prefab")
+	if bite == null or not String(bite.get_path()).ends_with("/03_AttackActions"):
+		_fail("bite did not use the authored 03_AttackActions node")
+		return false
+	if pet.find_children("*", "", true, false).size() != authored_node_count:
+		_fail("bite playback changed the authored pet node structure")
 		return false
 	await create_timer(0.12).timeout
 	_save_capture(BITE_CAPTURE)

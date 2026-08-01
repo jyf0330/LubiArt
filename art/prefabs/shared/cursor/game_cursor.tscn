@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/shared/cursor/game_cursor.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/images/shared/cursors/cursor_pointer_64.png" id="2_pointer"]
+
+[node name="GameCursor" type="CanvasLayer" groups=["game_cursor"]]
+layer = 128
+process_mode = 3
+script = ExtResource("1_script")
+
+[node name="CursorVisual" type="TextureRect" parent="."]
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("2_pointer")
+expand_mode = 1
+stretch_mode = 5

@@ -1,36 +1,38 @@
 {
-  "version": 1,
-  "description": "Battle-only crop and footline overrides remove detached sheet seams and keep creature feet visually grounded above the shared prefab shadow.",
+  "version": 2,
+  "description": "Battle-only visible bounds and footlines for the eight confirmed sprites. Bounds ignore faint transparent fringe so each creature occupies its intended area inside a grid cell.",
   "by_texture_path": {
-    "res://art/images/shared/pets/sheets/slices/shop_creature_006_water_pondhopper.png": {
-      "footline_bottom_inset": 7
+    "res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png": {
+      "used_rect": [158, 132, 709, 704],
+      "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_004_water_bubblebell.png": {
-      "crop_bottom": 170
+    "res://art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png": {
+      "used_rect": [79, 122, 878, 730],
+      "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_011_water_pearlcrab.png": {
-      "crop_bottom": 131
+    "res://art/images/shared/pets/sheets/slices/pet_style_003_blue_electric_shell.png": {
+      "used_rect": [5, 18, 166, 144],
+      "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_028_earth_thornstone.png": {
-      "crop_bottom": 173
+    "res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png": {
+      "used_rect": [2, 15, 175, 150],
+      "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_042_wind_twister.png": {
-      "crop_bottom": 154
+    "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png": {
+      "used_rect": [6, 26, 171, 134],
+      "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_044_wind_dewwing.png": {
-      "crop_bottom": 161
+    "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png": {
+      "used_rect": [5, 0, 170, 180],
+      "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_049_wind_sylphina.png": {
-      "crop_bottom": 167
+    "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png": {
+      "used_rect": [1, 0, 1000, 677],
+      "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_052_wind_galeoracle.png": {
-      "crop_bottom": 158
-    },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_058_fire_nightflame.png": {
-      "crop_bottom": 153
-    },
-    "res://art/images/shared/pets/sheets/slices/shop_creature_066_fire_lavahorn.png": {
-      "crop_bottom": 147
+    "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png": {
+      "used_rect": [102, 37, 820, 949],
+      "footline_bottom_inset": 15
     }
   }
 }

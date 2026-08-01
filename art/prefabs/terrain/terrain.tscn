@@ -1,16 +1,20 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://dx2fnttv33jhw"]
 
-[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/board/battle_cell.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://art/images/battle/runtime/images/cell_anchor_transparent.svg" id="2_anchor"]
+[ext_resource type="Script" uid="uid://3khybdcs8u82" path="res://core_ui/scripts/battle/prefabs/board/battle_cell.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c7rp5hbi55l17" path="res://art/images/battle/runtime/images/cell_anchor_transparent.svg" id="2_anchor"]
 
-[node name="BattleCell" type="Panel"]
-layout_mode = 0
-offset_right = 120.0
-offset_bottom = 100.0
-mouse_filter = 1
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_a711e"]
+
+[node name="BattleCell" type="Panel" unique_id=744506345]
+offset_right = 124.66
+offset_bottom = 109.57143
+theme_override_styles/panel = SubResource("StyleBoxEmpty_a711e")
 script = ExtResource("1_script")
+use_perspective_geometry = true
+polygon = PackedVector2Array(3.660006, 0, 124.66, 0, 124.66, 109.57143, 0, 109.57143)
 
-[node name="CellImage" type="TextureRect" parent="."]
+[node name="CellImage" type="TextureRect" parent="." unique_id=2000503071]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,9 +24,37 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("2_anchor")
 expand_mode = 1
-stretch_mode = 0
 
-[node name="GroundElementEffects" type="Control" parent="."]
+[node name="AttackHighlight" type="Polygon2D" parent="." unique_id=213493551]
+visible = false
+color = Color(0.92, 0.1, 0.08, 0.42)
+polygon = PackedVector2Array(0, 0, 120, 0, 120, 100, 0, 100)
+
+[node name="AttackHighlightBorder" type="Line2D" parent="." unique_id=1301563099]
+visible = false
+points = PackedVector2Array(0, 0, 120, 0, 120, 100, 0, 100, 0, 0)
+width = 2.0
+default_color = Color(1, 0.2, 0.18, 0.78)
+joint_mode = 2
+antialiased = true
+
+[node name="HoverHighlight" type="Polygon2D" parent="." unique_id=589329408]
+visible = false
+z_index = 1
+color = Color(0.08, 0.46, 1, 0.2)
+polygon = PackedVector2Array(0, 0, 120, 0, 120, 100, 0, 100)
+
+[node name="HoverHighlightBorder" type="Line2D" parent="." unique_id=703563109]
+visible = false
+z_index = 1
+points = PackedVector2Array(0, 0, 120, 0, 120, 100, 0, 100, 0, 0)
+width = 3.0
+default_color = Color(0.12, 0.68, 1, 0.92)
+joint_mode = 2
+antialiased = true
+
+[node name="GroundElementEffects" type="Control" parent="." unique_id=1888732241]
+visible = false
 z_index = 1
 layout_mode = 1
 anchors_preset = 15
@@ -32,7 +64,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="PersistentMarker" type="TextureRect" parent="GroundElementEffects"]
+[node name="LandingTileArt" type="TextureRect" parent="GroundElementEffects" unique_id=720564881]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -44,16 +76,8 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ElementMarkers" type="Control" parent="GroundElementEffects"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="ImpactLayer" type="Control" parent="GroundElementEffects"]
+[node name="ImpactLayer" type="Control" parent="GroundElementEffects" unique_id=616791229]
+visible = false
 z_index = 1
 layout_mode = 1
 anchors_preset = 15
@@ -63,7 +87,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="PrefabAnchor" type="Control" parent="."]
+[node name="PrefabAnchor" type="Control" parent="." unique_id=748915436]
 z_index = 2
 layout_mode = 1
 anchors_preset = 15

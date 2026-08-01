@@ -1,22 +1,23 @@
 extends Control
 
 const SOURCE_PSD := "battle_creature_prefab_source.psd"
-const SOURCE_CANVAS_SIZE := Vector2(171.0, 144.0)
-const AUTHORED_CREATURE_TEXTURE := preload("res://art/images/shared/pets/battle_complete/creature_art.png")
-const BattleProjectileScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_projectile.gd")
-const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
-const BattleBiteVfxScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_bite_vfx.gd")
+const SOURCE_CANVAS_SIZE := Vector2(180.0, 180.0)
+const AUTHORED_CREATURE_TEXTURE := preload("res://art/images/shared/pets/battle_complete/creature_art_gold.png")
 const BATTLE_FOOTLINE_BOTTOM_INSET := 15.0
 const BATTLE_SHADOW_CENTER_Y_OFFSET := -3.0
 const BATTLE_VISUAL_METRICS_PATH := "res://art/manifests/shared/pets/sheets/pet_battle_visual_metrics.json"
-const STAT_HEALTH_SIZE := Vector2(38.0, 36.0)
-const STAT_HEALTH_FONT_SCALE := 0.83
-const STAT_SHIELD_SIZE := Vector2(35.0, 46.0)
-const STAT_ATTACK_SIZE := Vector2(49.0, 51.0)
-const STAT_DAMAGE_CAP_SIZE := Vector2(39.0, 47.0)
-const STAT_EDGE_INSET := 10.0
-const STAT_VALUE_FONT_SIZE := 20
-
+const DAMAGE_PREVIEW_INITIAL_HOLD := 1.0
+const DAMAGE_PREVIEW_VISIBLE_HOLD := 1.0
+const DAMAGE_PREVIEW_HIDDEN_HOLD := 1.0
+const DAMAGE_PREVIEW_FADE_DURATION := 0.12
+const HEALTH_PREFIX := "HP:"
+const SHIELD_PREFIX := "SHLD:"
+const DAMAGE_PREVIEW_COLOR := Color("ff5a4f")
+const DAMAGE_PREVIEW_HEALTH_SCALE := 1.45
+const STAT_COLUMN_GAP := 1.0
+const STAT_COLUMN_RIGHT_INSET := 4.0
+const STAT_HIDE_DELAY := 1.0
+const DRAG_PREVIEW_NAME := &"BattleUnitDragPreview"
 static var _texture_used_rect_cache: Dictionary = {}
 static var _battle_texture_cache: Dictionary = {}
 static var _battle_visual_metrics_by_path: Dictionary = {}
@@ -39,11 +40,12 @@ static var _battle_visual_metrics_loaded := false
 @onready var psd_shield_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield/Value_Text"
 @onready var psd_attack_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack/Value_Text"
 @onready var psd_damage_cap_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap/Value_Text"
+@onready var incoming_damage_preview: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"
+@onready var incoming_damage_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview/Value"
 @onready var death_mark_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/DeathMark"
 @onready var animation: PetAnimation = $"CompleteBattleCreaturePrefab/03_AttackActions"
-@onready var projectile_layer: Control = $"CompleteBattleCreaturePrefab/04_BattleEffects/ProjectileLayer"
-@onready var hit_layer: Control = $"CompleteBattleCreaturePrefab/04_BattleEffects/HitLayer"
-@onready var damage_number_layer: Control = $"CompleteBattleCreaturePrefab/04_BattleEffects/DamageNumberLayer"
+@onready var hit_reaction: PetHitReaction = $"CompleteBattleCreaturePrefab/01_UnitVisual/HitReactionPlayer"
+@onready var shield_hit_effect: PetShieldHitEffect = $"CompleteBattleCreaturePrefab/01_UnitVisual/ShieldHitEffectPlayer"
 
 var cell_data: Dictionary = {}
 var side := ""
@@ -53,13 +55,46 @@ var _display_mode := &"battle"
 var _battle_sprite_visible_rect := Rect2()
 var _battle_removed_bottom_pixels := 0
 var _battle_footline_bottom_inset := BATTLE_FOOTLINE_BOTTOM_INSET
+var _battle_stat_layout_scale := 1.0
+var _battle_stat_layout_corners := PackedVector2Array()
+var _authored_stat_layout: Dictionary = {}
 var _death_tween: Tween = null
 var _attack_translation_tween: Tween = null
+var _damage_preview_tween: Tween = null
+var _damage_preview_active := false
+var _damage_preview_current_hp := 0
+var _damage_preview_projected_hp := 0
+var _damage_preview_current_shield := -1
+var _damage_preview_projected_shield := -1
+var _damage_preview_damage := 0
+var _damage_preview_max_hp := 0
+var _damage_preview_pinned := false
+var _damage_preview_state := &""
+var _damage_preview_value_base_modulate := Color.WHITE
+var _damage_preview_value_base_self_modulate := Color.WHITE
+var _damage_preview_sync_epoch_msec := -1
+var _damage_preview_schedule_token := 0
+var _damage_preview_deadline_msec := 0
+var _damage_preview_revealed_stats := false
+var _damage_preview_presentation_active := false
+var _damage_preview_health_base_position := Vector2.ZERO
+var _damage_preview_health_base_scale := Vector2.ONE
+var _damage_preview_health_base_z_index := 0
+var _damage_preview_health_base_group_modulate := Color.WHITE
+var _damage_preview_attack_was_visible := false
+var _damage_preview_shield_was_visible := false
+var _damage_preview_cap_was_visible := false
+var _damage_preview_uses_badge := false
+var _damage_preview_badge_base_modulate := Color.WHITE
+var _stat_visibility_token := 0
+var _cursor_hit_texture: Texture2D = null
+var _cursor_hit_image: Image = null
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	animation.configure(self)
+	_capture_authored_stat_layout()
 	_layout_children()
 
 
@@ -79,9 +114,23 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 	if sprite_rect.texture == null:
 		sprite_rect.texture = AUTHORED_CREATURE_TEXTURE
 	_layout_children()
+	animation.play_sprite_idle(
+		sprite_rect,
+		sprite_rect.texture,
+		_battle_sprite_visible_rect.end - sprite_rect.position
+	)
 	enemy_marker_group.visible = side == "enemy" or side == "monster"
 	status_view.bind_battle_data(cell_data)
 	clear_dead_mark()
+
+
+func set_battle_stat_layout_scale(
+	value: float,
+	cell_corners: PackedVector2Array = PackedVector2Array()
+) -> void:
+	_battle_stat_layout_scale = clampf(value, 0.1, 1.0)
+	_battle_stat_layout_corners = cell_corners.duplicate()
+	_layout_stats_from_prefab()
 
 
 func set_collection_data(data: Dictionary, texture_resource: Texture2D) -> void:
@@ -91,6 +140,7 @@ func set_collection_data(data: Dictionary, texture_resource: Texture2D) -> void:
 	_display_mode = &"collection"
 	frame_rect.visible = false
 	_set_collection_presentation(texture_resource)
+	animation.play_sprite_idle(sprite_rect, sprite_rect.texture)
 	status_view.set_mode(&"collection")
 	clear_dead_mark()
 
@@ -105,10 +155,12 @@ func clear_collection_data() -> void:
 
 
 func reset_pet_view() -> void:
+	_stop_damage_preview_animation(false)
+	if hit_reaction != null:
+		hit_reaction.reset()
 	animation.reset()
 	if front_target_cell != null and front_target_cell.has_method("reset"):
 		front_target_cell.call("reset")
-	_clear_runtime_battle_effects()
 	if _death_tween != null and _death_tween.is_valid():
 		_death_tween.kill()
 	if _attack_translation_tween != null and _attack_translation_tween.is_valid():
@@ -164,7 +216,7 @@ func _set_battle_presentation() -> void:
 	shadow_rect.visible = true
 	shadow_rect.z_index = 0
 	sprite_rect.z_index = 1
-	stats_root.visible = true
+	stats_root.visible = false
 	front_target_cell.visible = false
 	attack_actions.visible = true
 	enemy_marker_group.visible = side == "enemy" or side == "monster"
@@ -194,6 +246,292 @@ func get_dynamic_stat_snapshot() -> Dictionary:
 func update_hp(value: int) -> void:
 	cell_data["hp"] = value
 	status_view.update_hp(value)
+	if _damage_preview_active:
+		_damage_preview_current_hp = maxi(0, value)
+		if _damage_preview_projected_hp >= _damage_preview_current_hp:
+			stop_damage_preview()
+		else:
+			_show_damage_preview_value()
+
+
+func start_damage_preview(
+	current_hp: int,
+	projected_hp: int,
+	sync_epoch_msec: int = -1,
+	predicted_damage: int = -1,
+	current_shield: int = -1,
+	projected_shield: int = -1,
+	max_hp: int = -1,
+	pinned: bool = false,
+	initial_hold: float = DAMAGE_PREVIEW_INITIAL_HOLD
+) -> void:
+	var safe_current := maxi(0, current_hp)
+	var safe_projected := maxi(0, projected_hp)
+	var safe_current_shield := maxi(0, current_shield) if current_shield >= 0 else -1
+	var safe_projected_shield := maxi(0, projected_shield) if projected_shield >= 0 else -1
+	var safe_max_hp := maxi(safe_current, max_hp if max_hp >= 0 else safe_current)
+	var fallback_damage := safe_current - safe_projected
+	if safe_current_shield >= 0 and safe_projected_shield >= 0:
+		fallback_damage += safe_current_shield - safe_projected_shield
+	var safe_damage := maxi(0, predicted_damage if predicted_damage >= 0 else fallback_damage)
+	if safe_damage <= 0:
+		stop_damage_preview()
+		return
+	if _damage_preview_active \
+			and _damage_preview_current_hp == safe_current \
+			and _damage_preview_projected_hp == safe_projected \
+			and _damage_preview_current_shield == safe_current_shield \
+			and _damage_preview_projected_shield == safe_projected_shield \
+			and _damage_preview_damage == safe_damage \
+			and _damage_preview_max_hp == safe_max_hp:
+		if pinned:
+			pin_damage_preview()
+		elif _damage_preview_pinned:
+			release_damage_preview(initial_hold)
+		return
+	_stop_damage_preview_animation(false)
+	_damage_preview_uses_badge = side in ["player", "ally"] and incoming_damage_preview != null
+	if not _damage_preview_uses_badge:
+		_damage_preview_revealed_stats = stats_root != null and not stats_root.visible
+		_show_battle_stats()
+		_enter_damage_preview_presentation()
+	_damage_preview_active = true
+	_damage_preview_current_hp = safe_current
+	_damage_preview_projected_hp = safe_projected
+	_damage_preview_current_shield = safe_current_shield
+	_damage_preview_projected_shield = safe_projected_shield
+	_damage_preview_damage = safe_damage
+	_damage_preview_max_hp = safe_max_hp
+	_damage_preview_pinned = pinned
+	_damage_preview_value_base_modulate = psd_health_value.modulate if psd_health_value != null else Color.WHITE
+	_damage_preview_value_base_self_modulate = psd_health_value.self_modulate if psd_health_value != null else Color.WHITE
+	_damage_preview_badge_base_modulate = incoming_damage_preview.modulate \
+		if incoming_damage_preview != null else Color.WHITE
+	_damage_preview_sync_epoch_msec = sync_epoch_msec
+	_show_damage_preview_value()
+	_set_damage_preview_visible(true)
+	if not _damage_preview_pinned:
+		_schedule_damage_preview_timeout(initial_hold)
+
+
+func stop_damage_preview() -> void:
+	_stop_damage_preview_animation(true)
+
+
+func pin_damage_preview() -> void:
+	if not _damage_preview_active:
+		return
+	_damage_preview_pinned = true
+	_damage_preview_schedule_token += 1
+	_damage_preview_deadline_msec = 0
+	if _damage_preview_tween != null and _damage_preview_tween.is_valid():
+		_damage_preview_tween.kill()
+	_damage_preview_tween = null
+	_set_damage_preview_visible(true)
+
+
+func release_damage_preview(hold_seconds: float = DAMAGE_PREVIEW_INITIAL_HOLD) -> void:
+	if not _damage_preview_active:
+		return
+	_damage_preview_pinned = false
+	_damage_preview_schedule_token += 1
+	if _damage_preview_tween != null and _damage_preview_tween.is_valid():
+		_damage_preview_tween.kill()
+	_damage_preview_tween = null
+	_set_damage_preview_visible(true)
+	_schedule_damage_preview_timeout(hold_seconds)
+
+
+func get_damage_preview_snapshot() -> Dictionary:
+	return {
+		"active": _damage_preview_active,
+		"state": String(_damage_preview_state),
+		"pinned": _damage_preview_pinned,
+		"current_hp": _damage_preview_current_hp,
+		"projected_hp": _damage_preview_projected_hp,
+		"max_hp": _damage_preview_max_hp,
+		"current_shield": _damage_preview_current_shield,
+		"projected_shield": _damage_preview_projected_shield,
+		"predicted_damage": _damage_preview_damage,
+		"displayed_hp": _displayed_hp_value(),
+		"displayed_damage": _displayed_damage_value(),
+		"uses_badge": _damage_preview_uses_badge,
+		"initial_hold": DAMAGE_PREVIEW_INITIAL_HOLD,
+		"visible_hold": DAMAGE_PREVIEW_VISIBLE_HOLD,
+		"hidden_hold": DAMAGE_PREVIEW_HIDDEN_HOLD,
+		"sync_epoch_msec": _damage_preview_sync_epoch_msec,
+		"seconds_to_switch": maxf(
+			0.0,
+			float(_damage_preview_deadline_msec - Time.get_ticks_msec()) / 1000.0
+		) if _damage_preview_active else 0.0,
+	}
+
+
+func _on_damage_preview_timeout() -> void:
+	if not _damage_preview_active or _damage_preview_pinned:
+		return
+	_fade_damage_preview(_damage_preview_state == &"hidden")
+
+
+func _fade_damage_preview(show: bool) -> void:
+	var preview_control := incoming_damage_preview if _damage_preview_uses_badge else health_group
+	if preview_control == null:
+		_set_damage_preview_visible(show)
+		_schedule_damage_preview_timeout(
+			DAMAGE_PREVIEW_VISIBLE_HOLD if show else DAMAGE_PREVIEW_HIDDEN_HOLD
+		)
+		return
+	if _damage_preview_tween != null and _damage_preview_tween.is_valid():
+		_damage_preview_tween.kill()
+	_damage_preview_tween = create_tween()
+	_damage_preview_tween.set_trans(Tween.TRANS_SINE)
+	_damage_preview_tween.set_ease(Tween.EASE_IN_OUT)
+	_damage_preview_tween.tween_property(
+		preview_control,
+		"modulate:a",
+		_damage_preview_badge_base_modulate.a \
+			if show and _damage_preview_uses_badge \
+			else (_damage_preview_health_base_group_modulate.a if show else 0.0),
+		DAMAGE_PREVIEW_FADE_DURATION
+	)
+	_damage_preview_tween.tween_callback(
+		_complete_damage_preview_fade.bind(
+			show,
+			DAMAGE_PREVIEW_VISIBLE_HOLD if show else DAMAGE_PREVIEW_HIDDEN_HOLD
+		)
+	)
+
+
+func _complete_damage_preview_fade(visible_value: bool, hold_duration: float) -> void:
+	if not _damage_preview_active or _damage_preview_pinned:
+		return
+	_damage_preview_state = &"visible" if visible_value else &"hidden"
+	_schedule_damage_preview_timeout(hold_duration)
+
+
+func _set_damage_preview_visible(visible_value: bool) -> void:
+	if _damage_preview_uses_badge and incoming_damage_preview != null:
+		incoming_damage_preview.visible = true
+		incoming_damage_preview.modulate.a = _damage_preview_badge_base_modulate.a \
+			if visible_value else 0.0
+	elif health_group != null:
+		health_group.modulate.a = _damage_preview_health_base_group_modulate.a if visible_value else 0.0
+	_damage_preview_state = &"visible" if visible_value else &"hidden"
+
+
+func _show_damage_preview_value() -> void:
+	if not _damage_preview_active:
+		return
+	if _damage_preview_uses_badge:
+		if incoming_damage_value != null:
+			incoming_damage_value.text = str(_damage_preview_damage)
+			incoming_damage_value.self_modulate = Color.WHITE
+		return
+	if psd_health_value == null:
+		return
+	psd_health_value.text = HEALTH_PREFIX + str(_damage_preview_projected_hp)
+	psd_health_value.self_modulate = _damage_preview_value_base_self_modulate \
+		if _damage_preview_projected_hp >= _damage_preview_max_hp else DAMAGE_PREVIEW_COLOR
+
+
+func _schedule_damage_preview_timeout(duration: float) -> void:
+	if not _damage_preview_active:
+		return
+	_damage_preview_schedule_token += 1
+	var scheduled_token := _damage_preview_schedule_token
+	var safe_duration := maxf(duration, 0.001)
+	_damage_preview_deadline_msec = Time.get_ticks_msec() + int(round(safe_duration * 1000.0))
+	get_tree().create_timer(safe_duration).timeout.connect(func() -> void:
+		if scheduled_token == _damage_preview_schedule_token and _damage_preview_active:
+			_on_damage_preview_timeout()
+	)
+
+
+func _stop_damage_preview_animation(restore_current_hp: bool) -> void:
+	var had_preview_animation := _damage_preview_active \
+		or (_damage_preview_tween != null and _damage_preview_tween.is_valid())
+	_damage_preview_schedule_token += 1
+	_damage_preview_deadline_msec = 0
+	if _damage_preview_tween != null and _damage_preview_tween.is_valid():
+		_damage_preview_tween.kill()
+	_damage_preview_tween = null
+	if had_preview_animation and psd_health_value != null:
+		psd_health_value.modulate = _damage_preview_value_base_modulate
+		psd_health_value.self_modulate = _damage_preview_value_base_self_modulate
+	if incoming_damage_preview != null:
+		incoming_damage_preview.visible = false
+		incoming_damage_preview.modulate = _damage_preview_badge_base_modulate
+	if incoming_damage_value != null:
+		incoming_damage_value.text = ""
+	_damage_preview_active = false
+	_damage_preview_pinned = false
+	_damage_preview_state = &""
+	_damage_preview_sync_epoch_msec = -1
+	_leave_damage_preview_presentation()
+	if _damage_preview_revealed_stats and stats_root != null:
+		_stat_visibility_token += 1
+		stats_root.visible = false
+	_damage_preview_revealed_stats = false
+	_damage_preview_uses_badge = false
+	if restore_current_hp and psd_health_value != null:
+		psd_health_value.text = HEALTH_PREFIX + str(max(0, int(cell_data.get("hp", 0))))
+	if restore_current_hp and psd_shield_value != null:
+		psd_shield_value.text = SHIELD_PREFIX + str(max(0, int(cell_data.get("shield", 0))))
+
+
+func _enter_damage_preview_presentation() -> void:
+	if _damage_preview_presentation_active or health_group == null:
+		return
+	_damage_preview_presentation_active = true
+	_damage_preview_health_base_position = health_group.position
+	_damage_preview_health_base_scale = health_group.scale
+	_damage_preview_health_base_z_index = health_group.z_index
+	_damage_preview_health_base_group_modulate = health_group.modulate
+	_damage_preview_attack_was_visible = attack_group != null and attack_group.visible
+	_damage_preview_shield_was_visible = shield_group != null and shield_group.visible
+	_damage_preview_cap_was_visible = damage_cap_group != null and damage_cap_group.visible
+	var extra_width := health_group.size.x * health_group.scale.x * (DAMAGE_PREVIEW_HEALTH_SCALE - 1.0)
+	health_group.position.x -= extra_width
+	health_group.scale *= DAMAGE_PREVIEW_HEALTH_SCALE
+	health_group.z_index = 12
+	if attack_group != null:
+		attack_group.visible = false
+	if shield_group != null:
+		shield_group.visible = false
+	if damage_cap_group != null:
+		damage_cap_group.visible = false
+
+
+func _leave_damage_preview_presentation() -> void:
+	if not _damage_preview_presentation_active:
+		return
+	_damage_preview_presentation_active = false
+	if health_group != null:
+		health_group.position = _damage_preview_health_base_position
+		health_group.scale = _damage_preview_health_base_scale
+		health_group.z_index = _damage_preview_health_base_z_index
+		health_group.modulate = _damage_preview_health_base_group_modulate
+	if attack_group != null:
+		attack_group.visible = _damage_preview_attack_was_visible
+	if shield_group != null:
+		shield_group.visible = _damage_preview_shield_was_visible
+	if damage_cap_group != null:
+		damage_cap_group.visible = _damage_preview_cap_was_visible
+
+
+func _displayed_hp_value() -> int:
+	if psd_health_value == null:
+		return -1
+	var numeric_text := psd_health_value.text.trim_prefix(HEALTH_PREFIX).strip_edges()
+	if numeric_text.contains(" "):
+		numeric_text = numeric_text.get_slice(" ", 0)
+	return int(numeric_text) if numeric_text.is_valid_int() else -1
+
+
+func _displayed_damage_value() -> int:
+	if incoming_damage_value == null or not incoming_damage_value.text.is_valid_int():
+		return -1
+	return int(incoming_damage_value.text)
 
 
 func update_shield(value: int) -> void:
@@ -239,9 +577,61 @@ func get_action_block_attack_range_snapshot() -> Dictionary:
 
 
 func set_dragging(is_dragging: bool) -> void:
+	if is_dragging:
+		_show_battle_stats()
+	elif name == DRAG_PREVIEW_NAME:
+		# The held pet is a prefab instance named by the battle drag presenter.
+		# Keep its existing Stats node visible for the full pickup duration.
+		_show_battle_stats()
+	else:
+		_show_battle_stats_then_hide()
 	visible = not is_dragging
 	modulate = Color(1.0, 1.0, 1.0, 0.62) if is_dragging else Color.WHITE
 	z_index = 40 if is_dragging else 0
+
+
+func _show_battle_stats() -> void:
+	_stat_visibility_token += 1
+	if stats_root != null and _display_mode == &"battle":
+		stats_root.visible = true
+
+
+func _show_battle_stats_then_hide() -> void:
+	_show_battle_stats()
+	var visibility_token := _stat_visibility_token
+	get_tree().create_timer(STAT_HIDE_DELAY).timeout.connect(func() -> void:
+		if visibility_token != _stat_visibility_token:
+			return
+		if stats_root != null:
+			stats_root.visible = false
+	)
+
+
+func contains_art_point(viewport_point: Vector2, alpha_threshold: float = 0.08) -> bool:
+	if sprite_rect == null or sprite_rect.texture == null:
+		return false
+	var local_point := sprite_rect.get_global_transform_with_canvas().affine_inverse() * viewport_point
+	var texture_size := sprite_rect.texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0 or sprite_rect.size.x <= 0.0 or sprite_rect.size.y <= 0.0:
+		return false
+	var fit_scale := minf(sprite_rect.size.x / texture_size.x, sprite_rect.size.y / texture_size.y)
+	var drawn_size := texture_size * fit_scale
+	var drawn_origin := (sprite_rect.size - drawn_size) * 0.5
+	var drawn_rect := Rect2(drawn_origin, drawn_size)
+	if not drawn_rect.has_point(local_point):
+		return false
+	if _cursor_hit_texture != sprite_rect.texture:
+		_cursor_hit_texture = sprite_rect.texture
+		_cursor_hit_image = sprite_rect.texture.get_image()
+	var image := _cursor_hit_image
+	if image == null or image.is_empty():
+		return true
+	var uv := (local_point - drawn_origin) / drawn_size
+	var pixel := Vector2i(
+		clampi(int(floor(uv.x * float(image.get_width()))), 0, image.get_width() - 1),
+		clampi(int(floor(uv.y * float(image.get_height()))), 0, image.get_height() - 1)
+	)
+	return image.get_pixelv(pixel).a >= alpha_threshold
 
 
 func set_dead_mark(texture_resource: Texture2D) -> void:
@@ -265,6 +655,7 @@ func move_to_position(target_position: Vector2, duration: float = 0.22) -> void:
 
 
 func play_attack_action(attack_type: String, element_id: String = "fire") -> void:
+	animation.play_sprite_attack(Vector2.RIGHT)
 	animation.play_attack_action(attack_type, element_id)
 
 
@@ -279,88 +670,31 @@ func play_cross_cell_projectile(
 	duration: float = 0.32,
 	arc_height: float = 96.0
 ) -> Node:
-	if projectile_layer == null:
-		return null
-	var texture_resource: Texture2D = null
-	if _assets != null and _assets.has_method("projectile_texture"):
-		texture_resource = _assets.call("projectile_texture", element_id) as Texture2D
-	var projectile := BattleProjectileScript.new() as Sprite2D
-	if projectile == null:
-		return null
-	projectile.name = "CrossCellProjectile"
-	projectile_layer.add_child(projectile)
-	var layer_inverse := projectile_layer.get_global_transform_with_canvas().affine_inverse()
-	projectile.call(
-		"play",
-		texture_resource,
-		layer_inverse * from_global_center,
-		layer_inverse * to_global_center,
+	animation.play_sprite_attack(to_global_center - from_global_center, duration)
+	return animation.play_projectile_between(
+		element_id,
+		from_global_center,
+		to_global_center,
 		duration,
 		arc_height
 	)
-	return projectile
 
 
 func play_bite_impact() -> Node:
-	if hit_layer == null:
-		return null
-	var bite := BattleBiteVfxScript.new() as Control
-	if bite == null:
-		return null
-	bite.name = "BiteImpact"
-	hit_layer.add_child(bite)
-	var target_size := minf(size.x, size.y) * 1.55
-	bite.size = Vector2(target_size, target_size)
-	bite.position = size * 0.5 - bite.size * 0.5
-	var frames: Array = []
-	var durations: Array = []
-	if _assets != null:
-		if _assets.has_method("monster_bite_frames"):
-			frames = Array(_assets.call("monster_bite_frames"))
-		if _assets.has_method("monster_bite_frame_durations"):
-			durations = Array(_assets.call("monster_bite_frame_durations"))
-	bite.call("play", frames, durations, 3)
-	return bite
+	return animation.play_attack_action("bite")
 
 
-func play_damage_number(
-	amount: int,
-	damage_kind: String = "hp",
-	y_offset: float = 0.0,
-	x_offset: float = 0.0
-) -> Node:
-	if damage_number_layer == null:
-		return null
-	var number := BattleDamageNumberScript.new() as Control
-	if number == null:
-		return null
-	number.name = "ShieldDamageNumber" if damage_kind == "shield" else "HpDamageNumber"
-	damage_number_layer.add_child(number)
-	number.position = size * 0.5 - Vector2(70.0, 24.0) + Vector2(x_offset, y_offset)
-	number.size = Vector2(140.0, 40.0)
-	if damage_kind == "shield":
-		number.call("show_damage", amount, Color(0.18, 0.68, 1.0), 0.55, "护盾")
-	else:
-		number.call("show_damage", amount, Color(1.0, 0.22, 0.14), 0.55, "生命")
-	return number
-
-
-func play_damage_feedback(payload: Dictionary) -> void:
-	var final_damage: int = max(0, int(payload.get("finalDamage", 0)))
+func play_damage_feedback(payload: Dictionary, reaction_direction: Vector2 = Vector2.RIGHT) -> void:
 	var shield_damage: int = max(0, int(payload.get("shieldDamage", 0)))
+	var final_damage: int = max(0, int(payload.get("finalDamage", 0)))
 	var hp_damage: int = max(0, int(payload.get("hpDamage", final_damage - shield_damage)))
-	var strike_index: int = max(1, int(payload.get("strikeIndex", 1)))
-	var strike_count: int = max(1, int(payload.get("strikeCount", 1)))
-	var strike_x_offset := 0.0
-	if strike_count > 1:
-		strike_x_offset = float(strike_index - 1) * 10.0 - float(strike_count - 1) * 5.0
-	if shield_damage > 0:
-		play_damage_number(shield_damage, "shield", -13.0 if hp_damage > 0 else 0.0, strike_x_offset)
-	if hp_damage > 0:
-		play_damage_number(hp_damage, "hp", 13.0 if shield_damage > 0 else 0.0, strike_x_offset)
-	if shield_damage <= 0 and hp_damage <= 0 and final_damage > 0:
-		play_damage_number(final_damage, "hp", 0.0, strike_x_offset)
-	play_shake()
+	var shield_before: int = max(0, int(payload.get("shieldFrom", cell_data.get("shield", 0))))
+	if shield_before > 0 and shield_hit_effect != null:
+		shield_hit_effect.play()
+	if shield_before <= 0 and hp_damage > 0 and hit_reaction != null:
+		hit_reaction.play(reaction_direction, _battle_sprite_visible_rect)
+	else:
+		play_shake()
 	update_hp(int(payload.get("hpTo", int(cell_data.get("hp", 0)))))
 	update_shield(int(payload.get("shieldTo", int(cell_data.get("shield", 0)))))
 
@@ -382,6 +716,10 @@ func play_attack_translation(
 	var travel_delta := (parent_inverse * target_global_center) - (parent_inverse * actor_global_center)
 	if travel_delta.length_squared() <= 0.01:
 		return null
+	animation.play_sprite_attack(
+		travel_delta,
+		out_duration + hold_duration + return_duration
+	)
 	var origin := position
 	var original_z_index := z_index
 	z_index = max(z_index, 26)
@@ -430,14 +768,6 @@ func show_death_mark_from_assets() -> void:
 	set_dead_mark(_assets.call("death_mark_texture", side) as Texture2D)
 
 
-func _clear_runtime_battle_effects() -> void:
-	for layer in [projectile_layer, hit_layer, damage_number_layer]:
-		if layer == null:
-			continue
-		for child in layer.get_children():
-			child.queue_free()
-
-
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
 		_layout_children()
@@ -451,47 +781,15 @@ func _layout_children() -> void:
 	else:
 		_layout_collection_sprite()
 	_layout_battle_shadow()
+	_layout_incoming_damage_preview()
 	_set_authored_rect(enemy_marker_group, Rect2(65.0, -49.0, 39.0, 48.0))
-	# Scale all four badges uniformly with the perspective cell and keep every
-	# badge inside its own cell at every depth. This prevents neighboring cells'
-	# badges from covering one another on both narrow back rows and large front rows.
-	var stat_scale := minf(size.x / SOURCE_CANVAS_SIZE.x, size.y / SOURCE_CANVAS_SIZE.y)
-	var edge_inset := STAT_EDGE_INSET * stat_scale
-	var health_position := Vector2(edge_inset, edge_inset)
-	_set_fixed_rect(health_group, Rect2(health_position, STAT_HEALTH_SIZE * stat_scale))
-	var shield_position := Vector2(
-		size.x - STAT_SHIELD_SIZE.x * stat_scale - edge_inset,
-		edge_inset
-	)
-	_set_fixed_rect(shield_group, Rect2(
-		shield_position,
-		STAT_SHIELD_SIZE * stat_scale
-	))
-	var attack_position := Vector2(
-		edge_inset,
-		size.y - STAT_ATTACK_SIZE.y * stat_scale - edge_inset
-	)
-	_set_fixed_rect(attack_group, Rect2(
-		attack_position,
-		STAT_ATTACK_SIZE * stat_scale
-	))
-	var damage_cap_position := Vector2(
-		size.x - STAT_DAMAGE_CAP_SIZE.x * stat_scale - edge_inset,
-		size.y - STAT_DAMAGE_CAP_SIZE.y * stat_scale - edge_inset
-	)
-	_set_fixed_rect(damage_cap_group, Rect2(
-		damage_cap_position,
-		STAT_DAMAGE_CAP_SIZE * stat_scale
-	))
-	_center_stat_value(psd_health_value, health_group, stat_scale * STAT_HEALTH_FONT_SCALE)
-	_center_stat_value(psd_shield_value, shield_group, stat_scale)
-	_center_stat_value(psd_attack_value, attack_group, stat_scale)
-	_center_stat_value(psd_damage_cap_value, damage_cap_group, stat_scale)
+	_layout_stats_from_prefab()
 	if death_mark_rect != null:
 		death_mark_rect.position = Vector2(size.x * 0.32, 4.0)
 		death_mark_rect.size = Vector2(size.x * 0.36, size.y * 0.36)
 	if animation != null:
 		animation.layout_authored(size, SOURCE_CANVAS_SIZE)
+		animation.refresh_idle_pivot()
 
 
 func _layout_battle_sprite() -> void:
@@ -544,6 +842,20 @@ func _layout_battle_shadow() -> void:
 	shadow_rect.size = shadow_size
 
 
+func _layout_incoming_damage_preview() -> void:
+	if incoming_damage_preview == null:
+		return
+	var badge_size := clampf(minf(size.x, size.y) * 0.34, 40.0, 48.0)
+	var sprite_bounds := _battle_sprite_visible_rect
+	if sprite_bounds.size.x <= 0.0 or sprite_bounds.size.y <= 0.0:
+		sprite_bounds = Rect2(Vector2.ZERO, size)
+	incoming_damage_preview.size = Vector2(badge_size, badge_size)
+	incoming_damage_preview.position = Vector2(
+		clampf(sprite_bounds.end.x - badge_size * 0.32, 0.0, maxf(0.0, size.x - badge_size)),
+		clampf(sprite_bounds.position.y - badge_size * 0.18, 0.0, maxf(0.0, size.y - badge_size))
+	)
+
+
 func _layout_collection_sprite() -> void:
 	sprite_rect.position = Vector2.ZERO
 	sprite_rect.size = Vector2(size.x, size.y * 120.0 / SOURCE_CANVAS_SIZE.y)
@@ -558,11 +870,22 @@ func _texture_used_rect(texture_resource: Texture2D) -> Rect2:
 	if _texture_used_rect_cache.has(cache_key):
 		return Rect2(_texture_used_rect_cache[cache_key])
 	var used_rect := Rect2(Vector2.ZERO, texture_resource.get_size())
-	var image := texture_resource.get_image()
-	if image != null and not image.is_empty():
-		var detected_rect := image.get_used_rect()
-		if detected_rect.size.x > 0 and detected_rect.size.y > 0:
-			used_rect = Rect2(detected_rect)
+	var metrics := _battle_visual_metrics(texture_resource)
+	var declared_rect := Array(metrics.get("used_rect", []))
+	if declared_rect.size() == 4:
+		var texture_size := texture_resource.get_size()
+		var declared_position := Vector2(float(declared_rect[0]), float(declared_rect[1]))
+		var declared_size := Vector2(float(declared_rect[2]), float(declared_rect[3]))
+		var texture_bounds := Rect2(Vector2.ZERO, texture_size)
+		var clipped_rect := Rect2(declared_position, declared_size).intersection(texture_bounds)
+		if clipped_rect.size.x > 0.0 and clipped_rect.size.y > 0.0:
+			used_rect = clipped_rect
+	else:
+		var image := texture_resource.get_image()
+		if image != null and not image.is_empty():
+			var detected_rect := image.get_used_rect()
+			if detected_rect.size.x > 0 and detected_rect.size.y > 0:
+				used_rect = Rect2(detected_rect)
 	_texture_used_rect_cache[cache_key] = used_rect
 	return used_rect
 
@@ -639,24 +962,64 @@ func _set_authored_rect(control: Control, authored_rect: Rect2) -> void:
 	control.size = authored_rect.size * authored_scale
 
 
-func _set_fixed_rect(control: Control, fixed_rect: Rect2) -> void:
-	if control == null:
-		return
-	control.scale = Vector2.ONE
-	control.position = fixed_rect.position
-	control.size = fixed_rect.size
+func _capture_authored_stat_layout() -> void:
+	_authored_stat_layout.clear()
+	for group in [health_group, shield_group, attack_group, damage_cap_group]:
+		if group == null:
+			continue
+		_authored_stat_layout[group.name] = {
+			"position": group.position,
+			"size": group.size,
+			"scale": group.scale,
+		}
 
 
-func _center_stat_value(label: Label, group: Control, stat_scale: float) -> void:
-	if label == null or group == null:
+func _layout_stats_from_prefab() -> void:
+	if _authored_stat_layout.is_empty():
 		return
-	_set_fixed_rect(label, Rect2(Vector2.ZERO, group.size))
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override(
-		"font_size",
-		maxi(9, int(round(float(STAT_VALUE_FONT_SIZE) * stat_scale)))
+	# Keep all stat rows in one readable column along the cell's right edge.
+	var corners := _battle_stat_layout_corners
+	if corners.size() != 4:
+		corners = PackedVector2Array([
+			Vector2.ZERO,
+			Vector2(size.x, 0.0),
+			size,
+			Vector2(0.0, size.y),
+		])
+	var groups: Array[Control] = [health_group, attack_group, shield_group, damage_cap_group]
+	var total_height := 0.0
+	for group in groups:
+		if group == null or not _authored_stat_layout.has(group.name):
+			continue
+		var authored := Dictionary(_authored_stat_layout[group.name])
+		group.size = Vector2(authored.get("size", Vector2.ZERO))
+		group.scale = Vector2(authored.get("scale", Vector2.ONE)) * _battle_stat_layout_scale
+		group.rotation = 0.0
+		total_height += group.size.y * group.scale.y
+	total_height += STAT_COLUMN_GAP * _battle_stat_layout_scale * maxf(0.0, groups.size() - 1.0)
+	var top_y := minf(corners[0].y, corners[1].y)
+	var row_y := top_y
+	var column_bottom_y := row_y + total_height
+	var shared_right_edge := minf(
+		_edge_x_at_y(corners[1], corners[2], row_y),
+		_edge_x_at_y(corners[1], corners[2], column_bottom_y)
 	)
+	for group in groups:
+		if group == null or not _authored_stat_layout.has(group.name):
+			continue
+		var scaled_size := group.size * group.scale
+		group.position = Vector2(
+			shared_right_edge - scaled_size.x - STAT_COLUMN_RIGHT_INSET * _battle_stat_layout_scale,
+			row_y
+		)
+		row_y += scaled_size.y + STAT_COLUMN_GAP * _battle_stat_layout_scale
+
+
+func _edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> float:
+	if is_zero_approx(edge_end.y - edge_start.y):
+		return edge_start.x
+	var weight := clampf((y - edge_start.y) / (edge_end.y - edge_start.y), 0.0, 1.0)
+	return lerpf(edge_start.x, edge_end.x, weight)
 
 
 func _set_authored_local_rect(control: Control, authored_rect: Rect2) -> void:
@@ -690,8 +1053,11 @@ func _set_authored_root_visible(visible_value: bool) -> void:
 
 
 func _reset_interaction_state() -> void:
+	_stat_visibility_token += 1
 	visible = true
 	modulate = Color.WHITE
 	z_index = 0
+	if stats_root != null:
+		stats_root.visible = false
 	if frame_rect != null:
 		frame_rect.modulate = Color.WHITE

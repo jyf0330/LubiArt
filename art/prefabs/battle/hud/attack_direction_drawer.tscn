@@ -1,0 +1,177 @@
+[gd_scene load_steps=15 format=3 uid="uid://d0813nw0iiwx3"]
+
+[ext_resource type="Script" uid="uid://drbbnnayu3755" path="res://core_ui/scripts/battle/prefabs/hud/battle_direction_drawer.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cfj800nbmvqiq" path="res://art/images/battle/hud/directions/direction_panel_parchment_corners_large_006.png" id="2_panel"]
+[ext_resource type="Texture2D" uid="uid://cdawxnnhuruan" path="res://art/images/battle/hud/directions/direction_collapse_tab_parchment_clasp_003_full.png" id="3_tab"]
+[ext_resource type="Texture2D" uid="uid://dmbax1dgplide" path="res://art/images/battle/hud/directions/direction_collapse_triangle_001.png" id="4_triangle"]
+[ext_resource type="Texture2D" uid="uid://b181kcc4ismek" path="res://art/images/battle/hud/directions/direction_arrow_001.png" id="5_left"]
+[ext_resource type="Texture2D" uid="uid://cjacju84yuovk" path="res://art/images/battle/hud/directions/direction_arrow_002.png" id="6_up"]
+[ext_resource type="Texture2D" uid="uid://c4kin68tt6x1g" path="res://art/images/battle/hud/directions/direction_arrow_003.png" id="7_right"]
+[ext_resource type="Texture2D" uid="uid://b5pyqg5qlenvv" path="res://art/images/battle/hud/directions/direction_arrow_004.png" id="8_down"]
+[ext_resource type="Texture2D" uid="uid://ccvvlcrblcsc1" path="res://art/images/shared/mouse_scroll_hint_base.png" id="9_scroll_hint_base"]
+[ext_resource type="Texture2D" uid="uid://650ty7lmov3p" path="res://art/images/shared/mouse_scroll_hint_wheel_highlight.png" id="10_scroll_hint_wheel"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_direction_tab"]
+atlas = ExtResource("3_tab")
+region = Rect2(500, 305, 710, 305)
+
+[sub_resource type="Animation" id="Animation_scroll_hint_reset"]
+length = 0.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WheelHighlight:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="Animation" id="Animation_scroll_hint_blink"]
+resource_name = "scroll_hint_blink"
+length = 0.8
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WheelHighlight:modulate:a")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.18, 1.0, 0.18]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_scroll_hint"]
+_data = {
+&"RESET": SubResource("Animation_scroll_hint_reset"),
+&"scroll_hint_blink": SubResource("Animation_scroll_hint_blink")
+}
+
+[node name="AttackDirectionDrawer" type="Control"]
+editor_description = "右上攻击方向抽屉。四行对应我方出战精灵，每行三个 64x64 行动槽方向；面板、箭头、抽屉和三角按钮均锁定显示尺寸。"
+z_index = 40
+texture_filter = 1
+custom_minimum_size = Vector2(300, 421)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -382.0
+offset_top = 56.0
+offset_right = -82.0
+offset_bottom = 477.0
+grow_horizontal = 0
+mouse_filter = 1
+script = ExtResource("1_script")
+arrow_left_texture = ExtResource("5_left")
+arrow_up_texture = ExtResource("6_up")
+arrow_right_texture = ExtResource("7_right")
+arrow_down_texture = ExtResource("8_down")
+metadata/_prefab_size = Vector2i(300, 421)
+
+[node name="Rows" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 300.0
+offset_bottom = 383.0
+mouse_filter = 2
+
+[node name="Row1" type="Control" parent="Rows"]
+custom_minimum_size = Vector2(300, 110)
+anchors_preset = 0
+offset_right = 300.0
+offset_bottom = 110.0
+mouse_filter = 2
+
+[node name="Background" type="TextureRect" parent="Rows/Row1"]
+custom_minimum_size = Vector2(300, 110)
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 110.0
+mouse_filter = 2
+texture = ExtResource("2_panel")
+expand_mode = 1
+
+[node name="Arrow1" type="TextureRect" parent="Rows/Row1"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 84.0
+offset_bottom = 84.0
+texture = ExtResource("7_right")
+expand_mode = 1
+
+[node name="Arrow2" type="TextureRect" parent="Rows/Row1"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 118.0
+offset_top = 20.0
+offset_right = 182.0
+offset_bottom = 84.0
+texture = ExtResource("7_right")
+expand_mode = 1
+
+[node name="Arrow3" type="TextureRect" parent="Rows/Row1"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 216.0
+offset_top = 20.0
+offset_right = 280.0
+offset_bottom = 84.0
+texture = ExtResource("7_right")
+expand_mode = 1
+
+[node name="CollapseButton" type="TextureButton" parent="."]
+custom_minimum_size = Vector2(110, 47)
+layout_mode = 0
+offset_left = 95.0
+offset_top = 374.0
+offset_right = 205.0
+offset_bottom = 421.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = SubResource("AtlasTexture_direction_tab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Triangle" type="TextureRect" parent="CollapseButton"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 0
+offset_left = 35.0
+offset_top = 4.0
+offset_right = 75.0
+offset_bottom = 44.0
+mouse_filter = 2
+texture = ExtResource("4_triangle")
+expand_mode = 1
+
+[node name="ScrollHint" type="TextureRect" parent="."]
+visible = false
+z_index = 100
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 0
+offset_right = 48.0
+offset_bottom = 48.0
+mouse_filter = 2
+texture = ExtResource("9_scroll_hint_base")
+expand_mode = 1
+
+[node name="WheelHighlight" type="TextureRect" parent="ScrollHint"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 0
+offset_right = 48.0
+offset_bottom = 48.0
+mouse_filter = 2
+texture = ExtResource("10_scroll_hint_wheel")
+expand_mode = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ScrollHint"]
+libraries = {
+&"": SubResource("AnimationLibrary_scroll_hint")
+}

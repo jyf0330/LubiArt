@@ -23,6 +23,8 @@ const DEFAULT_COMBOS := [
 	{"id": "combo_breakthrough", "name": "追裂连携", "skills": ["skill_chase", "skill_break"]},
 	{"id": "combo_finale", "name": "压制终幕", "skills": ["skill_suppress", "skill_finale"]},
 ]
+const DAMAGE_PREVIEW_TEMPLATES_KEY := "mock_damage_preview_templates_by_actor"
+const INCOMING_DAMAGE_PREVIEW_TEMPLATE_KEY := "mock_incoming_damage_preview_template"
 
 var _capture_source: Dictionary = {}
 var _presentation_bootstrap_snapshot: Dictionary = {}
@@ -93,6 +95,8 @@ func submit_command(command: Dictionary) -> Dictionary:
 		var selection := _projection_result(command_type, command)
 		if bool(selection.get("ok", false)):
 			return _accepted_projection(command, command_type, selection)
+	if command_type == "SET_ACTION_DIRECTION":
+		return _project_action_direction(command)
 	return _replay_captured_command(command, command_type)
 
 
@@ -134,6 +138,9 @@ func reset(emit_change: bool = true) -> void:
 	_ensure_action_block_ranges_projection()
 	_ensure_skill_queue_projection()
 	_steps = Array(capture.get("steps", [])).duplicate(true)
+	_snapshot[DAMAGE_PREVIEW_TEMPLATES_KEY] = _collect_damage_preview_templates(capture)
+	_snapshot[INCOMING_DAMAGE_PREVIEW_TEMPLATE_KEY] = \
+		_collect_incoming_damage_preview_template(capture)
 	_step_index = 0
 	if emit_change:
 		_emit_snapshot(
@@ -344,6 +351,115 @@ func _accepted_projection(
 	})
 	snapshot_changed.emit(current_snapshot(), result.duplicate(true))
 	return response
+
+
+func _project_action_direction(command: Dictionary) -> Dictionary:
+	var unit_id := String(command.get("unitId", command.get("unit_id", "")))
+	var slot_index := int(command.get("slotId", command.get("slot_id", -1)))
+	var direction := String(command.get("dir", command.get("direction", ""))).to_lower()
+	if _unit_by_id(unit_id).is_empty() or slot_index < 0 or slot_index >= 3 \
+			or direction not in ["up", "right", "down", "left"]:
+		return _rejected_response(
+			command,
+			"SET_ACTION_DIRECTION",
+			"INVALID_DIRECTION_PREVIEW",
+			"攻击方向预览参数无效"
+		)
+	var action_dirs := Dictionary(_snapshot.get("action_dirs", _snapshot.get("actionDirs", {}))).duplicate(true)
+	action_dirs["%s:slot%d" % [unit_id, slot_index]] = direction
+	_snapshot["action_dirs"] = action_dirs
+	return _accepted_projection(command, "SET_ACTION_DIRECTION", {
+		"type": "SET_ACTION_DIRECTION",
+		"ok": true,
+		"unitId": unit_id,
+		"slotId": slot_index,
+		"dir": direction,
+		"previewOnly": true,
+	})
+
+
+func _collect_damage_preview_templates(capture: Dictionary) -> Dictionary:
+	var templates := {}
+	_collect_damage_preview_templates_from_snapshot(
+		Dictionary(capture.get("initial_snapshot", {})),
+		templates
+	)
+	for step_value in Array(capture.get("steps", [])):
+		var step := Dictionary(step_value)
+		var snapshot_set := Dictionary(Dictionary(step.get("snapshot_delta", {})).get("set", {}))
+		_collect_damage_preview_templates_from_snapshot(snapshot_set, templates)
+	return templates
+
+
+func _collect_damage_preview_templates_from_snapshot(
+	snapshot: Dictionary,
+	templates: Dictionary
+) -> void:
+	var board := Dictionary(snapshot.get("board", {}))
+	for cell_value in Array(board.get("cells", [])):
+		var cell := Dictionary(cell_value)
+		var candidates: Array = []
+		for key in ["action_preview_data", "actionPreviewData", "preview"]:
+			var candidate = cell.get(key, null)
+			if candidate is Dictionary and not Dictionary(candidate).is_empty():
+				candidates.append(candidate)
+		for preview_value in Array(cell.get("previews", [])):
+			if preview_value is Dictionary:
+				candidates.append(preview_value)
+		for candidate in candidates:
+			var preview := Dictionary(candidate)
+			if not bool(preview.get("hitEnemy", preview.get("hit_enemy", false))):
+				continue
+			var actor_id := String(preview.get(
+				"actorId",
+				preview.get("actor_id", preview.get("unitId", preview.get("unit_id", "")))
+			))
+			var damage := int(preview.get("predictedDamage", preview.get("predicted_damage", 0)))
+			if actor_id == "" or damage <= 0:
+				continue
+			var existing := Dictionary(templates.get(actor_id, {}))
+			var existing_damage := int(existing.get(
+				"predictedDamage",
+				existing.get("predicted_damage", -1)
+			))
+			if existing.is_empty() or damage > existing_damage:
+				templates[actor_id] = preview.duplicate(true)
+
+
+func _collect_incoming_damage_preview_template(capture: Dictionary) -> Dictionary:
+	var friendly_unit_ids := {}
+	var snapshots: Array[Dictionary] = [Dictionary(capture.get("initial_snapshot", {}))]
+	for step_value in Array(capture.get("steps", [])):
+		var step := Dictionary(step_value)
+		snapshots.append(Dictionary(Dictionary(step.get("snapshot_delta", {})).get("set", {})))
+	for snapshot in snapshots:
+		var board := Dictionary(snapshot.get("board", {}))
+		for cell_value in Array(board.get("cells", [])):
+			var cell := Dictionary(cell_value)
+			var side := String(cell.get("side", cell.get("unitSide", ""))).to_lower()
+			var unit_id := String(cell.get("unitId", cell.get("unit_id", "")))
+			if unit_id != "" and side in ["player", "ally"]:
+				friendly_unit_ids[unit_id] = true
+	var best_preview := {}
+	var best_damage := -1
+	for snapshot in snapshots:
+		var damage_by_unit := Dictionary(snapshot.get(
+			"placement_damage_by_unit",
+			snapshot.get("placementDamageByUnit", {})
+		))
+		for unit_id_value in damage_by_unit.keys():
+			var unit_id := String(unit_id_value)
+			if not friendly_unit_ids.has(unit_id):
+				continue
+			var preview := Dictionary(damage_by_unit[unit_id_value])
+			var damage := int(preview.get(
+				"totalDamage",
+				preview.get("damage", preview.get("threat", 0))
+			))
+			if damage > best_damage:
+				best_damage = damage
+				best_preview = preview.duplicate(true)
+	return best_preview
 
 
 func _rejected_response(

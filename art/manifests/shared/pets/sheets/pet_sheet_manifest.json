@@ -1,423 +1,47 @@
 {
-  "version": 2,
-  "source_set": "current_creatures_2026-07-28",
-  "count": 103,
-  "canvas": {
-    "width": 180,
-    "height": 180
-  },
+  "version": 3,
+  "source_set": "confirmed_sprite_style_2026-07-30",
+  "count": 8,
   "images": [
     {
       "index": 1,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_001_water_tidewhisker.png"
+      "name": "gold_mascot",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png"
     },
     {
       "index": 2,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_002_water_reefnibbler.png"
+      "name": "gold_shell",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png"
     },
     {
       "index": 3,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_003_water_frostwaddle.png"
+      "name": "blue_electric_shell",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_003_blue_electric_shell.png"
     },
     {
       "index": 4,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_004_water_bubblebell.png"
+      "name": "pink_electric_wave",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png"
     },
     {
       "index": 5,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_005_water_glaciershell.png"
+      "name": "earth_slime",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png"
     },
     {
       "index": 6,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_006_water_pondhopper.png"
+      "name": "shadow_rock_wolf",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png"
     },
     {
       "index": 7,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_007_water_drizzlequack.png"
+      "name": "rock_claw",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png"
     },
     {
       "index": 8,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_008_water_tidalwing.png"
-    },
-    {
-      "index": 9,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_009_water_coralkit.png"
-    },
-    {
-      "index": 10,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_010_water_icebloom.png"
-    },
-    {
-      "index": 11,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_011_water_pearlcrab.png"
-    },
-    {
-      "index": 12,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_012_water_abyssling.png"
-    },
-    {
-      "index": 13,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_013_water_tidedrake.png"
-    },
-    {
-      "index": 14,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_014_water_lagoongecko.png"
-    },
-    {
-      "index": 15,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_015_water_wavevixen.png"
-    },
-    {
-      "index": 16,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_016_water_crystalspinner.png"
-    },
-    {
-      "index": 17,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_017_water_prismfin.png"
-    },
-    {
-      "index": 18,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_018_water_reefhart.png"
-    },
-    {
-      "index": 19,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_019_water_seascale.png"
-    },
-    {
-      "index": 20,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_020_water_splashpuff.png"
-    },
-    {
-      "index": 21,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_021_water_foamhoof.png"
-    },
-    {
-      "index": 22,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_022_water_iceback.png"
-    },
-    {
-      "index": 23,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_023_water_cresttail.png"
-    },
-    {
-      "index": 24,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_024_water_riptidepup.png"
-    },
-    {
-      "index": 25,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_025_earth_geodeshell.png"
-    },
-    {
-      "index": 26,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_026_earth_orebot.png"
-    },
-    {
-      "index": 27,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_027_earth_coppercrawler.png"
-    },
-    {
-      "index": 28,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_028_earth_thornstone.png"
-    },
-    {
-      "index": 29,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_029_earth_mossshell.png"
-    },
-    {
-      "index": 30,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_030_earth_rootscale.png"
-    },
-    {
-      "index": 31,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_031_earth_clayblip.png"
-    },
-    {
-      "index": 32,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_032_fire_cinderscale.png"
-    },
-    {
-      "index": 33,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_033_wind_zephyrkit.png"
-    },
-    {
-      "index": 34,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_034_wind_breezemoth.png"
-    },
-    {
-      "index": 35,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_035_wind_galegecko.png"
-    },
-    {
-      "index": 36,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_036_wind_gustspine.png"
-    },
-    {
-      "index": 37,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_037_wind_cloudtail.png"
-    },
-    {
-      "index": 38,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_038_wind_skyowl.png"
-    },
-    {
-      "index": 39,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_039_wind_lanternwing.png"
-    },
-    {
-      "index": 40,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_040_wind_cyclonedrake.png"
-    },
-    {
-      "index": 41,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_041_wind_cloudpuff.png"
-    },
-    {
-      "index": 42,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_042_wind_twister.png"
-    },
-    {
-      "index": 43,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_043_wind_zephyrwisp.png"
-    },
-    {
-      "index": 44,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_044_wind_dewwing.png"
-    },
-    {
-      "index": 45,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_045_wind_galehopper.png"
-    },
-    {
-      "index": 46,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_046_wind_bristleseed.png"
-    },
-    {
-      "index": 47,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_047_wind_stormmane.png"
-    },
-    {
-      "index": 48,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_048_wind_nimbusowl.png"
-    },
-    {
-      "index": 49,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_049_wind_sylphina.png"
-    },
-    {
-      "index": 50,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_050_wind_runestone.png"
-    },
-    {
-      "index": 51,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_051_wind_leafgill.png"
-    },
-    {
-      "index": 52,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_052_wind_galeoracle.png"
-    },
-    {
-      "index": 53,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_053_wind_stormcrow.png"
-    },
-    {
-      "index": 54,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_054_wind_gustbee.png"
-    },
-    {
-      "index": 55,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_055_wind_zephyrfox.png"
-    },
-    {
-      "index": 56,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_056_wind_skycrest.png"
-    },
-    {
-      "index": 57,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_057_fire_embercloud.png"
-    },
-    {
-      "index": 58,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_058_fire_nightflame.png"
-    },
-    {
-      "index": 59,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_059_fire_cinderfist.png"
-    },
-    {
-      "index": 60,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_060_fire_violetflame.png"
-    },
-    {
-      "index": 61,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_061_fire_sunmane.png"
-    },
-    {
-      "index": 62,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_062_fire_emberorb.png"
-    },
-    {
-      "index": 63,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_063_fire_cinderorb.png"
-    },
-    {
-      "index": 64,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_064_fire_magmaslime.png"
-    },
-    {
-      "index": 65,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_065_fire_pyreling.png"
-    },
-    {
-      "index": 66,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_066_fire_lavahorn.png"
-    },
-    {
-      "index": 67,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_067_fire_emberfox.png"
-    },
-    {
-      "index": 68,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_068_fire_blazetail.png"
-    },
-    {
-      "index": 69,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_069_fire_hearthcat.png"
-    },
-    {
-      "index": 70,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_070_fire_flamecrest.png"
-    },
-    {
-      "index": 71,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_071_fire_coalback.png"
-    },
-    {
-      "index": 72,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_072_fire_sparkdrop.png"
-    },
-    {
-      "index": 73,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_073_fire_scorchhound.png"
-    },
-    {
-      "index": 74,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_074_fire_starfirefox.png"
-    },
-    {
-      "index": 75,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_075_fire_infernoguard.png"
-    },
-    {
-      "index": 76,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_076_fire_lavaback.png"
-    },
-    {
-      "index": 77,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_077_fire_cindervixen.png"
-    },
-    {
-      "index": 78,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_078_fire_voidflame.png"
-    },
-    {
-      "index": 79,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_079_fire_ashwing.png"
-    },
-    {
-      "index": 80,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_080_fire_spiritblaze.png"
-    },
-    {
-      "index": 81,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_081_earth_duneclaw.png"
-    },
-    {
-      "index": 82,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_082_earth_crystalfang.png"
-    },
-    {
-      "index": 83,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_083_earth_emberback.png"
-    },
-    {
-      "index": 84,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_084_earth_ironbark.png"
-    },
-    {
-      "index": 85,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_085_earth_prismwing.png"
-    },
-    {
-      "index": 86,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_086_earth_quartzpaw.png"
-    },
-    {
-      "index": 87,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_087_earth_sandling.png"
-    },
-    {
-      "index": 88,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_088_earth_geodegrub.png"
-    },
-    {
-      "index": 89,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_089_earth_amberkit.png"
-    },
-    {
-      "index": 90,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_090_earth_boulderbrood.png"
-    },
-    {
-      "index": 91,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_091_earth_cavedrake.png"
-    },
-    {
-      "index": 92,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_092_earth_pebblemancer.png"
-    },
-    {
-      "index": 93,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_093_earth_aegisgolem.png"
-    },
-    {
-      "index": 94,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_094_earth_cragphant.png"
-    },
-    {
-      "index": 95,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_095_earth_crystalhart.png"
-    },
-    {
-      "index": 96,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_096_earth_frostfang.png"
-    },
-    {
-      "index": 97,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_097_earth_gemspine.png"
-    },
-    {
-      "index": 98,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_098_earth_onyxowl.png"
-    },
-    {
-      "index": 99,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_099_earth_starstone.png"
-    },
-    {
-      "index": 100,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_100_earth_goldcoil.png"
-    },
-    {
-      "index": 101,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_101_earth_mossreaper.png"
-    },
-    {
-      "index": 102,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_102_earth_stonecoil.png"
-    },
-    {
-      "index": 103,
-      "path": "res://art/images/shared/pets/sheets/slices/shop_creature_103_earth_riftknuckle.png"
+      "name": "volcanic_dijiang",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png"
     }
   ]
 }

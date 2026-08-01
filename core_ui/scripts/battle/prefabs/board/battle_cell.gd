@@ -9,34 +9,38 @@ signal cell_unhovered(x: int, y: int)
 
 const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const DefaultCellImage := preload("res://art/images/battle/runtime/images/cell_anchor_transparent.svg")
+const LANDING_TILE_TEXTURES := {
+	"fire": preload("res://art/images/shared/pets/battle_complete/landing_fire.png"),
+	"water": preload("res://art/images/shared/pets/battle_complete/landing_water.png"),
+	"earth": preload("res://art/images/shared/pets/battle_complete/landing_earth.png"),
+	"wind": preload("res://art/images/shared/pets/battle_complete/landing_wind.png"),
+}
 
 const STYLE_DEFAULT_BG := Color(0.48, 0.50, 0.53, 0.30)
 const STYLE_DEFAULT_BORDER := Color(0.78, 0.82, 0.86, 0.45)
 const STYLE_DEPLOY_BG := Color(0.14, 0.44, 1.0, 0.28)
 const STYLE_DEPLOY_BORDER := Color(0.28, 0.68, 1.0, 0.66)
-const STYLE_ATTACK_BG := Color(0.92, 0.1, 0.08, 0.42)
-const STYLE_ATTACK_BORDER := Color(1.0, 0.2, 0.18, 0.78)
 const STYLE_CORNER_RADIUS := 12
 const STYLE_SHADOW_COLOR := Color(0.13, 0.08, 0.03, 0.16)
 const STYLE_SHADOW_SIZE := 5
 const STYLE_SHADOW_OFFSET := Vector2(0.0, 3.0)
-const HOVER_FRAME_SCALE := 0.82
-const HOVER_FRAME_OFFSET := Vector2.ZERO
 const PERSPECTIVE_DEFAULT_FILL := Color(0.82, 0.84, 0.86, 0.015)
 const PERSPECTIVE_DEFAULT_BORDER := Color(0.86, 0.89, 0.91, 0.12)
-
-@export var use_perspective_geometry := false
+@export var use_perspective_geometry := true
 @export var polygon := PackedVector2Array([
-	Vector2(0.0, 0.0),
-	Vector2(120.0, 0.0),
-	Vector2(120.0, 120.0),
-	Vector2(0.0, 120.0),
+	Vector2(3.660006, 0.0),
+	Vector2(124.66, 0.0),
+	Vector2(124.66, 109.57143),
+	Vector2(0.0, 109.57143),
 ])
 
 @onready var cell_image: TextureRect = $CellImage
+@onready var _attack_highlight: Polygon2D = $AttackHighlight
+@onready var _attack_highlight_border: Line2D = $AttackHighlightBorder
+@onready var _hover_highlight: Polygon2D = $HoverHighlight
+@onready var _hover_highlight_border: Line2D = $HoverHighlightBorder
 @onready var _ground_element_effects: Control = $GroundElementEffects
-@onready var _effect_marker: TextureRect = $GroundElementEffects/PersistentMarker
-@onready var _element_markers: Control = $GroundElementEffects/ElementMarkers
+@onready var _landing_tile_art: TextureRect = $GroundElementEffects/LandingTileArt
 @onready var _element_impact_layer: Control = $GroundElementEffects/ImpactLayer
 @onready var _prefab_anchor: Control = $PrefabAnchor
 
@@ -47,13 +51,20 @@ var _unit_node: Control = null
 var _missing_mappings: Dictionary = {}
 var _highlight_mode := ""
 var _assets: RefCounted = null
-var _highlight_frame: TextureRect = null
 var _attack_order_marker: TextureRect = null
 var _transient_element_visual_dirty := false
+var _unit_stat_layout_scale := 1.0
+var _active_element_tile_variant := ""
+var _is_hovered := false
+var _attack_highlight_blink_tween: Tween = null
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_sync_attack_highlight_geometry()
+	_update_attack_highlight()
+	_sync_interaction_highlight_geometry()
+	_update_interaction_highlights()
 	if use_perspective_geometry:
 		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		queue_redraw()
@@ -67,13 +78,25 @@ func _ready() -> void:
 		mouse_exited.connect(_on_mouse_exited)
 
 
-func setup_grid_position(x: int, y: int, cell_size: Vector2, origin: Vector2) -> void:
+func setup_grid_position(
+	x: int,
+	y: int,
+	cell_size: Vector2,
+	origin: Vector2,
+	front_row_height: float = 0.0
+) -> void:
 	grid_x = x
 	grid_y = y
 	name = "BattleCell_%d_%d" % [grid_x, grid_y]
 	if not use_perspective_geometry:
 		position = origin
 		size = cell_size
+	_unit_stat_layout_scale = 1.0
+	if use_perspective_geometry and front_row_height > 0.0:
+		_unit_stat_layout_scale = clampf(size.y / front_row_height, 0.1, 1.0)
+	_apply_unit_stat_layout_scale()
+	_sync_attack_highlight_geometry()
+	_sync_interaction_highlight_geometry()
 	queue_redraw()
 
 
@@ -118,7 +141,7 @@ func set_cell_data(data: Dictionary, assets: RefCounted) -> void:
 	_clear_content()
 	var side := String(cell_data.get("side", cell_data.get("unitSide", "")))
 	var unit_id := String(cell_data.get("unitId", cell_data.get("unit_id", "")))
-	_render_element_markers(Dictionary(cell_data.get("elements", {})))
+	_render_element_tile(Dictionary(cell_data.get("elements", {})))
 	if unit_id == "":
 		return
 	_unit_node = BattleUnitScene.instantiate() as Control
@@ -131,6 +154,7 @@ func set_cell_data(data: Dictionary, assets: RefCounted) -> void:
 	# Adding an instanced Control restores its authored offsets, so size it afterwards.
 	_unit_node.position = Vector2.ZERO
 	_unit_node.size = size
+	_apply_unit_stat_layout_scale()
 	if _unit_node.has_method("set_unit_data"):
 		_unit_node.call("set_unit_data", cell_data, side, assets)
 	if _unit_node.has_method("get_missing_mapping"):
@@ -139,33 +163,67 @@ func set_cell_data(data: Dictionary, assets: RefCounted) -> void:
 			_missing_mappings[String(missing.get("key", ""))] = missing
 
 
+func _apply_unit_stat_layout_scale() -> void:
+	if _unit_node != null and _unit_node.has_method("set_battle_stat_layout_scale"):
+		var cell_corners := polygon if uses_perspective_geometry() else PackedVector2Array()
+		_unit_node.call("set_battle_stat_layout_scale", _unit_stat_layout_scale, cell_corners)
+
+
 func set_highlight(mode: String) -> void:
+	if mode == "selected":
+		mode = ""
 	_highlight_mode = mode
+	if mode != "attack":
+		set_attack_highlight_blinking(false)
+	_update_attack_highlight()
 	if use_perspective_geometry:
 		queue_redraw()
 	else:
 		add_theme_stylebox_override("panel", _make_cell_style(mode))
-	_update_highlight_frame(mode)
+
+
+func set_hovered(value: bool) -> void:
+	_is_hovered = value
+	_update_interaction_highlights()
+
+
+func is_hover_highlight_visible() -> bool:
+	return _hover_highlight != null and _hover_highlight.visible
 
 
 func clear_highlight() -> void:
 	set_highlight("")
 
 
-func show_attack_order_marker(texture_resource: Texture2D) -> void:
-	clear_attack_order_marker()
-	if texture_resource == null:
+func set_attack_highlight_blinking(active: bool) -> void:
+	if _attack_highlight_blink_tween != null and _attack_highlight_blink_tween.is_valid():
+		_attack_highlight_blink_tween.kill()
+	_attack_highlight_blink_tween = null
+	_set_attack_highlight_alpha(1.0)
+	if not active or _highlight_mode != "attack":
 		return
-	_attack_order_marker = TextureRect.new()
-	_attack_order_marker.name = "AttackOrderMarker"
-	_attack_order_marker.texture = texture_resource
-	_attack_order_marker.size = Vector2(34.0, 34.0)
-	_attack_order_marker.position = Vector2(size.x - 40.0, 6.0)
-	_attack_order_marker.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_attack_order_marker.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_attack_order_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_attack_order_marker.z_index = 30
-	_prefab_anchor.add_child(_attack_order_marker)
+	_attack_highlight_blink_tween = create_tween().set_loops()
+	_attack_highlight_blink_tween.tween_method(_set_attack_highlight_alpha, 1.0, 0.22, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_attack_highlight_blink_tween.tween_method(_set_attack_highlight_alpha, 0.22, 1.0, 0.38).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func is_attack_highlight_blinking() -> bool:
+	return (
+		_highlight_mode == "attack"
+		and _attack_highlight_blink_tween != null
+		and _attack_highlight_blink_tween.is_valid()
+	)
+
+
+func _set_attack_highlight_alpha(alpha: float) -> void:
+	if _attack_highlight != null:
+		_attack_highlight.modulate.a = alpha
+	if _attack_highlight_border != null:
+		_attack_highlight_border.modulate.a = alpha
+
+
+func show_attack_order_marker(_texture_resource: Texture2D) -> void:
+	clear_attack_order_marker()
 
 
 func clear_attack_order_marker() -> void:
@@ -174,30 +232,31 @@ func clear_attack_order_marker() -> void:
 	_attack_order_marker = null
 
 
-func show_effect_marker(texture_resource: Texture2D) -> void:
-	clear_effect_marker()
-	if texture_resource == null:
-		return
-	_effect_marker.texture = texture_resource
-	_effect_marker.visible = true
-
-
-func clear_effect_marker() -> void:
-	if _effect_marker != null:
-		_effect_marker.texture = null
-		_effect_marker.modulate = Color.WHITE
-		_effect_marker.visible = false
-
-
 func clear_element_visuals() -> void:
-	clear_effect_marker()
-	_clear_children(_element_markers)
+	clear_element_tile()
 	_clear_children(_element_impact_layer)
 
 
-func show_transient_element_marker(texture_resource: Texture2D) -> void:
-	show_effect_marker(texture_resource)
-	_transient_element_visual_dirty = texture_resource != null
+func show_element_tile(element: String) -> void:
+	var variant_id := _element_tile_variant_id(element)
+	var tile_texture := _element_tile_texture(variant_id)
+	_landing_tile_art.texture = tile_texture
+	_landing_tile_art.visible = tile_texture != null
+	_active_element_tile_variant = variant_id if tile_texture != null else ""
+
+
+func clear_element_tile() -> void:
+	_landing_tile_art.visible = false
+	_active_element_tile_variant = ""
+
+
+func get_active_element_tile_variant() -> String:
+	return _active_element_tile_variant
+
+
+func show_transient_element_tile(element: String) -> void:
+	show_element_tile(element)
+	_transient_element_visual_dirty = element != ""
 
 
 func consume_transient_element_visual_dirty() -> bool:
@@ -208,23 +267,28 @@ func consume_transient_element_visual_dirty() -> bool:
 
 func play_element_impact(
 	element: String,
-	marker_texture: Texture2D = null,
-	persist_marker: bool = true
+	persist_tile: bool = true
 ) -> Node:
-	if persist_marker:
-		show_transient_element_marker(marker_texture)
+	if persist_tile:
+		show_transient_element_tile(element)
 	if _element_impact_layer == null:
 		return null
-	var pulse := ColorRect.new()
+	var source_texture := _element_tile_texture(_element_tile_variant_id(element))
+	if source_texture == null:
+		return null
+	var pulse := TextureRect.new()
 	pulse.name = "ElementImpact"
 	pulse.set_meta("element_impact", true)
+	pulse.set_meta("element_tile_variant", _element_tile_variant_id(element))
 	pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pulse.color = _element_color(element)
-	pulse.color.a = 0.72
-	pulse.size = size * 0.82
-	pulse.position = (size - pulse.size) * 0.5
+	pulse.texture = source_texture
+	pulse.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pulse.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	pulse.size = size
+	pulse.position = Vector2.ZERO
 	pulse.pivot_offset = pulse.size * 0.5
 	pulse.scale = Vector2.ONE * 0.62
+	pulse.modulate.a = 0.94
 	_element_impact_layer.add_child(pulse)
 	var tween := pulse.create_tween()
 	tween.set_parallel(true)
@@ -263,13 +327,12 @@ func _clear_content() -> void:
 		child.queue_free()
 	clear_element_visuals()
 	_unit_node = null
-	_highlight_frame = null
 	_attack_order_marker = null
 	_transient_element_visual_dirty = false
 
 
-func _render_element_markers(elements: Dictionary) -> void:
-	_clear_children(_element_markers)
+func _render_element_tile(elements: Dictionary) -> void:
+	clear_element_tile()
 	var element_configs := [
 		{"visual_id": "neutral", "keys": ["无", "neutral"]},
 		{"visual_id": "fire", "keys": ["火", "fire"]},
@@ -289,28 +352,8 @@ func _render_element_markers(elements: Dictionary) -> void:
 		if layers > primary_layers:
 			primary_layers = layers
 			primary_visual_id = String(config.get("visual_id", ""))
-	if primary_visual_id != "" and _assets != null and _assets.has_method("buff_ring_texture"):
-		show_effect_marker(_assets.call("buff_ring_texture", primary_visual_id) as Texture2D)
-		if _effect_marker != null:
-			_effect_marker.modulate.a = 0.82
-
-	var visible_index := 0
-	for element_config in element_configs:
-		var config := Dictionary(element_config)
-		var visual_id := String(config.get("visual_id", ""))
-		var layer_count := _element_layer_count(elements, Array(config.get("keys", [])))
-		if layer_count <= 0:
-			continue
-		for layer_index in range(layer_count):
-			var marker := ColorRect.new()
-			marker.name = "Element_%s" % visual_id if layer_index == 0 else "Element_%s_%d" % [visual_id, layer_index + 1]
-			marker.color = _element_color(visual_id)
-			marker.position = _element_marker_position(visible_index)
-			marker.size = Vector2(12.0, 12.0)
-			marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			marker.z_index = 5
-			_element_markers.add_child(marker)
-			visible_index += 1
+	if primary_visual_id != "":
+		show_element_tile(primary_visual_id)
 
 
 func _clear_children(parent: Node) -> void:
@@ -320,13 +363,6 @@ func _clear_children(parent: Node) -> void:
 		child.queue_free()
 
 
-func _element_marker_position(visible_index: int) -> Vector2:
-	var columns: int = max(1, int(floor(max(12.0, size.x - 16.0) / 18.0)))
-	var column := visible_index % columns
-	var row := int(visible_index / columns)
-	return Vector2(8.0 + column * 18.0, size.y - 20.0 - row * 18.0)
-
-
 func _element_layer_count(elements: Dictionary, keys: Array) -> int:
 	var layers := 0
 	for key_value in keys:
@@ -334,15 +370,30 @@ func _element_layer_count(elements: Dictionary, keys: Array) -> int:
 	return layers
 
 
+func _element_tile_texture(variant_id: String) -> Texture2D:
+	return LANDING_TILE_TEXTURES.get(variant_id) as Texture2D
+
+
+func _element_tile_variant_id(element: String) -> String:
+	match element.strip_edges().to_lower():
+		"fire", "火", "dragon", "龙":
+			return "fire"
+		"water", "水", "ice", "冰":
+			return "water"
+		"earth", "ground", "地", "dark", "暗":
+			return "earth"
+		"wind", "风", "neutral", "无", "grass", "草", "electric", "雷":
+			return "wind"
+		_:
+			return "fire"
+
+
 func _make_cell_style(highlight_mode: String = "") -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	match highlight_mode:
-		"deploy", "selected":
+		"deploy":
 			style.bg_color = STYLE_DEPLOY_BG
 			style.border_color = STYLE_DEPLOY_BORDER
-		"attack":
-			style.bg_color = STYLE_ATTACK_BG
-			style.border_color = STYLE_ATTACK_BORDER
 		_:
 			style.bg_color = STYLE_DEFAULT_BG
 			style.border_color = STYLE_DEFAULT_BORDER
@@ -360,53 +411,51 @@ func _make_cell_style(highlight_mode: String = "") -> StyleBoxFlat:
 	return style
 
 
-func _update_highlight_frame(highlight_mode: String) -> void:
-	if is_instance_valid(_highlight_frame):
-		_highlight_frame.queue_free()
-	_highlight_frame = null
-	if highlight_mode != "selected":
+func _sync_attack_highlight_geometry() -> void:
+	if _attack_highlight == null or _attack_highlight_border == null:
 		return
-	if _assets == null or not _assets.has_method("hover_frame_texture"):
-		return
-	var texture_resource := _assets.call("hover_frame_texture") as Texture2D
-	if texture_resource == null:
-		return
-	_highlight_frame = TextureRect.new()
-	_highlight_frame.name = "HoverFrame"
-	_highlight_frame.custom_minimum_size = Vector2.ZERO
-	_highlight_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_highlight_frame.texture = texture_resource
-	var frame_size := size * HOVER_FRAME_SCALE
-	_highlight_frame.position = (size - frame_size) * 0.5 + HOVER_FRAME_OFFSET
-	_highlight_frame.size = frame_size
-	_highlight_frame.stretch_mode = TextureRect.STRETCH_SCALE
-	_highlight_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_highlight_frame.z_index = 18
-	_prefab_anchor.add_child(_highlight_frame)
+	var highlight_polygon := polygon.duplicate() if uses_perspective_geometry() else PackedVector2Array([
+		Vector2.ZERO,
+		Vector2(size.x, 0.0),
+		size,
+		Vector2(0.0, size.y),
+	])
+	_attack_highlight.polygon = highlight_polygon
+	var outline := highlight_polygon.duplicate()
+	if not outline.is_empty():
+		outline.append(outline[0])
+	_attack_highlight_border.points = outline
 
 
-func _element_color(element: String) -> Color:
-	match element:
-		"neutral":
-			return Color(0.82, 0.82, 0.78, 0.9)
-		"fire":
-			return Color(1.0, 0.24, 0.12, 0.9)
-		"water":
-			return Color(0.1, 0.48, 1.0, 0.9)
-		"grass":
-			return Color(0.28, 0.78, 0.24, 0.9)
-		"electric":
-			return Color(1.0, 0.82, 0.08, 0.9)
-		"ice":
-			return Color(0.52, 0.9, 1.0, 0.9)
-		"ground":
-			return Color(0.62, 0.42, 0.18, 0.9)
-		"dark":
-			return Color(0.48, 0.24, 0.68, 0.9)
-		"dragon":
-			return Color(0.86, 0.28, 0.58, 0.9)
-		_:
-			return Color.WHITE
+func _update_attack_highlight() -> void:
+	var is_attack := _highlight_mode == "attack"
+	if _attack_highlight != null:
+		_attack_highlight.visible = is_attack
+	if _attack_highlight_border != null:
+		_attack_highlight_border.visible = is_attack
+
+
+func _sync_interaction_highlight_geometry() -> void:
+	if _hover_highlight == null or _hover_highlight_border == null:
+		return
+	var cell_polygon := polygon.duplicate() if uses_perspective_geometry() else PackedVector2Array([
+		Vector2.ZERO,
+		Vector2(size.x, 0.0),
+		size,
+		Vector2(0.0, size.y),
+	])
+	_hover_highlight.polygon = cell_polygon
+	var hover_outline := cell_polygon.duplicate()
+	if not hover_outline.is_empty():
+		hover_outline.append(hover_outline[0])
+	_hover_highlight_border.points = hover_outline
+
+
+func _update_interaction_highlights() -> void:
+	if _hover_highlight != null:
+		_hover_highlight.visible = _is_hovered
+	if _hover_highlight_border != null:
+		_hover_highlight_border.visible = _is_hovered
 
 
 func _has_point(point: Vector2) -> bool:
@@ -427,10 +476,8 @@ func _draw() -> void:
 
 func _perspective_colors() -> Array[Color]:
 	match _highlight_mode:
-		"deploy", "selected":
+		"deploy":
 			return [STYLE_DEPLOY_BG, STYLE_DEPLOY_BORDER]
-		"attack":
-			return [STYLE_ATTACK_BG, STYLE_ATTACK_BORDER]
 		_:
 			return [PERSPECTIVE_DEFAULT_FILL, PERSPECTIVE_DEFAULT_BORDER]
 

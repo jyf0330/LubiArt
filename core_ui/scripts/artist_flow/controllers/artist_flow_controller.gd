@@ -108,6 +108,18 @@ func _ready() -> void:
 	call_deferred("_refresh_slot_button_layouts")
 
 
+func _game_cursor() -> Node:
+	if not is_inside_tree():
+		return null
+	return get_tree().get_first_node_in_group(&"game_cursor")
+
+
+func _set_game_cursor_loading(source: StringName, active: bool) -> void:
+	var cursor := _game_cursor()
+	if cursor != null and cursor.has_method("set_loading_source"):
+		cursor.call("set_loading_source", source, active)
+
+
 func _exit_tree() -> void:
 	_session_bridge.dispose()
 	_stage_presenter.dispose()
@@ -875,11 +887,13 @@ func _show_initial_view() -> void:
 	if _is_transitioning:
 		return
 	_is_transitioning = true
+	_set_game_cursor_loading(&"view_transition", true)
 	var target_view := _target_view_from_state()
 	await _stage_presenter.show_initial(target_view)
 	_current_view = target_view
 	_ensure_persistent_hud_visible()
 	_set_run_tools_visible(true)
+	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 
 
@@ -889,32 +903,38 @@ func _transition_to_view(target_view: StringName) -> void:
 		return
 	var previous_view := _current_view
 	_is_transitioning = true
+	_set_game_cursor_loading(&"view_transition", true)
 	await _stage_presenter.switch_view(_current_view, target_view)
 	_current_view = target_view
 	_ensure_persistent_hud_visible()
 	_set_run_tools_visible(true)
+	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 	_release_battle_view_after_transition(previous_view, target_view)
 
 
 func _open_bag() -> void:
 	_is_transitioning = true
+	_set_game_cursor_loading(&"view_transition", true)
 	_view_before_bag = _current_view
 	await _stage_presenter.switch_view(_current_view, VIEW_BAG)
 	_current_view = VIEW_BAG
 	_ensure_persistent_hud_visible()
 	_set_run_tools_visible(true)
 	_render_bazaar_information(_current_snapshot(), VIEW_BAG)
+	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 
 
 func _close_bag() -> void:
 	_is_transitioning = true
+	_set_game_cursor_loading(&"view_transition", true)
 	await _stage_presenter.switch_view(VIEW_BAG, _view_before_bag)
 	_current_view = _view_before_bag
 	_ensure_persistent_hud_visible()
 	_set_run_tools_visible(true)
 	_render_bazaar_information(_current_snapshot(), _current_view)
+	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 
 
@@ -1268,7 +1288,9 @@ func _set_run_tools_visible(is_visible: bool) -> void:
 
 func _submit_core_command(command: Dictionary) -> bool:
 	_ensure_game_session()
+	_set_game_cursor_loading(&"session_command", true)
 	var response := Dictionary(await _session_bridge.submit_command(command))
+	_set_game_cursor_loading(&"session_command", false)
 	if bool(response.get("accepted", false)):
 		return true
 	var command_type := String(response.get("command", command.get("type", "")))

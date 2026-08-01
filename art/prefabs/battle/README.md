@@ -1,9 +1,12 @@
 # Battle Art Prefabs
 
-本目录只保留战斗 prefab 的职责说明，不放额外 `.tscn`。正式战斗 prefab 仍只有 `pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn` 和 `terrain/terrain_detail.tscn`。
+本目录收纳战斗专用的内部 UI prefab。四个跨流程公开 prefab 仍为 `pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn` 和 `terrain/terrain_detail.tscn`。
+
+- `hud/attack_direction_drawer.tscn`：右上攻击方向抽屉，由正式战斗 Scene 实例化；节点层级、纹理引用、交互脚本与 300×421 显示尺寸均封装在 prefab 内。
 
 - 保留 authored 坐标、尺寸、层级和动画时机。
 - 宠物攻击、受击、移动、死亡、跨格投射物与伤害数字由 `pet.tscn` 的表现脚本创建。
 - 地面元素标记与命中特效由 `terrain.tscn` 的表现脚本创建。
+- 攻击方向抽屉只回放公开 Snapshot 中的方向，不生成战斗规则或权威状态。
 - 回合横幅留在正式战斗 Scene 的事件编排层。
 - 不在预制体脚本里复制伤害、血量、护盾或回合权威状态。

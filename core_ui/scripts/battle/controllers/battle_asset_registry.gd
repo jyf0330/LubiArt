@@ -3,6 +3,7 @@ extends RefCounted
 const MANIFEST_PATH := "res://art/manifests/battle/battle_asset_manifest.json"
 const SUPPORTED_MANIFEST_VERSION := 2
 const DEFAULT_RUNTIME_SECTIONS := ["background", "buttons", "frames", "leaders", "fallback_units", "effects"]
+const BACKGROUND_BIOME_SEQUENCE := ["grassland", "pond", "wasteland", "mountain", "lowland"]
 const PetAssetResolverScript := preload("res://core_ui/scripts/shared/pet/pet_asset_resolver.gd")
 
 var manifest: Dictionary = {}
@@ -121,6 +122,66 @@ func round_banner_texture() -> Texture2D:
 	if path == "":
 		path = "res://art/images/battle/runtime/images/round_banner_blank.png"
 	return _load_texture_if_exists(path)
+
+
+func battle_background_texture(snapshot: Dictionary) -> Texture2D:
+	var backgrounds := Dictionary(manifest.get("background", {}))
+	var maps := Dictionary(backgrounds.get("maps", {}))
+	var key := battle_background_key(snapshot)
+	var path := String(maps.get(key, backgrounds.get("battle", "")))
+	return _load_texture_if_exists(path)
+
+
+func battle_background_key(snapshot: Dictionary) -> String:
+	var backgrounds := Dictionary(manifest.get("background", {}))
+	var maps := Dictionary(backgrounds.get("maps", {}))
+	for field in ["battle_map_key", "battleMapKey", "map_key", "mapKey"]:
+		var explicit_key := _normalize_map_key(String(snapshot.get(field, "")))
+		if maps.has(explicit_key):
+			return explicit_key
+
+	var biome := ""
+	for field in ["battle_biome", "battleBiome", "biome"]:
+		biome = _normalize_biome(String(snapshot.get(field, "")))
+		if biome != "":
+			break
+	if biome == "":
+		var day := maxi(1, int(snapshot.get("day", 1)))
+		biome = BACKGROUND_BIOME_SEQUENCE[(day - 1) % BACKGROUND_BIOME_SEQUENCE.size()]
+
+	var period := String(snapshot.get("battle_period", snapshot.get("battlePeriod", "")))
+	var time_key := "evening" if _is_evening_period(period) else "morning"
+	var resolved_key := "%s_%s" % [biome, time_key]
+	return resolved_key if maps.has(resolved_key) else "grassland_morning"
+
+
+func _normalize_map_key(value: String) -> String:
+	var normalized := value.strip_edges().to_lower().replace("-", "_").replace(" ", "_")
+	for suffix in ["_map", "_background"]:
+		if normalized.ends_with(suffix):
+			normalized = normalized.trim_suffix(suffix)
+	return normalized
+
+
+func _normalize_biome(value: String) -> String:
+	var normalized := value.strip_edges().to_lower()
+	match normalized:
+		"grassland", "grass", "meadow", "草原":
+			return "grassland"
+		"pond", "池塘":
+			return "pond"
+		"wasteland", "wilds", "荒野":
+			return "wasteland"
+		"mountain", "mountains", "山脉":
+			return "mountain"
+		"lowland", "depression", "洼地":
+			return "lowland"
+	return ""
+
+
+func _is_evening_period(value: String) -> bool:
+	var normalized := value.strip_edges().to_lower()
+	return normalized in ["下午", "晚上", "晚", "afternoon", "evening", "night", "pm"]
 
 
 func monster_bite_frames() -> Array:

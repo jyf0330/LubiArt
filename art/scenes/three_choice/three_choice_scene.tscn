@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://art/prefabs/pet/pet_detail.tscn" id="16_pet_detail"]
 [ext_resource type="Script" path="res://core_ui/scripts/shop/controllers/bazaar_info_panel.gd" id="17_bazaar_info"]
 [ext_resource type="Script" path="res://core_ui/scripts/artist_flow/scenes/three_choice_surface.gd" id="18_surface"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shared/cursor/game_cursor.tscn" id="19_game_cursor"]
 
 [sub_resource type="Animation" id="Animation_j04uc"]
 length = 0.001
@@ -956,3 +957,5 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="GameCursor" parent="." instance=ExtResource("19_game_cursor")]
