@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MockSession := preload("res://session/mock_game_session.gd")
 const CAPTURE_PATH := "res://output/battle_cell_selection_1920x1080.png"
 
 
@@ -11,6 +12,7 @@ func _initialize() -> void:
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
 	var main_instance := MainScene.instantiate()
+	main_instance.call("set_game_session", MockSession.new({"start_phase": "battle"}))
 	root.add_child(main_instance)
 	for _frame in range(16):
 		await process_frame

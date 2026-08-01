@@ -3,10 +3,34 @@ extends RefCounted
 const PetAssetResolverScript := preload("res://core_ui/scripts/shared/pet/pet_asset_resolver.gd")
 
 const ROUTE_IMAGE_BY_KIND := {
-	"shop": "res://art/images/debug/artist_ui/three_shang.png",
-	"reward": "res://art/images/debug/artist_ui/three_qi.png",
-	"battle": "res://art/images/debug/artist_ui/three_fight_logo.png",
+	"shop": "res://art/images/route/three_choice_psd/route_portrait_shop.png",
+	"event": "res://art/images/route/three_choice_psd/route_portrait_event.png",
+	"reward": "res://art/images/route/three_choice_psd/route_portrait_reward.png",
+	"battle": "res://art/images/route/three_choice_psd/route_portrait_event.png",
+	"rest": "res://art/images/route/three_choice_psd/route_portrait_event.png",
 }
+const ROUTE_ICON_BY_KIND := {
+	"shop": "res://art/images/route/three_choice_psd/route_icon_shop.png",
+	"event": "res://art/images/route/three_choice_psd/route_icon_event.png",
+	"reward": "res://art/images/route/three_choice_psd/route_icon_reward.png",
+	"battle": "res://art/images/route/three_choice_psd/route_icon_event.png",
+	"rest": "res://art/images/route/three_choice_psd/route_icon_event.png",
+}
+const ROUTE_SLOT_IMAGE_PATHS := [
+	"res://art/images/route/three_choice_psd/route_portrait_shop.png",
+	"res://art/images/route/three_choice_psd/route_portrait_event.png",
+	"res://art/images/route/three_choice_psd/route_portrait_reward.png",
+]
+const ROUTE_SLOT_ICON_PATHS := [
+	"res://art/images/route/three_choice_psd/route_icon_shop.png",
+	"res://art/images/route/three_choice_psd/route_icon_event.png",
+	"res://art/images/route/three_choice_psd/route_icon_reward.png",
+]
+const ROUTE_SLOT_HIGHLIGHT_PATHS := [
+	"res://art/images/route/three_choice_psd/route_highlight_1.png",
+	"res://art/images/route/three_choice_psd/route_highlight_2.png",
+	"res://art/images/route/three_choice_psd/route_highlight_3.png",
+]
 const PET_IMAGE_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
 const PET_SHEET_SLICE_DIR := "res://art/images/shared/pets/sheets/slices"
 const PET_EXPLICIT_IMAGE_DIR := "res://art/images/shared/pets/sheets/slices"
@@ -42,16 +66,28 @@ func missing_image_report() -> Array:
 
 
 func route_texture(option: Dictionary, kind: String) -> Texture2D:
-	if kind == "shop":
-		var shop_character := _shop_character_texture(option)
-		if shop_character != null:
-			return shop_character
-	if kind == "reward":
-		var reward_node := _reward_node_texture(option)
-		if reward_node != null:
-			return reward_node
-	var path := String(ROUTE_IMAGE_BY_KIND.get(kind, "res://art/images/debug/artist_ui/three_qi_logo.png"))
+	var path := String(ROUTE_IMAGE_BY_KIND.get(kind, ROUTE_IMAGE_BY_KIND["event"]))
 	return load(path) as Texture2D
+
+
+func route_slot_texture(index: int) -> Texture2D:
+	var safe_index := clampi(index, 0, ROUTE_SLOT_IMAGE_PATHS.size() - 1)
+	return load(String(ROUTE_SLOT_IMAGE_PATHS[safe_index])) as Texture2D
+
+
+func route_icon_texture(kind: String) -> Texture2D:
+	var path := String(ROUTE_ICON_BY_KIND.get(kind, ROUTE_ICON_BY_KIND["event"]))
+	return load(path) as Texture2D
+
+
+func route_slot_icon_texture(index: int) -> Texture2D:
+	var safe_index := clampi(index, 0, ROUTE_SLOT_ICON_PATHS.size() - 1)
+	return load(String(ROUTE_SLOT_ICON_PATHS[safe_index])) as Texture2D
+
+
+func route_slot_highlight_texture(index: int) -> Texture2D:
+	var safe_index := clampi(index, 0, ROUTE_SLOT_HIGHLIGHT_PATHS.size() - 1)
+	return load(String(ROUTE_SLOT_HIGHLIGHT_PATHS[safe_index])) as Texture2D
 
 
 func pet_texture(record: Dictionary) -> Texture2D:

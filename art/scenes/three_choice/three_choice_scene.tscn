@@ -1,912 +1,557 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://fqv3cjmnr3tl"]
 
-[ext_resource type="Script" path="res://core_ui/scripts/app/game_controller.gd" id="0_adapter"]
+[ext_resource type="Script" uid="uid://dhyg78o2s5i16" path="res://core_ui/scripts/app/game_controller.gd" id="1_game"]
+[ext_resource type="Texture2D" uid="uid://6up53agulsao" path="res://art/images/route/three_choice_psd/background.png" id="2_bg"]
+[ext_resource type="Texture2D" uid="uid://do7oqrulu6syy" path="res://art/images/route/three_choice_psd/temple_base.png" id="3_temple"]
+[ext_resource type="PackedScene" uid="uid://cqvin8txl566s" path="res://art/prefabs/route/three_choice_card.tscn" id="5_card"]
+[ext_resource type="PackedScene" uid="uid://7xfv6x36mgdm" path="res://art/prefabs/pet/pet.tscn" id="6_pet"]
+[ext_resource type="Texture2D" uid="uid://cfjrp18nyglvw" path="res://art/images/route/three_choice_psd/item_bar_base.png" id="7_item_bar"]
+[ext_resource type="Texture2D" uid="uid://b62xv5xtrfx3i" path="res://art/images/route/three_choice_psd/bag_closed.png" id="9_bag_closed"]
+[ext_resource type="Texture2D" uid="uid://b4up6l68jjrvr" path="res://art/images/route/three_choice_psd/bag_cover.png" id="10_bag_cover"]
+[ext_resource type="Texture2D" uid="uid://crv5rlthxmo0" path="res://art/images/route/three_choice_psd/party_shelf.png" id="11_party_shelf"]
+[ext_resource type="Texture2D" uid="uid://br38eqv8jxo5q" path="res://art/images/route/three_choice_psd/bag_grid_lines.png" id="13_bag_grid"]
+[ext_resource type="PackedScene" uid="uid://x5n33hc1dx4n" path="res://art/prefabs/pet/pet_detail.tscn" id="16_pet_detail"]
+[ext_resource type="Script" uid="uid://bj4nlkjq2c6vf" path="res://core_ui/scripts/shop/controllers/bazaar_info_panel.gd" id="17_bazaar"]
+[ext_resource type="Script" uid="uid://drusrb8t8vnao" path="res://core_ui/scripts/artist_flow/scenes/three_choice_surface.gd" id="18_surface"]
+[ext_resource type="Script" uid="uid://c8hbtec6cdfhb" path="res://core_ui/scripts/artist_flow/controllers/artist_flow_controller.gd" id="19_flow"]
+[ext_resource type="Texture2D" uid="uid://r3piis8ohdj4" path="res://art/images/route/three_choice_psd/incense_shadow.png" id="20_shadow"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shared/cursor/game_cursor.tscn" id="21_game_cursor"]
 
-[ext_resource type="Texture2D" path="res://art/images/route/base/background.png" id="1_we040"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/header_panel.png" id="2_nxvpl"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/small_panel.png" id="3_dewlx"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/bag_icon.png" id="3_wunin"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/wide_panel.png" id="4_hfhsn"]
-[ext_resource type="PackedScene" path="res://art/prefabs/pet/pet.tscn" id="4_qwshj"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/three_option_frame.png" id="6_48q88"]
-[ext_resource type="Texture2D" path="res://art/images/debug/artist_ui/party_sun.png" id="6_b1goy"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/shop_slot_frame.png" id="7_xjg7p"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/bag_slot_frame.png" id="8_mg6lk"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/bag_slot_frame.png" id="10_j04uc"]
-[ext_resource type="Script" path="res://core_ui/scripts/artist_flow/controllers/artist_flow_controller.gd" id="11_middle"]
-[ext_resource type="Texture2D" path="res://art/images/debug/artist_ui/three_shang.png" id="11_wi7yl"]
-[ext_resource type="Texture2D" path="res://art/images/debug/artist_ui/bag_hulu.png" id="14_wi7yl"]
-[ext_resource type="Texture2D" path="res://art/images/route/base/party_slot_frame.png" id="15_party_frame"]
-[ext_resource type="PackedScene" path="res://art/prefabs/pet/pet_detail.tscn" id="16_pet_detail"]
-[ext_resource type="Script" path="res://core_ui/scripts/shop/controllers/bazaar_info_panel.gd" id="17_bazaar_info"]
-[ext_resource type="Script" path="res://core_ui/scripts/artist_flow/scenes/three_choice_surface.gd" id="18_surface"]
-[ext_resource type="PackedScene" path="res://art/prefabs/shared/cursor/game_cursor.tscn" id="19_game_cursor"]
-
-[sub_resource type="Animation" id="Animation_j04uc"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(27, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("MainBG/Containers/Middle/Middle_Shop:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(15, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("MainBG/Containers/Middle/Middle_Shop:visible")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("MainBG/Containers/Middle/Middle_Bag:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(12, 0)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("MainBG/Containers/Middle/Middle_Bag:visible")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("MainBG/Containers/Top/Top_Shop:position")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1046, 112)]
-}
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = true
-tracks/7/path = NodePath("MainBG/Containers/Top/Top_Shop:visible")
-tracks/7/interp = 1
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
-
-[sub_resource type="Animation" id="Animation_b1goy"]
-resource_name = "hide_Shop"
-length = 0.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MainBG/Containers/Middle/Middle_Shop:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 0,
-"values": [Vector2(15, 0), Vector2(15, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("MainBG/Containers/Middle/Middle_Shop:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, false]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("MainBG/Containers/Top/Top_Shop:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 0,
-"values": [Vector2(1046, 112), Vector2(1046, 112)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("MainBG/Containers/Top/Top_Shop:visible")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 1,
-"values": [true, false]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("MainBG/Containers/Middle/Middle_Shop:modulate:a")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 0.0]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("MainBG/Containers/Top/Top_Shop:modulate:a")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 0.0]
-}
-
-[sub_resource type="Animation" id="Animation_vqx31"]
-resource_name = "hide_Three_Option"
-length = 0.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 0,
-"values": [Vector2(27, 0), Vector2(27, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, false]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:modulate:a")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 0.0]
-}
-
-[sub_resource type="Animation" id="Animation_wi7yl"]
-resource_name = "hide_bag"
-length = 0.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MainBG/Containers/Middle/Middle_Bag:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 0,
-"values": [Vector2(12, 0), Vector2(12, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("MainBG/Containers/Middle/Middle_Bag:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, false]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("MainBG/Containers/Middle/Middle_Bag:modulate:a")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 0.0]
-}
-
-[sub_resource type="Animation" id="Animation_5q4fb"]
-resource_name = "show_Bag"
-length = 0.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MainBG/Containers/Middle/Middle_Bag:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 0,
-"values": [Vector2(12, 0), Vector2(12, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("MainBG/Containers/Middle/Middle_Bag:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, true]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("MainBG/Containers/Middle/Middle_Bag:modulate:a")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 1.0]
-}
-
-[sub_resource type="Animation" id="Animation_n04ve"]
-resource_name = "show_Shop"
-length = 0.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MainBG/Containers/Middle/Middle_Shop:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 0,
-"values": [Vector2(15, 0), Vector2(15, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("MainBG/Containers/Middle/Middle_Shop:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, true]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("MainBG/Containers/Top/Top_Shop:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(1046, 112), Vector2(1046, 112)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("MainBG/Containers/Top/Top_Shop:visible")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1.035265, 1),
-"update": 1,
-"values": [true, true]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("MainBG/Containers/Middle/Middle_Shop:modulate:a")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 1.0]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("MainBG/Containers/Top/Top_Shop:modulate:a")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 1.0]
-}
-
-[sub_resource type="Animation" id="Animation_wunin"]
-resource_name = "show_Three_Option"
-length = 0.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(2, 2),
-"update": 0,
-"values": [Vector2(27, 0), Vector2(27, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, true]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("MainBG/Containers/Middle/Middle_Three_Option:modulate:a")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.72, 1.0]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_b1goy"]
-_data = {
-&"RESET": SubResource("Animation_j04uc"),
-&"hide_Shop": SubResource("Animation_b1goy"),
-&"hide_Three_Option": SubResource("Animation_vqx31"),
-&"hide_bag": SubResource("Animation_wi7yl"),
-&"show_Bag": SubResource("Animation_5q4fb"),
-&"show_Shop": SubResource("Animation_n04ve"),
-&"show_Three_Option": SubResource("Animation_wunin")
-}
-
-[node name="ThreeChoiceScene" type="Control" unique_id=1397941109]
-editor_description = "正式三选一 Scene。路线、商店、背包、队伍、结算和持久 UI 都直接属于本场景；只复用宠物与宠物详情 prefab。"
+[node name="ThreeChoiceScene" type="Control" unique_id=1653662520]
+editor_description = "PSD-based three-choice Scene. Layers are organized by background, temple, route cards, inventory, party, coin, and top HUD."
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("0_adapter")
+script = ExtResource("1_game")
 
-[node name="MainBG" type="TextureRect" parent="." unique_id=1451240813]
+[node name="MainBG" type="TextureRect" parent="." unique_id=340799414]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -958.5
-offset_top = -548.0
-offset_right = 961.5
-offset_bottom = 532.0
+offset_left = -960.0
+offset_top = -540.0
+offset_right = 960.0
+offset_bottom = 540.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("1_we040")
+mouse_filter = 2
+texture = ExtResource("2_bg")
+stretch_mode = 5
 script = ExtResource("18_surface")
 
-[node name="DebugButton" type="TextureButton" parent="MainBG" unique_id=2122193246]
+[node name="Temple" type="TextureRect" parent="MainBG" unique_id=636311480]
 layout_mode = 0
-offset_left = 1700.5
-offset_top = 651.0
-offset_right = 1797.5
-offset_bottom = 744.0
-texture_normal = ExtResource("10_j04uc")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+texture = ExtResource("3_temple")
+stretch_mode = 5
 
-[node name="Containers" type="NinePatchRect" parent="MainBG" unique_id=1006297414]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -581.5
-offset_top = -487.0
-offset_right = 578.5
-offset_bottom = 443.0
-grow_horizontal = 2
-grow_vertical = 2
-region_rect = Rect2(-5, -9, 493.96057, 537.0495)
+[node name="Containers" type="Control" parent="MainBG" unique_id=1320522713]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
 
-[node name="Bags" type="NinePatchRect" parent="MainBG/Containers" unique_id=1004373835]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -220.0
-offset_right = 220.0
-grow_vertical = 0
-texture = ExtResource("2_nxvpl")
-
-[node name="Bag_Button" type="TextureButton" parent="MainBG/Containers/Bags" unique_id=1088202207]
+[node name="Middle" type="NinePatchRect" parent="MainBG/Containers" unique_id=1307585610]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-texture_normal = ExtResource("3_wunin")
+offset_right = 1920.0
+offset_bottom = 1080.0
+script = ExtResource("19_flow")
 
-[node name="Party" type="NinePatchRect" parent="MainBG/Containers" unique_id=972219340]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -940.0
-offset_top = -220.0
-grow_horizontal = 0
-grow_vertical = 0
-texture = ExtResource("3_dewlx")
+[node name="Middle_Three_Option" type="Control" parent="MainBG/Containers/Middle" unique_id=1925190278]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
 
-[node name="Party_Container" type="GridContainer" parent="MainBG/Containers/Party" unique_id=186061230]
+[node name="IncenseShadow" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Three_Option" unique_id=213307318]
 layout_mode = 0
-offset_right = 940.0
-offset_bottom = 220.0
+offset_left = 576.0
+offset_top = 629.0
+offset_right = 1341.0
+offset_bottom = 671.0
+mouse_filter = 2
+texture = ExtResource("20_shadow")
+stretch_mode = 5
+
+[node name="CardGrid" type="Control" parent="MainBG/Containers/Middle/Middle_Three_Option" unique_id=731731861]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Three_Option_Slot" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid" unique_id=1843849086 instance=ExtResource("5_card")]
+layout_mode = 0
+offset_left = 502.0
+offset_top = 279.0
+offset_right = 762.0
+offset_bottom = 671.0
+slot_index = 0
+portrait_offset = Vector2(6.06, 0)
+icon_offset = Vector2(9.03, 0)
+incense_burner_offset = Vector2(6.43, 0)
+hover_smoke_offset = Vector2(6.43, 0)
+route_highlight_offset = Vector2(22.8, -41.88)
+
+[node name="Three_Option_Slot2" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid" unique_id=520175123 instance=ExtResource("5_card")]
+layout_mode = 0
+offset_left = 833.0
+offset_top = 279.0
+offset_right = 1093.0
+offset_bottom = 671.0
+portrait_offset = Vector2(9.31, 0)
+icon_offset = Vector2(9.86, 0)
+incense_burner_offset = Vector2(8.15, 0)
+hover_smoke_offset = Vector2(8.15, 0)
+route_highlight_offset = Vector2(17.97, -43.32)
+
+[node name="Three_Option_Slot3" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid" unique_id=1368601539 instance=ExtResource("5_card")]
+layout_mode = 0
+offset_left = 1161.0
+offset_top = 279.0
+offset_right = 1421.0
+offset_bottom = 671.0
+slot_index = 2
+portrait_offset = Vector2(-0.99, 0)
+icon_offset = Vector2(9.64, 0)
+incense_burner_offset = Vector2(13.35, 0)
+hover_smoke_offset = Vector2(13.35, 0)
+route_highlight_offset = Vector2(17.79, -42.76)
+
+[node name="BagOverlayMask" type="ColorRect" parent="MainBG/Containers/Middle" unique_id=501269519]
+visible = false
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.12, 0.12, 0.12, 0.38)
+
+[node name="Middle_Shop" type="Control" parent="MainBG/Containers/Middle" unique_id=639674547]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="ItemBar" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=1538022308]
+layout_mode = 0
+offset_left = 393.0
+offset_top = 525.0
+offset_right = 1530.0
+offset_bottom = 718.0
+mouse_filter = 2
+texture = ExtResource("7_item_bar")
+stretch_mode = 5
+
+[node name="Slots" type="GridContainer" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=1927969555]
+layout_mode = 0
+offset_left = 444.0
+offset_top = 551.0
+offset_right = 1486.0
+offset_bottom = 661.0
+theme_override_constants/h_separation = 20
+columns = 8
+
+[node name="Shop_Slot" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=285087203]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot" unique_id=1325677518]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot" unique_id=380528961]
+layout_mode = 2
+
+[node name="Shop_Slot2" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=639181195]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot2" unique_id=160674797]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button2" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot2" unique_id=675584626]
+layout_mode = 2
+
+[node name="Shop_Slot3" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=243091683]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot3" unique_id=1363265854]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button3" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot3" unique_id=1618890163]
+layout_mode = 2
+
+[node name="Shop_Slot4" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=1596810202]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot4" unique_id=1574259008]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button4" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot4" unique_id=772630431]
+layout_mode = 2
+
+[node name="Shop_Slot5" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=153825116]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot5" unique_id=200619242]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button5" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot5" unique_id=1856564246]
+layout_mode = 2
+
+[node name="Shop_Slot6" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=300935057]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot6" unique_id=382337679]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button6" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot6" unique_id=962584507]
+layout_mode = 2
+
+[node name="Shop_Slot7" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=778710004]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot7" unique_id=1783099857]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button7" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot7" unique_id=1810684512]
+layout_mode = 2
+
+[node name="Shop_Slot8" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=624784729]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot8" unique_id=409019428]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="Shop_Button8" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot8" unique_id=1563512491]
+layout_mode = 2
+
+[node name="Middle_Bag" type="Control" parent="MainBG/Containers/Middle" unique_id=780740488]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="ItemBar" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=1385984569]
+layout_mode = 0
+offset_left = 393.0
+offset_top = 525.0
+offset_right = 1530.0
+offset_bottom = 718.0
+mouse_filter = 2
+texture = ExtResource("7_item_bar")
+stretch_mode = 5
+
+[node name="Slots" type="GridContainer" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=63077508]
+layout_mode = 0
+offset_left = 444.0
+offset_top = 551.0
+offset_right = 1486.0
+offset_bottom = 661.0
+theme_override_constants/h_separation = 20
+columns = 8
+
+[node name="Bag_Slot" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=928382306]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot" unique_id=240765275]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot" unique_id=719166824 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot" unique_id=34579652]
+layout_mode = 2
+
+[node name="Bag_Slot2" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=231438549]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot2" unique_id=1822076684]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot2" unique_id=1647151264 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button2" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot2" unique_id=133043774]
+layout_mode = 2
+
+[node name="Bag_Slot3" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1738631614]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot3" unique_id=373381675]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot3" unique_id=1290908134 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button3" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot3" unique_id=1839646523]
+layout_mode = 2
+
+[node name="Bag_Slot4" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1513677676]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot4" unique_id=2038440434]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot4" unique_id=1939069800 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button4" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot4" unique_id=665938077]
+layout_mode = 2
+
+[node name="Bag_Slot5" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1270863678]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot5" unique_id=1161440524]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot5" unique_id=1610067501 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button5" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot5" unique_id=1868628856]
+layout_mode = 2
+
+[node name="Bag_Slot6" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1834668178]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot6" unique_id=1940834730]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot6" unique_id=2139170808 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button6" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot6" unique_id=1951623612]
+layout_mode = 2
+
+[node name="Bag_Slot7" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=242909929]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot7" unique_id=1668197189]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot7" unique_id=1606304217 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button7" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot7" unique_id=1539111228]
+layout_mode = 2
+
+[node name="Bag_Slot8" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=668976337]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+
+[node name="Bg" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot8" unique_id=186433083]
+visible = false
+layout_mode = 2
+stretch_mode = 5
+
+[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot8" unique_id=1668330222 instance=ExtResource("6_pet")]
+texture_filter = 0
+layout_mode = 2
+
+[node name="Bag_Button8" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot8" unique_id=1498506646]
+layout_mode = 2
+
+[node name="Party" type="Control" parent="MainBG/Containers" unique_id=99163385]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="PartyShelf" type="TextureRect" parent="MainBG/Containers/Party" unique_id=1505724092]
+visible = false
+layout_mode = 0
+offset_left = 657.0
+offset_top = 784.0
+offset_right = 1266.0
+offset_bottom = 844.0
+mouse_filter = 2
+texture = ExtResource("11_party_shelf")
+stretch_mode = 5
+
+[node name="Party_Container" type="GridContainer" parent="MainBG/Containers/Party" unique_id=418723248]
+layout_mode = 0
+offset_left = 650.0
+offset_top = 714.0
+offset_right = 1238.0
+offset_bottom = 842.0
+theme_override_constants/h_separation = 56
 columns = 4
 
-[node name="Party_Slot" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=1157309597]
+[node name="Party_Slot" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=666246858]
 self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="Bg" type="TextureRect" parent="MainBG/Containers/Party/Party_Container/Party_Slot"]
-layout_mode = 2
-texture = ExtResource("15_party_frame")
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot" instance=ExtResource("4_qwshj")]
+[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot" unique_id=1527850534 instance=ExtResource("6_pet")]
+texture_filter = 0
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="PareyButton" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot" unique_id=2053528350]
+[node name="PareyButton" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot" unique_id=253487867]
 layout_mode = 2
-texture_normal = ExtResource("6_b1goy")
 
-[node name="Party_Slot2" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=217189353]
+[node name="Party_Slot2" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=2071970465]
 self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="Bg" type="TextureRect" parent="MainBG/Containers/Party/Party_Container/Party_Slot2"]
-layout_mode = 2
-texture = ExtResource("15_party_frame")
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot2" instance=ExtResource("4_qwshj")]
+[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot2" unique_id=1820698173 instance=ExtResource("6_pet")]
+texture_filter = 0
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="PareyButton2" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot2" unique_id=40852546]
+[node name="PareyButton2" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot2" unique_id=132522535]
 layout_mode = 2
-texture_normal = ExtResource("6_b1goy")
 
-[node name="Party_Slot3" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=1707220072]
+[node name="Party_Slot3" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=994335600]
 self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="Bg" type="TextureRect" parent="MainBG/Containers/Party/Party_Container/Party_Slot3"]
-layout_mode = 2
-texture = ExtResource("15_party_frame")
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot3" instance=ExtResource("4_qwshj")]
+[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot3" unique_id=162575074 instance=ExtResource("6_pet")]
+texture_filter = 0
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="PareyButton3" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot3" unique_id=1317953380]
+[node name="PareyButton3" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot3" unique_id=1922869626]
 layout_mode = 2
-texture_normal = ExtResource("6_b1goy")
 
-[node name="Party_Slot4" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=1076914231]
+[node name="Party_Slot4" type="PanelContainer" parent="MainBG/Containers/Party/Party_Container" unique_id=1508228322]
 self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="Bg" type="TextureRect" parent="MainBG/Containers/Party/Party_Container/Party_Slot4"]
-layout_mode = 2
-texture = ExtResource("15_party_frame")
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot4" instance=ExtResource("4_qwshj")]
+[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot4" unique_id=649260913 instance=ExtResource("6_pet")]
+texture_filter = 0
+custom_minimum_size = Vector2(105, 118)
 layout_mode = 2
 
-[node name="PareyButton4" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot4" unique_id=590959312]
-layout_mode = 2
-texture_normal = ExtResource("6_b1goy")
-
-[node name="Middle" type="NinePatchRect" parent="MainBG/Containers" unique_id=843084269]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.23655914
-anchor_right = 0.9982759
-anchor_bottom = 0.76344085
-offset_right = 2.0
-grow_vertical = 2
-texture = ExtResource("4_hfhsn")
-script = ExtResource("11_middle")
-metadata/_edit_use_anchors_ = true
-
-[node name="Middle_Three_Option" type="GridContainer" parent="MainBG/Containers/Middle" unique_id=133301926]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -553.0
-offset_top = -245.0
-offset_right = 553.0032
-offset_bottom = 245.0008
-grow_horizontal = 2
-grow_vertical = 2
-columns = 3
-
-[node name="Three_Option_Slot" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Three_Option" unique_id=811508456]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Three_Option/Three_Option_Slot"]
-layout_mode = 2
-texture = ExtResource("6_48q88")
-
-[node name="Three_Button" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Three_Option/Three_Option_Slot" unique_id=564880751]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Three_Option_Slot2" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Three_Option" unique_id=1421580372]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Three_Option/Three_Option_Slot2"]
-layout_mode = 2
-texture = ExtResource("6_48q88")
-
-[node name="Three_Button2" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Three_Option/Three_Option_Slot2" unique_id=586564666]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Three_Option_Slot3" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Three_Option" unique_id=220721442]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Three_Option/Three_Option_Slot3"]
-layout_mode = 2
-texture = ExtResource("6_48q88")
-
-[node name="Three_Button3" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Three_Option/Three_Option_Slot3" unique_id=1166960620]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Middle_Shop" type="GridContainer" parent="MainBG/Containers/Middle" unique_id=9370373]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -565.0
-offset_top = -245.0
-offset_right = 565.00146
-offset_bottom = 245.0
-grow_horizontal = 2
-grow_vertical = 2
-columns = 5
-
-[node name="Shop_Slot" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=1858513610]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot"]
-layout_mode = 2
-texture = ExtResource("7_xjg7p")
-
-[node name="Shop_Button" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot" unique_id=826922635]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Shop_Slot2" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=141623311]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot2"]
-layout_mode = 2
-texture = ExtResource("7_xjg7p")
-
-[node name="Shop_Button2" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot2" unique_id=1956878764]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Shop_Slot3" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=1619420550]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot3"]
-layout_mode = 2
-texture = ExtResource("7_xjg7p")
-
-[node name="Shop_Button3" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot3" unique_id=1002166007]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Shop_Slot4" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=1418935847]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot4"]
-layout_mode = 2
-texture = ExtResource("7_xjg7p")
-
-[node name="Shop_Button4" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot4" unique_id=1026621213]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Shop_Slot5" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=394726645]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot5"]
-layout_mode = 2
-texture = ExtResource("7_xjg7p")
-
-[node name="Shop_Button5" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Shop_Slot5" unique_id=1572871233]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("11_wi7yl")
-
-[node name="Middle_Bag" type="GridContainer" parent="MainBG/Containers/Middle" unique_id=408530405]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -568.0
-offset_top = -245.0
-offset_right = 568.0
-offset_bottom = 244.99976
-grow_horizontal = 2
-grow_vertical = 2
-columns = 5
-
-[node name="Bag_Slot" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=1448028700]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot"]
-layout_mode = 2
-texture = ExtResource("8_mg6lk")
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot" instance=ExtResource("4_qwshj")]
+[node name="PareyButton4" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot4" unique_id=1550264188]
 layout_mode = 2
 
-[node name="Bag_Button" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot" unique_id=1669325613]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("14_wi7yl")
+[node name="Bags" type="Control" parent="MainBG/Containers" unique_id=489702172]
+anchors_preset = 0
+offset_left = 367.0
+offset_top = 693.0
+offset_right = 584.0
+offset_bottom = 979.0
 
-[node name="Bag_Slot2" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=331779564]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot2"]
-layout_mode = 2
-texture = ExtResource("8_mg6lk")
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot2" instance=ExtResource("4_qwshj")]
-layout_mode = 2
-
-[node name="Bag_Button2" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot2" unique_id=435784996]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("14_wi7yl")
-
-[node name="Bag_Slot3" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=1845820334]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot3"]
-layout_mode = 2
-texture = ExtResource("8_mg6lk")
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot3" instance=ExtResource("4_qwshj")]
-layout_mode = 2
-
-[node name="Bag_Button3" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot3" unique_id=548374887]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("14_wi7yl")
-
-[node name="Bag_Slot4" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=1500217467]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot4"]
-layout_mode = 2
-texture = ExtResource("8_mg6lk")
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot4" instance=ExtResource("4_qwshj")]
-layout_mode = 2
-
-[node name="Bag_Button4" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot4" unique_id=199723516]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("14_wi7yl")
-
-[node name="Bag_Slot5" type="PanelContainer" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=1777271954]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-
-[node name="TextureRect" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot5"]
-layout_mode = 2
-texture = ExtResource("8_mg6lk")
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot5" instance=ExtResource("4_qwshj")]
-layout_mode = 2
-
-[node name="Bag_Button5" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Bag_Slot5" unique_id=1969416496]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-texture_normal = ExtResource("14_wi7yl")
-
-[node name="Top" type="NinePatchRect" parent="MainBG/Containers" unique_id=1152826662]
+[node name="Bag_Button" type="TextureButton" parent="MainBG/Containers/Bags" unique_id=2022199975]
 layout_mode = 0
-offset_right = 1160.0
-offset_bottom = 220.0
-texture = ExtResource("3_dewlx")
+offset_left = 55.0
+offset_top = 51.0
+offset_right = 216.0
+offset_bottom = 174.0
+texture_normal = ExtResource("9_bag_closed")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="Top_Shop" type="GridContainer" parent="MainBG/Containers/Top" unique_id=346258497]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -580.0
-offset_right = 580.00024
-offset_bottom = 219.99994
-grow_horizontal = 2
-
-[node name="Shop_BackButton" type="TextureButton" parent="MainBG/Containers/Top/Top_Shop" unique_id=529169801]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 8
-texture_normal = ExtResource("10_j04uc")
-
-[node name="Top_Sell" type="Button" parent="MainBG/Containers/Top" unique_id=1627107676]
+[node name="BagCover" type="TextureRect" parent="MainBG/Containers/Bags" unique_id=1660069215]
 layout_mode = 0
-offset_right = 1160.0
-offset_bottom = 220.0
+offset_top = 149.0
+offset_right = 217.0
+offset_bottom = 286.0
+mouse_filter = 2
+texture = ExtResource("10_bag_cover")
+stretch_mode = 5
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=512767635]
-libraries/ = SubResource("AnimationLibrary_b1goy")
+[node name="BagGridLines" type="TextureRect" parent="MainBG/Containers/Bags" unique_id=862142043]
+layout_mode = 0
+offset_left = 37.0
+offset_top = 176.0
+offset_right = 189.0
+offset_bottom = 226.0
+mouse_filter = 2
+texture = ExtResource("13_bag_grid")
+stretch_mode = 5
 
-[node name="BazaarInfoPanel" type="PanelContainer" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1712911586]
+
+[node name="BazaarInfoPanel" type="PanelContainer" parent="." unique_id=574173665]
+visible = false
+layout_mode = 0
 offset_left = 1470.0
 offset_top = 18.0
 offset_right = 1900.0
 offset_bottom = 325.0
 mouse_filter = 2
-script = ExtResource("17_bazaar_info")
+script = ExtResource("17_bazaar")
 
-[node name="Margin" type="MarginContainer" parent="BazaarInfoPanel"]
+[node name="Margin" type="MarginContainer" parent="BazaarInfoPanel" unique_id=203902151]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 20
@@ -914,42 +559,36 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 16
 
-[node name="Content" type="VBoxContainer" parent="BazaarInfoPanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="BazaarInfoPanel/Margin" unique_id=1920917748]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 10
 
-[node name="Title" type="Label" parent="BazaarInfoPanel/Margin/Content"]
+[node name="Title" type="Label" parent="BazaarInfoPanel/Margin/Content" unique_id=2112085169]
 layout_mode = 2
-mouse_filter = 2
 
-[node name="Summary" type="Label" parent="BazaarInfoPanel/Margin/Content"]
+[node name="Summary" type="Label" parent="BazaarInfoPanel/Margin/Content" unique_id=2111833607]
 layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-autowrap_mode = 2
 
-[node name="Actions" type="HBoxContainer" parent="BazaarInfoPanel/Margin/Content"]
+[node name="Actions" type="HBoxContainer" parent="BazaarInfoPanel/Margin/Content" unique_id=712075320]
 layout_mode = 2
-mouse_filter = 2
-alignment = 2
-theme_override_constants/separation = 10
 
-[node name="RefreshButton" type="Button" parent="BazaarInfoPanel/Margin/Content/Actions"]
-custom_minimum_size = Vector2(155, 42)
+[node name="RefreshButton" type="Button" parent="BazaarInfoPanel/Margin/Content/Actions" unique_id=1286162787]
 layout_mode = 2
-text = "刷新商店"
 
-[node name="PrimaryButton" type="Button" parent="BazaarInfoPanel/Margin/Content/Actions"]
-custom_minimum_size = Vector2(155, 42)
+[node name="PrimaryButton" type="Button" parent="BazaarInfoPanel/Margin/Content/Actions" unique_id=711496473]
 layout_mode = 2
-text = "继续"
 
-[node name="ArtistPetDetailPanel" parent="." instance=ExtResource("16_pet_detail")]
+[node name="ArtistPetDetailPanel" parent="." unique_id=1126198972 instance=ExtResource("16_pet_detail")]
 visible = false
-z_index = 200
+layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
 
-[node name="FeatureHost" type="Control" parent="."]
+[node name="FeatureHost" type="Control" parent="." unique_id=1020112829]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -958,4 +597,4 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="GameCursor" parent="." instance=ExtResource("19_game_cursor")]
+[node name="GameCursor" parent="." instance=ExtResource("21_game_cursor")]

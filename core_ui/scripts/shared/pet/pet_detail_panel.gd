@@ -3,8 +3,13 @@ extends Control
 signal confirm_requested(command: Dictionary)
 
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
+const MODAL_PANEL_POSITION := Vector2(1294.0, 100.0)
+const MODAL_PANEL_SCALE := Vector2.ONE
+const CONTEXT_PANEL_POSITION := Vector2(1460.0, 230.0)
+const CONTEXT_PANEL_SCALE := Vector2(0.62, 0.62)
 
 @onready var dim: ColorRect = $Dim
+@onready var panel: Control = $Panel
 @onready var info_card: Control = $Panel/SpriteInfoCard
 @onready var close_button: Button = get_node_or_null("Panel/Actions/CloseButton") as Button
 @onready var confirm_button: Button = get_node_or_null("Panel/Actions/ConfirmButton") as Button
@@ -41,6 +46,7 @@ func _ready() -> void:
 func show_detail(record: Dictionary, texture: Texture2D = null, confirm_command: Dictionary = {}) -> void:
 	_is_context_detail = false
 	_restore_mouse_filters(self)
+	_apply_modal_layout()
 	dim.visible = true
 	_confirm_command = confirm_command.duplicate(true)
 	if info_card.has_method("set_info"):
@@ -61,6 +67,7 @@ func show_detail(record: Dictionary, texture: Texture2D = null, confirm_command:
 func show_context_detail(record: Dictionary, texture: Texture2D = null) -> void:
 	show_detail(record, texture)
 	_is_context_detail = true
+	_apply_context_layout()
 	dim.visible = false
 	if close_button != null:
 		close_button.visible = false
@@ -84,6 +91,7 @@ func close() -> void:
 		close_button.visible = true
 	if debug_toggle_button != null:
 		debug_toggle_button.visible = _developer_tools
+	_apply_modal_layout()
 
 
 func close_context_detail() -> void:
@@ -93,6 +101,18 @@ func close_context_detail() -> void:
 
 func is_context_detail() -> bool:
 	return _is_context_detail
+
+
+func _apply_modal_layout() -> void:
+	if panel != null:
+		panel.position = MODAL_PANEL_POSITION
+		panel.scale = MODAL_PANEL_SCALE
+
+
+func _apply_context_layout() -> void:
+	if panel != null:
+		panel.position = CONTEXT_PANEL_POSITION
+		panel.scale = CONTEXT_PANEL_SCALE
 
 
 func get_detail_snapshot() -> Dictionary:

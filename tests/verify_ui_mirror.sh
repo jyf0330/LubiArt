@@ -60,6 +60,7 @@ expected_prefabs=(
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
+  "art/prefabs/route/three_choice_card.tscn"
   "art/prefabs/shared/cursor/game_cursor.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"

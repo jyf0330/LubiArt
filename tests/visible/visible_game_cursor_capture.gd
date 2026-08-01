@@ -1,6 +1,7 @@
 extends SceneTree
 
 const OUTPUT_DIR := "res://output"
+const MockSession := preload("res://session/mock_game_session.gd")
 
 
 func _initialize() -> void:
@@ -14,6 +15,7 @@ func _run() -> void:
 		_fail("could not load main scene")
 		return
 	var instance := scene.instantiate()
+	instance.call("set_game_session", MockSession.new({"start_phase": "battle"}))
 	root.add_child(instance)
 	for _index in range(8):
 		await process_frame

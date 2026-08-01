@@ -1,0 +1,355 @@
+{
+  "source_psd": "/Users/02r/Desktop/2026公司文件/西游/新三选2_副本.psd",
+  "canvas": [
+    1920,
+    1080
+  ],
+  "note": "Generated from PSD layers for the standalone Godot three-choice mock.",
+  "exports": [
+    {
+      "name": "background",
+      "source_layer": "Artboard 1/背景",
+      "path": "res://art/images/route/three_choice_psd/background.png",
+      "bbox": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "name": "temple_base",
+      "source_layer": "Artboard 1/庙/庙底图",
+      "path": "res://art/images/route/three_choice_psd/temple_base.png",
+      "bbox": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "name": "top_frame",
+      "source_layer": "Artboard 1/顶部",
+      "path": "res://art/images/route/three_choice_psd/top_frame.png",
+      "bbox": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "name": "item_bar_base",
+      "source_layer": "Artboard 1/物品栏/物品栏/底图 + Artboard 1/物品栏/物品栏/格子",
+      "path": "res://art/images/route/three_choice_psd/item_bar_base.png",
+      "bbox": [
+        393,
+        525,
+        1530,
+        718
+      ],
+      "size": [
+        1137,
+        193
+      ]
+    },
+    {
+      "name": "sell_highlight",
+      "source_layer": "Artboard 1/物品栏/出售高亮/高亮 + Artboard 1/物品栏/出售高亮/光效",
+      "path": "res://art/images/route/three_choice_psd/sell_highlight.png",
+      "bbox": [
+        1303,
+        707,
+        1535,
+        858
+      ],
+      "size": [
+        232,
+        151
+      ]
+    },
+    {
+      "name": "item_selected_highlight",
+      "source_layer": "Artboard 1/物品栏/选中/发光 + Artboard 1/物品栏/选中/光效",
+      "path": "res://art/images/route/three_choice_psd/item_selected_highlight.png",
+      "bbox": [
+        1350,
+        545,
+        1481,
+        668
+      ],
+      "size": [
+        131,
+        123
+      ]
+    },
+    {
+      "name": "party_shelf",
+      "source_layer": "Artboard 1/庙/精灵/Layer 15",
+      "path": "res://art/images/route/three_choice_psd/party_shelf.png",
+      "bbox": [
+        657,
+        784,
+        1266,
+        844
+      ],
+      "size": [
+        609,
+        60
+      ]
+    },
+    {
+      "name": "coin_icon",
+      "source_layer": "Artboard 1/庙/金币/金币标",
+      "path": "res://art/images/route/three_choice_psd/coin_icon.png",
+      "bbox": [
+        1385,
+        877,
+        1416,
+        909
+      ],
+      "size": [
+        31,
+        32
+      ]
+    },
+    {
+      "name": "bag_closed",
+      "source_layer": "Artboard 1/庙/背包/关闭",
+      "path": "res://art/images/route/three_choice_psd/bag_closed.png",
+      "bbox": [
+        422,
+        744,
+        583,
+        867
+      ],
+      "size": [
+        161,
+        123
+      ]
+    },
+    {
+      "name": "bag_open",
+      "source_layer": "Artboard 1/庙/背包/打开",
+      "path": "res://art/images/route/three_choice_psd/bag_open.png",
+      "bbox": [
+        423,
+        693,
+        581,
+        875
+      ],
+      "size": [
+        158,
+        182
+      ]
+    },
+    {
+      "name": "bag_cover",
+      "source_layer": "Artboard 1/庙/背包/遮挡",
+      "path": "res://art/images/route/three_choice_psd/bag_cover.png",
+      "bbox": [
+        367,
+        842,
+        584,
+        979
+      ],
+      "size": [
+        217,
+        137
+      ]
+    },
+    {
+      "name": "bag_grid_lines",
+      "source_layer": "Artboard 1/庙/背包格/格子线",
+      "path": "res://art/images/route/three_choice_psd/bag_grid_lines.png",
+      "bbox": [
+        404,
+        869,
+        556,
+        919
+      ],
+      "size": [
+        152,
+        50
+      ]
+    },
+    {
+      "name": "bag_slot_empty",
+      "source_layer": "Artboard 1/庙/背包格/格子",
+      "path": "res://art/images/route/three_choice_psd/bag_slot_empty.png",
+      "bbox": [
+        405,
+        873,
+        441,
+        894
+      ],
+      "size": [
+        36,
+        21
+      ]
+    },
+    {
+      "name": "bag_slot_glow",
+      "source_layer": "Artboard 1/庙/背包格/发光",
+      "path": "res://art/images/route/three_choice_psd/bag_slot_glow.png",
+      "bbox": [
+        397,
+        863,
+        450,
+        904
+      ],
+      "size": [
+        53,
+        41
+      ]
+    },
+    {
+      "name": "route_portrait_shop",
+      "source_layer": "Artboard 1/庙/三选/Group 1/白小常",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_shop.png",
+      "bbox": [
+        514,
+        350,
+        732,
+        542
+      ],
+      "size": [
+        218,
+        192
+      ]
+    },
+    {
+      "name": "route_portrait_event",
+      "source_layer": "Artboard 1/庙/三选/Group 2/采药商",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_event.png",
+      "bbox": [
+        890,
+        355,
+        1010,
+        550
+      ],
+      "size": [
+        120,
+        195
+      ]
+    },
+    {
+      "name": "route_portrait_reward",
+      "source_layer": "Artboard 1/庙/三选/Group 3/矮武士",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_reward.png",
+      "bbox": [
+        1221,
+        361,
+        1368,
+        544
+      ],
+      "size": [
+        147,
+        183
+      ]
+    },
+    {
+      "name": "route_icon_shop",
+      "source_layer": "Artboard 1/庙/三选/Group 1/图层 53",
+      "path": "res://art/images/route/three_choice_psd/route_icon_shop.png",
+      "bbox": [
+        612,
+        279,
+        652,
+        341
+      ],
+      "size": [
+        40,
+        62
+      ]
+    },
+    {
+      "name": "route_icon_event",
+      "source_layer": "Artboard 1/庙/三选/Group 2/图层 51",
+      "path": "res://art/images/route/three_choice_psd/route_icon_event.png",
+      "bbox": [
+        940,
+        279,
+        980,
+        341
+      ],
+      "size": [
+        40,
+        62
+      ]
+    },
+    {
+      "name": "route_icon_reward",
+      "source_layer": "Artboard 1/庙/三选/Group 3/图层 81",
+      "path": "res://art/images/route/three_choice_psd/route_icon_reward.png",
+      "bbox": [
+        1271,
+        279,
+        1311,
+        341
+      ],
+      "size": [
+        40,
+        62
+      ]
+    },
+    {
+      "name": "incense_burner",
+      "source_layer": "Artboard 1/庙/香炉/香炉2",
+      "path": "res://art/images/route/three_choice_psd/incense_burner.png",
+      "bbox": [
+        908,
+        537,
+        1018,
+        655
+      ],
+      "size": [
+        110,
+        118
+      ]
+    },
+    {
+      "name": "incense_smoke",
+      "source_layer": "Artboard 1/庙/香炉/烟2",
+      "path": "res://art/images/route/three_choice_psd/incense_smoke.png",
+      "bbox": [
+        853,
+        394,
+        972,
+        545
+      ],
+      "size": [
+        119,
+        151
+      ]
+    },
+    {
+      "name": "incense_shadow",
+      "source_layer": "Artboard 1/庙/香炉/阴影",
+      "path": "res://art/images/route/three_choice_psd/incense_shadow.png",
+      "bbox": [
+        576,
+        629,
+        1341,
+        671
+      ],
+      "size": [
+        765,
+        42
+      ]
+    }
+  ]
+}
