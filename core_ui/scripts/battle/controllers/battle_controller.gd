@@ -703,6 +703,9 @@ func _set_battle_input_locked(locked: bool) -> void:
 		position_difficulty_button.disabled = locked
 	if begin_turn_button != null:
 		begin_turn_button.disabled = locked
+	_ensure_action_panel()
+	if _action_panel != null and _action_panel.has_method("set_input_locked"):
+		_action_panel.call("set_input_locked", locked)
 
 
 func is_battle_input_locked() -> bool:

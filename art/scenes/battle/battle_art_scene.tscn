@@ -1159,7 +1159,7 @@ layout_mode = 0
 offset_left = 18.0
 offset_top = 150.0
 offset_right = 354.0
-offset_bottom = 744.0
+offset_bottom = 786.0
 script = ExtResource("7_action_panel")
 
 [node name="Margin" type="MarginContainer" parent="Board/BattleActionPanel" unique_id=1576212326]
@@ -1176,6 +1176,13 @@ theme_override_constants/separation = 10
 [node name="Title" type="Label" parent="Board/BattleActionPanel/Margin/Content" unique_id=450161868]
 layout_mode = 2
 text = "行动控制"
+
+[node name="FlowState" type="Label" parent="Board/BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "1  选择宠物   ·   2  查看范围   ·   3  执行"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Summary" type="Label" parent="Board/BattleActionPanel/Margin/Content" unique_id=1047781424]
 layout_mode = 2

@@ -124,7 +124,9 @@ func _run() -> void:
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	assert(battle_view != null)
 	assert(battle_view.get_node_or_null("Board/BattleVfxPlayer") != null)
-	assert(battle_view.get_node_or_null("Board/BattleActionPanel") != null)
+	var action_panel := battle_view.get_node_or_null("Board/BattleActionPanel") as Control
+	assert(action_panel != null)
+	assert(action_panel.get_node_or_null("Margin/Content/FlowState") != null)
 	assert(battle_view.get_node("Board/BattleActionPanel/Margin/Content/SkillQueueGrid").get_child_count() == 8)
 	assert(battle_view.get_node_or_null("CellDetail/BattlePetDetailPanel") != null)
 
@@ -185,6 +187,15 @@ func _run() -> void:
 	assert(int(game_session.call("replay_step_index")) == 0)
 	var selected_snapshot := Dictionary(game_session.call("current_snapshot"))
 	assert(String(selected_snapshot.get("selected_unit_id", "")) != "")
+	var preview_state := Dictionary(action_panel.call("visual_state_summary"))
+	assert(String(preview_state.get("state", "")) == "preview")
+	assert(String(preview_state.get("flow_text", "")).contains("红色范围"))
+	var first_skill_slot := action_panel.get_node("Margin/Content/SkillQueueGrid/SkillSlot1") as Button
+	first_skill_slot.pressed.emit()
+	assert(bool(first_skill_slot.call("is_picked")))
+	assert(int(Dictionary(action_panel.call("visual_state_summary")).get("picked_skill_index", -1)) == 0)
+	first_skill_slot.pressed.emit()
+	assert(not bool(first_skill_slot.call("is_picked")))
 	var range_summary := Dictionary(battle_view.call("debug_selected_action_range_summary"))
 	assert(String(range_summary.get("unitId", "")) == String(selected_snapshot.get("selected_unit_id", "")))
 	assert(int(range_summary.get("visibleCellCount", 0)) > 0)
@@ -206,6 +217,8 @@ func _run() -> void:
 	var main_before_round := int(main_positioned.get("battle_round", 0))
 	(battle_view.get_node("Board/BattlePrimaryActions/BeginTurnButton") as TextureButton).pressed.emit()
 	await process_frame
+	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("state", "")) == "executing")
+	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("flow_text", "")).contains("执行中"))
 	await process_frame
 	await process_frame
 	assert(
@@ -219,6 +232,8 @@ func _run() -> void:
 		await process_frame
 	assert(not bool(vfx_player.get("_trace_sequence_playing")))
 	assert(Array(vfx_player.get("_trace_queue")).is_empty())
+	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("state", "")) == "result")
+	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("flow_text", "")).contains("执行完成"))
 	print("MOCK_BATTLE_PROJECT_SMOKE_PASS")
 	quit(0)
 

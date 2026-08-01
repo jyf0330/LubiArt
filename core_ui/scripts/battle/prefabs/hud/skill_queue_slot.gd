@@ -5,6 +5,7 @@ signal slot_pressed(index: int)
 
 var queue_index := -1
 var skill_id := ""
+var _picked := false
 
 
 func _ready() -> void:
@@ -18,8 +19,17 @@ func configure(index: int, entry: Dictionary) -> void:
 	if label == "":
 		label = skill_id
 	text = "%d  %s" % [index + 1, label]
-	tooltip_text = "拖拽到其他槽位调整触发顺序"
+	tooltip_text = "拖拽到其他槽位，或按确认键选中后再确认目标槽位"
 	disabled = skill_id == ""
+
+
+func set_picked(picked: bool) -> void:
+	_picked = picked
+	set_meta("battle_action_picked", picked)
+
+
+func is_picked() -> bool:
+	return _picked
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
