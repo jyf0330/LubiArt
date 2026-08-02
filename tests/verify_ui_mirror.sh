@@ -14,12 +14,15 @@ mirror_directories=(
 
 required_files=(
   "project.godot"
+  "docs/SCENE_ROUTING_STANDARD.md"
+  "art/scenes/app/game.tscn"
   "art/scenes/three_choice/three_choice_scene.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
   "art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn"
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
+  "art/prefabs/shop/bazaar_info_panel.tscn"
   "art/prefabs/battle/hud/attack_direction_drawer.tscn"
   "art/prefabs/shared/cursor/game_cursor.tscn"
   "art/prefabs/terrain/terrain.tscn"
@@ -43,6 +46,7 @@ for relative_path in "${required_files[@]}"; do
 done
 
 expected_scenes=(
+  "art/scenes/app/game.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
   "art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn"
   "art/scenes/three_choice/three_choice_scene.tscn"
@@ -51,7 +55,7 @@ expected_scenes=(
 actual_scenes="$(cd "$MOCK_ROOT" && find art/scenes -type f -name "*.tscn" | sort)"
 expected_scenes_text="$(printf '%s\n' "${expected_scenes[@]}")"
 if [[ "$actual_scenes" != "$expected_scenes_text" ]]; then
-  printf '%s\n' "Standalone project must contain two formal UI scenes and the SpriteInfoCard debug scene." >&2
+  printf '%s\n' "Standalone project must contain the Game shell, two formal UI scenes and the SpriteInfoCard debug scene." >&2
   exit 1
 fi
 
@@ -62,6 +66,7 @@ expected_prefabs=(
   "art/prefabs/pet/sprite_info_card.tscn"
   "art/prefabs/route/three_choice_card.tscn"
   "art/prefabs/shared/cursor/game_cursor.tscn"
+  "art/prefabs/shop/bazaar_info_panel.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"
 )
@@ -69,7 +74,7 @@ expected_prefabs=(
 actual_prefabs="$(cd "$MOCK_ROOT" && find art/prefabs -type f -name "*.tscn" | sort)"
 expected_prefabs_text="$(printf '%s\n' "${expected_prefabs[@]}")"
 if [[ "$actual_prefabs" != "$expected_prefabs_text" ]]; then
-  printf '%s\n' "Standalone project must contain four public prefabs and the required internal UI components, including the game cursor." >&2
+  printf '%s\n' "Standalone project must contain four public prefabs and the required internal UI components, including the bazaar panel and game cursor." >&2
   exit 1
 fi
 

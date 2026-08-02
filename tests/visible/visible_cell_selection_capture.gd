@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MainScene := preload("res://art/scenes/app/game.tscn")
 const MockSession := preload("res://session/mock_game_session.gd")
 const CAPTURE_PATH := "res://output/battle_cell_selection_1920x1080.png"
 

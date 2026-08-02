@@ -4,19 +4,20 @@
 
 ```text
 art/
-├── scenes/      两个正式 Scene + 独立美术调试 Scene
-├── prefabs/     四个公开 prefab + 内部卡片组件
+├── scenes/      Game 装配 Scene + 两个正式 UI Scene + 独立美术调试 Scene
+├── prefabs/     四个公开 prefab + 内部 UI 组件
 ├── images/      运行图片
 └── manifests/   图片映射与 JSON manifest
 ```
 
-## 两个正式 Scene 与独立调试 Scene
+## Game 装配、两个正式 UI Scene 与独立调试 Scene
 
+- 应用装配入口：`res://art/scenes/app/game.tscn`
 - 三选一与路线流程：`res://art/scenes/three_choice/three_choice_scene.tscn`
 - 战斗：`res://art/scenes/battle/battle_art_scene.tscn`
 - SpriteInfoCard 调试：`res://art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn`
 
-`project.godot` 直接启动三选一 Scene；进入战斗时，它只挂载战斗 Scene。
+`project.godot` 启动 Game Scene。Game 持有唯一 Session；进入战斗时只挂载战斗 Scene 并向它投递公共 Snapshot，三选一与战斗两个 Scene 都只负责表现和发送操作请求。
 
 路线、商店、背包、队伍、结算、按钮、HUD 和回合反馈直接属于两个正式 Scene。宠物攻击、受击、移动、死亡、跨格投射物与伤害数字归入宠物 prefab，地面元素表现归入地形 prefab；独立调试 Scene 只用于检查卡片美术，不接入正式路由。
 
@@ -25,6 +26,7 @@ art/
 - 宠物：`res://art/prefabs/pet/pet.tscn`
 - 宠物详情：`res://art/prefabs/pet/pet_detail.tscn`
 - 宠物详情卡片组件：`res://art/prefabs/pet/sprite_info_card.tscn`
+- 商店信息内部组件：`res://art/prefabs/shop/bazaar_info_panel.tscn`
 - 地形：`res://art/prefabs/terrain/terrain.tscn`
 - 地形详情：`res://art/prefabs/terrain/terrain_detail.tscn`
 

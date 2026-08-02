@@ -8,9 +8,6 @@ from compare_screenshots import compare
 
 
 MINIMUM_OPERATION_COUNT = 5
-PRESERVE_MODE = "preserve"
-INTENTIONAL_CHANGE_MODE = "intentional_change"
-VALID_MODES = {PRESERVE_MODE, INTENTIONAL_CHANGE_MODE}
 
 
 def _resolve_path(manifest_dir: Path, raw_path: str) -> Path:
@@ -20,10 +17,6 @@ def _resolve_path(manifest_dir: Path, raw_path: str) -> Path:
 
 def validate_manifest(manifest_path: Path) -> dict:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    mode = str(manifest.get("mode", PRESERVE_MODE)).strip()
-    if mode not in VALID_MODES:
-        raise ValueError(f"manifest.mode must be one of: {', '.join(sorted(VALID_MODES))}")
-    approval = str(manifest.get("approval", "")).strip()
     operations = manifest.get("operations", [])
     if not isinstance(operations, list):
         raise ValueError("manifest.operations must be an array")
@@ -32,8 +25,6 @@ def validate_manifest(manifest_path: Path) -> dict:
     names = []
     comparisons = []
     errors = []
-    if mode == INTENTIONAL_CHANGE_MODE and not approval:
-        errors.append("intentional_change mode requires manifest.approval")
     for index, operation in enumerate(operations, start=1):
         if not isinstance(operation, dict):
             errors.append(f"operation {index} must be an object")
@@ -42,9 +33,6 @@ def validate_manifest(manifest_path: Path) -> dict:
         if not name:
             errors.append(f"operation {index} is missing a name")
             continue
-        expected_change = str(operation.get("expected_change", "")).strip()
-        if mode == INTENTIONAL_CHANGE_MODE and not expected_change:
-            errors.append(f"{name}: intentional_change mode requires expected_change")
         names.append(name)
         before_path = _resolve_path(manifest_dir, str(operation.get("before", "")))
         after_path = _resolve_path(manifest_dir, str(operation.get("after", "")))
@@ -54,8 +42,6 @@ def validate_manifest(manifest_path: Path) -> dict:
             continue
         result = compare(before_path, after_path)
         result["name"] = name
-        if expected_change:
-            result["expected_change"] = expected_change
         comparisons.append(result)
 
     unique_operation_count = len(set(names))
@@ -72,22 +58,12 @@ def validate_manifest(manifest_path: Path) -> dict:
         and len(comparisons) == len(operations)
         and all(item["identical"] for item in comparisons)
     )
-    all_expected_changes = (
-        not errors
-        and len(comparisons) == len(operations)
-        and all(item["same_size"] and item["differing_pixels"] > 0 for item in comparisons)
-    )
-    passed = all_identical if mode == PRESERVE_MODE else all_expected_changes
     return {
-        "result": "PASS" if passed else "BLOCKED",
-        "mode": mode,
-        "approval": approval,
-        "passed": passed,
+        "result": "PASS" if all_identical else "BLOCKED",
         "minimum_operation_count": MINIMUM_OPERATION_COUNT,
         "operation_count": len(operations),
         "unique_operation_count": unique_operation_count,
         "all_identical": all_identical,
-        "all_expected_changes": all_expected_changes,
         "errors": errors,
         "operations": comparisons,
     }
@@ -95,10 +71,7 @@ def validate_manifest(manifest_path: Path) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description=(
-            "Validate at least five unique screenshot pairs in preserve or explicitly approved "
-            "intentional-change mode."
-        )
+        description="Require at least five unique operation screenshot pairs to be pixel-identical."
     )
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--report", type=Path)
@@ -116,7 +89,7 @@ def main() -> int:
     if args.report is not None:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(output + "\n", encoding="utf-8")
-    return 0 if result["passed"] else 1
+    return 0 if result["all_identical"] else 1
 
 
 if __name__ == "__main__":

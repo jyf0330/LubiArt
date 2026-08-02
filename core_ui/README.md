@@ -23,3 +23,5 @@ core_ui/scripts/
 - 只负责装配、状态投影、表现、输入、信号和公开接口。
 - 不创建第二个权威状态，不在这里复制 `core/`、`session/` 或 `persistence/` 的玩法逻辑。
 - 新 scope 同时创建 `art` 视觉路径和 `core_ui/scripts` 脚本路径，不恢复 `features/`、`game/` 或 `assets/` 旧目录。
+- `app/game_controller.gd` 是唯一 Session 和 Feature 生命周期拥有者；美术 Scene 只发送语义 Command，不能发送目标 Scene 请求。
+- `app/scene_router.gd` 只管理 `FeatureHost` 子节点，不读取 Snapshot 或 phase。完整链路见 `docs/SCENE_ROUTING_STANDARD.md`。

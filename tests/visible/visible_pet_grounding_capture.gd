@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MainScene := preload("res://art/scenes/app/game.tscn")
 
 
 func _initialize() -> void:

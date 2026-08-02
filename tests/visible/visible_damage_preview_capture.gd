@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MainScene := preload("res://art/scenes/app/game.tscn")
 const MockSession := preload("res://session/mock_game_session.gd")
 const VISIBLE_CAPTURE := "lubi_damage_preview_visible.png"
 const HIDDEN_CAPTURE := "lubi_damage_preview_hidden.png"
@@ -56,6 +56,7 @@ func _run() -> void:
 			or not bool(visible_preview.get("pinned", false)):
 		_fail("held drag preview blinked before mouse release")
 		return
+	await _stabilize_battle_view(battle_view)
 	await RenderingServer.frame_post_draw
 	_save_capture(VISIBLE_CAPTURE)
 
@@ -68,6 +69,7 @@ func _run() -> void:
 	if not await _wait_for_state(preview_pet, "hidden", 2500):
 		_fail("released preview did not fade out after one second")
 		return
+	await _stabilize_battle_view(battle_view)
 	await RenderingServer.frame_post_draw
 	_save_capture(HIDDEN_CAPTURE)
 
@@ -82,6 +84,27 @@ func _run() -> void:
 		_capture_path(LOOP_CAPTURE),
 	])
 	quit(0)
+
+
+func _stabilize_battle_view(battle_view: Control) -> void:
+	var vfx_player := battle_view.get_node_or_null("Board/BattleVfxPlayer")
+	if vfx_player != null:
+		var round_feedback := vfx_player.get_node_or_null("RoundFeedback")
+		if round_feedback != null:
+			round_feedback.queue_free()
+	var board_grid := battle_view.get_node_or_null("Board/BoardGrid")
+	if board_grid != null:
+		for cell in board_grid.get_children():
+			if not cell.has_method("get_unit_node"):
+				continue
+			var pet := cell.call("get_unit_node") as Control
+			if pet == null:
+				continue
+			var animation := pet.get_node_or_null("CompleteBattleCreaturePrefab/03_AttackActions")
+			if animation != null and animation.has_method("reset"):
+				animation.call("reset")
+	await process_frame
+	await RenderingServer.frame_post_draw
 
 
 func _preview_pet_by_unit_id(battle_view: Control, unit_id: String) -> Control:

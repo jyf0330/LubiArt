@@ -1,13 +1,18 @@
-extends NinePatchRect
+extends Control
 
-signal feature_view_requested(feature_id: StringName)
-signal feature_view_release_requested(feature_id: StringName)
+## The only script attached directly to ThreeChoiceScene. It binds authored
+## nodes, projects snapshots into presentation, handles visual interaction and
+## emits requests upward. Game owns the session and completes every request.
+
+signal command_requested(command: Dictionary, request_id: int)
+signal session_operation_requested(operation: StringName, arguments: Dictionary, request_id: int)
+signal command_response_received(request_id: int)
+signal session_operation_response_received(request_id: int)
+signal presentation_settled
 
 const GameLogScript := preload("res://core/logging/game_log.gd")
-const SessionBridgeScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_session_bridge.gd")
 const StagePresenterScript := preload("res://core_ui/scripts/artist_flow/presenters/artist_flow_stage_presenter.gd")
 const AssetRegistryScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd")
-const PET_DETAIL_PANEL_SCENE := preload("res://art/prefabs/pet/pet_detail.tscn")
 const RoutePresenterScript := preload("res://core_ui/scripts/route/presenters/route_presenter.gd")
 const ShopPresenterScript := preload("res://core_ui/scripts/shop/presenters/shop_presenter.gd")
 const InventoryPresenterScript := preload("res://core_ui/scripts/inventory/presenters/inventory_presenter.gd")
@@ -33,38 +38,33 @@ const RUN_TOOL_SIZE := Vector2(92.0, 48.0)
 const FIXED_TEST_PLAY_SEED := "ysbzs-test-play-20260715-v1"
 const BAG_CLOSED_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_closed.png")
 const BAG_OPEN_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_open.png")
-const ITEM_SELECTED_HIGHLIGHT_TEXTURE := preload("res://art/images/route/three_choice_psd/item_selected_highlight.png")
 
 @export_group("Item Slot Highlight")
 @export var item_slot_highlight_offset := Vector2.ZERO
 @export var item_slot_highlight_size := Vector2(110.0, 110.0)
 
-@onready var animation_player: AnimationPlayer = $"../../../AnimationPlayer"
-@onready var middle_three_option: Control = $Middle_Three_Option
-@onready var bag_overlay_mask: Control = $BagOverlayMask
-@onready var middle_shop: Control = $Middle_Shop
-@onready var middle_bag: Control = $Middle_Bag
-@onready var party_container: GridContainer = $"../Party/Party_Container"
-@onready var top_shop: Control = get_node_or_null("../Top/Top_Shop") as Control
-@onready var top_sell_button: Button = get_node_or_null("../Top/Top_Sell") as Button
-@onready var shop_back_button: TextureButton = get_node_or_null("../Top/Top_Shop/Shop_BackButton") as TextureButton
-@onready var bags_panel: Control = $"../Bags"
-@onready var bag_button: TextureButton = $"../Bags/Bag_Button"
-@onready var time_label: Label = get_node_or_null("../Top/Hud/TimeLabel") as Label
-@onready var coin_label: Label = get_node_or_null("../Top/Hud/CoinLabel") as Label
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var middle_three_option: Control = $MainBG/Containers/Middle/Middle_Three_Option
+@onready var bag_overlay_mask: Control = $MainBG/Containers/Middle/BagOverlayMask
+@onready var middle_shop: Control = $MainBG/Containers/Middle/Middle_Shop
+@onready var middle_bag: Control = $MainBG/Containers/Middle/Middle_Bag
+@onready var party_container: GridContainer = $MainBG/Containers/Party/Party_Container
+@onready var top_shop: Control = get_node_or_null("MainBG/Containers/Top/Top_Shop") as Control
+@onready var top_sell_button: Button = get_node_or_null("MainBG/Containers/Top/Top_Sell") as Button
+@onready var shop_back_button: TextureButton = get_node_or_null("MainBG/Containers/Top/Top_Shop/Shop_BackButton") as TextureButton
+@onready var bags_panel: Control = $MainBG/Containers/Bags
+@onready var bag_button: TextureButton = $MainBG/Containers/Bags/Bag_Button
+@onready var time_label: Label = get_node_or_null("MainBG/Containers/Top/Hud/TimeLabel") as Label
+@onready var coin_label: Label = get_node_or_null("MainBG/Containers/Top/Hud/CoinLabel") as Label
 
-var _session_bridge := SessionBridgeScript.new()
 var _stage_presenter := StagePresenterScript.new()
-var state: RefCounted:
-	get:
-		return _session_bridge.authority()
-	set(value):
-		set_state_authority(value)
-var game_session: Variant:
-	get:
-		return _session_bridge.session()
-	set(value):
-		set_game_session(value)
+var _snapshot: Dictionary = {}
+var _last_command_snapshot: Dictionary = {}
+var _request_sequence := 0
+var _command_responses: Dictionary = {}
+var _session_operation_responses: Dictionary = {}
+var _persistence_supported := false
+var _persistence_slot_count := 0
 var _current_view := VIEW_THREE_OPTION
 var _view_before_bag := VIEW_THREE_OPTION
 var _is_transitioning := false
@@ -95,8 +95,7 @@ var _pet_detail_panel: Control = null
 var _bazaar_info_panel: Control = null
 var _run_tools: PanelContainer = null
 var _run_status_label: Label = null
-var _item_slot_hover_highlight: TextureRect = null
-var _visible_auto_battle_running := false
+@onready var _item_slot_hover_highlight: TextureRect = $ItemSlotHoverHighlight
 var _route_presenter := RoutePresenterScript.new()
 var _shop_presenter := ShopPresenterScript.new()
 var _inventory_presenter := InventoryPresenterScript.new()
@@ -108,9 +107,6 @@ var _developer_tools := false
 func _ready() -> void:
 	RuntimeUiPolicy.install()
 	_developer_tools = RuntimeUiPolicy.developer_tools_enabled()
-	if not _session_bridge.asynchronous_snapshot_received.is_connected(_on_session_bridge_snapshot_received):
-		_session_bridge.asynchronous_snapshot_received.connect(_on_session_bridge_snapshot_received)
-	_ensure_game_session()
 	_asset_registry.reload()
 	_collect_slots()
 	_ensure_pet_detail_panel()
@@ -142,21 +138,61 @@ func _set_game_cursor_loading(source: StringName, active: bool) -> void:
 
 
 func _exit_tree() -> void:
-	_session_bridge.dispose()
 	_stage_presenter.dispose()
 
 
-func set_state_authority(authority: RefCounted) -> void:
-	if authority == null or state == authority:
+func render_snapshot(snapshot: Dictionary, animate_transition: bool = true) -> void:
+	_snapshot = snapshot.duplicate(true)
+	if not is_node_ready():
 		return
-	_session_bridge.bind_authority(authority)
-	if is_node_ready():
-		_render_from_state()
+	var target_view := _render_content_from_state(_snapshot)
+	if animate_transition:
+		await _transition_to_view(target_view)
+	else:
+		_show_view(target_view)
 
 
 func render_current_snapshot() -> void:
 	if is_node_ready():
 		_render_from_state()
+
+
+func render_battle_command_response(command: Dictionary, response: Dictionary) -> void:
+	var before_snapshot := _current_snapshot()
+	var after_snapshot := Dictionary(response.get("snapshot", before_snapshot))
+	_snapshot = after_snapshot.duplicate(true)
+	if not bool(response.get("accepted", false)):
+		var command_type := String(response.get("command", command.get("type", "")))
+		var error := Dictionary(response.get("error", {}))
+		var reason := String(error.get("message", error.get("code", "rejected")))
+		GameLogScript.warning("界面/核心命令", "核心拒绝战斗界面命令", {
+			"命令": command_type,
+			"原因": reason,
+		})
+		return
+	if String(command.get("type", "")) == "RUN_COMBAT_ROUND" \
+			and String(after_snapshot.get("phase", "")) != "battle":
+		_render_battle_view(after_snapshot)
+		await _await_battle_trace_sequence()
+	var target_view := _render_content_from_state(after_snapshot)
+	await _transition_to_view(target_view)
+
+
+func configure_session_capabilities(supports_persistence: bool, slot_count: int) -> void:
+	_persistence_supported = supports_persistence
+	_persistence_slot_count = maxi(0, slot_count)
+	if is_node_ready() and _developer_tools:
+		_ensure_run_tools()
+
+
+func complete_command_request(request_id: int, response: Dictionary) -> void:
+	_command_responses[request_id] = response.duplicate(true)
+	command_response_received.emit(request_id)
+
+
+func complete_session_operation_request(request_id: int, result: Dictionary) -> void:
+	_session_operation_responses[request_id] = result.duplicate(true)
+	session_operation_response_received.emit(request_id)
 
 
 func get_feature_controller(feature_name: StringName) -> Variant:
@@ -182,7 +218,6 @@ func get_missing_image_report() -> Array:
 
 
 func get_battle_missing_mapping_report() -> Array:
-	_ensure_battle_view()
 	if _battle_view != null and _battle_view.has_method("get_missing_mapping_report"):
 		return Array(_battle_view.call("get_missing_mapping_report"))
 	return []
@@ -337,7 +372,10 @@ func _all_focus_buttons() -> Array[BaseButton]:
 
 func _grab_focus_for_current_view() -> void:
 	_configure_current_focus_ring()
-	if get_viewport().gui_get_focus_owner() != null and get_viewport().gui_get_focus_owner().is_visible_in_tree():
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	if focus_owner == null:
+		return
+	if focus_owner.is_visible_in_tree():
 		return
 	var controls := _focus_controls_for_view()
 	if not controls.is_empty():
@@ -442,7 +480,6 @@ func _render_reward(snap: Dictionary) -> void:
 
 
 func _render_battle_view(snap: Dictionary) -> void:
-	_ensure_battle_view()
 	if _battle_view != null and _battle_view.has_method("render_snapshot"):
 		_battle_view.call("render_snapshot", snap)
 
@@ -461,10 +498,6 @@ func attach_feature_view(feature_id: StringName, view: Node) -> void:
 	_battle_view.visible = false
 	_battle_view.z_index = 50
 	_battle_view.set_anchors_preset(Control.PRESET_FULL_RECT)
-	var command_callback := Callable(self, "_on_battle_command_requested")
-	if _battle_view.has_signal("command_requested") \
-			and not _battle_view.is_connected("command_requested", command_callback):
-		_battle_view.connect("command_requested", command_callback)
 	_configure_stage_presenter()
 
 
@@ -485,11 +518,6 @@ func _runtime_feature_view(view: Node) -> Control:
 
 
 func _detach_battle_view() -> void:
-	if is_instance_valid(_battle_view):
-		var command_callback := Callable(self, "_on_battle_command_requested")
-		if _battle_view.has_signal("command_requested") \
-				and _battle_view.is_connected("command_requested", command_callback):
-			_battle_view.disconnect("command_requested", command_callback)
 	_battle_view = null
 	_configure_stage_presenter()
 
@@ -1105,13 +1133,12 @@ func _on_bags_gui_input(event: InputEvent) -> void:
 
 func _show_view(view: StringName) -> void:
 	_close_pet_detail()
-	var previous_view := _current_view
 	_current_view = view
 	_stage_presenter.show_immediate(view)
 	_set_persistent_hud_visible(view != VIEW_BATTLE)
 	_set_bag_button_open(view == VIEW_BAG)
 	_set_run_tools_visible(true)
-	_release_battle_view_after_transition(previous_view, view)
+	presentation_settled.emit()
 	call_deferred("_grab_focus_for_current_view")
 
 
@@ -1135,6 +1162,7 @@ func _show_initial_view() -> void:
 	_set_run_tools_visible(true)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
+	presentation_settled.emit()
 	call_deferred("_grab_focus_for_current_view")
 
 
@@ -1142,7 +1170,6 @@ func _transition_to_view(target_view: StringName) -> void:
 	if target_view == _current_view:
 		_show_view(target_view)
 		return
-	var previous_view := _current_view
 	_is_transitioning = true
 	_set_game_cursor_loading(&"view_transition", true)
 	await _stage_presenter.switch_view(_current_view, target_view)
@@ -1152,7 +1179,7 @@ func _transition_to_view(target_view: StringName) -> void:
 	_set_run_tools_visible(true)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
-	_release_battle_view_after_transition(previous_view, target_view)
+	presentation_settled.emit()
 	call_deferred("_grab_focus_for_current_view")
 
 
@@ -1262,40 +1289,21 @@ func _set_persistent_hud_visible(is_visible: bool) -> void:
 		party_panel.visible = is_visible
 
 
-func _ensure_battle_view() -> void:
-	if is_instance_valid(_battle_view):
-		return
-	_battle_view = null
-	feature_view_requested.emit(VIEW_BATTLE)
-
-
-func _release_battle_view_after_transition(previous_view: StringName, target_view: StringName) -> void:
-	if previous_view == VIEW_BATTLE and target_view != VIEW_BATTLE and is_instance_valid(_battle_view):
-		feature_view_release_requested.emit(VIEW_BATTLE)
-
-
 func _ensure_pet_detail_panel() -> void:
 	if _pet_detail_panel != null:
 		return
-	var scene_root := owner as Control
-	if scene_root == null:
-		return
+	var scene_root := self
 	_pet_detail_panel = scene_root.get_node_or_null("ArtistPetDetailPanel") as Control
-	if _pet_detail_panel == null:
-		_pet_detail_panel = PET_DETAIL_PANEL_SCENE.instantiate() as Control
-		_pet_detail_panel.name = "ArtistPetDetailPanel"
-		_pet_detail_panel.z_index = 200
-		scene_root.add_child.call_deferred(_pet_detail_panel)
-	if _pet_detail_panel.has_signal("confirm_requested"):
-		_pet_detail_panel.connect("confirm_requested", Callable(self, "_on_pet_detail_confirm_requested"))
+	if _pet_detail_panel != null and _pet_detail_panel.has_signal("confirm_requested"):
+		var callback := Callable(self, "_on_pet_detail_confirm_requested")
+		if not _pet_detail_panel.is_connected("confirm_requested", callback):
+			_pet_detail_panel.connect("confirm_requested", callback)
 
 
 func _ensure_bazaar_info_panel() -> void:
 	if _bazaar_info_panel != null:
 		return
-	var scene_root := owner as Control
-	if scene_root == null:
-		return
+	var scene_root := self
 	_bazaar_info_panel = scene_root.get_node_or_null("BazaarInfoPanel") as Control
 	if _bazaar_info_panel == null:
 		return
@@ -1304,9 +1312,7 @@ func _ensure_bazaar_info_panel() -> void:
 
 
 func _apply_runtime_ui_mode() -> void:
-	var scene_root := owner as Control
-	if scene_root == null:
-		return
+	var scene_root := self
 	var debug_button := scene_root.get_node_or_null("MainBG/DebugButton") as Control
 	if debug_button != null:
 		debug_button.visible = _developer_tools
@@ -1385,9 +1391,6 @@ func _close_pet_context_detail() -> void:
 func _show_item_slot_highlight(slot: Control) -> void:
 	if slot == null:
 		return
-	_ensure_item_slot_hover_highlight()
-	if _item_slot_hover_highlight == null:
-		return
 	var rect := slot.get_global_rect()
 	_item_slot_hover_highlight.size = item_slot_highlight_size
 	_item_slot_hover_highlight.global_position = rect.position + item_slot_highlight_offset
@@ -1396,23 +1399,7 @@ func _show_item_slot_highlight(slot: Control) -> void:
 
 
 func _hide_item_slot_highlight() -> void:
-	if _item_slot_hover_highlight != null:
-		_item_slot_hover_highlight.visible = false
-
-
-func _ensure_item_slot_hover_highlight() -> void:
-	if is_instance_valid(_item_slot_hover_highlight):
-		return
-	_item_slot_hover_highlight = TextureRect.new()
-	_item_slot_hover_highlight.name = "ItemSlotHoverHighlight"
-	_item_slot_hover_highlight.texture = ITEM_SELECTED_HIGHLIGHT_TEXTURE
-	_item_slot_hover_highlight.custom_minimum_size = item_slot_highlight_size
-	_item_slot_hover_highlight.size = item_slot_highlight_size
-	_item_slot_hover_highlight.stretch_mode = TextureRect.STRETCH_SCALE
-	_item_slot_hover_highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_item_slot_hover_highlight.visible = false
-	_item_slot_hover_highlight.z_index = 80
-	add_child(_item_slot_hover_highlight)
 
 
 func _detail_record_with_display_skill(record: Dictionary) -> Dictionary:
@@ -1451,23 +1438,6 @@ func _on_pet_detail_confirm_requested(command: Dictionary) -> void:
 	await _transition_to_view(target_view)
 
 
-func _on_battle_command_requested(command: Dictionary) -> void:
-	if _is_transitioning or command.is_empty():
-		return
-	if String(command.get("type", "")) == "RUN_BATTLE":
-		await _run_visible_auto_battle()
-		return
-	if not await _submit_core_command(command):
-		return
-	var command_snapshot := _take_core_command_snapshot()
-	if String(command.get("type", "")) == "RUN_COMBAT_ROUND" \
-			and String(command_snapshot.get("phase", "")) != "battle":
-		_render_battle_view(command_snapshot)
-		await _await_battle_trace_sequence()
-	var target_view := _render_content_from_state(command_snapshot)
-	await _transition_to_view(target_view)
-
-
 func _await_battle_trace_sequence() -> void:
 	if _battle_view != null \
 			and _battle_view.has_method("is_battle_input_locked") \
@@ -1475,42 +1445,12 @@ func _await_battle_trace_sequence() -> void:
 			and _battle_view.has_signal("trace_sequence_finished"):
 		await _battle_view.trace_sequence_finished
 
-
-func _run_visible_auto_battle() -> void:
-	if _visible_auto_battle_running or String(_current_snapshot().get("phase", "")) != "battle":
-		return
-	_visible_auto_battle_running = true
-	var guard := 0
-	while String(_current_snapshot().get("phase", "")) == "battle" and guard < 40:
-		guard += 1
-		var pre_round_snapshot := _current_snapshot()
-		if bool(Dictionary(Dictionary(pre_round_snapshot.get("pet_reset", {})).get("player", {})).get("eligible", false)):
-			if not await _submit_core_command({"type": "RESET_PETS"}):
-				break
-			_render_battle_view(_take_core_command_snapshot())
-		if not await _submit_core_command({"type": "AUTO_POSITION_HEROES"}):
-			break
-		_render_battle_view(_take_core_command_snapshot())
-		if not await _submit_core_command({"type": "RUN_COMBAT_ROUND"}):
-			break
-		var round_snapshot := _take_core_command_snapshot()
-		_render_battle_view(round_snapshot)
-		await _await_battle_trace_sequence()
-		if String(round_snapshot.get("phase", "")) != "battle":
-			var target_view := _render_content_from_state(round_snapshot)
-			await _transition_to_view(target_view)
-			break
-	_visible_auto_battle_running = false
-
-
 func _ensure_run_tools() -> void:
 	if not _developer_tools:
 		return
 	if _run_tools != null:
 		return
-	var scene_root := owner as Control
-	if scene_root == null:
-		return
+	var scene_root := self
 	_run_tools = PanelContainer.new()
 	_run_tools.name = "RunTools"
 	_run_tools.z_index = 90
@@ -1525,7 +1465,7 @@ func _ensure_run_tools() -> void:
 	row.add_theme_constant_override("separation", 10)
 	_run_tools.add_child(row)
 
-	var slot_count := int(game_session.persistence_slot_count()) if game_session != null and game_session.has_method("persistence_slot_count") else 0
+	var slot_count := _persistence_slot_count
 	for slot in range(1, slot_count + 1):
 		var save_button_name := "SaveButton" if slot == 1 else "SaveSlot%dButton" % slot
 		var load_button_name := "LoadButton" if slot == 1 else "LoadSlot%dButton" % slot
@@ -1577,42 +1517,44 @@ func _make_run_tools_style() -> StyleBoxFlat:
 
 
 func _on_save_slot_pressed(slot: int) -> void:
-	_ensure_game_session()
 	if not _session_supports_persistence():
 		_set_run_tools_status("当前会话不支持本地存档")
 		return
-	var ok: bool = _session_bridge.save_to_slot(slot)
+	var result := await _request_session_operation(&"save", {"slot": slot})
+	var ok := bool(result.get("ok", false))
 	_set_run_tools_status("已保存槽%d" % slot if ok else "槽%d保存失败" % slot)
 	_render_content_from_state(_current_snapshot())
 
 
 func _on_load_slot_pressed(slot: int) -> void:
-	_ensure_game_session()
 	if not _session_supports_persistence():
 		_set_run_tools_status("当前会话不支持本地读档")
 		return
-	var ok: bool = _session_bridge.load_from_slot(slot)
+	var result := await _request_session_operation(&"load", {"slot": slot})
+	var ok := bool(result.get("ok", false))
+	if result.get("snapshot") is Dictionary:
+		_snapshot = Dictionary(result.get("snapshot", {})).duplicate(true)
 	_set_run_tools_status("已读档槽%d" % slot if ok else "槽%d读档失败" % slot)
 	var target_view := _render_content_from_state(_current_snapshot())
 	await _transition_to_view(target_view)
 
 
 func _on_export_replay_pressed() -> void:
-	_ensure_game_session()
 	if not _session_supports_persistence():
 		_set_run_tools_status("当前会话不支持本地导出")
 		return
-	var ok: bool = _session_bridge.export_replay()
+	var result := await _request_session_operation(&"export_replay", {})
+	var ok := bool(result.get("ok", false))
 	_set_run_tools_status("已导出回放" if ok else "导出失败")
 	_render_content_from_state(_current_snapshot())
 
 
 func _on_export_battle_trace_pressed() -> void:
-	_ensure_game_session()
 	if not _session_supports_persistence():
 		_set_run_tools_status("当前会话不支持本地导出")
 		return
-	var ok: bool = _session_bridge.export_battle_trace()
+	var result := await _request_session_operation(&"export_battle_trace", {})
+	var ok := bool(result.get("ok", false))
 	_set_run_tools_status("已导出战报" if ok else "导出失败")
 	_render_content_from_state(_current_snapshot())
 
@@ -1623,7 +1565,7 @@ func _set_run_tools_status(text: String) -> void:
 
 
 func _session_supports_persistence() -> bool:
-	return _session_bridge.supports_persistence()
+	return _persistence_supported
 
 
 func _set_run_tools_visible(is_visible: bool) -> void:
@@ -1633,13 +1575,19 @@ func _set_run_tools_visible(is_visible: bool) -> void:
 
 
 func _submit_core_command(command: Dictionary) -> bool:
-	_ensure_game_session()
 	var before_snapshot := _current_snapshot()
 	_set_game_cursor_loading(&"session_command", true)
-	var response := Dictionary(await _session_bridge.submit_command(command))
+	var request_id := _next_request_id()
+	command_requested.emit(command.duplicate(true), request_id)
+	while not _command_responses.has(request_id):
+		await command_response_received
+	var response := Dictionary(_command_responses.get(request_id, {}))
+	_command_responses.erase(request_id)
 	_set_game_cursor_loading(&"session_command", false)
 	var after_snapshot := Dictionary(response.get("snapshot", before_snapshot))
+	_snapshot = after_snapshot.duplicate(true)
 	if bool(response.get("accepted", false)):
+		_last_command_snapshot = after_snapshot.duplicate(true)
 		_publish_command_feedback(command, response, before_snapshot, after_snapshot, true)
 		return true
 	var command_type := String(response.get("command", command.get("type", "")))
@@ -1694,16 +1642,9 @@ func _show_bazaar_feedback(message: String, success: bool) -> void:
 
 
 func _take_core_command_snapshot() -> Dictionary:
-	return _session_bridge.take_command_snapshot()
-
-
-func set_game_session(session: RefCounted) -> void:
-	_session_bridge.bind_session(session)
-
-
-func get_game_session() -> RefCounted:
-	_ensure_game_session()
-	return _session_bridge.session()
+	var snapshot := _last_command_snapshot
+	_last_command_snapshot = {}
+	return snapshot if not snapshot.is_empty() else _current_snapshot()
 
 
 func set_developer_tools_enabled(enabled: bool) -> void:
@@ -1714,24 +1655,31 @@ func set_developer_tools_enabled(enabled: bool) -> void:
 	_set_run_tools_visible(true)
 
 
-func _ensure_game_session() -> void:
-	_session_bridge.ensure_default(FIXED_TEST_PLAY_SEED)
-
-
-func _on_session_bridge_snapshot_received(snap: Dictionary) -> void:
-	call_deferred("_apply_async_game_session_snapshot", snap)
-
-
 func _apply_async_game_session_snapshot(snap: Dictionary) -> void:
 	if snap.is_empty():
 		return
+	_snapshot = snap.duplicate(true)
 	var target_view := _render_content_from_state(snap)
 	await _transition_to_view(target_view)
 
 
 func _current_snapshot() -> Dictionary:
-	_ensure_game_session()
-	return _session_bridge.current_snapshot()
+	return _snapshot
+
+
+func _next_request_id() -> int:
+	_request_sequence += 1
+	return _request_sequence
+
+
+func _request_session_operation(operation: StringName, arguments: Dictionary) -> Dictionary:
+	var request_id := _next_request_id()
+	session_operation_requested.emit(operation, arguments.duplicate(true), request_id)
+	while not _session_operation_responses.has(request_id):
+		await session_operation_response_received
+	var result := Dictionary(_session_operation_responses.get(request_id, {}))
+	_session_operation_responses.erase(request_id)
+	return result
 
 
 func _prepare_slot_image_button(button: TextureButton) -> void:

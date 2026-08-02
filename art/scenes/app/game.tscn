@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://dhyg78o2s5i16" path="res://core_ui/scripts/app/game_controller.gd" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://fqv3cjmnr3tl" path="res://art/scenes/three_choice/three_choice_scene.tscn" id="2_three_choice"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shared/cursor/game_cursor.tscn" id="3_cursor"]
+
+[node name="Game" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_game")
+
+[node name="ThreeChoiceScene" parent="." instance=ExtResource("2_three_choice")]
+layout_mode = 1
+
+[node name="FeatureHost" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="GameCursor" parent="." instance=ExtResource("3_cursor")]

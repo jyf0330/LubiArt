@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MainScene := preload("res://art/scenes/app/game.tscn")
 const EARTH_SLIME_TEXTURE_PATH := "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png"
 const CAPTURE_SIZE := Vector2i(360, 360)
 

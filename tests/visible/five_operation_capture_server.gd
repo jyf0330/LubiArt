@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MAIN_SCENE := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MAIN_SCENE := preload("res://art/scenes/app/game.tscn")
 const SETTLE_FRAMES := 8
 
 var _request_path := ""

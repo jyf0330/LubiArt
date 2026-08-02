@@ -34,9 +34,6 @@ func _run() -> void:
 		},
 	})
 	await process_frame
-	detail.call("set_debug_enabled", true)
-	detail.call("debug_next_pet")
-	await process_frame
 	await RenderingServer.frame_post_draw
 	var image := root.get_texture().get_image()
 	var error := image.save_png(ProjectSettings.globalize_path(CAPTURE_PATH))
@@ -44,5 +41,5 @@ func _run() -> void:
 		push_error("PET_DETAIL_VISIBLE_CAPTURE_FAIL: %s" % error_string(error))
 		quit(1)
 		return
-	print("PET_DETAIL_DEBUG_VISIBLE_CAPTURE_PASS: %s" % CAPTURE_PATH)
+	print("PET_DETAIL_VISIBLE_CAPTURE_PASS: %s" % CAPTURE_PATH)
 	quit(0)

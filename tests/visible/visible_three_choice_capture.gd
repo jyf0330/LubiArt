@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MainScene := preload("res://art/scenes/app/game.tscn")
 
 
 func _initialize() -> void:
@@ -16,7 +16,7 @@ func _run() -> void:
 	_save_capture("/private/tmp/lubi_three_choice_current.png")
 
 	var second_button := main_instance.get_node_or_null(
-		"MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot2/Three_Button"
+		"ThreeChoiceScene/MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot2/Three_Button"
 	) as TextureButton
 	if second_button != null:
 		second_button.mouse_entered.emit()
@@ -24,7 +24,7 @@ func _run() -> void:
 			await process_frame
 		_save_capture("/private/tmp/lubi_three_choice_hover.png")
 
-	var bag_button := main_instance.get_node_or_null("MainBG/Containers/Bags/Bag_Button") as TextureButton
+	var bag_button := main_instance.get_node_or_null("ThreeChoiceScene/MainBG/Containers/Bags/Bag_Button") as TextureButton
 	if bag_button != null:
 		bag_button.pressed.emit()
 		for _frame in range(20):
@@ -32,7 +32,7 @@ func _run() -> void:
 		_save_capture("/private/tmp/lubi_three_choice_bag.png")
 
 	var party_button := main_instance.get_node_or_null(
-		"MainBG/Containers/Party/Party_Container/Party_Slot/PareyButton"
+		"ThreeChoiceScene/MainBG/Containers/Party/Party_Container/Party_Slot/PareyButton"
 	) as TextureButton
 	if party_button != null:
 		if bag_button != null:

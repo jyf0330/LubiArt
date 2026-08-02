@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MainScene := preload("res://art/scenes/app/game.tscn")
 const MockSession := preload("res://session/mock_game_session.gd")
 const PROJECTILE_CAPTURE := "lubi_battle_prefab_projectile.png"
 const IMPACT_CAPTURE := "lubi_battle_prefab_impact.png"

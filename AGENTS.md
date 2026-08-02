@@ -20,7 +20,7 @@
 
 ## 目录职责
 
-- `art/scenes/`：保留与正式项目同步的两个正式 Scene：`three_choice/three_choice_scene.tscn` 与 `battle/battle_art_scene.tscn`，以及独立美术调试 Scene `sprite_info_card_debug/sprite_info_card_debug_scene.tscn`；项目仍直接从三选一 Scene 启动。
+- `art/scenes/`：保留应用装配 Scene `app/game.tscn`、与正式项目同步的两个正式 UI Scene：`three_choice/three_choice_scene.tscn` 与 `battle/battle_art_scene.tscn`，以及独立美术调试 Scene `sprite_info_card_debug/sprite_info_card_debug_scene.tscn`；项目从 `game.tscn` 启动。
 - `art/prefabs/`：保留四个公开 prefab：`pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn`、`terrain/terrain_detail.tscn`，以及宠物详情内部组件 `pet/sprite_info_card.tscn`。
 - `art/images/`：只放图片与相邻的 Godot `.import` 文件。
 - `art/manifests/`：只放图片资源映射和 manifest JSON。
@@ -36,7 +36,7 @@
 
 ## 文件类型规则
 
-- 三选一和战斗两个正式 `.tscn` 放 `art/scenes/<scope>/`；独立美术调试 Scene 也放在独立 scope 下，不接入正式路由。
+- 应用总装配 `.tscn` 放 `art/scenes/app/`；三选一和战斗两个正式 UI `.tscn` 放 `art/scenes/<scope>/`；独立美术调试 Scene 也放在独立 scope 下，不接入正式路由。
 - 宠物、宠物详情、地形、地形详情四个公开 `.tscn` 放 `art/prefabs/<scope>/`；允许把可独立编辑和调试的内部 UI 组件做成额外 prefab。
 - `.png`、`.jpg`、`.webp`、`.svg` 等图片放 `art/images/<scope>/`。
 - 图片映射和 manifest `.json` 放 `art/manifests/<scope>/`；Mock 回放数据仍放 `data/`。
@@ -69,9 +69,27 @@
 - 如果实现需求确实缺少节点，必须先通知使用者，说明拟新增节点的名称、类型、父路径和用途；得到确认后才能修改节点结构。
 - 测试和 Mock 适配必须服从已有预制体结构，不能为了让测试通过而反向添加预制体中不存在的节点。
 
+## 脚本挂载与可视编辑约束
+
+- 每个可独立编辑和复用的 Scene 或 prefab，其展示脚本应挂在该 Scene / prefab 的根节点；`Board`、`TopInfoBar`、`CellDetail` 这类承担一组完整职责的分组，脚本挂在对应分组根节点，不得把整组逻辑下沉到普通子节点。
+- 每个正式美术 Scene 默认只保留 `1` 个页面级根展示脚本；确有第二个完整页面职责时上限为 `2`。Scene 可以实例化带根脚本的 prefab；prefab 内部脚本与上述完整职责分组脚本不拥有页面路由权，也不得持有 Session。
+- `app/game.tscn` 的 `game_controller.gd` 是唯一 Session、Command、持久化和 Feature Scene 生命周期拥有者；`ThreeChoiceScene` 与 `BattleArtScene` 的根展示脚本只接收 Snapshot、绑定已有节点、播放表现并发送操作请求，不得自己创建、持有或直接调用 GameSession。
+- 普通图片、文本、容器、按钮和纯布局节点默认不挂脚本。只有子节点本身是可独立复用的 prefab，或者确实拥有独立状态、动画、输入处理或稳定公开接口时，才可作为例外挂脚本；普通点击信号由职责根节点的脚本统一连接和处理。
+- 静态 UI 的节点层级、锚点、位置、尺寸、缩放、裁切和点击矩形必须明确保存在 `.tscn` 中，并能在 Godot 编辑器里逐节点选中、查看和调整；不得以 `_ready()` 后才由脚本赋值的方式把静态布局或点击区域藏在代码中。
+- 点击、悬停和拖拽必须落在 Scene 树中已有且尺寸明确的 `Control` / `Button` 节点上。如果视觉贴图的透明留白不适合作为点击范围，应由使用者确认并在 `.tscn` 中放置可选中的显式 `HitArea` 节点；禁止脚本临时创建透明点击层，也禁止用超出可见内容的大型父节点偷偷拦截输入。
+- 展示脚本不得在运行时覆盖已创作静态节点的基准尺寸和位置。仅对同构模板实例的排布、明确的视口适配或动画过程允许动态变更；动画或临时状态结束后必须回到 `.tscn` 定义的基准几何。
+
+## Scene 路由约束
+
+- 跨 Scene 操作固定走 `已有 Button -> 当前 Scene 根脚本发送语义 Command -> GameSession 返回 Result/Snapshot -> Game 根据 Snapshot 选择 Feature -> SceneRouter 挂载到 FeatureHost -> 目标 Scene 渲染 -> presentation_settled -> Game 释放旧 Feature`。
+- Button、普通子节点和美术 Scene 不得知道目标 `.tscn` 路径，不得直接 `change_scene*()`、操作 `FeatureHost`，也不得发送“加载某个页面”的路由请求。
+- `SceneRouter` 只实例化、挂载和释放；它不读取 Snapshot、不判断 phase、不执行 Command。Snapshot 到 Feature 的映射只写在 `game_controller.gd`。
+- 同一 Scene 内的背包、抽屉和遮罩显隐由当前 Scene 根脚本处理；当前 Scene 已拥有的详情 prefab 由根脚本传入展示数据。这两类操作不经过 SceneRouter，也不改变权威玩法阶段。
+- 完整规范见 `docs/SCENE_ROUTING_STANDARD.md`。STS2 只作为“常驻总壳、Action/Command 裁决、容器切 Scene”的职责参考，不复制其专有实现或脚本密度。
+
 ## Godot 图片尺寸锁定
 
-- Godot 运行时会按照图片的实际像素尺寸参与显示和控件最小尺寸计算；接入图片后必须在 `.tscn` 或展示脚本中显式锁定控件的显示宽高，不能只依赖纹理原始尺寸或编辑器预览。
+- Godot 运行时会按照图片的实际像素尺寸参与显示和控件最小尺寸计算；接入图片后，静态控件必须在 `.tscn` 中显式锁定显示宽高，不能只依赖纹理原始尺寸或编辑器预览。只有运行时生成的同构模板实例或明确的视口适配，才允许由展示脚本依据已创作模板的尺寸计算。
 - 需要缩放、裁切或使用透明留白图片时，必须同时固定 `TextureRect`、`TextureButton` 或承载节点的尺寸与位置；抽屉、按钮、点击区域和相邻图片不得因源图片画布大小改变而漂移。
 - 涉及图片布局的交付必须在项目的 1920×1080 基准画布中运行检查，确认实际 Godot 窗口中的位置和大小后再验收。
 
@@ -103,7 +121,7 @@
 ## 完成与验收
 
 - 每次美术/UI 修改必须至少覆盖 `5` 个不同且有意义的真实操作点；重复同一点击、无状态变化的空操作或只拍静态首屏不能凑数。每个操作都要在修改前保存一张 `before`，修改后在相同入口、Mock Snapshot、窗口/视口尺寸、1920×1080 基准、缩放、操作步骤和稳定帧保存对应 `after`，因此每轮至少保存 `5` 组、`10` 张截图。开工前漏截时，必须从修改前提交或可靠备份建立隔离项目补拍，不能把改后画面当成 `before`。
-- 每组使用 `python3 tools/qa/compare_screenshots.py <before> <after> --report <json>` 做像素级比较，并用 `python3 tools/qa/compare_operation_screenshots.py <manifest.json> --report <summary.json>` 汇总。保真/非视觉任务使用默认 `preserve` 模式，要求至少 `5` 个不同操作全部尺寸一致且差异像素数为 `0`；目标明确包含视觉替换时可使用 `intentional_change` 模式，但 manifest 必须记录用户批准依据，并为每个操作填写 `expected_change`，且每组必须尺寸相同、差异像素数大于 `0`。少于 `5` 组、缺图、采集条件不一致、缺报告、模式与任务目标不符或缺少有意变更说明，一律 `BLOCKED`。截图、操作清单和报告默认只作为本机证据，不加入 Git。
+- 每组使用 `python3 tools/qa/compare_screenshots.py <before> <after> --report <json>` 做像素级比较，并用 `python3 tools/qa/compare_operation_screenshots.py <manifest.json> --report <summary.json>` 汇总；只有至少 `5` 个不同操作的每组截图都尺寸一致且差异像素数为 `0` 才通过。少于 `5` 组、缺任一截图、采集条件不一致、缺报告或任一组存在像素差异，一律 `BLOCKED`，不得交付或提交“通过”。截图、操作清单和报告默认只作为本机证据，不加入 Git。
 - 每次改动后运行 `./tests/verify_ui_mirror.sh`，确认独立项目结构完整且文件类型没有串目录；默认检查不需要原项目。
 - 运行 README 中的独立项目契约 smoke，确认 Mock Snapshot 和装配链仍可工作。
 - 涉及布局、交互或动画时，必须在真实 Godot 窗口检查；headless smoke 不能代替可见结果。

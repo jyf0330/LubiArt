@@ -4,7 +4,7 @@
 
 ## 结构
 
-- `art/scenes/`：保留三选一和战斗两个正式 Scene，以及独立的 SpriteInfoCard 美术调试 Scene；项目仍从 `art/scenes/three_choice/three_choice_scene.tscn` 启动
+- `art/scenes/`：保留 `app/game.tscn` 总装配 Scene、三选一和战斗两个正式 UI Scene，以及独立的 SpriteInfoCard 美术调试 Scene；项目从 `game.tscn` 启动
 - `art/prefabs/`：保留宠物、宠物详情、地形、地形详情四个公开 prefab，以及宠物详情内部使用的 `sprite_info_card.tscn`
 - `art/images/`：项目内完整图片资源
 - `art/manifests/`：图片 ID、切片和资源映射 JSON
@@ -15,7 +15,11 @@
 
 运行时装配链为：
 
-`three_choice_scene.tscn -> MockGameSession -> FeatureRegistry -> SceneRouter -> battle_art_scene.tscn -> 四类公开 art/prefabs`
+`game.tscn -> MockGameSession -> ThreeChoiceScene -> FeatureRegistry -> SceneRouter -> BattleArtScene -> 四类公开 art/prefabs`
+
+`Game` 是唯一 Session、Command、持久化和 Feature 路由拥有者。`ThreeChoiceScene` 与 `BattleArtScene` 的根展示脚本负责节点绑定、Snapshot 渲染、交互信号和动效；两个美术 Scene 都不创建、不保存也不直接调用 Session。
+
+跨 Scene 的按钮必须遵循 `Button -> 美术 Scene 根脚本发出语义 Command -> GameSession -> Result/Snapshot -> Game 选择 Feature -> SceneRouter -> FeatureHost -> 目标 Scene`。美术 Scene 只在表现完成后发送 `presentation_settled`，旧 Feature 是否释放仍由 Game 根据权威 Snapshot 决定。详细规则见 [`docs/SCENE_ROUTING_STANDARD.md`](docs/SCENE_ROUTING_STANDARD.md)。
 
 美术可以直接修改本项目中的两个正式 UI Scene、四个公开 prefab、`sprite_info_card.tscn` 卡片组件、独立调试 Scene、展示脚本、布局、动画和资源。图片、manifest 和脚本必须继续分别放在上述类型目录，再在类型目录内部按功能 scope 分类。项目方收到完整交付后，再通过独立集成任务审查差异并适配回正式项目。正式战斗核心、存档、远程传输和策划数据不进入这个 Mock 项目；导出的公共 Snapshot 已包含在项目内，运行时不需要正式项目。
 

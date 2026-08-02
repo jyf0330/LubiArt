@@ -1,7 +1,8 @@
 extends RefCounted
 
-## Registry for the only Scene mounted by the three-choice composition root.
-## The three-choice Scene is already alive, so it is not registered as a child.
+## Registry for feature Scenes mounted by the Game composition root.
+## The three-choice presentation Scene is already alive below Game, so it is
+## not registered as a dynamically mounted child.
 
 const BATTLE_SCENE := preload("res://art/scenes/battle/battle_art_scene.tscn")
 const THREE_CHOICE_FEATURE := &"three_choice"

@@ -1,5 +1,10 @@
 extends Control
 
+## The root presentation script for BattleArtScene. It consumes public
+## Snapshots, binds the authored responsibility groups, plays battle feedback
+## and emits command requests upward. Game owns the only GameSession and all
+## command execution.
+
 signal command_requested(command: Dictionary)
 signal trace_sequence_finished
 

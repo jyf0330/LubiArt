@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainScene := preload("res://art/scenes/three_choice/three_choice_scene.tscn")
+const MainScene := preload("res://art/scenes/app/game.tscn")
 const FRAME_COUNT := 6
 const CAPTURE_SIZE := Vector2i(420, 420)
 

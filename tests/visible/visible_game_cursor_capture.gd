@@ -10,7 +10,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	var scene := load("res://art/scenes/three_choice/three_choice_scene.tscn") as PackedScene
+	var scene := load("res://art/scenes/app/game.tscn") as PackedScene
 	if scene == null:
 		_fail("could not load main scene")
 		return

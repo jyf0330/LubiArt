@@ -1,6 +1,6 @@
 extends RefCounted
 
-## Owns the lifecycle of one view mounted below the three-choice composition.
+## Owns the lifecycle of one feature view mounted below the Game composition.
 
 var _host: Node = null
 var _active_view: Node = null
@@ -24,23 +24,21 @@ func bind_registry(registry: RefCounted) -> void:
 	_registry = registry
 
 
-func mount_feature(feature_id: StringName, session: RefCounted = null) -> Node:
+func mount_feature(feature_id: StringName) -> Node:
 	if _registry == null or not _registry.has_method("scene_for"):
 		return null
 	var scene := _registry.call("scene_for", feature_id) as PackedScene
-	var view := mount(scene, session)
+	var view := mount(scene)
 	if view != null:
 		_active_feature = feature_id
 	return view
 
 
-func mount(scene: PackedScene, session: RefCounted = null) -> Node:
+func mount(scene: PackedScene) -> Node:
 	if _host == null or scene == null:
 		return null
 	clear()
 	_active_view = scene.instantiate()
-	if session != null and _active_view.has_method("configure"):
-		_active_view.call("configure", session)
 	_host.add_child(_active_view)
 	return _active_view
 

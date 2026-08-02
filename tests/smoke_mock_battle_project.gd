@@ -13,6 +13,47 @@ const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const BattleTerrainScene := preload("res://art/prefabs/terrain/terrain.tscn")
 
 
+class RoutingSession:
+	extends RefCounted
+
+	signal snapshot_received(snapshot: Dictionary, metadata: Dictionary)
+
+	var _route_snapshot: Dictionary
+	var _battle_snapshot: Dictionary
+	var _snapshot: Dictionary
+
+
+	func _init(route_snapshot: Dictionary, battle_snapshot: Dictionary) -> void:
+		_route_snapshot = route_snapshot.duplicate(true)
+		_battle_snapshot = battle_snapshot.duplicate(true)
+		_snapshot = _route_snapshot.duplicate(true)
+
+
+	func current_snapshot() -> Dictionary:
+		return _snapshot.duplicate(true)
+
+
+	func submit_command_and_wait(command: Dictionary) -> Dictionary:
+		match String(command.get("type", "")):
+			"TEST_ENTER_BATTLE":
+				_snapshot = _battle_snapshot.duplicate(true)
+			"TEST_LEAVE_BATTLE":
+				_snapshot = _route_snapshot.duplicate(true)
+		return {
+			"accepted": true,
+			"command": String(command.get("type", "")),
+			"snapshot": current_snapshot()
+		}
+
+
+	func supports_persistence() -> bool:
+		return false
+
+
+	func persistence_slot_count() -> int:
+		return 0
+
+
 func _initialize() -> void:
 	call_deferred("_run")
 
@@ -136,8 +177,84 @@ func _run() -> void:
 	assert(not session_source.contains("_run_combat_round"))
 	assert(not session_source.contains("_damage_trace"))
 
-	var main_scene := load("res://art/scenes/three_choice/three_choice_scene.tscn") as PackedScene
+	var three_choice_scene := load("res://art/scenes/three_choice/three_choice_scene.tscn") as PackedScene
+	assert(three_choice_scene != null)
+	var three_choice_source := FileAccess.get_file_as_string("res://art/scenes/three_choice/three_choice_scene.tscn")
+	assert(three_choice_source.count("[ext_resource type=\"Script\"") == 1)
+	assert(three_choice_source.contains("res://core_ui/scripts/artist_flow/scenes/three_choice_scene.gd"))
+	assert(not three_choice_source.contains("game_controller.gd"))
+	assert(not three_choice_source.contains("three_choice_surface.gd"))
+	assert(not three_choice_source.contains("artist_flow_controller.gd"))
+	assert(three_choice_source.contains("[node name=\"ItemSlotHoverHighlight\" type=\"TextureRect\" parent=\".\"]"))
+	var three_choice_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/scenes/three_choice_scene.gd")
+	assert(not three_choice_script_source.contains("_ensure_item_slot_hover_highlight"))
+	assert(three_choice_script_source.contains("signal presentation_settled"))
+	assert(not three_choice_script_source.contains("feature_view_requested"))
+	assert(not three_choice_script_source.contains("feature_view_release_requested"))
+	assert(not three_choice_script_source.contains("_ensure_battle_view"))
+	assert(not three_choice_script_source.contains("battle_art_scene.tscn"))
+	var card_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/route/prefabs/three_choice_card.gd")
+	assert(not card_script_source.contains("SLOT_LAYOUTS"))
+	assert(not card_script_source.contains("_apply_slot_layout"))
+	assert(not card_script_source.contains("@tool"))
+	var pet_detail_scene_source := FileAccess.get_file_as_string("res://art/prefabs/pet/pet_detail.tscn")
+	var pet_detail_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/shared/pet/pet_detail_panel.gd")
+	assert(not pet_detail_scene_source.contains("DebugPanel"))
+	assert(not pet_detail_scene_source.contains("DebugToggleButton"))
+	assert(not pet_detail_scene_source.contains("pet_info_debug_panel.gd"))
+	assert(not pet_detail_script_source.contains("SessionFactory"))
+	assert(not pet_detail_script_source.contains("set_debug_enabled"))
+	assert(not three_choice_script_source.contains("PET_DETAIL_PANEL_SCENE.instantiate"))
+	var main_scene := load("res://art/scenes/app/game.tscn") as PackedScene
 	assert(main_scene != null)
+	var game_scene_source := FileAccess.get_file_as_string("res://art/scenes/app/game.tscn")
+	var game_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/app/game_controller.gd")
+	var router_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/app/scene_router.gd")
+	var bridge_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/controllers/artist_flow_session_bridge.gd")
+	assert(game_scene_source.count("[ext_resource type=\"Script\"") == 1)
+	assert(game_script_source.contains("_required_feature_for_snapshot"))
+	assert(game_script_source.contains("_prepare_feature_for_snapshot"))
+	assert(game_script_source.contains("_release_features_not_required"))
+	assert(game_script_source.contains("SceneRouterScript.new(feature_host, feature_registry)"))
+	assert(not game_script_source.contains("_on_feature_view_requested"))
+	assert(not game_script_source.contains("_on_feature_view_release_requested"))
+	assert(not router_script_source.contains("snapshot"))
+	assert(not router_script_source.contains("phase"))
+	assert(not router_script_source.contains("session"))
+	assert(not bridge_script_source.contains("SessionFactory"))
+	assert(not bridge_script_source.contains("create_local("))
+	var battle_scene := load("res://art/scenes/battle/battle_art_scene.tscn") as PackedScene
+	assert(battle_scene != null)
+	var battle_scene_source := FileAccess.get_file_as_string("res://art/scenes/battle/battle_art_scene.tscn")
+	var battle_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/battle/scenes/battle_scene.gd")
+	assert(battle_scene_source.contains("res://core_ui/scripts/battle/scenes/battle_scene.gd"))
+	assert(not battle_script_source.contains("SessionFactoryScript"))
+	assert(not battle_script_source.contains("create_local("))
+	assert(not battle_script_source.contains("submit_command_and_wait"))
+	assert(not battle_script_source.contains("func get_game_session"))
+
+	var standalone_battle_instance := battle_scene.instantiate() as Control
+	root.add_child(standalone_battle_instance)
+	var standalone_battle_session := MockSession.new({"start_phase": "battle"})
+	standalone_battle_instance.call("render_snapshot", standalone_battle_session.current_snapshot())
+	for _frame in range(8):
+		await process_frame
+	var standalone_battle_snapshot := Dictionary(standalone_battle_session.call("current_snapshot"))
+	assert(String(standalone_battle_snapshot.get("phase", "")) == "battle")
+	assert(Array(standalone_battle_snapshot.get("units", [])).size() > 0)
+	assert(Array(Dictionary(standalone_battle_snapshot.get("board", {})).get("cells", [])).size() > 0)
+	assert(int(standalone_battle_instance.call("debug_last_rendered_cell_count")) > 0)
+	var standalone_commands: Array[Dictionary] = []
+	standalone_battle_instance.connect("command_requested", func(command: Dictionary) -> void:
+		standalone_commands.append(command.duplicate(true))
+	)
+	standalone_battle_instance.call("debug_emit_command", "AUTO_POSITION_HEROES")
+	await process_frame
+	assert(standalone_commands.size() == 1)
+	assert(String(standalone_commands[0].get("type", "")) == "AUTO_POSITION_HEROES")
+	assert(int(standalone_battle_session.call("replay_step_index")) == 0)
+	standalone_battle_instance.queue_free()
+	await process_frame
 
 	var route_main_instance := main_scene.instantiate()
 	root.add_child(route_main_instance)
@@ -146,10 +263,43 @@ func _run() -> void:
 	await create_timer(0.25).timeout
 	var route_game_session := route_main_instance.call("get_game_session") as RefCounted
 	assert(route_game_session != null)
-	assert(String(Dictionary(route_game_session.call("current_snapshot")).get("phase", "")) == "route")
+	var route_three_choice_view := route_main_instance.call("get_three_choice_view") as Control
+	assert(route_three_choice_view != null)
+	assert(not route_three_choice_view.has_method("get_game_session"))
+	var route_snapshot := Dictionary(route_game_session.call("current_snapshot"))
+	assert(String(route_snapshot.get("phase", "")) == "route")
+	assert(Array(route_snapshot.get("route_options", [])).size() == 3)
+	assert(Array(route_snapshot.get("roster", [])).size() > 0)
+	assert(int(Dictionary(route_snapshot.get("inventory", {})).get("max_bench", 0)) > 0)
 	assert(route_main_instance.call("get_feature_controller", &"battle") == null)
 	assert(route_main_instance.call("get_active_feature_view") == null)
 	route_main_instance.queue_free()
+	await process_frame
+
+	var routing_session := RoutingSession.new(
+		MockSession.new().current_snapshot(),
+		MockSession.new({"start_phase": "battle"}).current_snapshot()
+	)
+	var routing_main_instance := main_scene.instantiate()
+	routing_main_instance.call("set_game_session", routing_session)
+	root.add_child(routing_main_instance)
+	for _frame in range(8):
+		await process_frame
+	var routing_view := routing_main_instance.call("get_three_choice_view") as Control
+	assert(routing_main_instance.call("get_active_feature_view") == null)
+	routing_view.command_requested.emit({"type": "TEST_ENTER_BATTLE"}, 7001)
+	for _frame in range(8):
+		await process_frame
+	assert(StringName(routing_main_instance.call("get_active_feature_id")) == &"battle")
+	assert(routing_main_instance.call("get_active_feature_view") != null)
+	routing_view.command_requested.emit({"type": "TEST_LEAVE_BATTLE"}, 7002)
+	for _frame in range(4):
+		await process_frame
+	assert(routing_main_instance.call("get_active_feature_view") != null)
+	routing_view.call("render_snapshot", routing_session.current_snapshot(), false)
+	await process_frame
+	assert(routing_main_instance.call("get_active_feature_view") == null)
+	routing_main_instance.queue_free()
 	await process_frame
 
 	var main_instance := main_scene.instantiate()
@@ -191,6 +341,7 @@ func _run() -> void:
 
 	var game_session := main_instance.call("get_game_session") as RefCounted
 	assert(game_session != null)
+	assert(not battle_view.has_method("get_game_session"))
 	assert(String(Dictionary(game_session.call("current_snapshot")).get("phase", "")) == "battle")
 	assert(int(game_session.call("replay_step_index")) == 0)
 	var board_grid := battle_view.get_node("Board/BoardGrid") as Control

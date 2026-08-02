@@ -6,6 +6,8 @@
 
 它本身就是运行 Scene，不再包含 `Runtime`、`PrefabCatalog`、`ReusablePrefabs` 或 `RuntimeEffects` 等索引包装层。
 
+项目正式从 `res://art/scenes/app/game.tscn` 启动。`BattleArtScene` 根挂 `battle_scene.gd`，只接收 Game 投递的公共 Snapshot、绑定节点、处理输入和播放表现；它不创建、不保存、不暴露也不直接调用 GameSession。单独实例化本 Scene 时，需要测试或调试入口显式调用 `render_snapshot()` 才会显示战斗数据。
+
 ## 层级职责
 
 ```text
@@ -26,13 +28,13 @@ BattleArtScene
     └── BattleElementDetailPanel（运行时）
 ```
 
-- `BattleArtScene` 根节点下只允许以上三个直接次级节点；新增战斗 UI 必须先归入对应职责，不得再平铺到根节点。
+- `BattleArtScene` 根节点下只允许以上三个直接次级节点；根展示脚本只对接 Snapshot 与 Command 请求，新增战斗 UI 必须先归入对应职责，不得再平铺到根节点。
 - `Board` 管棋盘背景、格子、宠物实例、战斗事件编排和行动控件，并直接挂 `battle_board.gd` 作为该次级分组的表现入口。
 - `TopInfoBar` 直接挂 `battle_top_info_bar.gd`，只管用户截图所示的日程、回合、货币与顶部功能信息；当前没有正式上方信息栏切图时保留结构位，不用程序临时画图替代美术。
 - `CellDetail` 直接挂 `battle_cell_detail.gd`，只管点选格子后显示的宠物 / 地形信息。交付文件 `宠物信息栏实装(修改).psd` 是其中宠物格子信息的美术源；476×539 卡片、动态数据接口、遮罩、操作与调试容器统一在 `pet_detail.tscn` 中维护，项目运行时不依赖 PSD 或其本机路径。
 - 自动布置、摆位难度、开始行动、行动面板和调试命令都属于 `Board`，不得为了右侧位置而归入 `CellDetail`。
 - `BoardGrid` 重复使用地形 prefab。
-- 宠物由战斗控制器从宠物 prefab 取用并重置数据。
+- 宠物由战斗根展示脚本从宠物 prefab 取用并重置展示数据。
 - 宠物详情与地形详情分别使用对应详情 prefab。
 - 宠物攻击、受击、移动、死亡、跨格投射物和伤害数字由 `pet.tscn` 内的对应表现层创建；地面元素标记与命中特效由 `terrain.tscn` 创建。`BattleVfxPlayer` 只保留真实事件的播放时序、预制体调用协调和回合横幅。
 

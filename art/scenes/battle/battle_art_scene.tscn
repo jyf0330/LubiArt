@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c0am8pxw3phnn"]
 
 [ext_resource type="Texture2D" path="res://art/images/battle/maps/grassland_morning.png" id="1_bg"]
-[ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/controllers/battle_controller.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/scenes/battle_scene.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cj4wnh87c8q0q" path="res://art/images/battle/primary_actions/primary_actions_shadow.png" id="3_primary_shadow"]
 [ext_resource type="Texture2D" uid="uid://dc50en6sk45t6" path="res://art/images/battle/primary_actions/auto_arrange_normal.png" id="4_auto_normal"]
 [ext_resource type="Texture2D" uid="uid://lr015ad4uapu" path="res://art/images/battle/primary_actions/auto_arrange_pressed.png" id="4_auto_pressed"]
