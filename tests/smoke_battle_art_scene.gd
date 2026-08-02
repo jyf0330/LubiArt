@@ -2,6 +2,7 @@ extends SceneTree
 
 const ART_SCENE_PATH := "res://art/scenes/battle/battle_art_scene.tscn"
 const BattleAssetRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
+const MockSession := preload("res://session/mock_game_session.gd")
 
 
 func _initialize() -> void:
@@ -14,35 +15,47 @@ func _run() -> void:
 		push_error("MOCK_BATTLE_ART_SCENE_FAIL: scene did not load")
 		quit(1)
 		return
+	var art_scene_source := FileAccess.get_file_as_string(ART_SCENE_PATH)
 	var art_scene := packed.instantiate() as Control
 	root.add_child(art_scene)
 	await process_frame
 	await process_frame
+	var battle_snapshot := Dictionary(MockSession.new({"start_phase": "battle"}).call("current_snapshot"))
+	var occupied_cell_count := 0
+	for cell_value in Array(Dictionary(battle_snapshot.get("board", {})).get("cells", [])):
+		var cell_data := Dictionary(cell_value)
+		if String(cell_data.get("unitId", cell_data.get("unit_id", ""))) != "":
+			occupied_cell_count += 1
+	art_scene.call("render_snapshot", battle_snapshot)
+	await process_frame
+	await process_frame
 	var board := art_scene.get_node_or_null("Board") as Control
-	var board_background := art_scene.get_node_or_null("Board/BoardBG") as TextureRect
-	var board_grid := art_scene.get_node_or_null("Board/BoardGrid") as Control
-	var primary_actions := art_scene.get_node_or_null("Board/BattlePrimaryActions") as Control
-	var primary_actions_shadow := art_scene.get_node_or_null("Board/BattlePrimaryActions/Shadow") as TextureRect
-	var auto_arrange_button := art_scene.get_node_or_null("Board/BattlePrimaryActions/AutoArrangeButton") as TextureButton
-	var begin_turn_button := art_scene.get_node_or_null("Board/BattlePrimaryActions/BeginTurnButton") as TextureButton
-	var direction_drawer := art_scene.get_node_or_null("Board/AttackDirectionDrawer") as Control
-	var direction_rows := art_scene.get_node_or_null("Board/AttackDirectionDrawer/Rows") as Control
-	var direction_background := art_scene.get_node_or_null("Board/AttackDirectionDrawer/Rows/Row1/Background") as TextureRect
-	var direction_arrow := art_scene.get_node_or_null("Board/AttackDirectionDrawer/Rows/Row1/Arrow1") as TextureRect
-	var direction_last_arrow := art_scene.get_node_or_null("Board/AttackDirectionDrawer/Rows/Row4/Arrow3") as TextureRect
-	var direction_collapse_button := art_scene.get_node_or_null("Board/AttackDirectionDrawer/CollapseButton") as TextureButton
-	var direction_collapse_triangle := art_scene.get_node_or_null("Board/AttackDirectionDrawer/CollapseButton/Triangle") as TextureRect
-	var direction_scroll_hint := art_scene.get_node_or_null("Board/AttackDirectionDrawer/ScrollHint") as TextureRect
-	var direction_scroll_highlight := art_scene.get_node_or_null("Board/AttackDirectionDrawer/ScrollHint/WheelHighlight") as TextureRect
-	var direction_scroll_animation := art_scene.get_node_or_null("Board/AttackDirectionDrawer/ScrollHint/AnimationPlayer") as AnimationPlayer
-	var top_info_bar := art_scene.get_node_or_null("TopInfoBar") as Control
-	var battle_clock := art_scene.get_node_or_null("TopInfoBar/BattleClock") as Control
-	var clock_dial := art_scene.get_node_or_null("TopInfoBar/BattleClock/Dial") as TextureRect
-	var clock_pointer := art_scene.get_node_or_null("TopInfoBar/BattleClock/Pointer") as TextureRect
-	var cell_detail := art_scene.get_node_or_null("CellDetail") as Control
+	var board_background := art_scene.get_node_or_null("Board/Background") as TextureRect
+	var board_grid := art_scene.get_node_or_null("Board/CellHost") as Control
+	var unit_host := art_scene.get_node_or_null("Board/UnitHost") as Control
+	var vfx_host := art_scene.get_node_or_null("Board/VfxHost") as Control
+	var hud := art_scene.get_node_or_null("Hud") as Control
+	var primary_actions := art_scene.get_node_or_null("Hud/BattlePrimaryActions") as Control
+	var primary_actions_shadow := art_scene.get_node_or_null("Hud/BattlePrimaryActions/Shadow") as TextureRect
+	var auto_arrange_button := art_scene.get_node_or_null("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton
+	var begin_turn_button := art_scene.get_node_or_null("Hud/BattlePrimaryActions/BeginTurnButton") as TextureButton
+	var direction_drawer := art_scene.get_node_or_null("Hud/AttackDirectionDrawer") as Control
+	var direction_rows := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows") as Control
+	var direction_background := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows/Row1/Background") as TextureRect
+	var direction_arrow := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows/Row1/Arrow1") as TextureRect
+	var direction_last_arrow := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows/Row4/Arrow3") as TextureRect
+	var direction_collapse_button := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/CollapseButton") as TextureButton
+	var direction_collapse_triangle := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/CollapseButton/Triangle") as TextureRect
+	var direction_scroll_hint := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/ScrollHint") as TextureRect
+	var direction_scroll_highlight := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/ScrollHint/WheelHighlight") as TextureRect
+	var direction_scroll_animation := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/ScrollHint/AnimationPlayer") as AnimationPlayer
+	var top_info_bar := art_scene.get_node_or_null("Hud/TopInfoBar") as Control
+	var battle_clock := art_scene.get_node_or_null("Hud/TopInfoBar/BattleClock") as Control
+	var clock_dial := art_scene.get_node_or_null("Hud/TopInfoBar/BattleClock/Dial") as TextureRect
+	var clock_pointer := art_scene.get_node_or_null("Hud/TopInfoBar/BattleClock/Pointer") as TextureRect
+	var cell_detail := art_scene.get_node_or_null("OverlayHost") as Control
 	var bottom_left_cell := board_grid.get_child(48) as Control if board_grid != null else null
 	var bottom_right_cell := board_grid.get_child(55) as Control if board_grid != null else null
-	var pooled_eighth_row_cell := board_grid.get_child(56) as Control if board_grid != null else null
 	var bottom_left_center := bottom_left_cell.position + bottom_left_cell.size * 0.5 if bottom_left_cell != null else Vector2.ZERO
 	var bottom_right_center := bottom_right_cell.position + bottom_right_cell.size * 0.5 if bottom_right_cell != null else Vector2.ZERO
 	var drawer_collapses := false
@@ -134,7 +147,9 @@ func _run() -> void:
 		direction_collapse_button.pressed.emit()
 		await process_frame
 	var passed: bool = (
-		board != null
+		art_scene_source.count("[node ") == 8
+		and occupied_cell_count > 0
+		and board != null
 		and board_background != null
 		and board_background.size == Vector2(1920.0, 1080.0)
 		and board_background.expand_mode == TextureRect.EXPAND_IGNORE_SIZE
@@ -143,18 +158,24 @@ func _run() -> void:
 		and board_background.texture.get_size() == Vector2(1456.0, 816.0)
 		and background_variants_match
 		and board_grid != null
-		and board_grid.get_child_count() == 64
+		and board_grid.get_child_count() == 56
+		and unit_host != null
+		and unit_host.get_child_count() == occupied_cell_count
+		and unit_host.get_child_count() < board_grid.get_child_count()
+		and vfx_host != null
+		and hud != null
+		and art_scene.get_child_count() == 3
+		and board.get_child_count() == 4
 		and bottom_left_cell != null
 		and bottom_left_cell.visible
 		and bottom_left_cell.call("get_grid_position") == Vector2i(0, 6)
 		and bottom_left_cell.call("contains_board_point", bottom_left_center)
+		and bottom_left_cell.get_node_or_null("PrefabAnchor") == null
 		and is_equal_approx(bottom_left_cell.position.y + bottom_left_cell.size.y, 959.0)
 		and bottom_right_cell != null
 		and bottom_right_cell.visible
 		and bottom_right_cell.call("get_grid_position") == Vector2i(7, 6)
 		and bottom_right_cell.call("contains_board_point", bottom_right_center)
-		and pooled_eighth_row_cell != null
-		and not pooled_eighth_row_cell.visible
 		and top_info_bar != null
 		and battle_clock != null
 		and clock_dial != null
@@ -163,8 +184,8 @@ func _run() -> void:
 		and clock_dial.position == clock_pointer.position
 		and clock_dial.size == clock_pointer.size
 		and cell_detail != null
-		and art_scene.get_node_or_null("Board/BattleVfxPlayer") != null
-		and art_scene.get_node_or_null("Board/BattleActionPanel") != null
+		and art_scene.get_node_or_null("Board/VfxHost") != null
+		and art_scene.get_node_or_null("Hud/BattleActionPanel") != null
 		and primary_actions != null
 		and primary_actions.anchor_left == 1.0
 		and primary_actions.anchor_top == 1.0
@@ -217,7 +238,7 @@ func _run() -> void:
 		and art_scene.get_node_or_null("PrefabCatalog") == null
 	)
 	if not passed:
-		push_error("MOCK_BATTLE_ART_SCENE_FAIL: two-scene/four-prefab hierarchy mismatch")
+		push_error("MOCK_BATTLE_ART_SCENE_FAIL: minimal battle hierarchy mismatch")
 	art_scene.queue_free()
 	await process_frame
 	print("MOCK_BATTLE_ART_SCENE_%s" % ("PASS" if passed else "FAIL"))

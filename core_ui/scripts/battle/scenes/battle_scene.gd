@@ -11,6 +11,7 @@ signal trace_sequence_finished
 const BattleAssetRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
 const BattleBoardDimensionsScript := preload("res://core/battle/board_dimensions.gd")
 const BattleBoardControllerScript := preload("res://core_ui/scripts/battle/controllers/battle_board_controller.gd")
+const BattleBoardLayoutScript := preload("res://core_ui/scripts/battle/controllers/battle_board_layout.gd")
 const BattleHudControllerScript := preload("res://core_ui/scripts/battle/controllers/battle_hud_controller.gd")
 const BattleDetailControllerScript := preload("res://core_ui/scripts/battle/controllers/battle_detail_controller.gd")
 const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
@@ -25,7 +26,6 @@ const TerrainDetailScene := preload("res://art/prefabs/terrain/terrain_detail.ts
 const DEFAULT_BOARD_COLUMNS := BattleBoardDimensionsScript.DEFAULT_WIDTH
 const DEFAULT_BOARD_ROWS := BattleBoardDimensionsScript.DEFAULT_HEIGHT
 const CELL_GAP := Vector2.ZERO
-const COMMAND_TOOL_SIZE := Vector2(118.0, 42.0)
 const DETAIL_PANEL_SIZE := Vector2(314.0, 528.0)
 const DETAIL_PANEL_POSITION := Vector2(1574.0, 132.0)
 const DRAG_CLICK_THRESHOLD := 12.0
@@ -33,14 +33,15 @@ const DROP_SETTLE_DURATION := 0.12
 const DROP_RETURN_DURATION := 0.16
 
 @onready var board: Control = $Board
-@onready var board_background: TextureRect = $Board/BoardBG
-@onready var top_info_bar: Control = $TopInfoBar
-@onready var cell_detail: Control = $CellDetail
-@onready var board_grid: Control = board.call("get_board_grid") as Control
-@onready var auto_arrange_button: TextureButton = board.call("get_auto_arrange_button") as TextureButton
-@onready var position_difficulty_button: Button = board.call("get_position_difficulty_button") as Button
-@onready var begin_turn_button: TextureButton = board.call("get_begin_turn_button") as TextureButton
-@onready var vfx_player: Control = board.call("get_vfx_player") as Control
+@onready var board_background: TextureRect = $Board/Background
+@onready var board_grid: Control = $Board/CellHost
+@onready var unit_host: Control = $Board/UnitHost
+@onready var vfx_player: Control = $Board/VfxHost
+@onready var hud: Control = $Hud
+@onready var overlay_host: Control = $OverlayHost
+@onready var auto_arrange_button: TextureButton = hud.call("get_auto_arrange_button") as TextureButton
+@onready var position_difficulty_button: Button = hud.call("get_position_difficulty_button") as Button
+@onready var begin_turn_button: TextureButton = hud.call("get_begin_turn_button") as TextureButton
 
 var _assets: RefCounted = null
 var _cell_size := Vector2.ZERO
@@ -74,7 +75,6 @@ var _last_drop_settle_summary: Dictionary = {}
 var _suppress_next_select := false
 var _initial_round_banner_requested := false
 var _last_debug_drag_command: Dictionary = {}
-var _command_tools: PanelContainer = null
 var _action_panel: Control = null
 var _direction_drawer: Control = null
 var _detail_panel: Control = null
@@ -94,6 +94,9 @@ var _hud_controller := BattleHudControllerScript.new()
 var _detail_controller := BattleDetailControllerScript.new()
 var _command_builder := BattleCommandBuilderScript.new()
 var _trace_projection := BattleTraceProjectionScript.new()
+var _board_layout := BattleBoardLayoutScript.new()
+var _unit_nodes_by_id := {}
+var _unit_pool: Array[Control] = []
 
 
 func _ready() -> void:
@@ -103,7 +106,7 @@ func _ready() -> void:
 	_assets = BattleAssetRegistryScript.new()
 	_build_board()
 	if vfx_player != null and vfx_player.has_method("configure"):
-		vfx_player.call("configure", board_grid, _assets)
+		vfx_player.call("configure", board_grid, unit_host, _assets)
 	if vfx_player != null and vfx_player.has_signal("pets_reset_reveal_requested"):
 		if not vfx_player.pets_reset_reveal_requested.is_connected(_on_pets_reset_reveal_requested):
 			vfx_player.pets_reset_reveal_requested.connect(_on_pets_reset_reveal_requested)
@@ -116,7 +119,7 @@ func _ready() -> void:
 	if vfx_player != null and vfx_player.has_signal("enemy_move_projection_requested"):
 		if not vfx_player.enemy_move_projection_requested.is_connected(_on_enemy_move_projection_requested):
 			vfx_player.enemy_move_projection_requested.connect(_on_enemy_move_projection_requested)
-	board.call(
+	hud.call(
 		"bind_primary_actions",
 		Callable(self, "_on_auto_arrange_pressed"),
 		Callable(self, "_on_position_difficulty_toggled"),
@@ -270,6 +273,13 @@ func _render_battle_background(snapshot: Dictionary) -> void:
 
 
 func _render_board_cells(cells: Array, pending_reset_ids: Dictionary = {}) -> void:
+	var desired_unit_ids := {}
+	for cell_value in cells:
+		var desired_cell := Dictionary(cell_value)
+		var desired_unit_id := String(desired_cell.get("unitId", desired_cell.get("unit_id", "")))
+		if desired_unit_id != "":
+			desired_unit_ids[desired_unit_id] = true
+	_release_unused_units(desired_unit_ids)
 	for cell_value in cells:
 		var cell := Dictionary(cell_value).duplicate(true)
 		var x := int(cell.get("x", cell.get("c", -1)))
@@ -287,7 +297,85 @@ func _render_board_cells(cells: Array, pending_reset_ids: Dictionary = {}) -> vo
 			cell_node.call("set_cell_data", cell, _assets)
 			_render_cell_trace_effects(cell_node, cell)
 			_last_rendered_cell_count += 1
+		_sync_cell_unit(cell_node, cell, cell_changed)
 		_collect_cell_missing_mappings(cell_node)
+	for cell in _cells:
+		var cell_id := String(_cell_data_for_cell(cell).get("unitId", _cell_data_for_cell(cell).get("unit_id", "")))
+		if cell_id == "" and cell.has_method("set_unit_node"):
+			cell.call("set_unit_node", null)
+
+
+func _release_unused_units(desired_unit_ids: Dictionary) -> void:
+	for unit_id_value in _unit_nodes_by_id.keys():
+		var unit_id := String(unit_id_value)
+		if desired_unit_ids.has(unit_id):
+			continue
+		var unit := _unit_nodes_by_id[unit_id] as Control
+		_unit_nodes_by_id.erase(unit_id)
+		if unit == null or not is_instance_valid(unit):
+			continue
+		if unit.has_method("reset_pet_view"):
+			unit.call("reset_pet_view")
+		unit.visible = false
+		unit.name = "PooledBattleUnit_%d" % _unit_pool.size()
+		_unit_pool.append(unit)
+
+
+func _sync_cell_unit(cell: Control, cell_data: Dictionary, data_changed: bool = true) -> void:
+	if cell == null:
+		return
+	var unit_id := String(cell_data.get("unitId", cell_data.get("unit_id", "")))
+	if unit_id == "":
+		if cell.has_method("set_unit_node"):
+			cell.call("set_unit_node", null)
+		return
+	var unit := _unit_nodes_by_id.get(unit_id) as Control
+	var created := false
+	if unit == null or not is_instance_valid(unit):
+		unit = _acquire_unit_node(unit_id)
+		created = unit != null
+	if unit == null:
+		return
+	unit.visible = true
+	unit.position = cell.position
+	unit.size = cell.size
+	unit.custom_minimum_size = Vector2.ZERO
+	unit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	unit.z_index = 2
+	if cell.has_method("set_unit_node"):
+		cell.call("set_unit_node", unit)
+	if (created or data_changed) and unit.has_method("set_unit_data"):
+		var side := String(cell_data.get("side", cell_data.get("unitSide", "")))
+		unit.call("set_unit_data", cell_data, side, _assets)
+	if unit.has_method("get_missing_mapping"):
+		var missing := Dictionary(unit.call("get_missing_mapping"))
+		if not missing.is_empty():
+			_missing_mappings[String(missing.get("key", ""))] = missing
+
+
+func _acquire_unit_node(unit_id: String) -> Control:
+	var unit: Control = null
+	if not _unit_pool.is_empty():
+		unit = _unit_pool.pop_back()
+	else:
+		unit = BattleUnitScene.instantiate() as Control
+		if unit != null:
+			# Clear the collection-prefab minimum before the node enters UnitHost.
+			# Otherwise its first ready/layout pass expands to 180x180 and only a
+			# later snapshot render restores the authored board-cell size.
+			unit.custom_minimum_size = Vector2.ZERO
+			unit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			unit_host.add_child(unit)
+	if unit == null:
+		return null
+	unit.name = "BattleUnit_%s" % _safe_node_name(unit_id)
+	_unit_nodes_by_id[unit_id] = unit
+	return unit
+
+
+func _safe_node_name(value: String) -> String:
+	var result := value.validate_node_name().replace(" ", "_")
+	return result if result != "" else "unit"
 
 
 func _apply_selected_action_block_ranges(snap: Dictionary) -> void:
@@ -606,10 +694,6 @@ func debug_emit_command(command_type: String) -> Dictionary:
 
 
 func _build_board() -> void:
-	for child_value in board_grid.get_children():
-		var authored_cell := child_value as Control
-		if authored_cell != null and authored_cell.has_method("setup_grid_position") and not _cell_pool.has(authored_cell):
-			_cell_pool.append(authored_cell)
 	var required_cell_count := _board_columns * _board_rows
 	while _cell_pool.size() < required_cell_count:
 		var created_cell := BattleCellScene.instantiate() as Control
@@ -625,12 +709,6 @@ func _build_board() -> void:
 		(board_size.x - CELL_GAP.x * float(_board_columns - 1)) / float(_board_columns),
 		(board_size.y - CELL_GAP.y * float(_board_rows - 1)) / float(_board_rows)
 	)
-	var front_row_height := 0.0
-	var front_row_first_cell_index := (_board_rows - 1) * _board_columns
-	if front_row_first_cell_index >= 0 and front_row_first_cell_index < required_cell_count:
-		var front_row_cell := _cell_pool[front_row_first_cell_index] as Control
-		if front_row_cell != null:
-			front_row_height = front_row_cell.size.y
 	for index in range(_cell_pool.size()):
 		var cell := _cell_pool[index]
 		var active := index < required_cell_count
@@ -643,11 +721,20 @@ func _build_board() -> void:
 				cell.call("clear_highlight")
 			if cell.has_method("set_cell_data"):
 				cell.call("set_cell_data", {}, _assets)
+			if cell.has_method("set_unit_node"):
+				cell.call("set_unit_node", null)
 			continue
 		var x := index % _board_columns
 		var y := int(index / _board_columns)
-		if cell.has_method("setup_grid_position"):
-			cell.call("setup_grid_position", x, y, _cell_size, _cell_origin(x, y), front_row_height)
+		_board_layout.call(
+			"apply_cell_geometry",
+			cell,
+			x,
+			y,
+			Vector2i(_board_columns, _board_rows),
+			board_size,
+			CELL_GAP
+		)
 		if cell.has_method("set_hovered"):
 			cell.call("set_hovered", _hovered_grid == Vector2i(x, y))
 		if cell.has_signal("cell_selected") and not cell.is_connected("cell_selected", _on_cell_selected):
@@ -741,9 +828,11 @@ func _on_enemy_move_projection_requested(event: Dictionary) -> void:
 		if String(from_data.get("unitId", from_data.get("unit_id", ""))) == unit_id:
 			_trace_projection.call("clear_cell_unit_projection", from_data)
 			from_node.call("set_cell_data", from_data, _assets)
+			_sync_cell_unit(from_node, from_data, true)
 	var to_node := _cell_at(int(final_cell.get("x", final_cell.get("c", -1))), int(final_cell.get("y", final_cell.get("r", -1))))
 	if to_node != null and to_node.has_method("set_cell_data"):
 		to_node.call("set_cell_data", final_cell, _assets)
+		_sync_cell_unit(to_node, final_cell, true)
 		_render_cell_trace_effects(to_node, final_cell)
 	_pending_enemy_move_final_cells.erase(unit_id)
 
@@ -769,6 +858,7 @@ func _on_trace_sequence_finished() -> void:
 			var cell_node := _cell_at(int(final_cell.get("x", final_cell.get("c", -1))), int(final_cell.get("y", final_cell.get("r", -1))))
 			if cell_node != null and cell_node.has_method("set_cell_data"):
 				cell_node.call("set_cell_data", final_cell, _assets)
+				_sync_cell_unit(cell_node, final_cell, true)
 	_pending_enemy_move_final_cells.clear()
 	_apply_selected_action_block_ranges(_last_snapshot)
 	if not _pending_action_panel_snapshot.is_empty():
@@ -823,6 +913,7 @@ func _on_pets_reset_reveal_requested(units: Array) -> void:
 			if cell_node == null or not cell_node.has_method("set_cell_data"):
 				break
 			cell_node.call("set_cell_data", cell, _assets)
+			_sync_cell_unit(cell_node, cell, true)
 			_render_cell_trace_effects(cell_node, cell)
 			var summoned_unit := cell_node.call("get_unit_node") as Control if cell_node.has_method("get_unit_node") else null
 			if summoned_unit != null:
@@ -1046,6 +1137,8 @@ func _apply_local_unit_drop(unit_id: String, origin: Vector2i, target: Vector2i)
 	_copy_cell_location(emptied_origin, origin_data)
 	origin_cell.call("set_cell_data", emptied_origin, _assets)
 	target_cell.call("set_cell_data", moved_data, _assets)
+	_sync_cell_unit(origin_cell, emptied_origin, true)
+	_sync_cell_unit(target_cell, moved_data, true)
 	_render_cell_trace_effects(origin_cell, emptied_origin)
 	_render_cell_trace_effects(target_cell, moved_data)
 	_collect_cell_missing_mappings(target_cell)
@@ -1231,10 +1324,10 @@ func _create_drag_preview(unit: Control) -> void:
 	if preview == null:
 		return
 	preview.name = "BattleUnitDragPreview"
-	preview.position = board_grid.get_local_mouse_position() - _drag_offset
+	preview.position = unit_host.get_local_mouse_position() - _drag_offset
 	preview.size = _cell_size
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_grid.add_child(preview)
+	unit_host.add_child(preview)
 	if preview.has_method("set_unit_data"):
 		preview.call("set_unit_data", Dictionary(raw_data).duplicate(true), String(unit.get("side")), _assets)
 	if preview.has_method("set_dragging"):
@@ -1242,7 +1335,7 @@ func _create_drag_preview(unit: Control) -> void:
 	preview.z_as_relative = false
 	preview.z_index = 180
 	preview.modulate.a = 0.94
-	board_grid.move_child(preview, board_grid.get_child_count() - 1)
+	unit_host.move_child(preview, unit_host.get_child_count() - 1)
 	_drag_preview = preview
 
 
@@ -2081,7 +2174,7 @@ func _ensure_detail_panel() -> void:
 	_detail_panel.name = "BattlePetDetailPanel"
 	_detail_panel.visible = false
 	_detail_panel.z_index = 42
-	cell_detail.call("mount_detail_panel", _detail_panel)
+	overlay_host.add_child(_detail_panel)
 
 	_element_detail_panel = TerrainDetailScene.instantiate() as PanelContainer
 	if _element_detail_panel == null:
@@ -2094,7 +2187,7 @@ func _ensure_detail_panel() -> void:
 	_element_detail_panel.position = DETAIL_PANEL_POSITION
 	_element_detail_panel.custom_minimum_size = DETAIL_PANEL_SIZE
 	_element_detail_panel.size = DETAIL_PANEL_SIZE
-	cell_detail.call("mount_detail_panel", _element_detail_panel)
+	overlay_host.add_child(_element_detail_panel)
 
 
 func _render_pet_detail(snap: Dictionary) -> void:
@@ -2177,40 +2270,10 @@ func _cell_data_for_cell(cell: Node) -> Dictionary:
 	return {}
 
 
-func _ensure_command_tools() -> void:
-	if _command_tools != null:
-		return
-	_command_tools = PanelContainer.new()
-	_command_tools.name = "BattleCommandTools"
-	_command_tools.z_index = 40
-	_command_tools.mouse_filter = Control.MOUSE_FILTER_STOP
-	_command_tools.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_command_tools.position = Vector2(1576.0, 438.0)
-	_command_tools.custom_minimum_size = Vector2(300.0, 258.0)
-	_command_tools.add_theme_stylebox_override("panel", _make_command_tools_style())
-
-	var grid := GridContainer.new()
-	grid.name = "BattleCommandGrid"
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 8)
-	_command_tools.add_child(grid)
-
-	_add_command_tool_button(grid, "槽位", "SelectActionSlotButton", "SELECT_ACTION_SLOT")
-	_add_command_tool_button(grid, "方向", "SetActionDirectionButton", "SET_ACTION_DIRECTION")
-	_add_command_tool_button(grid, "AP", "SetActionApButton", "SET_ACTION_AP")
-	_add_command_tool_button(grid, "施放", "UseActionSlotButton", "USE_ACTION_SLOT")
-	_add_command_tool_button(grid, "全出击", "RunPlayerAllOutButton", "RUN_PLAYER_ALL_OUT")
-	_add_command_tool_button(grid, "结束", "EndPlayerTurnButton", "END_PLAYER_TURN")
-	_add_command_tool_button(grid, "AI行动", "RunMonsterTurnButton", "RUN_MONSTER_TURN")
-	_add_command_tool_button(grid, "自动战斗", "RunBattleButton", "RUN_BATTLE")
-	board.call("add_runtime_control", _command_tools)
-
-
 func _ensure_action_panel() -> void:
 	if _action_panel != null:
 		return
-	_action_panel = board.call("get_action_panel") as Control
+	_action_panel = hud.call("get_action_panel") as Control
 	if _action_panel == null:
 		return
 	if _action_panel.has_signal("command_requested"):
@@ -2226,7 +2289,7 @@ func _render_action_panel(snap: Dictionary) -> void:
 func _ensure_direction_drawer() -> void:
 	if _direction_drawer != null:
 		return
-	_direction_drawer = board.call("get_attack_direction_drawer") as Control
+	_direction_drawer = hud.call("get_attack_direction_drawer") as Control
 	if _direction_drawer != null and _direction_drawer.has_signal("command_requested"):
 		var callback := Callable(self, "_on_direction_drawer_command_requested")
 		if not _direction_drawer.is_connected("command_requested", callback):
@@ -2264,28 +2327,6 @@ func _on_direction_preview_changed(preview: Dictionary) -> void:
 	)
 
 
-func _add_command_tool_button(parent: Control, label_text: String, button_name: String, command_type: String) -> void:
-	var button := Button.new()
-	button.name = button_name
-	button.text = label_text
-	button.custom_minimum_size = COMMAND_TOOL_SIZE
-	button.focus_mode = Control.FOCUS_NONE
-	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.add_theme_font_size_override("font_size", 18)
-	button.set_meta("command_type", command_type)
-	button.pressed.connect(_on_command_tool_pressed.bind(command_type))
-	parent.add_child(button)
-
-
-func _on_command_tool_pressed(command_type: String) -> void:
-	if _battle_input_locked:
-		return
-	var command := _battle_command(command_type)
-	if command.is_empty():
-		return
-	command_requested.emit(command)
-
-
 func _battle_command(command_type: String) -> Dictionary:
 	return Dictionary(_command_builder.call("build", command_type, _last_snapshot))
 
@@ -2296,22 +2337,3 @@ func _selected_unit_id() -> String:
 
 func _selected_slot_index() -> int:
 	return int(_command_builder.call("selected_slot_index", _last_snapshot))
-
-
-func _make_command_tools_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.07, 0.05, 0.76)
-	style.border_color = Color(0.78, 0.61, 0.33, 0.92)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 10
-	style.content_margin_top = 10
-	style.content_margin_right = 10
-	style.content_margin_bottom = 10
-	return style

@@ -34,7 +34,7 @@ func _run() -> void:
 	battle_view.call("_debug_update_drag_preview_position", target_grid)
 	await process_frame
 	var held_preview := battle_view.get_node_or_null(
-		"Board/BoardGrid/BattleUnitDragPreview"
+		"Board/UnitHost/BattleUnitDragPreview"
 	) as Control
 	if held_preview == null:
 		_fail("manual drag preview was unavailable")
@@ -70,7 +70,7 @@ func _run() -> void:
 
 
 func _first_draggable_player_cell(battle_view: Control) -> Control:
-	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
+	var board_grid := battle_view.get_node("Board/CellHost") as Control
 	for cell in board_grid.get_children():
 		if cell.has_method("get_unit_node") \
 				and bool(battle_view.call("_cell_has_draggable_player_unit", cell)):
@@ -79,7 +79,7 @@ func _first_draggable_player_cell(battle_view: Control) -> Control:
 
 
 func _first_empty_grid(battle_view: Control) -> Vector2i:
-	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
+	var board_grid := battle_view.get_node("Board/CellHost") as Control
 	for cell in board_grid.get_children():
 		if not cell.has_method("get_grid_position") or not cell.has_method("get_unit_node"):
 			continue
@@ -89,7 +89,7 @@ func _first_empty_grid(battle_view: Control) -> Vector2i:
 
 
 func _pet_by_unit_id(battle_view: Control, unit_id: String) -> Control:
-	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
+	var board_grid := battle_view.get_node("Board/CellHost") as Control
 	for cell in board_grid.get_children():
 		if not cell.has_method("get_unit_node"):
 			continue

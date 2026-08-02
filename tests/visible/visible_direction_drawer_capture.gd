@@ -20,7 +20,7 @@ func _run() -> void:
 	await create_timer(0.35).timeout
 
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
-	var drawer := battle_view.get_node_or_null("Board/AttackDirectionDrawer") as Control if battle_view != null else null
+	var drawer := battle_view.get_node_or_null("Hud/AttackDirectionDrawer") as Control if battle_view != null else null
 	var rows := drawer.get_node_or_null("Rows") as Control if drawer != null else null
 	var first_arrow := drawer.get_node_or_null("Rows/Row1/Arrow1") as TextureRect if drawer != null else null
 	var scroll_hint := drawer.get_node_or_null("ScrollHint") as TextureRect if drawer != null else null
@@ -80,12 +80,12 @@ func _run() -> void:
 
 
 func _stabilize_battle_view(battle_view: Control) -> void:
-	var vfx_player := battle_view.get_node_or_null("Board/BattleVfxPlayer")
+	var vfx_player := battle_view.get_node_or_null("Board/VfxHost")
 	if vfx_player != null:
 		var round_feedback := vfx_player.get_node_or_null("RoundFeedback")
 		if round_feedback != null:
 			round_feedback.queue_free()
-	var board_grid := battle_view.get_node_or_null("Board/BoardGrid")
+	var board_grid := battle_view.get_node_or_null("Board/CellHost")
 	if board_grid != null:
 		for cell in board_grid.get_children():
 			if not cell.has_method("get_unit_node"):
@@ -101,7 +101,7 @@ func _stabilize_battle_view(battle_view: Control) -> void:
 
 
 func _freeze_attack_highlights(battle_view: Control) -> void:
-	var board_grid := battle_view.get_node_or_null("Board/BoardGrid")
+	var board_grid := battle_view.get_node_or_null("Board/CellHost")
 	if board_grid == null:
 		return
 	for cell in board_grid.get_children():

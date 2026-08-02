@@ -87,12 +87,12 @@ func _run() -> void:
 
 
 func _stabilize_battle_view(battle_view: Control) -> void:
-	var vfx_player := battle_view.get_node_or_null("Board/BattleVfxPlayer")
+	var vfx_player := battle_view.get_node_or_null("Board/VfxHost")
 	if vfx_player != null:
 		var round_feedback := vfx_player.get_node_or_null("RoundFeedback")
 		if round_feedback != null:
 			round_feedback.queue_free()
-	var board_grid := battle_view.get_node_or_null("Board/BoardGrid")
+	var board_grid := battle_view.get_node_or_null("Board/CellHost")
 	if board_grid != null:
 		for cell in board_grid.get_children():
 			if not cell.has_method("get_unit_node"):
@@ -108,7 +108,7 @@ func _stabilize_battle_view(battle_view: Control) -> void:
 
 
 func _preview_pet_by_unit_id(battle_view: Control, unit_id: String) -> Control:
-	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
+	var board_grid := battle_view.get_node("Board/CellHost") as Control
 	for cell in board_grid.get_children():
 		if not cell.has_method("get_unit_node"):
 			continue

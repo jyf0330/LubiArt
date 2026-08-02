@@ -185,11 +185,22 @@ func _run() -> void:
 	assert(not three_choice_source.contains("game_controller.gd"))
 	assert(not three_choice_source.contains("three_choice_surface.gd"))
 	assert(not three_choice_source.contains("artist_flow_controller.gd"))
-	assert(three_choice_source.contains("[node name=\"ItemSlotHoverHighlight\" type=\"TextureRect\" parent=\".\"]"))
-	assert(three_choice_source.contains("[node name=\"DragPreview\" type=\"TextureRect\" parent=\".\"]"))
+	assert(three_choice_source.contains("[node name=\"ItemSlotHoverHighlight\" type=\"TextureRect\" parent=\".\""))
+	assert(not three_choice_source.contains("[node name=\"DragPreview\""))
+	assert(not three_choice_source.contains("[node name=\"AnimationPlayer\""))
+	assert(not three_choice_source.contains("[node name=\"Shop_Slot\""))
+	assert(not three_choice_source.contains("[node name=\"Bag_Slot\""))
+	assert(not three_choice_source.contains("[node name=\"Party_Slot\""))
+	assert(not three_choice_source.contains("res://art/prefabs/pet/pet.tscn"))
+	assert(three_choice_source.count("instance=ExtResource(\"5_card\")") == 3)
+	assert(three_choice_source.contains("route_portrait_shop.png"))
+	assert(three_choice_source.contains("route_portrait_event.png"))
+	assert(three_choice_source.contains("route_portrait_reward.png"))
 	var three_choice_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/scenes/three_choice_scene.gd")
 	assert(not three_choice_script_source.contains("_ensure_item_slot_hover_highlight"))
-	assert(not three_choice_script_source.contains("TextureRect.new()"))
+	assert(not three_choice_script_source.contains("ThreeChoiceCardScene.instantiate()"))
+	assert(three_choice_script_source.contains("TextureButton.new()"))
+	assert(three_choice_script_source.contains("TextureRect.new()"))
 	assert(three_choice_script_source.contains("signal presentation_settled"))
 	assert(not three_choice_script_source.contains("feature_view_requested"))
 	assert(not three_choice_script_source.contains("feature_view_release_requested"))
@@ -273,18 +284,29 @@ func _run() -> void:
 	assert(Array(route_snapshot.get("route_options", [])).size() == 3)
 	assert(Array(route_snapshot.get("roster", [])).size() > 0)
 	assert(int(Dictionary(route_snapshot.get("inventory", {})).get("max_bench", 0)) > 0)
-	var drag_preview := route_three_choice_view.get_node("DragPreview") as TextureRect
-	assert(not drag_preview.visible)
+	assert(route_three_choice_view.get_node_or_null("DragPreview") == null)
+	var route_card_grid := route_three_choice_view.get_node("MainBG/Containers/Middle/Middle_Three_Option/CardGrid")
+	assert(route_card_grid.get_child_count() == 3)
+	var shop_slot_grid := route_three_choice_view.get_node("MainBG/Containers/Middle/Middle_Shop/Slots")
+	var bag_slot_grid := route_three_choice_view.get_node("MainBG/Containers/Middle/Middle_Bag/Slots")
+	var party_slot_grid := route_three_choice_view.get_node("MainBG/Containers/Party/Party_Container")
+	assert(shop_slot_grid.get_child_count() == 8)
+	assert(bag_slot_grid.get_child_count() == 8)
+	assert(party_slot_grid.get_child_count() == 4)
+	assert(shop_slot_grid.get_child(0) is TextureButton)
+	assert(bag_slot_grid.get_child(0) is TextureButton)
+	assert(party_slot_grid.get_child(0) is TextureButton)
+	assert(shop_slot_grid.get_child(0).get_child_count() == 0)
+	assert(bag_slot_grid.get_child(0).get_child_count() == 0)
+	assert(party_slot_grid.get_child(0).get_child_count() == 0)
 	var drag_preview_texture := load("res://art/images/route/three_choice_psd/item_selected_highlight.png") as Texture2D
 	route_three_choice_view.call("_create_drag_preview", drag_preview_texture, Vector2(96, 96))
-	assert(route_three_choice_view.get_node("DragPreview") == drag_preview)
+	var drag_preview := route_three_choice_view.get_node("DragPreview") as TextureRect
 	assert(drag_preview.visible)
 	assert(drag_preview.texture == drag_preview_texture)
 	assert(drag_preview.size.is_equal_approx(Vector2(96, 96)))
 	route_three_choice_view.call("_clear_drag_preview")
-	assert(route_three_choice_view.get_node("DragPreview") == drag_preview)
-	assert(not drag_preview.visible)
-	assert(drag_preview.texture == null)
+	assert(route_three_choice_view.get_node_or_null("DragPreview") == null)
 	assert(route_main_instance.call("get_feature_controller", &"battle") == null)
 	assert(route_main_instance.call("get_active_feature_view") == null)
 	route_main_instance.queue_free()
@@ -346,20 +368,20 @@ func _run() -> void:
 
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	assert(battle_view != null)
-	assert(battle_view.get_node_or_null("Board/BattleVfxPlayer") != null)
-	var action_panel := battle_view.get_node_or_null("Board/BattleActionPanel") as Control
+	assert(battle_view.get_node_or_null("Board/VfxHost") != null)
+	var action_panel := battle_view.get_node_or_null("Hud/BattleActionPanel") as Control
 	assert(action_panel != null)
 	assert(action_panel.get_node_or_null("Margin/Content/FlowState") != null)
-	assert(battle_view.get_node("Board/BattleActionPanel/Margin/Content/SkillQueueGrid").get_child_count() == 8)
-	assert(battle_view.get_node_or_null("CellDetail/BattlePetDetailPanel") != null)
+	assert(battle_view.get_node("Hud/BattleActionPanel/Margin/Content/SkillQueueGrid").get_child_count() == 8)
+	assert(battle_view.get_node_or_null("OverlayHost/BattlePetDetailPanel") != null)
 
 	var game_session := main_instance.call("get_game_session") as RefCounted
 	assert(game_session != null)
 	assert(not battle_view.has_method("get_game_session"))
 	assert(String(Dictionary(game_session.call("current_snapshot")).get("phase", "")) == "battle")
 	assert(int(game_session.call("replay_step_index")) == 0)
-	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
-	assert(board_grid.get_child_count() == 64)
+	var board_grid := battle_view.get_node("Board/CellHost") as Control
+	assert(board_grid.get_child_count() == 56)
 	assert(main_instance.call("get_active_view") == main_instance)
 	assert(main_instance.call("get_active_feature_view") == battle_view)
 	var replay_step_before_empty_select := int(game_session.call("replay_step_index"))
@@ -369,7 +391,7 @@ func _run() -> void:
 	))
 	assert(not bool(empty_select_response.get("accepted", true)))
 	assert(int(game_session.call("replay_step_index")) == replay_step_before_empty_select)
-	var direction_drawer := battle_view.get_node("Board/AttackDirectionDrawer") as Control
+	var direction_drawer := battle_view.get_node("Hud/AttackDirectionDrawer") as Control
 	var first_direction_state := Dictionary(Array(direction_drawer.call("debug_display_directions"))[0])
 	var first_direction_unit_id := String(first_direction_state.get("unit_id", ""))
 	var first_direction_arrow := direction_drawer.get_node("Rows/Row1/Arrow1") as TextureRect
@@ -453,7 +475,7 @@ func _run() -> void:
 	assert(trimmed_pet_count == 0)
 	assert(front_row_pet_count > 0)
 	assert(back_row_pet_count > 0)
-	assert((battle_view.get_node("CellDetail/BattlePetDetailPanel") as Control).visible)
+	assert((battle_view.get_node("OverlayHost/BattlePetDetailPanel") as Control).visible)
 	assert(int(game_session.call("replay_step_index")) == 0)
 	var selected_snapshot := Dictionary(game_session.call("current_snapshot"))
 	assert(String(selected_snapshot.get("selected_unit_id", "")) != "")
@@ -501,7 +523,7 @@ func _run() -> void:
 	drag_origin.cell_selected.emit(detail_grid.x, detail_grid.y)
 	await process_frame
 	await process_frame
-	assert((battle_view.get_node("CellDetail/BattlePetDetailPanel") as Control).visible)
+	assert((battle_view.get_node("OverlayHost/BattlePetDetailPanel") as Control).visible)
 	var cancel_event := InputEventKey.new()
 	cancel_event.keycode = KEY_ESCAPE
 	cancel_event.pressed = true
@@ -545,7 +567,7 @@ func _run() -> void:
 		Dictionary(game_session.call("current_snapshot")),
 		player_unit_id
 	)
-	(battle_view.get_node("Board/BattlePrimaryActions/AutoArrangeButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton).pressed.emit()
 	await process_frame
 	await process_frame
 	await process_frame
@@ -555,7 +577,7 @@ func _run() -> void:
 	_assert_active_damage_previews_synchronized(board_grid)
 
 	var main_before_round := int(main_positioned.get("battle_round", 0))
-	(battle_view.get_node("Board/BattlePrimaryActions/BeginTurnButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("Hud/BattlePrimaryActions/BeginTurnButton") as TextureButton).pressed.emit()
 	await process_frame
 	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("state", "")) == "executing")
 	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("flow_text", "")).contains("执行中"))
@@ -566,7 +588,7 @@ func _run() -> void:
 		== main_before_round + 1
 	)
 	assert(int(game_session.call("replay_step_index")) == 2)
-	var vfx_player := battle_view.get_node("Board/BattleVfxPlayer")
+	var vfx_player := battle_view.get_node("Board/VfxHost")
 	var trace_deadline_msec := Time.get_ticks_msec() + 30000
 	while bool(vfx_player.get("_trace_sequence_playing")) and Time.get_ticks_msec() < trace_deadline_msec:
 		await process_frame

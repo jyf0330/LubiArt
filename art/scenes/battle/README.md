@@ -13,39 +13,30 @@
 ```text
 BattleArtScene
 ├── Board（棋盘）
-│   ├── BoardBG
-│   ├── BoardGrid
-│   │   └── 64 个 terrain.tscn 实例
-│   ├── BattleVfxPlayer
-│   ├── BattleActionPanel
-│   ├── AutoArrangeButton
-│   ├── PositionDifficultyButton
-│   ├── BeginTurnButton
-│   └── BattleCommandTools（运行时调试）
-├── TopInfoBar（上方信息栏）
-└── CellDetail（格子详情）
-    ├── BattlePetDetailPanel（运行时）
-    └── BattleElementDetailPanel（运行时）
+│   ├── Background（棋盘背景）
+│   ├── CellHost（56 个 terrain.tscn 运行时实例）
+│   ├── UnitHost（按 unitId 复用的 pet.tscn 实例）
+│   └── VfxHost（事件表现协调）
+├── Hud（battle_hud.tscn）
+└── OverlayHost（详情 prefab 与全屏覆盖层）
 ```
 
-- `BattleArtScene` 根节点下只允许以上三个直接次级节点；根展示脚本只对接 Snapshot 与 Command 请求，新增战斗 UI 必须先归入对应职责，不得再平铺到根节点。
-- `Board` 管棋盘背景、格子、宠物实例、战斗事件编排和行动控件，并直接挂 `battle_board.gd` 作为该次级分组的表现入口。
-- `TopInfoBar` 直接挂 `battle_top_info_bar.gd`，只管用户截图所示的日程、回合、货币与顶部功能信息；当前没有正式上方信息栏切图时保留结构位，不用程序临时画图替代美术。
-- `CellDetail` 直接挂 `battle_cell_detail.gd`，只管点选格子后显示的宠物 / 地形信息。交付文件 `宠物信息栏实装(修改).psd` 是其中宠物格子信息的美术源；476×539 卡片、动态数据接口、遮罩、操作与调试容器统一在 `pet_detail.tscn` 中维护，项目运行时不依赖 PSD 或其本机路径。
-- 自动布置、摆位难度、开始行动、行动面板和调试命令都属于 `Board`，不得为了右侧位置而归入 `CellDetail`。
-- `BoardGrid` 重复使用地形 prefab。
-- 宠物由战斗根展示脚本从宠物 prefab 取用并重置展示数据。
+- 正式 Scene 固定为 8 个节点：根、`Board`、四个 Board 容器、`Hud` 和 `OverlayHost`。根展示脚本只对接 Snapshot 与 Command 请求。
+- `CellHost` 根据 Snapshot 的棋盘尺寸创建 8×7 个地形 prefab；格子本身只处理地形、元素和输入，不持有宠物节点。
+- `UnitHost` 以 `unitId` 为键挂载宠物 prefab；离场实例进入对象池，下一次需要时复用并重置展示数据。
+- `Hud` 是独立可编辑的完整美术 prefab，内部统一维护顶部信息、自动布置、摆位难度、开始行动、行动面板和攻击方向抽屉。
+- `OverlayHost` 按需挂载宠物详情与地形详情 prefab。交付文件 `宠物信息栏实装(修改).psd` 只是美术源；项目运行时不依赖 PSD 或本机路径。
 - 宠物详情与地形详情分别使用对应详情 prefab。
-- 宠物攻击、受击、移动、死亡、跨格投射物和伤害数字由 `pet.tscn` 内的对应表现层创建；地面元素标记与命中特效由 `terrain.tscn` 创建。`BattleVfxPlayer` 只保留真实事件的播放时序、预制体调用协调和回合横幅。
+- 宠物攻击、受击、移动、死亡、跨格投射物和伤害数字由 `pet.tscn` 内对应表现层创建；地面元素标记与命中特效由 `terrain.tscn` 创建。`VfxHost` 只保留真实事件的播放时序、预制体调用协调和回合横幅。
 
 ## 美术节点规则
 
 - 一张图片对应一个 `TextureRect` / `Sprite2D` 等视觉节点；节点矩形贴合真实视觉范围，不能用整屏透明区域扩大选择框。
-- `Board`、`TopInfoBar`、`CellDetail` 是职责分组，不是假图片节点；真正图片继续放在各分组内部并保持一图一节点。
-- `Board` 这类次级职责节点默认由自身脚本统一管理普通子节点、输入绑定和公开接口；普通图片、容器和按钮不逐个挂脚本。只有独立动画、独立状态、复用 prefab 或稳定公开接口等特殊子节点才单独挂脚本。
+- `Board`、`Hud`、`OverlayHost` 是职责分组，不是假图片节点；真正图片继续放在各分组或 prefab 内并保持一图一节点。
+- 页面逻辑只挂在 `BattleArtScene` 根节点；`Hud` 与复用 prefab 只拥有自身稳定展示接口，不持有 Session 或路由权。
 - 新格子信息 PSD 只读；切图统一放在 `art/images/shared/pets/info_panel/`，场景放 `art/prefabs/pet/`，表现脚本放 `core_ui/scripts/shared/pet/`。动态名称、元素、品质、攻击形状和六项数值不得烘进切图。
 - 需要输入、状态、动画或公开接口的视觉节点可以挂表现脚本；权威 Session、Snapshot 和战斗规则不能放进图片层。
-- `RoundFeedback` 是运行时创建的回合横幅图片根，直接挂 `battle_round_banner.gd` 并拥有 `Title`、`Subtitle`，不再有独立 `.tscn`。
+- 回合横幅由既有 VFX 表现层按事件创建和释放，不在正式 Scene 中常驻可能数量的临时节点。
 - 修改战斗整屏、HUD、事件时序、回合横幅或特效层级时直接改本 Scene 或 `core_ui/scripts/battle/`；修改宠物战斗表现、详情容器、卡片组件、遮罩、操作、调试面板或地面元素表现时打开对应 prefab。
 
 ## 禁止事项

@@ -7,7 +7,6 @@ signal cell_released(x: int, y: int)
 signal cell_hovered(x: int, y: int)
 signal cell_unhovered(x: int, y: int)
 
-const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const DefaultCellImage := preload("res://art/images/battle/runtime/images/cell_anchor_transparent.svg")
 const LANDING_TILE_TEXTURES := {
 	"fire": preload("res://art/images/shared/pets/battle_complete/landing_fire.png"),
@@ -42,7 +41,6 @@ const PERSPECTIVE_DEFAULT_BORDER := Color(0.86, 0.89, 0.91, 0.12)
 @onready var _ground_element_effects: Control = $GroundElementEffects
 @onready var _landing_tile_art: TextureRect = $GroundElementEffects/LandingTileArt
 @onready var _element_impact_layer: Control = $GroundElementEffects/ImpactLayer
-@onready var _prefab_anchor: Control = $PrefabAnchor
 
 var grid_x := 0
 var grid_y := 0
@@ -100,6 +98,26 @@ func setup_grid_position(
 	queue_redraw()
 
 
+func setup_authored_grid_position(
+	x: int,
+	y: int,
+	cell_rect: Rect2,
+	cell_polygon: PackedVector2Array,
+	front_row_height: float
+) -> void:
+	grid_x = x
+	grid_y = y
+	name = "BattleCell_%d_%d" % [grid_x, grid_y]
+	position = cell_rect.position
+	size = cell_rect.size
+	polygon = cell_polygon
+	_unit_stat_layout_scale = clampf(size.y / front_row_height, 0.1, 1.0) if front_row_height > 0.0 else 1.0
+	_apply_unit_stat_layout_scale()
+	_sync_attack_highlight_geometry()
+	_sync_interaction_highlight_geometry()
+	queue_redraw()
+
+
 func uses_perspective_geometry() -> bool:
 	return use_perspective_geometry and polygon.size() >= 3
 
@@ -116,8 +134,9 @@ func get_unit_node() -> Control:
 	return _unit_node
 
 
-func get_prefab_anchor() -> Control:
-	return _prefab_anchor
+func set_unit_node(unit: Control) -> void:
+	_unit_node = unit
+	_apply_unit_stat_layout_scale()
 
 
 func set_cell_image(texture_resource: Texture2D, tint: Color = Color.WHITE) -> void:
@@ -138,29 +157,13 @@ func set_cell_data(data: Dictionary, assets: RefCounted) -> void:
 	cell_data = data.duplicate(true)
 	_assets = assets
 	_missing_mappings = {}
-	_clear_content()
-	var side := String(cell_data.get("side", cell_data.get("unitSide", "")))
+	clear_element_visuals()
+	_attack_order_marker = null
+	_transient_element_visual_dirty = false
 	var unit_id := String(cell_data.get("unitId", cell_data.get("unit_id", "")))
 	_render_element_tile(Dictionary(cell_data.get("elements", {})))
-	if unit_id == "":
-		return
-	_unit_node = BattleUnitScene.instantiate() as Control
-	_unit_node.name = "BattleUnit"
-	# The reusable pet prefab keeps its authored minimum size for collection UI.
-	# Battle cells must override it so the unit follows the board's perspective row size.
-	_unit_node.custom_minimum_size = Vector2.ZERO
-	_unit_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_prefab_anchor.add_child(_unit_node)
-	# Adding an instanced Control restores its authored offsets, so size it afterwards.
-	_unit_node.position = Vector2.ZERO
-	_unit_node.size = size
-	_apply_unit_stat_layout_scale()
-	if _unit_node.has_method("set_unit_data"):
-		_unit_node.call("set_unit_data", cell_data, side, assets)
-	if _unit_node.has_method("get_missing_mapping"):
-		var missing := Dictionary(_unit_node.call("get_missing_mapping"))
-		if not missing.is_empty():
-			_missing_mappings[String(missing.get("key", ""))] = missing
+	if unit_id == "" and _unit_node != null:
+		_unit_node = null
 
 
 func _apply_unit_stat_layout_scale() -> void:
@@ -304,9 +307,8 @@ func play_element_impact(
 
 
 func has_player_unit() -> bool:
-	if _unit_node == null or not is_instance_valid(_unit_node):
-		return false
-	return String(_unit_node.get("side")) == "player" or String(_unit_node.get("side")) == "hero_leader"
+	var side := String(cell_data.get("side", cell_data.get("unitSide", "")))
+	return String(cell_data.get("unitId", cell_data.get("unit_id", ""))) != "" and side in ["player", "hero_leader"]
 
 
 func set_unit_dragging(is_dragging: bool) -> void:
@@ -323,8 +325,6 @@ func get_missing_mapping_report() -> Array:
 
 
 func _clear_content() -> void:
-	for child in _prefab_anchor.get_children():
-		child.queue_free()
 	clear_element_visuals()
 	_unit_node = null
 	_attack_order_marker = null

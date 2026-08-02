@@ -1,7 +1,8 @@
 extends Control
 
-## Reusable route-card presentation only. Static geometry and authored textures
-## live in the prefab and in the three instance overrides of ThreeChoiceScene.
+## Reusable route-card presentation only. Authored child geometry and default
+## textures live in this prefab; ThreeChoiceScene keeps the three approved card
+## instances, portrait resources, and per-card geometry visible in its Scene tree.
 
 
 func set_portrait(texture: Texture2D) -> void:

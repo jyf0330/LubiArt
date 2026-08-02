@@ -24,6 +24,7 @@ const ENEMY_ATTACK_TRANSLATION_RETURN_DURATION := 0.16
 const ENEMY_ATTACK_TRANSLATION_RATIO := 0.68
 
 var board_grid: Control = null
+var unit_host: Control = null
 var assets: RefCounted = null
 var _trace_queue: Array[Dictionary] = []
 var _trace_sequence_playing := false
@@ -52,8 +53,9 @@ func _init() -> void:
 	_handler_registry.register_instant_kind("movement", play_movement)
 
 
-func configure(grid: Control, asset_registry: RefCounted) -> void:
+func configure(grid: Control, units: Control, asset_registry: RefCounted) -> void:
 	board_grid = grid
+	unit_host = units
 	assets = asset_registry
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -246,9 +248,9 @@ func _prepare_damage_target_visual(event: Dictionary) -> Control:
 	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ghost.z_index = 70
 	ghost.size = cell.size
-	var prefab_anchor := cell.call("get_prefab_anchor") as Control if cell.has_method("get_prefab_anchor") else cell
-	prefab_anchor.add_child(ghost)
-	ghost.position = Vector2.ZERO
+	var host := unit_host if unit_host != null else cell
+	host.add_child(ghost)
+	ghost.position = host.get_global_transform_with_canvas().affine_inverse() * cell.global_position
 	ghost.size = cell.size
 	var cell_data := target.duplicate(true)
 	cell_data["unitId"] = String(target.get("id", ""))

@@ -22,7 +22,7 @@ func _run() -> void:
 	if battle_view == null:
 		_fail("battle view is unavailable")
 		return
-	var board_grid := battle_view.get_node_or_null("Board/BoardGrid") as Control
+	var board_grid := battle_view.get_node_or_null("Board/CellHost") as Control
 	if board_grid == null:
 		_fail("board grid is unavailable")
 		return
@@ -97,9 +97,9 @@ func _run() -> void:
 	await RenderingServer.frame_post_draw
 
 	var hover_highlight := hover_cell.get_node_or_null("HoverHighlight") as Polygon2D
-	var prefab_anchor := selected_cell.get_node_or_null("PrefabAnchor") as Control
-	if hover_highlight == null or prefab_anchor == null:
-		_fail("interaction layers are missing from terrain prefab")
+	var unit_host := battle_view.get_node_or_null("Board/UnitHost") as Control
+	if hover_highlight == null or unit_host == null:
+		_fail("interaction or unit layers are missing from battle scene")
 		return
 	if selected_cell.get_node_or_null("SelectedFrame") != null:
 		_fail("obsolete selection frame is still present")

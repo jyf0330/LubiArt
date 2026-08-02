@@ -1,0 +1,254 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/battle_hud.gd" id="1_hud"]
+[ext_resource type="Texture2D" uid="uid://cj4wnh87c8q0q" path="res://art/images/battle/primary_actions/primary_actions_shadow.png" id="2_shadow"]
+[ext_resource type="Texture2D" uid="uid://dc50en6sk45t6" path="res://art/images/battle/primary_actions/auto_arrange_normal.png" id="3_auto_normal"]
+[ext_resource type="Texture2D" uid="uid://lr015ad4uapu" path="res://art/images/battle/primary_actions/auto_arrange_pressed.png" id="4_auto_pressed"]
+[ext_resource type="Texture2D" uid="uid://cjatfurk2g1lb" path="res://art/images/battle/primary_actions/begin_turn_normal.png" id="5_begin_normal"]
+[ext_resource type="Texture2D" uid="uid://c4upx43ihkv3" path="res://art/images/battle/primary_actions/begin_turn_pressed.png" id="6_begin_pressed"]
+[ext_resource type="PackedScene" uid="uid://d0813nw0iiwx3" path="res://art/prefabs/battle/hud/attack_direction_drawer.tscn" id="7_drawer"]
+[ext_resource type="Script" uid="uid://vwiaygx1celj" path="res://core_ui/scripts/battle/prefabs/hud/battle_action_panel.gd" id="8_action_panel"]
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/skill_queue_slot.gd" id="9_skill_slot"]
+[ext_resource type="Script" uid="uid://cpv43jj3mytyr" path="res://core_ui/scripts/battle/scenes/battle_top_info_bar.gd" id="10_top_info"]
+[ext_resource type="Texture2D" uid="uid://dif3syit17gbl" path="res://art/images/battle/hud/layout/hud_status_bar_background_001.png" id="11_status_bg"]
+[ext_resource type="Texture2D" uid="uid://1j51ky7dp3cs" path="res://art/images/battle/hud/clock/clock_dial_002.png" id="12_clock_dial"]
+[ext_resource type="Texture2D" uid="uid://1goj04hxtnsg" path="res://art/images/battle/hud/clock/clock_pointer_010.png" id="13_clock_pointer"]
+
+[node name="BattleHud" type="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hud")
+
+[node name="PositionDifficultyButton" type="Button" parent="."]
+editor_description = "摆位难度切换按钮。点击可在普通与简单之间切换，并把所选难度交给自动布置；计算期间也会显示摆位反馈。"
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -337.0
+offset_top = -490.0
+offset_right = -70.0
+offset_bottom = -446.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+toggle_mode = true
+text = "摆位难度：普通"
+
+[node name="BattlePrimaryActions" type="Control" parent="."]
+editor_description = "战斗主要操作区：依据提供的 PSD 制作。"
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -385.0
+offset_top = -435.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 1
+
+[node name="Shadow" type="TextureRect" parent="BattlePrimaryActions"]
+layout_mode = 0
+offset_right = 365.0
+offset_bottom = 415.0
+mouse_filter = 2
+texture = ExtResource("2_shadow")
+
+[node name="BeginTurnButton" type="TextureButton" parent="BattlePrimaryActions"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 21.0
+offset_right = 346.0
+offset_bottom = 400.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_begin_normal")
+texture_pressed = ExtResource("6_begin_pressed")
+
+[node name="AutoArrangeButton" type="TextureButton" parent="BattlePrimaryActions"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 21.0
+offset_right = 174.0
+offset_bottom = 154.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("3_auto_normal")
+texture_pressed = ExtResource("4_auto_pressed")
+
+[node name="AttackDirectionDrawer" parent="." instance=ExtResource("7_drawer")]
+
+[node name="BattleActionPanel" type="PanelContainer" parent="."]
+z_index = 41
+layout_mode = 0
+offset_left = 18.0
+offset_top = 150.0
+offset_right = 354.0
+offset_bottom = 786.0
+script = ExtResource("8_action_panel")
+
+[node name="Margin" type="MarginContainer" parent="BattleActionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Content" type="VBoxContainer" parent="BattleActionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="BattleActionPanel/Margin/Content"]
+layout_mode = 2
+text = "行动控制"
+
+[node name="FlowState" type="Label" parent="BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "1  选择宠物   ·   2  查看范围   ·   3  执行"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Summary" type="Label" parent="BattleActionPanel/Margin/Content"]
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="ResetPetsButton" type="Button" parent="BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "重置宠物"
+
+[node name="SkillQueueTitle" type="Label" parent="BattleActionPanel/Margin/Content"]
+layout_mode = 2
+text = "技能行动条 · 拖拽排序"
+
+[node name="SkillQueueGrid" type="GridContainer" parent="BattleActionPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 7
+columns = 2
+
+[node name="SkillSlot1" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "1  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="SkillSlot2" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "2  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="SkillSlot3" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "3  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="SkillSlot4" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "4  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="SkillSlot5" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "5  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="SkillSlot6" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "6  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="SkillSlot7" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "7  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="SkillSlot8" type="Button" parent="BattleActionPanel/Margin/Content/SkillQueueGrid"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "8  技能"
+script = ExtResource("9_skill_slot")
+
+[node name="AllOutButton" type="Button" parent="BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "按顺序触发全部技能"
+
+[node name="EndTurnButton" type="Button" parent="BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "结束玩家回合"
+
+[node name="MonsterTurnButton" type="Button" parent="BattleActionPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "执行敌方行动"
+
+[node name="TopInfoBar" type="Control" parent="."]
+editor_description = "上方信息栏：只承载日程、回合、货币和顶部功能信息。"
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 84.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("10_top_info")
+
+[node name="StatusBarBackground" type="NinePatchRect" parent="TopInfoBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+texture = ExtResource("11_status_bg")
+patch_margin_left = 32
+patch_margin_right = 32
+
+[node name="BattleClock" type="Control" parent="TopInfoBar"]
+editor_description = "左上角战斗时钟。表盘可见半圆外轮廓直径为 220 px；表盘与指针共享原图画布，保持像素级对齐。"
+anchors_preset = 0
+offset_top = 48.0
+offset_right = 252.0
+offset_bottom = 194.0
+mouse_filter = 2
+
+[node name="Dial" type="TextureRect" parent="TopInfoBar/BattleClock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = -16.5
+offset_right = 248.29448
+offset_bottom = 166.69937
+mouse_filter = 2
+texture = ExtResource("12_clock_dial")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Pointer" type="TextureRect" parent="TopInfoBar/BattleClock"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = -16.5
+offset_right = 248.29448
+offset_bottom = 166.69937
+mouse_filter = 2
+texture = ExtResource("13_clock_pointer")
+expand_mode = 1
+stretch_mode = 5

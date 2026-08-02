@@ -23,6 +23,7 @@ required_files=(
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
   "art/prefabs/shop/bazaar_info_panel.tscn"
+  "art/prefabs/battle/hud/battle_hud.tscn"
   "art/prefabs/battle/hud/attack_direction_drawer.tscn"
   "art/prefabs/shared/cursor/game_cursor.tscn"
   "art/prefabs/terrain/terrain.tscn"
@@ -61,6 +62,7 @@ fi
 
 expected_prefabs=(
   "art/prefabs/battle/hud/attack_direction_drawer.tscn"
+  "art/prefabs/battle/hud/battle_hud.tscn"
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"

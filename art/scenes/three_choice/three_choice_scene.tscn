@@ -4,18 +4,22 @@
 [ext_resource type="Texture2D" uid="uid://6up53agulsao" path="res://art/images/route/three_choice_psd/background.png" id="2_bg"]
 [ext_resource type="Texture2D" uid="uid://do7oqrulu6syy" path="res://art/images/route/three_choice_psd/temple_base.png" id="3_temple"]
 [ext_resource type="PackedScene" uid="uid://cqvin8txl566s" path="res://art/prefabs/route/three_choice_card.tscn" id="5_card"]
-[ext_resource type="PackedScene" uid="uid://7xfv6x36mgdm" path="res://art/prefabs/pet/pet.tscn" id="6_pet"]
 [ext_resource type="Texture2D" uid="uid://cfjrp18nyglvw" path="res://art/images/route/three_choice_psd/item_bar_base.png" id="7_item_bar"]
 [ext_resource type="Texture2D" uid="uid://b62xv5xtrfx3i" path="res://art/images/route/three_choice_psd/bag_closed.png" id="9_bag_closed"]
 [ext_resource type="Texture2D" uid="uid://b4up6l68jjrvr" path="res://art/images/route/three_choice_psd/bag_cover.png" id="10_bag_cover"]
-[ext_resource type="Texture2D" uid="uid://crv5rlthxmo0" path="res://art/images/route/three_choice_psd/party_shelf.png" id="11_party_shelf"]
 [ext_resource type="Texture2D" uid="uid://br38eqv8jxo5q" path="res://art/images/route/three_choice_psd/bag_grid_lines.png" id="13_bag_grid"]
 [ext_resource type="PackedScene" uid="uid://x5n33hc1dx4n" path="res://art/prefabs/pet/pet_detail.tscn" id="16_pet_detail"]
 [ext_resource type="PackedScene" path="res://art/prefabs/shop/bazaar_info_panel.tscn" id="17_bazaar"]
 [ext_resource type="Texture2D" uid="uid://r3piis8ohdj4" path="res://art/images/route/three_choice_psd/incense_shadow.png" id="20_shadow"]
 [ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_highlight_1.png" id="21_highlight_left"]
 [ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_highlight_3.png" id="22_highlight_right"]
-[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/item_selected_highlight.png" id="23_item_highlight"]
+[ext_resource type="Texture2D" uid="uid://br6jfdsfp6k3s" path="res://art/images/route/three_choice_psd/item_selected_highlight.png" id="23_item_highlight"]
+[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_portrait_shop.png" id="24_portrait_shop"]
+[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_portrait_event.png" id="25_portrait_event"]
+[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_portrait_reward.png" id="26_portrait_reward"]
+[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_icon_shop.png" id="27_icon_shop"]
+[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_icon_event.png" id="28_icon_event"]
+[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_icon_reward.png" id="29_icon_reward"]
 
 [node name="ThreeChoiceScene" type="Control" unique_id=1653662520]
 editor_description = "PSD-based three-choice Scene. Layers are organized by background, temple, route cards, inventory, party, coin, and top HUD."
@@ -95,12 +99,14 @@ offset_bottom = 671.0
 [node name="KindIcon" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot" index="0"]
 offset_left = 109.03
 offset_right = 149.03
+texture = ExtResource("27_icon_shop")
 
 [node name="Portrait" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot" index="1"]
 offset_left = 8.06
 offset_top = 71.0
 offset_right = 226.06
 offset_bottom = 266.0
+texture = ExtResource("24_portrait_shop")
 
 [node name="RouteHighlight" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot" index="2"]
 offset_left = -14.2
@@ -124,6 +130,12 @@ offset_top = 279.0
 offset_right = 1093.0
 offset_bottom = 671.0
 
+[node name="KindIcon" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot2" index="0"]
+texture = ExtResource("28_icon_event")
+
+[node name="Portrait" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot2" index="1"]
+texture = ExtResource("25_portrait_event")
+
 [node name="Three_Option_Slot3" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid" unique_id=1368601539 instance=ExtResource("5_card")]
 layout_mode = 0
 offset_left = 1161.0
@@ -134,12 +146,14 @@ offset_bottom = 671.0
 [node name="KindIcon" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot3" index="0"]
 offset_left = 109.64
 offset_right = 149.64
+texture = ExtResource("29_icon_reward")
 
 [node name="Portrait" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot3" index="1"]
 offset_left = 49.01
 offset_top = 82.0
 offset_right = 196.01
 offset_bottom = 277.0
+texture = ExtResource("26_portrait_reward")
 
 [node name="RouteHighlight" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot3" index="2"]
 offset_left = -16.21
@@ -189,126 +203,6 @@ offset_bottom = 661.0
 theme_override_constants/h_separation = 20
 columns = 8
 
-[node name="Shop_Slot" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=285087203]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Shop_Slot2" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=639181195]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot2"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Shop_Slot3" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=243091683]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot3"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Shop_Slot4" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=1596810202]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot4"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Shop_Slot5" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=153825116]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot5"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Shop_Slot6" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=300935057]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot6"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Shop_Slot7" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=778710004]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot7"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Shop_Slot8" type="Control" parent="MainBG/Containers/Middle/Middle_Shop/Slots" unique_id=624784729]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Shop/Slots/Shop_Slot8"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
 [node name="Middle_Bag" type="Control" parent="MainBG/Containers/Middle" unique_id=780740488]
 visible = false
 anchors_preset = 0
@@ -335,215 +229,12 @@ offset_bottom = 661.0
 theme_override_constants/h_separation = 20
 columns = 8
 
-[node name="Bag_Slot" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=928382306]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Bag_Slot2" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=231438549]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot2" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot2"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Bag_Slot3" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1738631614]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot3" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot3"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Bag_Slot4" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1513677676]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot4" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot4"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Bag_Slot5" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1270863678]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot5" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot5"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Bag_Slot6" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=1834668178]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot6" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot6"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Bag_Slot7" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=242909929]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot7" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot7"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Bag_Slot8" type="Control" parent="MainBG/Containers/Middle/Middle_Bag/Slots" unique_id=668976337]
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot8" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot8"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
 [node name="Party" type="Control" parent="MainBG/Containers" unique_id=99163385]
 visible = false
 anchors_preset = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
-
-[node name="PartyShelf" type="TextureRect" parent="MainBG/Containers/Party" unique_id=1505724092]
-visible = false
-layout_mode = 0
-offset_left = 657.0
-offset_top = 784.0
-offset_right = 1266.0
-offset_bottom = 844.0
-mouse_filter = 2
-texture = ExtResource("11_party_shelf")
-stretch_mode = 5
 
 [node name="Party_Container" type="GridContainer" parent="MainBG/Containers/Party" unique_id=418723248]
 layout_mode = 0
@@ -553,102 +244,6 @@ offset_right = 1238.0
 offset_bottom = 842.0
 theme_override_constants/h_separation = 56
 columns = 4
-
-[node name="Party_Slot" type="Control" parent="MainBG/Containers/Party/Party_Container" unique_id=666246858]
-custom_minimum_size = Vector2(105, 118)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Party_Slot2" type="Control" parent="MainBG/Containers/Party/Party_Container" unique_id=2071970465]
-custom_minimum_size = Vector2(105, 118)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot2" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot2"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Party_Slot3" type="Control" parent="MainBG/Containers/Party/Party_Container" unique_id=994335600]
-custom_minimum_size = Vector2(105, 118)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot3" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot3"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="Party_Slot4" type="Control" parent="MainBG/Containers/Party/Party_Container" unique_id=1508228322]
-custom_minimum_size = Vector2(105, 118)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="PetVisual" parent="MainBG/Containers/Party/Party_Container/Party_Slot4" instance=ExtResource("6_pet")]
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HitArea" type="TextureButton" parent="MainBG/Containers/Party/Party_Container/Party_Slot4"]
-custom_minimum_size = Vector2(96, 96)
-layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 108.0
-offset_bottom = 108.0
-ignore_texture_size = true
-stretch_mode = 5
 
 [node name="Bags" type="Control" parent="MainBG/Containers" unique_id=489702172]
 anchors_preset = 0
@@ -686,7 +281,7 @@ mouse_filter = 2
 texture = ExtResource("13_bag_grid")
 stretch_mode = 5
 
-[node name="ItemSlotHoverHighlight" type="TextureRect" parent="."]
+[node name="ItemSlotHoverHighlight" type="TextureRect" parent="." unique_id=1589063937]
 visible = false
 z_index = 80
 custom_minimum_size = Vector2(110, 110)
@@ -696,21 +291,7 @@ offset_bottom = 110.0
 mouse_filter = 2
 texture = ExtResource("23_item_highlight")
 
-[node name="DragPreview" type="TextureRect" parent="."]
-visible = false
-z_index = 100
-custom_minimum_size = Vector2(110, 110)
-layout_mode = 0
-offset_right = 110.0
-offset_bottom = 110.0
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-modulate = Color(1, 1, 1, 0.82)
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1712911586]
-
-[node name="BazaarInfoPanel" parent="." instance=ExtResource("17_bazaar")]
+[node name="BazaarInfoPanel" parent="." unique_id=1531915873 instance=ExtResource("17_bazaar")]
 
 [node name="ArtistPetDetailPanel" parent="." unique_id=1126198972 instance=ExtResource("16_pet_detail")]
 visible = false

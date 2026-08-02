@@ -83,7 +83,7 @@ func _run() -> void:
 func _first_draggable_pet_cell(battle: Control) -> Control:
 	if battle == null:
 		return null
-	var board_grid := battle.get_node_or_null("Board/BoardGrid")
+	var board_grid := battle.get_node_or_null("Board/CellHost")
 	if board_grid == null:
 		return null
 	for value in board_grid.get_children():

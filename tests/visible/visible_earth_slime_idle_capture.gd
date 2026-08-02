@@ -19,7 +19,7 @@ func _run() -> void:
 
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	var session := main_instance.call("get_game_session") as RefCounted
-	var auto_button := battle_view.get_node_or_null("Board/BattlePrimaryActions/AutoArrangeButton") as TextureButton if battle_view != null else null
+	var auto_button := battle_view.get_node_or_null("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton if battle_view != null else null
 	if battle_view == null or session == null or auto_button == null:
 		_fail("battle view is unavailable")
 		return
@@ -89,7 +89,7 @@ func _capture_dir(animation_name: String) -> String:
 
 
 func _find_earth_slime(battle_view: Control) -> Control:
-	var board_grid := battle_view.get_node("Board/BoardGrid") as Control
+	var board_grid := battle_view.get_node("Board/CellHost") as Control
 	for cell in board_grid.get_children():
 		if not cell.has_method("get_unit_node"):
 			continue
