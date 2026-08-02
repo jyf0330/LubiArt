@@ -504,6 +504,9 @@ func _run() -> void:
 	battle_view.call("_debug_update_drag_preview_position", drag_target_grid)
 	assert(_visible_attack_highlight_count(board_grid) > 0)
 	battle_view.call("_finish_unit_drag", drag_target_grid)
+	var move_command := Dictionary(battle_view.get("_last_debug_drag_command"))
+	assert(String(move_command.get("type", "")) == "MOVE_HERO")
+	assert(String(move_command.get("unitId", "")) == dragged_unit_id)
 	assert(StringName(game_cursor.call("debug_state")) == &"pointer")
 	assert(_cell_unit_id(drag_origin) == "")
 	assert(_cell_unit_id(drag_target) == dragged_unit_id)
@@ -575,6 +578,8 @@ func _assert_presentation_patterns_load() -> void:
 	assert(BattleHudController.new() != null)
 	assert(BattleDetailController.new() != null)
 	assert(BattleCommandBuilder.new() != null)
+	var battle_scene_script := FileAccess.get_file_as_string("res://core_ui/scripts/battle/scenes/battle_scene.gd")
+	assert(battle_scene_script.contains("command_requested.emit(command)"))
 	var trace_projection := BattleTraceProjection.new()
 	assert(trace_projection != null)
 	var projected_cell := {"buffs": [{"active": false, "max_damage_per_hit": 99}]}

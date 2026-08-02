@@ -1015,6 +1015,7 @@ func _finish_unit_drag(target: Vector2i) -> void:
 			"cell": {"x": target.x, "y": target.y}
 		}
 		_last_debug_drag_command = command.duplicate(true)
+		command_requested.emit(command)
 		settled_grid = target
 	_suppress_next_select = true
 	_start_drop_settle(settle_preview, dragged_unit_id, origin, target, settled_grid)
@@ -1037,8 +1038,8 @@ func _apply_local_unit_drop(unit_id: String, origin: Vector2i, target: Vector2i)
 	if String(origin_data.get("unitId", origin_data.get("unit_id", ""))) != unit_id:
 		return false
 
-	# This standalone art Mock keeps drag placement as presentation state. The next
-	# exported public Snapshot (for example Auto Arrange) remains authoritative.
+	# Keep the authored drag responsive while Game submits MOVE_HERO. The next
+	# public Snapshot remains authoritative and replaces this local projection.
 	var moved_data := origin_data.duplicate(true)
 	_copy_cell_location(moved_data, target_data)
 	var emptied_origin := target_data.duplicate(true)

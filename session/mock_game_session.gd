@@ -108,6 +108,8 @@ func submit_command(command: Dictionary) -> Dictionary:
 		)
 	if command_type == "SET_ACTION_DIRECTION":
 		return _project_action_direction(command)
+	if command_type == "MOVE_HERO":
+		return _accepted_projection(command, command_type, _project_move_hero(command))
 	return _replay_captured_command(command, command_type)
 
 
@@ -267,6 +269,87 @@ func _noop_result(command_type: String, message: String) -> Dictionary:
 		"mock_noop": true,
 		"message": message,
 	}
+
+
+func _project_move_hero(command: Dictionary) -> Dictionary:
+	# The authored battle surface has already resolved its visible drop target.
+	# The standalone Mock only mirrors that semantic command into its public
+	# Snapshot so Game can round-trip the view; formal legality remains owned by
+	# LocalGameSession/YsbzsState and is intentionally not reimplemented here.
+	var unit_id := String(command.get("unitId", command.get("unit_id", ""))).strip_edges()
+	var target_x := int(command.get("x", Dictionary(command.get("cell", {})).get("x", -1)))
+	var target_y := int(command.get("y", Dictionary(command.get("cell", {})).get("y", -1)))
+	var board := Dictionary(_snapshot.get("board", {})).duplicate(true)
+	var cells := Array(board.get("cells", [])).duplicate(true)
+	var source_index := -1
+	var target_index := -1
+	for index in range(cells.size()):
+		var cell := Dictionary(cells[index])
+		if String(cell.get("unitId", cell.get("unit_id", ""))) == unit_id:
+			source_index = index
+		if int(cell.get("x", cell.get("c", -1))) == target_x \
+				and int(cell.get("y", cell.get("r", -1))) == target_y:
+			target_index = index
+	if source_index < 0 or target_index < 0 or source_index == target_index:
+		return _noop_result("MOVE_HERO", "Mock 没找到可投影的拖拽起点或终点")
+	var source_cell := Dictionary(cells[source_index]).duplicate(true)
+	var target_cell := Dictionary(cells[target_index]).duplicate(true)
+	if String(target_cell.get("unitId", target_cell.get("unit_id", ""))) != "":
+		return _noop_result("MOVE_HERO", "Mock 拖拽终点已有单位，保持正式 Snapshot")
+	var moved_cell := source_cell.duplicate(true)
+	_copy_cell_location(moved_cell, target_cell)
+	var emptied_source := target_cell.duplicate(true)
+	_copy_cell_location(emptied_source, source_cell)
+	cells[source_index] = emptied_source
+	cells[target_index] = moved_cell
+	board["cells"] = cells
+	_snapshot["board"] = board
+	_project_unit_coordinates(unit_id, target_x, target_y)
+	var next_version := int(_snapshot.get("stateVersion", 0)) + 1
+	_snapshot["stateVersion"] = next_version
+	_snapshot["state_version"] = next_version
+	_snapshot["stateHash"] = "mock_move_%d" % next_version
+	_snapshot["state_hash"] = _snapshot["stateHash"]
+	_snapshot = _snapshot.duplicate(true)
+	return {
+		"type": "MOVE_HERO",
+		"ok": true,
+		"mock_local_projection": true,
+		"unitId": unit_id,
+		"x": target_x,
+		"y": target_y,
+		"message": "Mock 已按公开命令更新拖拽展示坐标",
+	}
+
+
+func _copy_cell_location(destination: Dictionary, source: Dictionary) -> void:
+	for key in ["x", "y", "r", "c", "key", "elements", "trace", "traces"]:
+		if source.has(key):
+			destination[key] = source[key].duplicate(true) if source[key] is Dictionary or source[key] is Array else source[key]
+		else:
+			destination.erase(key)
+
+
+func _project_unit_coordinates(unit_id: String, target_x: int, target_y: int) -> void:
+	var units := Array(_snapshot.get("units", [])).duplicate(true)
+	for index in range(units.size()):
+		var unit := Dictionary(units[index]).duplicate(true)
+		if String(unit.get("id", unit.get("unitId", ""))) != unit_id:
+			continue
+		unit["x"] = target_x
+		unit["y"] = target_y
+		unit["c"] = target_x
+		unit["r"] = target_y
+		units[index] = unit
+		break
+	_snapshot["units"] = units
+	var view_model := Dictionary(_snapshot.get("viewModel", {})).duplicate(true)
+	if not view_model.is_empty():
+		view_model["units"] = units.duplicate(true)
+		view_model["board"] = Dictionary(_snapshot.get("board", {})).duplicate(true)
+		view_model["stateVersion"] = int(_snapshot.get("stateVersion", 0)) + 1
+		view_model["stateHash"] = "mock_move_%d" % int(view_model["stateVersion"])
+		_snapshot["viewModel"] = view_model
 
 
 func _apply_local_drop_command(command: Dictionary, command_type: String) -> Dictionary:

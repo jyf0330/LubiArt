@@ -494,7 +494,6 @@ func attach_feature_view(feature_id: StringName, view: Node) -> void:
 		return
 	_detach_battle_view()
 	_battle_view = battle_view
-	_battle_view.name = "BattleFlow"
 	_battle_view.visible = false
 	_battle_view.z_index = 50
 	_battle_view.set_anchors_preset(Control.PRESET_FULL_RECT)
