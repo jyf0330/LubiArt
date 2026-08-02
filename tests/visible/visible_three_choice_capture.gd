@@ -32,7 +32,7 @@ func _run() -> void:
 		_save_capture("/private/tmp/lubi_three_choice_bag.png")
 
 	var party_button := main_instance.get_node_or_null(
-		"ThreeChoiceScene/MainBG/Containers/Party/Party_Container/Party_Slot/PareyButton"
+		"ThreeChoiceScene/MainBG/Containers/Party/Party_Container/Party_Slot/HitArea"
 	) as TextureButton
 	if party_button != null:
 		if bag_button != null:

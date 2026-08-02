@@ -81,7 +81,6 @@ var _drag_candidate_source := DRAG_SOURCE_NONE
 var _drag_candidate_index := -1
 var _is_dragging_shop_item := false
 var _is_dragging_storage_item := false
-var _drag_preview: TextureRect = null
 var _drag_preview_locked_size := DRAG_PREVIEW_SIZE
 var _drag_hidden_button: TextureButton = null
 var _drag_hidden_visual: Control = null
@@ -96,6 +95,7 @@ var _bazaar_info_panel: Control = null
 var _run_tools: PanelContainer = null
 var _run_status_label: Label = null
 @onready var _item_slot_hover_highlight: TextureRect = $ItemSlotHoverHighlight
+@onready var _drag_preview: TextureRect = $DragPreview
 var _route_presenter := RoutePresenterScript.new()
 var _shop_presenter := ShopPresenterScript.new()
 var _inventory_presenter := InventoryPresenterScript.new()
@@ -121,7 +121,6 @@ func _ready() -> void:
 	_render_content_from_state(_current_snapshot())
 	_set_initial_state()
 	call_deferred("_show_initial_view")
-	call_deferred("_refresh_slot_button_layouts")
 	call_deferred("_grab_focus_for_current_view")
 
 
@@ -239,7 +238,6 @@ func _connect_buttons() -> void:
 		var button := _three_buttons[index]
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_prepare_slot_image_button(button)
 		if not button.pressed.is_connected(_on_three_pressed):
 			button.pressed.connect(_on_three_pressed.bind(index))
 		if not button.mouse_entered.is_connected(_on_three_mouse_entered):
@@ -251,7 +249,6 @@ func _connect_buttons() -> void:
 		var button := _shop_buttons[index]
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_shop_button_down):
 			button.button_down.connect(_on_shop_button_down.bind(index))
 		if not button.mouse_entered.is_connected(_on_shop_pet_mouse_entered):
@@ -266,7 +263,6 @@ func _connect_buttons() -> void:
 		var button := _party_buttons[index]
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_party_button_down):
 			button.button_down.connect(_on_party_button_down.bind(index))
 		if not button.mouse_entered.is_connected(_on_party_pet_mouse_entered):
@@ -278,7 +274,6 @@ func _connect_buttons() -> void:
 		var button := _bag_buttons[index]
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_prepare_slot_image_button(button)
 		if not button.button_down.is_connected(_on_bag_slot_button_down):
 			button.button_down.connect(_on_bag_slot_button_down.bind(index))
 		if not button.mouse_entered.is_connected(_on_bag_pet_mouse_entered):
@@ -998,37 +993,26 @@ func _drag_preview_size_for_candidate() -> Vector2:
 func _create_drag_preview(texture: Texture2D, preview_size: Vector2) -> void:
 	_clear_drag_preview()
 	_drag_preview_locked_size = preview_size
-	_drag_preview = TextureRect.new()
-	_drag_preview.name = "DragPreview"
 	_drag_preview.texture = texture
-	_drag_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_drag_preview.custom_minimum_size = preview_size
-	_drag_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_drag_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_drag_preview.modulate = Color(1.0, 1.0, 1.0, 0.82)
-	_drag_preview.z_index = 100
-	get_tree().root.add_child(_drag_preview)
-	# A Window assigns a newly added Control its initial zero rect. Apply the
-	# authored slot size after parenting so the preview stays locked to it.
 	_drag_preview.size = preview_size
+	_drag_preview.visible = true
+	_drag_preview.move_to_front()
 
 
 func _update_drag_preview(mouse_position: Vector2) -> void:
-	if _drag_preview == null:
+	if not _drag_preview.visible:
 		return
-	# Root Window layout can clear the rect after parenting. Reapply the captured
-	# source-slot size on every motion so neither texture size nor grid reflow can
-	# resize the preview during a drag.
 	_drag_preview.custom_minimum_size = _drag_preview_locked_size
 	_drag_preview.size = _drag_preview_locked_size
 	_drag_preview.global_position = mouse_position - _drag_preview.size * 0.5
 
 
 func _clear_drag_preview() -> void:
-	if _drag_preview == null:
-		return
-	_drag_preview.queue_free()
-	_drag_preview = null
+	_drag_preview.visible = false
+	_drag_preview.texture = null
+	_drag_preview.custom_minimum_size = DRAG_PREVIEW_SIZE
+	_drag_preview.size = DRAG_PREVIEW_SIZE
 	_drag_preview_locked_size = DRAG_PREVIEW_SIZE
 
 
@@ -1679,39 +1663,6 @@ func _request_session_operation(operation: StringName, arguments: Dictionary) ->
 	var result := Dictionary(_session_operation_responses.get(request_id, {}))
 	_session_operation_responses.erase(request_id)
 	return result
-
-
-func _prepare_slot_image_button(button: TextureButton) -> void:
-	button.ignore_texture_size = true
-	button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-	var parent := button.get_parent() as Control
-	if parent == null:
-		return
-	if parent.has_method("set_portrait"):
-		button.texture_normal = null
-		button.custom_minimum_size = parent.custom_minimum_size
-		button.position = Vector2.ZERO
-		button.size = parent.custom_minimum_size
-		return
-	var image_size := parent.size - Vector2(24, 24)
-	if image_size.x <= 0 or image_size.y <= 0:
-		image_size = parent.custom_minimum_size - Vector2(24, 24)
-	image_size.x = maxf(image_size.x, 96.0)
-	image_size.y = maxf(image_size.y, 96.0)
-	button.custom_minimum_size = image_size
-	button.position = Vector2(12, 12)
-	button.size = image_size
-
-
-func _refresh_slot_button_layouts() -> void:
-	for button in _three_buttons:
-		_prepare_slot_image_button(button)
-	for button in _shop_buttons:
-		_prepare_slot_image_button(button)
-	for button in _party_buttons:
-		_prepare_slot_image_button(button)
-	for button in _bag_buttons:
-		_prepare_slot_image_button(button)
 
 
 func _slot_root(root: Node) -> Node:

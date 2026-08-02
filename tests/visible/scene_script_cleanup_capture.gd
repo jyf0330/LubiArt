@@ -39,7 +39,7 @@ func _run() -> void:
 	await _capture("03_open_bag.png")
 
 	var bag_slot_button := view.get_node(
-		"MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot/Bag_Button"
+		"MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot/HitArea"
 	) as TextureButton
 	bag_slot_button.mouse_entered.emit()
 	await _settle(8)

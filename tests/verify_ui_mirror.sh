@@ -74,9 +74,33 @@ expected_prefabs=(
 actual_prefabs="$(cd "$MOCK_ROOT" && find art/prefabs -type f -name "*.tscn" | sort)"
 expected_prefabs_text="$(printf '%s\n' "${expected_prefabs[@]}")"
 if [[ "$actual_prefabs" != "$expected_prefabs_text" ]]; then
-  printf '%s\n' "Standalone project must contain four public prefabs and the required internal UI components, including the bazaar panel and game cursor." >&2
+  printf '%s\n' "Standalone project prefab list changed; every added prefab must own independent visual content and a root presentation script." >&2
   exit 1
 fi
+
+for relative_path in "${expected_prefabs[@]}"; do
+  if ! awk '
+    /^\[node / {
+      if (root_seen) {
+        exit(root_has_script ? 0 : 1)
+      }
+      root_seen = 1
+      next
+    }
+    root_seen && /^script = ExtResource/ {
+      root_has_script = 1
+    }
+    END {
+      if (root_seen) {
+        exit(root_has_script ? 0 : 1)
+      }
+      exit 1
+    }
+  ' "$MOCK_ROOT/$relative_path"; then
+    printf '%s\n' "Prefab root must own a presentation script: $relative_path" >&2
+    exit 1
+  fi
+done
 
 legacy_directories=(
   "game"

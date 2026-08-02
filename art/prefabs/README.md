@@ -1,6 +1,6 @@
-# 四个公开预制体与两个内部 UI 组件
+# 公开预制体与内部 UI 组件
 
-本目录包含四个跨流程公开 prefab，以及两个可独立编辑的内部 UI 组件：
+本目录包含四个跨流程公开 prefab，以及可独立编辑、可复用的内部 UI 组件：
 
 ```text
 art/prefabs/
@@ -9,17 +9,27 @@ art/prefabs/
  │       └── attack_direction_drawer.tscn
  ├── pet/
  │   ├── pet.tscn
-│   ├── pet_detail.tscn
-│   └── sprite_info_card.tscn
-└── terrain/
-    ├── terrain.tscn
-    └── terrain_detail.tscn
+ │   ├── pet_detail.tscn
+ │   └── sprite_info_card.tscn
+ ├── route/
+ │   └── three_choice_card.tscn
+ ├── shared/
+ │   └── cursor/
+ │       └── game_cursor.tscn
+ ├── shop/
+ │   └── bazaar_info_panel.tscn
+ └── terrain/
+     ├── terrain.tscn
+     └── terrain_detail.tscn
 ```
 
 - `pet.tscn`：三选一、队伍、背包和战斗共同使用的宠物视觉与交互根。
 - `pet_detail.tscn`：三选一和战斗共同使用的正式宠物详情、遮罩、确认操作和卡面；不包含调试节点，也不创建 Session。
 - `sprite_info_card.tscn`：由宠物详情实例化的内部卡片组件，可在独立美术调试 Scene 中直接检查。
 - `attack_direction_drawer.tscn`：由正式战斗 Scene 实例化的内部 HUD 组件，保留四行方向、收起按钮和固定显示尺寸。
+- `three_choice_card.tscn`：三选一页面的路线卡模板，保留可编辑的卡面、悬停表现与点击区域。
+- `bazaar_info_panel.tscn`：商店条目的信息浮层组件。
+- `game_cursor.tscn`：应用装配层复用的鼠标指针表现组件。
 - `terrain.tscn`：战斗棋盘重复实例化的地形格。
 - `terrain_detail.tscn`：战斗中查看地形元素、威胁和预览的详情面板。
 
@@ -27,7 +37,7 @@ art/prefabs/
 
 宠物攻击、受击、移动、死亡、跨格投射物和伤害数字属于 `pet.tscn`；地面元素标记与命中特效属于 `terrain.tscn`。攻击方向抽屉属于独立内部 HUD prefab；`SpriteInfoCard` 数据调试只存在于独立的 `sprite_info_card_debug_scene.tscn`，不混入正式宠物详情 prefab。
 
-对应脚本统一放在 `res://core_ui/scripts/`，图片统一放在 `res://art/images/`。额外 prefab 必须是有独立编辑或调试价值的 UI 组件，不能复制正式运行实现。
+对应脚本统一放在 `res://core_ui/scripts/`，图片统一放在 `res://art/images/`。额外 prefab 必须同时拥有可独立验收的美术表现和根节点表现脚本；纯布局容器、槽位、锚点或点击区域保留在所属 Scene 中，不为复用几行结构单独建 prefab。
 
 ## PSD 功能层与资源层
 
