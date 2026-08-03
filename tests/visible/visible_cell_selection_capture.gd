@@ -2,6 +2,7 @@ extends SceneTree
 
 const MainScene := preload("res://art/scenes/app/game.tscn")
 const MockSession := preload("res://session/mock_game_session.gd")
+const BattleSceneProbe := preload("res://tests/helpers/battle_scene_probe.gd")
 const CAPTURE_PATH := "res://output/battle_cell_selection_1920x1080.png"
 
 
@@ -22,6 +23,7 @@ func _run() -> void:
 	if battle_view == null:
 		_fail("battle view is unavailable")
 		return
+	var probe := BattleSceneProbe.new(battle_view)
 	var board_grid := battle_view.get_node_or_null("Board/CellHost") as Control
 	if board_grid == null:
 		_fail("board grid is unavailable")
@@ -65,12 +67,12 @@ func _run() -> void:
 	if _visible_attack_highlight_count(board_grid) != 0:
 		_fail("attack cells are visible before a unit is dragged")
 		return
-	battle_view.call("_start_unit_drag", drag_origin_grid)
-	battle_view.call("_debug_update_drag_preview_position", selected_grid)
+	probe.start_drag(drag_origin_grid, selected_grid)
+	await probe.update_drag(selected_grid)
 	if _visible_attack_highlight_count(board_grid) == 0:
 		_fail("current unit attack cells are missing during drag")
 		return
-	battle_view.call("_finish_unit_drag", selected_grid)
+	probe.finish_drag(selected_grid)
 	await create_timer(0.2).timeout
 	if _cell_unit_id(drag_origin) != "" or _cell_unit_id(selected_cell) != dragged_unit_id:
 		_fail("unit did not settle on the empty cell")
@@ -78,12 +80,12 @@ func _run() -> void:
 	if _visible_attack_highlight_count(board_grid) != 0:
 		_fail("attack cells remained visible after a successful drop")
 		return
-	battle_view.call("_start_unit_drag", selected_grid)
-	battle_view.call("_debug_update_drag_preview_position", occupied_grid)
+	probe.start_drag(selected_grid, occupied_grid)
+	await probe.update_drag(occupied_grid)
 	if bool(occupied_target.call("is_hover_highlight_visible")):
 		_fail("occupied cell is shown as a valid drag target")
 		return
-	battle_view.call("_finish_unit_drag", occupied_grid)
+	probe.finish_drag(occupied_grid)
 	await create_timer(0.2).timeout
 	if _cell_unit_id(selected_cell) != dragged_unit_id or _cell_unit_id(occupied_target) != occupied_unit_id:
 		_fail("occupied-cell drop did not return the dragged unit")
@@ -91,8 +93,8 @@ func _run() -> void:
 	if _visible_attack_highlight_count(board_grid) != 0:
 		_fail("attack cells remained visible after a rejected drop")
 		return
-	battle_view.call("_on_cell_unhovered", hover_grid.x, hover_grid.y)
-	battle_view.call("_on_cell_hovered", hover_grid.x, hover_grid.y)
+	probe.hover_cell(hover_grid, false)
+	probe.hover_cell(hover_grid, true)
 	await process_frame
 	await RenderingServer.frame_post_draw
 
@@ -113,7 +115,7 @@ func _run() -> void:
 	if error != OK:
 		_fail("could not save capture (error %d)" % error)
 		return
-	battle_view.call("_on_cell_unhovered", hover_grid.x, hover_grid.y)
+	probe.hover_cell(hover_grid, false)
 	await process_frame
 	if hover_highlight.visible:
 		_fail("mouse exit must clear the blue hover")

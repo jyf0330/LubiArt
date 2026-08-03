@@ -11,6 +11,7 @@ const BattleTraceProjection := preload("res://core_ui/scripts/battle/controllers
 const BattleAssetRegistry := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
 const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const BattleTerrainScene := preload("res://art/prefabs/terrain/terrain.tscn")
+const BattleSceneProbe := preload("res://tests/helpers/battle_scene_probe.gd")
 
 
 class RoutingSession:
@@ -114,17 +115,9 @@ func _run() -> void:
 	var captured_initial := Dictionary(capture.get("initial_snapshot", {}))
 	assert(_same_snapshot_identity(boot_snapshot, captured_initial))
 	assert(String(boot_snapshot.get("phase", "")) == "battle")
-	var damage_preview_templates := Dictionary(boot_snapshot.get(
-		"mock_damage_preview_templates_by_actor",
-		{}
-	))
-	assert(not damage_preview_templates.is_empty())
-	assert(damage_preview_templates.has(_first_player_unit_id(boot_snapshot)))
-	var incoming_preview_template := Dictionary(boot_snapshot.get(
-		"mock_incoming_damage_preview_template",
-		{}
-	))
-	assert(int(incoming_preview_template.get("totalDamage", 0)) > 0)
+	assert(not _has_dictionary_key_with_prefix(boot_snapshot, "mock_"))
+	assert(_public_target_preview_count(boot_snapshot) > 0)
+	assert(Dictionary(boot_snapshot.get("placement_damage_by_unit", {})).is_empty())
 	assert(isolated_session.replay_step_count() == captured_steps.size())
 	assert(isolated_session.capture_source() == capture_source)
 	assert(
@@ -253,15 +246,17 @@ func _run() -> void:
 	for _frame in range(8):
 		await process_frame
 	var standalone_battle_snapshot := Dictionary(standalone_battle_session.call("current_snapshot"))
+	var standalone_probe := BattleSceneProbe.new(standalone_battle_instance)
+	assert(standalone_probe.is_ready())
 	assert(String(standalone_battle_snapshot.get("phase", "")) == "battle")
 	assert(Array(standalone_battle_snapshot.get("units", [])).size() > 0)
 	assert(Array(Dictionary(standalone_battle_snapshot.get("board", {})).get("cells", [])).size() > 0)
-	assert(int(standalone_battle_instance.call("debug_last_rendered_cell_count")) > 0)
+	assert(standalone_probe.rendered_cell_count() > 0)
 	var standalone_commands: Array[Dictionary] = []
 	standalone_battle_instance.connect("command_requested", func(command: Dictionary) -> void:
 		standalone_commands.append(command.duplicate(true))
 	)
-	standalone_battle_instance.call("debug_emit_command", "AUTO_POSITION_HEROES")
+	standalone_probe.press_hud_command(&"AUTO_POSITION_HEROES")
 	await process_frame
 	assert(standalone_commands.size() == 1)
 	assert(String(standalone_commands[0].get("type", "")) == "AUTO_POSITION_HEROES")
@@ -368,6 +363,8 @@ func _run() -> void:
 
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	assert(battle_view != null)
+	var battle_probe := BattleSceneProbe.new(battle_view)
+	assert(battle_probe.is_ready())
 	assert(battle_view.get_node_or_null("Board/VfxHost") != null)
 	var action_panel := battle_view.get_node_or_null("Hud/BattleActionPanel") as Control
 	assert(action_panel != null)
@@ -488,11 +485,11 @@ func _run() -> void:
 	assert(int(Dictionary(action_panel.call("visual_state_summary")).get("picked_skill_index", -1)) == 0)
 	first_skill_slot.pressed.emit()
 	assert(not bool(first_skill_slot.call("is_picked")))
-	var range_summary := Dictionary(battle_view.call("debug_selected_action_range_summary"))
+	var range_summary := battle_probe.selected_action_range_summary(selected_snapshot)
 	assert(String(range_summary.get("unitId", "")) == String(selected_snapshot.get("selected_unit_id", "")))
 	assert(int(range_summary.get("visibleCellCount", 0)) > 0)
 	assert(_visible_attack_highlight_count(board_grid) == 0)
-	_assert_corner_heroes_are_locked(battle_view, board_grid, current_board)
+	_assert_corner_heroes_are_locked(battle_probe, board_grid, current_board)
 
 	var drag_origin: Control = null
 	var drag_target: Control = null
@@ -503,21 +500,38 @@ func _run() -> void:
 		if cell == null or not cell.visible:
 			continue
 		var unit_id := _cell_unit_id(cell)
-		if drag_origin == null and unit_id != "" and bool(battle_view.call("_cell_has_draggable_player_unit", cell)):
+		if drag_origin == null and _cell_data_is_draggable(Dictionary(cell.get("cell_data"))):
 			drag_origin = cell
 		elif drag_target == null and unit_id == "":
 			drag_target = cell
 		elif occupied_target == null and unit_id != "":
 			occupied_target = cell
 		if blank_detail_target == null and unit_id == "":
-			var candidate_grid := cell.call("get_grid_position") as Vector2i
-			if not bool(battle_view.call("_cell_has_visible_elements", candidate_grid)):
+			if not _has_visible_elements(Dictionary(cell.get("cell_data")).get("elements", {})):
 				blank_detail_target = cell
+	var preferred_drag_case := battle_probe.first_player_drag_case(
+		Dictionary(game_session.call("current_snapshot"))
+	)
+	if not preferred_drag_case.is_empty():
+		var preferred_origin := Dictionary(preferred_drag_case.get("origin", {}))
+		var preferred_target := Dictionary(preferred_drag_case.get("target", {}))
+		drag_origin = battle_probe.cell_at(Vector2i(
+			int(preferred_origin.get("x", -1)), int(preferred_origin.get("y", -1))
+		))
+		drag_target = battle_probe.cell_at(Vector2i(
+			int(preferred_target.get("x", -1)), int(preferred_target.get("y", -1))
+		))
+	for cell_value in board_grid.get_children():
+		var occupied_candidate := cell_value as Control
+		if occupied_candidate != null and occupied_candidate != drag_origin \
+				and occupied_candidate != drag_target and _cell_unit_id(occupied_candidate) != "":
+			occupied_target = occupied_candidate
+			break
 	assert(drag_origin != null and drag_target != null and occupied_target != null and blank_detail_target != null)
 	var blank_grid := blank_detail_target.call("get_grid_position") as Vector2i
 	blank_detail_target.cell_selected.emit(blank_grid.x, blank_grid.y)
 	await process_frame
-	assert(not bool(Dictionary(battle_view.call("debug_detail_panel_summary")).get("visible", true)))
+	assert(not bool(battle_probe.detail_summary().get("visible", true)))
 
 	var detail_grid := drag_origin.call("get_grid_position") as Vector2i
 	drag_origin.cell_selected.emit(detail_grid.x, detail_grid.y)
@@ -527,20 +541,20 @@ func _run() -> void:
 	var cancel_event := InputEventKey.new()
 	cancel_event.keycode = KEY_ESCAPE
 	cancel_event.pressed = true
-	battle_view.call("_input", cancel_event)
-	assert(not bool(Dictionary(battle_view.call("debug_detail_panel_summary")).get("visible", true)))
+	battle_view.get_viewport().push_input(cancel_event, true)
+	await process_frame
+	assert(not bool(battle_probe.detail_summary().get("visible", true)))
 
 	var dragged_unit_id := _cell_unit_id(drag_origin)
 	var drag_origin_grid := drag_origin.call("get_grid_position") as Vector2i
 	var drag_target_grid := drag_target.call("get_grid_position") as Vector2i
 	var occupied_grid := occupied_target.call("get_grid_position") as Vector2i
 	var occupied_unit_id := _cell_unit_id(occupied_target)
-	battle_view.call("_start_unit_drag", drag_origin_grid)
+	assert(bool(battle_probe.start_drag(drag_origin_grid, drag_target_grid).get("started", false)))
 	assert(StringName(game_cursor.call("debug_state")) == &"grabbing")
-	battle_view.call("_debug_update_drag_preview_position", drag_target_grid)
+	await battle_probe.update_drag(drag_target_grid, Dictionary(game_session.call("current_snapshot")))
 	assert(_visible_attack_highlight_count(board_grid) > 0)
-	battle_view.call("_finish_unit_drag", drag_target_grid)
-	var move_command := Dictionary(battle_view.get("_last_debug_drag_command"))
+	var move_command := battle_probe.finish_drag(drag_target_grid)
 	assert(String(move_command.get("type", "")) == "MOVE_HERO")
 	assert(String(move_command.get("unitId", "")) == dragged_unit_id)
 	assert(StringName(game_cursor.call("debug_state")) == &"pointer")
@@ -549,16 +563,14 @@ func _run() -> void:
 	assert(_visible_attack_highlight_count(board_grid) == 0)
 	assert(int(game_session.call("replay_step_index")) == 0)
 	await create_timer(0.2).timeout
-	battle_view.call("_start_unit_drag", drag_target_grid)
-	battle_view.call("_debug_update_drag_preview_position", occupied_grid)
+	assert(bool(battle_probe.start_drag(drag_target_grid, occupied_grid).get("started", false)))
+	await battle_probe.update_drag(occupied_grid, Dictionary(game_session.call("current_snapshot")))
 	assert(not bool(occupied_target.call("is_hover_highlight_visible")))
 	assert(_visible_attack_highlight_count(board_grid) == 0)
-	battle_view.call("_finish_unit_drag", occupied_grid)
+	var rejected_command := battle_probe.finish_drag(occupied_grid)
+	assert(rejected_command.is_empty())
 	assert(_cell_unit_id(drag_target) == dragged_unit_id)
 	assert(_cell_unit_id(occupied_target) == occupied_unit_id)
-	var rejected_drop := Dictionary(battle_view.call("debug_drop_settle_summary"))
-	assert(bool(rejected_drop.get("returned", false)))
-	assert(Dictionary(rejected_drop.get("settled", {})) == {"x": drag_target_grid.x, "y": drag_target_grid.y})
 	await create_timer(0.2).timeout
 
 	var player_unit_id := _first_player_unit_id(Dictionary(game_session.call("current_snapshot")))
@@ -615,7 +627,7 @@ func _assert_presentation_patterns_load() -> void:
 	assert(BattleDetailController.new() != null)
 	assert(BattleCommandBuilder.new() != null)
 	var battle_scene_script := FileAccess.get_file_as_string("res://core_ui/scripts/battle/scenes/battle_scene.gd")
-	assert(battle_scene_script.contains("command_requested.emit(command)"))
+	assert(battle_scene_script.contains("command_requested.emit(command.duplicate(true))"))
 	var trace_projection := BattleTraceProjection.new()
 	assert(trace_projection != null)
 	var projected_cell := {"buffs": [{"active": false, "max_damage_per_hit": 99}]}
@@ -917,8 +929,45 @@ func _cell_unit_id(cell: Control) -> String:
 	return String(data.get("unitId", data.get("unit_id", "")))
 
 
+func _cell_data_is_draggable(data: Dictionary) -> bool:
+	var unit_id := String(data.get("unitId", data.get("unit_id", "")))
+	var side := String(data.get("side", data.get("unitSide", "")))
+	var unit_type := String(data.get("type", data.get("unitType", data.get("unit_type", "")))).to_lower()
+	return unit_id != "" and side in ["player", "ally"] \
+		and unit_type != "hero" and unit_id not in ["player_hero", "enemy_hero"]
+
+
+func _has_visible_elements(value: Variant) -> bool:
+	if not (value is Dictionary):
+		return false
+	for amount in Dictionary(value).values():
+		if int(amount) > 0:
+			return true
+	return false
+
+
+func _public_target_preview_count(snapshot: Dictionary) -> int:
+	var count := 0
+	for cell_value in Array(Dictionary(snapshot.get("board", {})).get("cells", [])):
+		count += Array(Dictionary(cell_value).get("previews", [])).size()
+	return count
+
+
+func _has_dictionary_key_with_prefix(value: Variant, prefix: String) -> bool:
+	if value is Dictionary:
+		for key_value in Dictionary(value).keys():
+			if String(key_value).begins_with(prefix) \
+					or _has_dictionary_key_with_prefix(Dictionary(value)[key_value], prefix):
+				return true
+	elif value is Array:
+		for entry in Array(value):
+			if _has_dictionary_key_with_prefix(entry, prefix):
+				return true
+	return false
+
+
 func _assert_corner_heroes_are_locked(
-	battle_view: Control,
+	battle_probe: RefCounted,
 	board_grid: Control,
 	board: Dictionary
 ) -> void:
@@ -933,12 +982,7 @@ func _assert_corner_heroes_are_locked(
 		var cell := _board_cell_at(board_grid, grid)
 		assert(cell != null)
 		assert(_cell_unit_id(cell) == String(expected_heroes[grid]))
-		assert(not bool(battle_view.call("_cell_has_draggable_player_unit", cell)))
-		battle_view.call("_start_unit_drag", grid)
-		var drag_state := Dictionary(battle_view.call(
-			"debug_update_drag_preview_to_target",
-			{"x": grid.x, "y": grid.y}
-		))
+		var drag_state := Dictionary(battle_probe.call("start_drag", grid, grid))
 		assert(not bool(drag_state.get("dragging", true)))
 		assert(not bool(drag_state.get("preview_was_active", true)))
 

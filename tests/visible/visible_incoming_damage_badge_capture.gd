@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MainScene := preload("res://art/scenes/app/game.tscn")
+const BattleSceneProbe := preload("res://tests/helpers/battle_scene_probe.gd")
 const CAPTURE := "lubi_manual_drag_incoming_damage_badge.png"
 
 
@@ -19,6 +20,7 @@ func _run() -> void:
 	if battle_view == null:
 		_fail("battle view is unavailable")
 		return
+	var probe := BattleSceneProbe.new(battle_view)
 	var origin_cell := _first_draggable_player_cell(battle_view)
 	if origin_cell == null:
 		_fail("manual drag origin was unavailable before auto arrange")
@@ -30,9 +32,8 @@ func _run() -> void:
 	if target_grid.x < 0:
 		_fail("no manual drag target was available")
 		return
-	battle_view.call("_start_unit_drag", origin_grid)
-	battle_view.call("_debug_update_drag_preview_position", target_grid)
-	await process_frame
+	probe.start_drag(origin_grid, target_grid)
+	await probe.update_drag(target_grid)
 	var held_preview := battle_view.get_node_or_null(
 		"Board/UnitHost/BattleUnitDragPreview"
 	) as Control
@@ -46,7 +47,7 @@ func _run() -> void:
 	if not held_badge.visible or held_value.text == "":
 		_fail("incoming-damage badge was not visible over the manual drag target")
 		return
-	battle_view.call("_finish_unit_drag", target_grid)
+	probe.finish_drag(target_grid)
 	await create_timer(0.25).timeout
 	preview_pet = _pet_by_unit_id(battle_view, preview_unit_id)
 	if preview_pet == null:
@@ -72,8 +73,12 @@ func _run() -> void:
 func _first_draggable_player_cell(battle_view: Control) -> Control:
 	var board_grid := battle_view.get_node("Board/CellHost") as Control
 	for cell in board_grid.get_children():
-		if cell.has_method("get_unit_node") \
-				and bool(battle_view.call("_cell_has_draggable_player_unit", cell)):
+		if not cell.has_method("get_unit_node"):
+			continue
+		var data := Dictionary(cell.get("cell_data"))
+		var unit_id := String(data.get("unitId", data.get("unit_id", "")))
+		var side := String(data.get("side", data.get("unitSide", "")))
+		if unit_id != "" and side in ["player", "ally"] and unit_id != "player_hero":
 			return cell as Control
 	return null
 

@@ -2,6 +2,7 @@ extends SceneTree
 
 const OUTPUT_DIR := "res://output"
 const MockSession := preload("res://session/mock_game_session.gd")
+const BattleSceneProbe := preload("res://tests/helpers/battle_scene_probe.gd")
 
 
 func _initialize() -> void:
@@ -30,6 +31,7 @@ func _run() -> void:
 	cursor.call("reset_interaction")
 	await _capture("game_cursor_pointer_1920x1080.png")
 	var battle := instance.call("get_feature_controller", &"battle") as Control
+	var probe := BattleSceneProbe.new(battle)
 	var pet_cell := _first_draggable_pet_cell(battle)
 	if pet_cell == null:
 		_fail("could not find a draggable pet for cursor interaction")
@@ -41,13 +43,12 @@ func _run() -> void:
 	Input.warp_mouse(Vector2i(pet_point))
 	await process_frame
 	var pet_grid := pet_cell.call("get_grid_position") as Vector2i
-	battle.call("_on_cell_hovered", pet_grid.x, pet_grid.y)
-	battle.call("_refresh_cursor_hover_state")
+	probe.hover_cell(pet_grid, true)
 	if StringName(cursor.call("debug_state")) != &"pet_hover":
 		_fail("pet hover did not switch to the open hand")
 		return
 	await _capture("game_cursor_hand_open_1920x1080.png")
-	battle.call("_start_unit_drag", pet_grid)
+	probe.start_drag(pet_grid, pet_grid)
 	if StringName(cursor.call("debug_state")) != &"grabbing":
 		_fail("pet drag did not switch to the grabbing hand")
 		return
@@ -55,14 +56,13 @@ func _run() -> void:
 	Input.warp_mouse(Vector2i(pet_point))
 	await process_frame
 	var preview_grid := pet_grid + Vector2i(1 if pet_grid.x < 7 else -1, 0)
-	battle.call("_debug_update_drag_preview_position", preview_grid)
-	battle.call("_finish_unit_drag", pet_grid)
+	await probe.update_drag(preview_grid)
+	probe.finish_drag(pet_grid)
 	if StringName(cursor.call("debug_state")) != &"pet_hover":
 		_fail("releasing the pet did not restore the open hand (state=%s, hovered=%s, hit=%s)" % [
 			String(cursor.call("debug_state")),
-			str(battle.get("_hovered_grid")),
-			"%s mouse=%s expected=%s unit=%s" % [
-				str(battle.call("_mouse_is_over_draggable_pet", pet_cell)),
+			str(pet_grid),
+			"mouse=%s expected=%s unit=%s" % [
 				str(root.get_viewport().get_mouse_position()),
 				str(pet_point),
 				str(pet_cell.call("get_unit_node")),
@@ -88,7 +88,12 @@ func _first_draggable_pet_cell(battle: Control) -> Control:
 		return null
 	for value in board_grid.get_children():
 		var cell := value as Control
-		if cell != null and cell.visible and bool(battle.call("_cell_has_draggable_player_unit", cell)):
+		if cell == null or not cell.visible:
+			continue
+		var data := Dictionary(cell.get("cell_data"))
+		var unit_id := String(data.get("unitId", data.get("unit_id", "")))
+		var side := String(data.get("side", data.get("unitSide", "")))
+		if unit_id != "" and side in ["player", "ally"] and unit_id != "player_hero":
 			return cell
 	return null
 
