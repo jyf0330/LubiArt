@@ -38,7 +38,7 @@ func _ready() -> void:
 	if game_session == null:
 		game_session = SessionFactoryScript.create_local({
 			"run_seed": DEFAULT_RUN_SEED,
-			"start_phase": "route",
+			"start_phase": "battle",
 			"board_dimensions": SessionFactoryScript.command_line_board_dimensions()
 		})
 	_session_bridge.bind_session(game_session)

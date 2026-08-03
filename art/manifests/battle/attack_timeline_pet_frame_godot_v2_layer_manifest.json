@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "source_kind": "component_attack_timeline_pet_frame",
+  "source_psd": "res://art/images/battle/hud/attack_timeline/pet_frame/source_psd/component_attack_timeline_pet_frame_godot_v2.psd",
+  "baseline_canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "component_canvas": {
+    "width": 220,
+    "height": 220
+  },
+  "background_inset_pixels": 3,
+  "runtime_background_control_inset_pixels": 2,
+  "portrait_normalization": {
+    "metrics_source": "res://art/manifests/shared/pets/sheets/pet_battle_visual_metrics.json",
+    "max_visible_width": 160,
+    "max_visible_height": 150,
+    "footline_y": 192,
+    "preserve_aspect_ratio": true,
+    "filter": "nearest"
+  },
+  "proposed_prefab": "res://art/prefabs/battle/hud/attack_timeline_pet_frame.tscn",
+  "node_contract": [
+    {
+      "name": "AttackTimelinePetFrame",
+      "type": "TextureButton",
+      "parent": null,
+      "responsibility": "Input, selection state, and root presentation script"
+    },
+    {
+      "name": "Background",
+      "type": "TextureRect",
+      "parent": "AttackTimelinePetFrame",
+      "responsibility": "Element background with an authored 2 px runtime inset"
+    },
+    {
+      "name": "Pet",
+      "type": "TextureRect",
+      "parent": "AttackTimelinePetFrame",
+      "responsibility": "Runtime pet portrait"
+    },
+    {
+      "name": "Frame",
+      "type": "TextureRect",
+      "parent": "AttackTimelinePetFrame",
+      "responsibility": "Quality frame state"
+    }
+  ],
+  "timeline_integration": {
+    "central_progress_axis_owned_by_scene": true,
+    "order_badges_owned_by_scene": true,
+    "top_slots": [1, 2, 3, 4],
+    "bottom_slots": [5, 6, 7, 8],
+    "pet_orientation": "upright",
+    "component_replaces_round_tray": true
+  },
+  "runtime_maps": {
+    "current_party_elements": {
+      "none": "nature",
+      "water": "water",
+      "grass": "nature"
+    },
+    "fallback_element": "nature",
+    "quality": {
+      "bronze": "bronze",
+      "silver": "silver",
+      "gold": "gold",
+      "diamond": "diamond"
+    }
+  },
+  "layers": [
+    {
+      "source_layer": "01_background_states/state_background_earth",
+      "classification": "STATE_RESOURCE",
+      "state": "earth",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_earth_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_fire",
+      "classification": "STATE_RESOURCE",
+      "state": "fire",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_fire_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_ice",
+      "classification": "STATE_RESOURCE",
+      "state": "ice",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_ice_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_light",
+      "classification": "STATE_RESOURCE",
+      "state": "light",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_light_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_mechanical",
+      "classification": "STATE_RESOURCE",
+      "state": "mechanical",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_mechanical_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_nature",
+      "classification": "STATE_RESOURCE",
+      "state": "nature",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_nature_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_shadow",
+      "classification": "STATE_RESOURCE",
+      "state": "shadow",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_shadow_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_water",
+      "classification": "STATE_RESOURCE",
+      "state": "water",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_water_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "01_background_states/state_background_wind",
+      "classification": "STATE_RESOURCE",
+      "state": "wind",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_wind_inset_v2.png",
+      "target": "AttackTimelinePetFrame/Background"
+    },
+    {
+      "source_layer": "02_pet_slot/icon_pet",
+      "classification": "DYNAMIC_FIELD",
+      "export_resource": null,
+      "target": "AttackTimelinePetFrame/Pet"
+    },
+    {
+      "source_layer": "03_frame_states/state_frame_bronze",
+      "classification": "STATE_RESOURCE",
+      "state": "bronze",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/top_frames/creature_card_top_frame_bronze_001.png",
+      "target": "AttackTimelinePetFrame/Frame"
+    },
+    {
+      "source_layer": "03_frame_states/state_frame_silver",
+      "classification": "STATE_RESOURCE",
+      "state": "silver",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/top_frames/creature_card_top_frame_silver_001.png",
+      "target": "AttackTimelinePetFrame/Frame"
+    },
+    {
+      "source_layer": "03_frame_states/state_frame_gold",
+      "classification": "STATE_RESOURCE",
+      "state": "gold",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/top_frames/creature_card_top_frame_gold_001.png",
+      "target": "AttackTimelinePetFrame/Frame"
+    },
+    {
+      "source_layer": "03_frame_states/state_frame_diamond",
+      "classification": "STATE_RESOURCE",
+      "state": "diamond",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/top_frames/creature_card_top_frame_diamond_001.png",
+      "target": "AttackTimelinePetFrame/Frame"
+    },
+    {
+      "source_layer": "04_control/hit_card",
+      "classification": "GODOT_CONTROL",
+      "export_resource": null,
+      "target": "AttackTimelinePetFrame"
+    },
+    {
+      "source_layer": "00_reference_ignore",
+      "classification": "IGNORE",
+      "export_resource": null,
+      "target": null
+    }
+  ]
+}

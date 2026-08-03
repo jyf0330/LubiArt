@@ -269,7 +269,20 @@ func _run() -> void:
 	standalone_battle_instance.queue_free()
 	await process_frame
 
+	var startup_main_instance := main_scene.instantiate()
+	root.add_child(startup_main_instance)
+	for _frame in range(8):
+		await process_frame
+	var startup_session := startup_main_instance.call("get_game_session") as RefCounted
+	assert(startup_session != null)
+	assert(String(Dictionary(startup_session.call("current_snapshot")).get("phase", "")) == "battle")
+	assert(StringName(startup_main_instance.call("get_active_feature_id")) == &"battle")
+	assert(startup_main_instance.call("get_active_feature_view") != null)
+	startup_main_instance.queue_free()
+	await process_frame
+
 	var route_main_instance := main_scene.instantiate()
+	route_main_instance.call("set_game_session", MockSession.new({"start_phase": "route"}))
 	root.add_child(route_main_instance)
 	for _frame in range(8):
 		await process_frame
@@ -740,7 +753,7 @@ func _assert_damage_preview_cycle() -> void:
 	assert(health_group.modulate.a > 0.99)
 	pet.call("stop_damage_preview")
 	assert(health_value.text == "HP:20")
-	assert(not stats_root.visible)
+	assert(stats_root.visible)
 	assert(not bool(Dictionary(pet.call("get_damage_preview_snapshot")).get("active", true)))
 	pet.call("start_damage_preview", 20, 20, -1, 2, 2, 0, 20, true)
 	assert(health_value.text == "HP:20")
@@ -774,10 +787,10 @@ func _assert_incoming_damage_badge() -> void:
 	assert(badge.visible)
 	assert(value.text == "15")
 	assert(value.self_modulate == Color.WHITE)
-	assert(not stats_root.visible)
-	assert(badge.position.x >= 0.0 and badge.position.y >= 0.0)
-	assert(badge.position.x + badge.size.x <= pet.size.x + 0.01)
-	assert(badge.position.y + badge.size.y <= pet.size.y + 0.01)
+	assert(stats_root.visible)
+	assert(is_equal_approx(badge.position.x, pet.size.x - badge.size.x * 0.75))
+	assert(is_equal_approx(badge.position.y + badge.size.y, 4.0))
+	assert(badge.position.y < 0.0)
 	pet.call("stop_damage_preview")
 	assert(not badge.visible)
 	assert(value.text == "")

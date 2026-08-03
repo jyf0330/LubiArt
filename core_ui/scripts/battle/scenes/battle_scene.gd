@@ -77,6 +77,7 @@ var _initial_round_banner_requested := false
 var _last_debug_drag_command: Dictionary = {}
 var _action_panel: Control = null
 var _direction_drawer: Control = null
+var _attack_timeline: Control = null
 var _detail_panel: Control = null
 var _element_detail_panel: PanelContainer = null
 var _active_detail_grid := Vector2i(-1, -1)
@@ -130,6 +131,7 @@ func _ready() -> void:
 	_ensure_detail_panel()
 	_ensure_action_panel()
 	_ensure_direction_drawer()
+	_ensure_attack_timeline()
 
 
 func _exit_tree() -> void:
@@ -254,10 +256,12 @@ func render_snapshot(snap: Dictionary) -> void:
 		_pending_action_panel_snapshot = snap.duplicate(true)
 		_render_action_panel(previous_snapshot)
 		_render_direction_drawer(previous_snapshot)
+		_render_attack_timeline(previous_snapshot)
 	else:
 		_pending_action_panel_snapshot = {}
 		_render_action_panel(snap)
 		_render_direction_drawer(snap)
+		_render_attack_timeline(snap)
 	_play_initial_round_banner_if_needed(snap)
 	_play_new_trace_events(snap)
 	_update_position_difficulty_button(snap)
@@ -864,6 +868,7 @@ func _on_trace_sequence_finished() -> void:
 	if not _pending_action_panel_snapshot.is_empty():
 		_render_action_panel(_pending_action_panel_snapshot)
 		_render_direction_drawer(_pending_action_panel_snapshot)
+		_render_attack_timeline(_pending_action_panel_snapshot)
 		_pending_action_panel_snapshot = {}
 	_set_battle_input_locked(false)
 	GameLogScript.info("表现/战斗事件", "表现序列播放完成，最终快照已落位", {
@@ -887,6 +892,9 @@ func _set_battle_input_locked(locked: bool) -> void:
 	_ensure_action_panel()
 	if _action_panel != null and _action_panel.has_method("set_input_locked"):
 		_action_panel.call("set_input_locked", locked)
+	_ensure_attack_timeline()
+	if _attack_timeline != null and _attack_timeline.has_method("set_interaction_locked"):
+		_attack_timeline.call("set_interaction_locked", locked)
 	if locked:
 		_set_cursor_grabbing(false)
 		_set_cursor_pet_hover(false)
@@ -2304,6 +2312,18 @@ func _render_direction_drawer(snap: Dictionary) -> void:
 	_ensure_direction_drawer()
 	if _direction_drawer != null and _direction_drawer.has_method("render_snapshot"):
 		_direction_drawer.call("render_snapshot", snap)
+
+
+func _ensure_attack_timeline() -> void:
+	if _attack_timeline != null:
+		return
+	_attack_timeline = hud.call("get_attack_timeline") as Control
+
+
+func _render_attack_timeline(snap: Dictionary) -> void:
+	_ensure_attack_timeline()
+	if _attack_timeline != null and _attack_timeline.has_method("render_snapshot"):
+		_attack_timeline.call("render_snapshot", snap)
 
 
 func _on_action_panel_command_requested(command: Dictionary) -> void:

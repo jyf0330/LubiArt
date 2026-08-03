@@ -35,6 +35,9 @@ func _run() -> void:
 	var unit_host := art_scene.get_node_or_null("Board/UnitHost") as Control
 	var vfx_host := art_scene.get_node_or_null("Board/VfxHost") as Control
 	var hud := art_scene.get_node_or_null("Hud") as Control
+	var attack_timeline_layer := art_scene.get_node_or_null("Hud/AttackTimelineLayer") as CanvasLayer
+	var attack_timeline := art_scene.get_node_or_null("Hud/AttackTimelineLayer/AttackTimeline") as Control
+	var attack_timeline_toggle_button := art_scene.get_node_or_null("Hud/AttackTimelineLayer/AttackTimelineToggleButton") as Button
 	var primary_actions := art_scene.get_node_or_null("Hud/BattlePrimaryActions") as Control
 	var primary_actions_shadow := art_scene.get_node_or_null("Hud/BattlePrimaryActions/Shadow") as TextureRect
 	var auto_arrange_button := art_scene.get_node_or_null("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton
@@ -59,6 +62,7 @@ func _run() -> void:
 	var bottom_left_center := bottom_left_cell.position + bottom_left_cell.size * 0.5 if bottom_left_cell != null else Vector2.ZERO
 	var bottom_right_center := bottom_right_cell.position + bottom_right_cell.size * 0.5 if bottom_right_cell != null else Vector2.ZERO
 	var drawer_collapses := false
+	var attack_timeline_toggle_works := false
 	var direction_scroll_hint_works := false
 	var direction_wheel_sequence := false
 	var direction_hover_signal_works := false
@@ -146,6 +150,35 @@ func _run() -> void:
 		drawer_collapses = not direction_rows.visible and not bool(direction_drawer.call("is_expanded"))
 		direction_collapse_button.pressed.emit()
 		await process_frame
+	if hud != null and attack_timeline != null and attack_timeline_toggle_button != null:
+		var starts_closed := not attack_timeline.visible and not bool(hud.call("debug_is_attack_timeline_open"))
+		attack_timeline_toggle_button.pressed.emit()
+		await process_frame
+		var opens_on_press := attack_timeline.visible and bool(hud.call("debug_is_attack_timeline_open"))
+		var open_text_is_correct := attack_timeline_toggle_button.text == "关闭技能时间轴"
+		attack_timeline_toggle_button.pressed.emit()
+		await process_frame
+		var tab_press := InputEventKey.new()
+		tab_press.keycode = KEY_TAB
+		tab_press.pressed = true
+		hud.call("_input", tab_press)
+		var opens_on_tab := attack_timeline.visible and bool(hud.call("debug_is_attack_timeline_open"))
+		var tab_echo := InputEventKey.new()
+		tab_echo.keycode = KEY_TAB
+		tab_echo.pressed = true
+		tab_echo.echo = true
+		hud.call("_input", tab_echo)
+		var echo_keeps_open := attack_timeline.visible
+		hud.call("_input", tab_press)
+		attack_timeline_toggle_works = (
+			starts_closed
+			and opens_on_press
+			and open_text_is_correct
+			and opens_on_tab
+			and echo_keeps_open
+			and not attack_timeline.visible
+			and attack_timeline_toggle_button.text == "技能释放时间轴"
+		)
 	var passed: bool = (
 		art_scene_source.count("[node ") == 8
 		and occupied_cell_count > 0
@@ -164,6 +197,15 @@ func _run() -> void:
 		and unit_host.get_child_count() < board_grid.get_child_count()
 		and vfx_host != null
 		and hud != null
+		and attack_timeline_layer != null
+		and attack_timeline_layer.layer == 100
+		and attack_timeline != null
+		and attack_timeline.size == Vector2(1640.0, 780.0)
+		and int(attack_timeline.call("debug_marker_count")) == 8
+		and attack_timeline_toggle_button != null
+		and attack_timeline_toggle_button.position == Vector2(280.0, 90.0)
+		and attack_timeline_toggle_button.size == Vector2(300.0, 48.0)
+		and attack_timeline_toggle_works
 		and art_scene.get_child_count() == 3
 		and board.get_child_count() == 4
 		and bottom_left_cell != null

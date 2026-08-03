@@ -17,6 +17,14 @@ func _run() -> void:
 	pet.size = Vector2(171.0, 168.0)
 	await process_frame
 	var stats := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
+	var incoming_damage_preview := pet.get_node(
+		"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"
+	) as Control
+	assert(not stats.z_as_relative)
+	assert(stats.z_index == 203)
+	assert(not incoming_damage_preview.z_as_relative)
+	assert(incoming_damage_preview.z_index == 202)
+	assert(stats.z_index > incoming_damage_preview.z_index)
 	var health := stats.get_node("Health") as Control
 	var shield := stats.get_node("Shield") as Control
 	var attack := stats.get_node("Attack") as Control
@@ -110,7 +118,7 @@ func _run() -> void:
 		assert(not icon.visible)
 		assert(Rect2(label.position, label.size).is_equal_approx(authored_label_rects[index]))
 	_assert_rows_in_right_column(groups, back_corners)
-	assert(not stats.visible)
+	assert(stats.visible)
 	pet.call("set_dragging", true)
 	assert(not pet.visible)
 	assert(stats.visible)
@@ -118,7 +126,7 @@ func _run() -> void:
 	assert(pet.visible)
 	assert(stats.visible)
 	await create_timer(1.05).timeout
-	assert(not stats.visible)
+	assert(stats.visible)
 	pet.name = "BattleUnitDragPreview"
 	pet.call("set_dragging", false)
 	assert(stats.visible)

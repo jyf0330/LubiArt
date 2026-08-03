@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "source_kind": "screen_pet_release_order",
+  "source_reference": "res://art/images/battle/hud/attack_timeline/source/screen_pet_release_order_transparent_v2.png",
+  "source_psd": "res://art/images/battle/hud/attack_timeline/source_psd/screen_pet_release_order_godot_v2.psd",
+  "baseline_canvas": {
+    "width": 1640,
+    "height": 778,
+    "background": "transparent"
+  },
+  "screen_role": "secondary_overlay",
+  "removed_from_v1": [
+    "battle_map",
+    "battle_map_units_and_stats",
+    "underlying_battle_hud",
+    "root_translucent_panel",
+    "outer_corner_ornaments"
+  ],
+  "preserved": [
+    "title_and_subtitle",
+    "mode_tag",
+    "timeline_track",
+    "eight_pet_markers",
+    "release_order_summary",
+    "instruction_status",
+    "reset_button",
+    "play_button"
+  ],
+  "groups": [
+    {
+      "source_layer": "00_reference_ignore/ref_fullscreen_original",
+      "classification": "IGNORE",
+      "purpose": "Hidden transparent composite comparison reference"
+    },
+    {
+      "source_layer": "01_ui_static_remainder/merge_unassigned_ui_details",
+      "classification": "MERGE_TEXTURE",
+      "purpose": "Remaining authored UI pixels not owned by a dedicated component region; contains no map or corner frame"
+    },
+    {
+      "source_layer": "02_header/merge_title_and_subtitle",
+      "classification": "MERGE_TEXTURE",
+      "rect": [48, 25, 760, 127]
+    },
+    {
+      "source_layer": "02_header/label_mode_attack_timeline",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [1310, 25, 1580, 112]
+    },
+    {
+      "source_layer": "03_timeline_static/merge_timeline_track",
+      "classification": "MERGE_TEXTURE",
+      "rect": [165, 340, 1480, 384]
+    },
+    {
+      "source_layer": "03_timeline_static/label_battle_start",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [132, 428, 270, 459]
+    },
+    {
+      "source_layer": "03_timeline_static/label_round_end",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [1415, 428, 1540, 459]
+    },
+    {
+      "source_layer": "04_pet_markers/component_pet_marker_01..08",
+      "classification": "COMPONENT",
+      "count": 8,
+      "component_source": "res://art/images/battle/hud/attack_timeline/pet_frame/source_psd/component_attack_timeline_pet_frame_godot_v2.psd",
+      "children": [
+        {"name": "state_order_badge_N", "classification": "STATE_RESOURCE"},
+        {"name": "component_pet_frame_snapshot", "classification": "COMPONENT"},
+        {"name": "merge_timeline_stem", "classification": "MERGE_TEXTURE"},
+        {"name": "label_pet_name", "classification": "DYNAMIC_FIELD"}
+      ]
+    },
+    {
+      "source_layer": "05_order_summary/label_release_order",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [205, 480, 1445, 532]
+    },
+    {
+      "source_layer": "06_instruction_status/merge_status_panel_and_label",
+      "classification": "MERGE_TEXTURE",
+      "rect": [259, 544, 1385, 609],
+      "dynamic_region": "status_label"
+    },
+    {
+      "source_layer": "07_footer_actions/state_reset_button_normal",
+      "classification": "STATE_RESOURCE",
+      "state": "normal",
+      "rect": [530, 656, 793, 727],
+      "target": "ResetButton"
+    },
+    {
+      "source_layer": "07_footer_actions/state_play_button_normal",
+      "classification": "STATE_RESOURCE",
+      "state": "normal",
+      "rect": [830, 656, 1115, 727],
+      "target": "PlayButton"
+    }
+  ]
+}

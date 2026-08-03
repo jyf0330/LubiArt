@@ -9,6 +9,7 @@ SOURCE_PATH = (
 )
 ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/rock_claw"
 SOURCE_OUTPUT = ANIMATION_ROOT / "sources/rock_claw_neutral_v1.png"
+CLOSED_SOURCE_PATH = ANIMATION_ROOT / "sources/rock_claw_closed_user_v1.png"
 FRAME_DIR = ANIMATION_ROOT / "preview_v1/idle"
 STRIP_PATH = ANIMATION_ROOT / "rock_claw_idle_preview_v1.png"
 GIF_PATH = ROOT / "output/rock_claw_frame_idle_preview_v1.gif"
@@ -54,8 +55,6 @@ def breathe_up(frame: Image.Image) -> Image.Image:
     return result
 
 
-LEFT_EYE = ((63, 125), (69, 123), (85, 135), (84, 143), (78, 146), (69, 141), (64, 134))
-RIGHT_EYE = ((137, 125), (131, 123), (115, 135), (116, 143), (122, 146), (131, 141), (136, 134))
 SKIN_COLOR = (190, 176, 175, 255)
 EYELID_COLOR = (18, 16, 15, 255)
 
@@ -70,14 +69,13 @@ def blink_half(frame: Image.Image) -> Image.Image:
     return result
 
 
-def blink_closed(frame: Image.Image) -> Image.Image:
-    result = frame.copy()
-    draw = ImageDraw.Draw(result)
-    draw.polygon(LEFT_EYE, fill=SKIN_COLOR)
-    draw.polygon(RIGHT_EYE, fill=SKIN_COLOR)
-    draw.line(((65, 132), (84, 140)), fill=EYELID_COLOR, width=3)
-    draw.line(((135, 132), (116, 140)), fill=EYELID_COLOR, width=3)
-    return result
+def load_user_closed_frame(neutral: Image.Image) -> Image.Image:
+    closed = Image.open(CLOSED_SOURCE_PATH).convert("RGBA")
+    if closed.size != CANVAS_SIZE:
+        raise ValueError(f"Unexpected user closed-frame size: {closed.size}")
+    if closed.getchannel("A").getbbox() != neutral.getchannel("A").getbbox():
+        raise ValueError("User closed frame does not share the neutral frame anchor")
+    return closed
 
 
 def main() -> None:
@@ -102,13 +100,14 @@ def main() -> None:
 
     neutral = normalize_source()
     neutral.save(SOURCE_OUTPUT, optimize=False)
+    closed = load_user_closed_frame(neutral)
 
     frames = [
         neutral.copy(),
         breathe_up(neutral),
         neutral.copy(),
         blink_half(neutral),
-        blink_closed(neutral),
+        closed,
         blink_half(neutral),
         neutral.copy(),
     ]

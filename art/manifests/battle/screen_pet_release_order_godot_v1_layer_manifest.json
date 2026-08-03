@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "source_kind": "screen_pet_release_order",
+  "source_reference": "res://art/images/battle/hud/attack_timeline/source/screen_pet_release_order_reference_v1.png",
+  "source_psd": "res://art/images/battle/hud/attack_timeline/source_psd/screen_pet_release_order_godot_v1.psd",
+  "baseline_canvas": {
+    "width": 1640,
+    "height": 778
+  },
+  "screen_role": "secondary_overlay",
+  "pixel_parity": {
+    "required": true,
+    "reference_sha256": "306C6DA107823DED88D1103803D3A7179DC402E88AE5952483A1BBEA3E1C0431",
+    "preview": "res://output/screen_pet_release_order_godot_v1_preview.png"
+  },
+  "groups": [
+    {
+      "source_layer": "00_reference_ignore/ref_fullscreen_original",
+      "classification": "IGNORE",
+      "purpose": "Hidden immutable whole-screen comparison reference"
+    },
+    {
+      "source_layer": "01_panel_static/merge_panel_background_and_outer_frame",
+      "classification": "MERGE_TEXTURE",
+      "purpose": "Static overlay panel, translucency, outer frame, and unassigned background pixels"
+    },
+    {
+      "source_layer": "02_header/merge_title_and_subtitle",
+      "classification": "MERGE_TEXTURE",
+      "rect": [48, 25, 760, 127],
+      "purpose": "Exact header artwork and visible copy from the approved screenshot"
+    },
+    {
+      "source_layer": "02_header/label_mode_attack_timeline",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [1310, 25, 1580, 112],
+      "purpose": "Mode tag geometry and approved visible value"
+    },
+    {
+      "source_layer": "03_timeline_static/merge_timeline_track",
+      "classification": "MERGE_TEXTURE",
+      "rect": [165, 340, 1480, 384],
+      "purpose": "Timeline rail and fixed ticks"
+    },
+    {
+      "source_layer": "03_timeline_static/label_battle_start",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [132, 428, 270, 459]
+    },
+    {
+      "source_layer": "03_timeline_static/label_round_end",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [1415, 428, 1540, 459]
+    },
+    {
+      "source_layer": "04_pet_markers/component_pet_marker_01..08",
+      "classification": "COMPONENT",
+      "count": 8,
+      "component_source": "res://art/images/battle/hud/attack_timeline/pet_frame/source_psd/component_attack_timeline_pet_frame_godot_v2.psd",
+      "children": [
+        {"name": "state_order_badge_N", "classification": "STATE_RESOURCE"},
+        {"name": "component_pet_frame_snapshot", "classification": "COMPONENT"},
+        {"name": "merge_timeline_stem", "classification": "MERGE_TEXTURE"},
+        {"name": "label_pet_name", "classification": "DYNAMIC_FIELD"}
+      ]
+    },
+    {
+      "source_layer": "05_order_summary/label_release_order",
+      "classification": "DYNAMIC_FIELD",
+      "rect": [205, 480, 1445, 532]
+    },
+    {
+      "source_layer": "06_instruction_status/merge_status_panel_and_label",
+      "classification": "MERGE_TEXTURE",
+      "rect": [259, 544, 1385, 609],
+      "dynamic_region": "status_label"
+    },
+    {
+      "source_layer": "07_footer_actions/state_reset_button_normal",
+      "classification": "STATE_RESOURCE",
+      "state": "normal",
+      "rect": [530, 656, 793, 727],
+      "target": "ResetButton"
+    },
+    {
+      "source_layer": "07_footer_actions/state_play_button_normal",
+      "classification": "STATE_RESOURCE",
+      "state": "normal",
+      "rect": [830, 656, 1115, 727],
+      "target": "PlayButton"
+    }
+  ],
+  "notes": [
+    "The visible PSD composite is segmented directly from the supplied approved screenshot so no text, color, spacing, or antialiasing is regenerated.",
+    "Pet-frame internals remain owned by the existing component PSD; the page PSD contains eight positioned component snapshots plus separately editable badge, stem, and name regions.",
+    "The hidden reference group must remain hidden in production exports and is only for pixel comparison."
+  ]
+}

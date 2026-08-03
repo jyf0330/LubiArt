@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "by_texture_path": {
+    "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png": {
+      "idle": {
+        "frames": [
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_001.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_002.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_003.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_004.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_005.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_006.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_007.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v16/idle/frame_008.png"
+        ],
+        "durations_ms": [320, 220, 280, 220, 280, 120, 120, 320]
+      },
+      "attack": {
+        "frames": [
+          "res://art/images/shared/pets/animations/earth_slime/preview_v5/attack/frame_001.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v5/attack/frame_002.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v5/attack/frame_003.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v5/attack/frame_004.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v5/attack/frame_005.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v5/attack/frame_006.png"
+        ],
+        "durations_ms": [160, 180, 300, 320, 180, 240],
+        "release_frame": 4
+      },
+      "move": {
+        "frames": [
+          "res://art/images/shared/pets/animations/earth_slime/preview_v2/move/frame_001.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v2/move/frame_002.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v2/move/frame_003.png",
+          "res://art/images/shared/pets/animations/earth_slime/preview_v2/move/frame_004.png"
+        ],
+        "durations_ms": [160, 160, 160, 160]
+      }
+    },
+    "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png": {
+      "idle": {
+        "frames": [
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_001.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_002.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_003.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_004.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_005.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_006.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_007.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v3/idle/frame_008.png"
+        ],
+        "durations_ms": [340, 220, 300, 220, 300, 120, 120, 340]
+      },
+      "attack": {
+        "frames": [
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v11/attack/frame_001.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v11/attack/frame_002.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v11/attack/frame_003.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v11/attack/frame_004.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v11/attack/frame_005.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v11/attack/frame_006.png"
+        ],
+        "durations_ms": [220, 240, 320, 260, 260, 280],
+        "release_frame": 4
+      },
+      "move": {
+        "frames": [
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v6/move/frame_001.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v6/move/frame_002.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v6/move/frame_003.png",
+          "res://art/images/shared/pets/animations/shadow_rock_wolf/preview_v6/move/frame_004.png"
+        ],
+        "durations_ms": [190, 190, 190, 190]
+      }
+    },
+    "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png": {
+      "idle": {
+        "frames": [
+          "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_001.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_002.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_003.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_004.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_005.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_006.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_007.png"
+        ],
+        "durations_ms": [520, 320, 940, 100, 260, 100, 520]
+      },
+      "attack": {
+        "frames": [
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_001.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_002.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_003.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_004.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_005.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_006.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_007.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_008.png",
+          "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_009.png"
+        ],
+        "durations_ms": [280, 120, 180, 320, 90, 190, 160, 140, 320],
+        "release_frame": 6
+      }
+    }
+  }
+}

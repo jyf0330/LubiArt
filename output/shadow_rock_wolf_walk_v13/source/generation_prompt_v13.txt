@@ -1,0 +1,29 @@
+Use case: stylized-concept
+Asset type: corrected production pixel-art game sprite animation sheet
+
+Identity master:
+Preserve the supplied closed-mouth shadow rock wolf frame: the same head silhouette,
+ears, face, blue forehead crystal, orange eyes, grey-and-white fur, fluffy tail,
+gold collar, red-brown clothing, proportions, palette, black outline, and hard pixel edges.
+
+Generate exactly 12 frames in a 4 x 3 sheet, read left-to-right and top-to-bottom.
+The character is a standing quadruped walking in place, never sitting or waving.
+Every frame has four anatomically connected legs.
+
+Gait:
+- Screen-left foreleg and hind leg move in the same phase.
+- Screen-right foreleg and hind leg move in the same phase.
+- The two sides are exactly six frames apart.
+- Frames 1-6: left side contacts, bears weight, moves behind, unloads, and pushes
+  while the right side lifts, swings forward, reaches, lowers, and prepares contact.
+- Frames 7-12 repeat the same sequence with left and right roles swapped.
+
+Keep the foot baseline, body center, scale, camera, and visual anchor stable.
+Use only a subtle forward lean and 1-2 pixel vertical bob. Do not add running,
+jumping, diagonal trotting, body swelling, extra or missing limbs, detached joints,
+duplicated paws, motion blur, smear, projectiles, VFX, shadows, text, borders,
+numbers, grid lines, or watermarks.
+
+Use a perfectly uniform flat #00ff00 chroma-key background with no ground,
+gradient, texture, reflection, lighting variation, or cast shadow. Do not use the
+key color in the character.
