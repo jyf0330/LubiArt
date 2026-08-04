@@ -22,8 +22,8 @@ func _run() -> void:
 	if battle_view == null or session == null:
 		_fail("main battle view or session is unavailable")
 		return
-	var auto_button := battle_view.get_node_or_null("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton
-	var begin_button := battle_view.get_node_or_null("Hud/BattlePrimaryActions/BeginTurnButton") as TextureButton
+	var auto_button := battle_view.get_node_or_null("MapControls/AutoArrangeButton") as TextureButton
+	var begin_button := battle_view.get_node_or_null("MapControls/AllOutButton") as TextureButton
 	if auto_button == null or begin_button == null:
 		_fail("the two battle buttons are unavailable")
 		return

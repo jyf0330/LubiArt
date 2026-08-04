@@ -34,6 +34,17 @@ func _run() -> void:
 	var board_grid := art_scene.get_node_or_null("Board/CellHost") as Control
 	var unit_host := art_scene.get_node_or_null("Board/UnitHost") as Control
 	var vfx_host := art_scene.get_node_or_null("Board/VfxHost") as Control
+	var map_controls := art_scene.get_node_or_null("MapControls") as Control
+	var map_debug_button := art_scene.get_node_or_null("MapDebugButton") as Button
+	var shortcut_hint_debug_button := art_scene.get_node_or_null("ShortcutHintDebugButton") as Button
+	var map_auto_button := art_scene.get_node_or_null("MapControls/AutoArrangeButton") as TextureButton
+	var map_reset_button := art_scene.get_node_or_null("MapControls/ResetButton") as TextureButton
+	var map_speed_button := art_scene.get_node_or_null("MapControls/SpeedButton") as TextureButton
+	var map_settings_button := art_scene.get_node_or_null("MapControls/SettingsButton") as TextureButton
+	var map_attack_order_button := art_scene.get_node_or_null("MapControls/AttackOrderButton") as TextureButton
+	var map_bag_button := art_scene.get_node_or_null("MapControls/BagButton") as TextureButton
+	var shortcut_hints := art_scene.get_node_or_null("MapControls/ShortcutHints") as TextureRect
+	var map_all_out_button := art_scene.get_node_or_null("MapControls/AllOutButton") as TextureButton
 	var hud := art_scene.get_node_or_null("Hud") as Control
 	var primary_actions := art_scene.get_node_or_null("Hud/BattlePrimaryActions") as Control
 	var primary_actions_shadow := art_scene.get_node_or_null("Hud/BattlePrimaryActions/Shadow") as TextureRect
@@ -70,6 +81,33 @@ func _run() -> void:
 		and asset_registry.call("battle_background_key", {"day": 1, "battle_map_key": "mountain_evening"}) == "mountain_evening"
 		and asset_registry.call("all_declared_runtime_assets_exist")
 	)
+	var debug_map_cycle_works := false
+	if map_debug_button != null and board_background != null:
+		var debug_map_paths: Array[String] = []
+		for _debug_step in range(8):
+			map_debug_button.pressed.emit()
+			await process_frame
+			debug_map_paths.append(board_background.texture.resource_path)
+		debug_map_cycle_works = (
+			debug_map_paths.size() == 8
+			and debug_map_paths.all(func(path: String) -> bool:
+				return path.begins_with("res://art/images/battle/map_controls/maps/")
+				)
+			and debug_map_paths.duplicate().reduce(func(unique: Array, path: String) -> Array:
+				if path not in unique:
+					unique.append(path)
+				return unique
+				, []).size() == 8
+		)
+	var shortcut_hint_toggle_works := false
+	if shortcut_hint_debug_button != null and shortcut_hints != null:
+		var hints_visible_before := shortcut_hints.visible
+		shortcut_hint_debug_button.pressed.emit()
+		await process_frame
+		var hints_changed := shortcut_hints.visible != hints_visible_before
+		shortcut_hint_debug_button.pressed.emit()
+		await process_frame
+		shortcut_hint_toggle_works = hints_changed and shortcut_hints.visible == hints_visible_before
 	if direction_arrow != null and direction_scroll_hint != null and direction_scroll_animation != null:
 		direction_arrow.mouse_entered.emit()
 		await process_frame
@@ -147,7 +185,7 @@ func _run() -> void:
 		direction_collapse_button.pressed.emit()
 		await process_frame
 	var passed: bool = (
-		art_scene_source.count("[node ") == 8
+		art_scene_source.count("[node ") == 11
 		and occupied_cell_count > 0
 		and board != null
 		and board_background != null
@@ -155,8 +193,10 @@ func _run() -> void:
 		and board_background.expand_mode == TextureRect.EXPAND_IGNORE_SIZE
 		and board_background.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		and board_background.texture != null
-		and board_background.texture.get_size() == Vector2(1456.0, 816.0)
+		and board_background.texture.get_size() == Vector2(1920.0, 1080.0)
+		and board_background.texture.resource_path.begins_with("res://art/images/battle/map_controls/maps/")
 		and background_variants_match
+		and debug_map_cycle_works
 		and board_grid != null
 		and board_grid.get_child_count() == 56
 		and unit_host != null
@@ -164,7 +204,7 @@ func _run() -> void:
 		and unit_host.get_child_count() < board_grid.get_child_count()
 		and vfx_host != null
 		and hud != null
-		and art_scene.get_child_count() == 3
+		and art_scene.get_child_count() == 6
 		and board.get_child_count() == 4
 		and bottom_left_cell != null
 		and bottom_left_cell.visible
@@ -186,7 +226,33 @@ func _run() -> void:
 		and cell_detail != null
 		and art_scene.get_node_or_null("Board/VfxHost") != null
 		and art_scene.get_node_or_null("Hud/BattleActionPanel") != null
+		and map_controls != null
+		and map_controls.position == Vector2(1621.0, 295.0)
+		and map_controls.size == Vector2(287.0, 752.0)
+		and map_controls.get_node_or_null("MapBackground") == null
+		and map_debug_button != null
+		and Rect2(map_debug_button.position, map_debug_button.size) == Rect2(1426.0, 636.0, 288.0, 42.0)
+		and map_auto_button != null
+		and Rect2(map_auto_button.position, map_auto_button.size) == Rect2(220.0, 0.0, 66.0, 62.0)
+		and map_reset_button != null
+		and Rect2(map_reset_button.position, map_reset_button.size) == Rect2(221.0, 82.0, 66.0, 62.0)
+		and map_speed_button != null
+		and Rect2(map_speed_button.position, map_speed_button.size) == Rect2(221.0, 164.0, 65.0, 62.0)
+		and map_settings_button != null
+		and Rect2(map_settings_button.position, map_settings_button.size) == Rect2(222.0, 246.0, 65.0, 62.0)
+		and map_attack_order_button != null
+		and Rect2(map_attack_order_button.position, map_attack_order_button.size) == Rect2(222.0, 328.0, 65.0, 62.0)
+		and map_bag_button != null
+		and Rect2(map_bag_button.position, map_bag_button.size) == Rect2(221.0, 410.0, 66.0, 62.0)
+		and map_all_out_button != null
+		and Rect2(map_all_out_button.position, map_all_out_button.size) == Rect2(14.0, 688.0, 272.0, 64.0)
+		and shortcut_hints != null
+		and Rect2(shortcut_hints.position, shortcut_hints.size) == Rect2(0.0, 34.0, 259.0, 716.0)
+		and shortcut_hint_debug_button != null
+		and Rect2(shortcut_hint_debug_button.position, shortcut_hint_debug_button.size) == Rect2(1621.0, 245.0, 287.0, 42.0)
+		and shortcut_hint_toggle_works
 		and primary_actions != null
+		and not primary_actions.visible
 		and primary_actions.anchor_left == 1.0
 		and primary_actions.anchor_top == 1.0
 		and primary_actions.size == Vector2(365.0, 415.0)

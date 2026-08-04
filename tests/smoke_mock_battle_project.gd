@@ -270,6 +270,7 @@ func _run() -> void:
 	await process_frame
 
 	var route_main_instance := main_scene.instantiate()
+	route_main_instance.set("mock_start_phase", "route")
 	root.add_child(route_main_instance)
 	for _frame in range(8):
 		await process_frame
@@ -567,7 +568,7 @@ func _run() -> void:
 		Dictionary(game_session.call("current_snapshot")),
 		player_unit_id
 	)
-	(battle_view.get_node("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("MapControls/AutoArrangeButton") as TextureButton).pressed.emit()
 	await process_frame
 	await process_frame
 	await process_frame
@@ -577,7 +578,7 @@ func _run() -> void:
 	_assert_active_damage_previews_synchronized(board_grid)
 
 	var main_before_round := int(main_positioned.get("battle_round", 0))
-	(battle_view.get_node("Hud/BattlePrimaryActions/BeginTurnButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("MapControls/AllOutButton") as TextureButton).pressed.emit()
 	await process_frame
 	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("state", "")) == "executing")
 	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("flow_text", "")).contains("执行中"))

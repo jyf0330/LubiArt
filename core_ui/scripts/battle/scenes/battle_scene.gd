@@ -37,11 +37,15 @@ const DROP_RETURN_DURATION := 0.16
 @onready var board_grid: Control = $Board/CellHost
 @onready var unit_host: Control = $Board/UnitHost
 @onready var vfx_player: Control = $Board/VfxHost
+@onready var map_controls: Control = $MapControls
+@onready var map_debug_button: Button = $MapDebugButton
+@onready var shortcut_hint_debug_button: Button = $ShortcutHintDebugButton
 @onready var hud: Control = $Hud
 @onready var overlay_host: Control = $OverlayHost
-@onready var auto_arrange_button: TextureButton = hud.call("get_auto_arrange_button") as TextureButton
+@onready var auto_arrange_button: TextureButton = $MapControls/AutoArrangeButton
+@onready var map_reset_button: TextureButton = $MapControls/ResetButton
 @onready var position_difficulty_button: Button = hud.call("get_position_difficulty_button") as Button
-@onready var begin_turn_button: TextureButton = hud.call("get_begin_turn_button") as TextureButton
+@onready var begin_turn_button: TextureButton = $MapControls/AllOutButton
 
 var _assets: RefCounted = null
 var _cell_size := Vector2.ZERO
@@ -87,6 +91,7 @@ var _pending_final_snapshot: Dictionary = {}
 var _pending_action_panel_snapshot: Dictionary = {}
 var _last_rendered_cell_count := 0
 var _auto_position_feedback_pending := false
+var _debug_map_index := -1
 var _position_feedback_serial := 0
 var _enemy_damage_preview_sync_epoch_msec := -1
 var _board_controller := BattleBoardControllerScript.new()
@@ -125,6 +130,10 @@ func _ready() -> void:
 		Callable(self, "_on_position_difficulty_toggled"),
 		Callable(self, "_on_begin_turn_pressed")
 	)
+	_connect_map_controls()
+	map_debug_button.pressed.connect(_on_map_debug_button_pressed)
+	shortcut_hint_debug_button.pressed.connect(_on_shortcut_hint_debug_button_pressed)
+	_update_shortcut_hint_debug_button_label()
 	_style_position_difficulty_button()
 	_update_position_difficulty_button({})
 	_ensure_detail_panel()
@@ -261,6 +270,7 @@ func render_snapshot(snap: Dictionary) -> void:
 	_play_initial_round_banner_if_needed(snap)
 	_play_new_trace_events(snap)
 	_update_position_difficulty_button(snap)
+	_update_map_control_availability(snap)
 	_consume_auto_position_feedback(snap)
 
 
@@ -270,6 +280,10 @@ func _render_battle_background(snapshot: Dictionary) -> void:
 	var texture_resource := _assets.call("battle_background_texture", snapshot) as Texture2D
 	if texture_resource != null:
 		board_background.texture = texture_resource
+	var map_id := String(_assets.call("battle_background_key", snapshot))
+	if map_controls != null and bool(map_controls.call("set_map_by_id", map_id)):
+		_debug_map_index = int(map_controls.call("get_map_index"))
+		_update_map_debug_button_label()
 
 
 func _render_board_cells(cells: Array, pending_reset_ids: Dictionary = {}) -> void:
@@ -884,6 +898,8 @@ func _set_battle_input_locked(locked: bool) -> void:
 		position_difficulty_button.disabled = locked
 	if begin_turn_button != null:
 		begin_turn_button.disabled = locked
+	if map_reset_button != null:
+		map_reset_button.disabled = locked or not _reset_pets_is_eligible(_last_snapshot)
 	_ensure_action_panel()
 	if _action_panel != null and _action_panel.has_method("set_input_locked"):
 		_action_panel.call("set_input_locked", locked)
@@ -2163,6 +2179,71 @@ func _on_begin_turn_pressed() -> void:
 	if _battle_input_locked:
 		return
 	command_requested.emit({"type": "RUN_COMBAT_ROUND"})
+
+
+func _connect_map_controls() -> void:
+	if map_controls == null:
+		return
+	var connections := {
+		"auto_arrange_requested": Callable(self, "_on_auto_arrange_pressed"),
+		"reset_requested": Callable(self, "_on_map_reset_requested"),
+		"all_out_requested": Callable(self, "_on_begin_turn_pressed"),
+	}
+	for signal_name in connections:
+		var callback := connections[signal_name] as Callable
+		if map_controls.has_signal(signal_name) and not map_controls.is_connected(signal_name, callback):
+			map_controls.connect(signal_name, callback)
+
+
+func _on_map_reset_requested() -> void:
+	if _battle_input_locked or not _reset_pets_is_eligible(_last_snapshot):
+		return
+	_on_action_panel_command_requested({"type": "RESET_PETS"})
+
+
+func _on_shortcut_hint_debug_button_pressed() -> void:
+	if map_controls == null:
+		return
+	map_controls.call("toggle_shortcut_hints")
+	_update_shortcut_hint_debug_button_label()
+
+
+func _update_shortcut_hint_debug_button_label() -> void:
+	if shortcut_hint_debug_button == null or map_controls == null:
+		return
+	var hints_visible := bool(map_controls.call("are_shortcut_hints_visible"))
+	shortcut_hint_debug_button.text = "Shortcut Hints: %s" % ("ON" if hints_visible else "OFF")
+
+
+func _on_map_debug_button_pressed() -> void:
+	if map_controls == null or board_background == null:
+		return
+	var map_ids := map_controls.call("get_map_ids") as PackedStringArray
+	if map_ids.is_empty():
+		return
+	_debug_map_index = (_debug_map_index + 1) % map_ids.size()
+	if not bool(map_controls.call("set_map_by_index", _debug_map_index)):
+		return
+	var texture := map_controls.call("get_map_texture") as Texture2D
+	if texture != null:
+		board_background.texture = texture
+	_update_map_debug_button_label()
+
+
+func _update_map_debug_button_label() -> void:
+	if map_debug_button == null or map_controls == null:
+		return
+	map_debug_button.text = "调试地图：%s" % String(map_controls.call("get_map_display_name"))
+
+
+func _reset_pets_is_eligible(snapshot: Dictionary) -> bool:
+	var reset_state := Dictionary(Dictionary(snapshot.get("pet_reset", {})).get("player", {}))
+	return bool(reset_state.get("eligible", false))
+
+
+func _update_map_control_availability(snapshot: Dictionary) -> void:
+	if map_reset_button != null:
+		map_reset_button.disabled = _battle_input_locked or not _reset_pets_is_eligible(snapshot)
 
 
 func _ensure_detail_panel() -> void:
