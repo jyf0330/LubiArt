@@ -95,19 +95,24 @@ func _run() -> void:
 	var isolated_session := MockSession.new({"start_phase": "battle"})
 	var boot_snapshot := Dictionary(isolated_session.current_snapshot())
 	_assert_snapshot_contract(boot_snapshot)
-	var boot_skill_queue := Array(boot_snapshot.get("selectedSkillQueue", []))
+	var boot_skill_queue := Array(boot_snapshot.get("skillControlBar", []))
 	assert(boot_skill_queue.size() == 8)
+	assert(_skill_bar_unit_ids(boot_skill_queue).size() == 4)
+	assert(_skill_bar_slots(boot_skill_queue) == ["a", "b", "a", "b", "a", "b", "a", "b"])
 	assert(Array(boot_snapshot.get("selectedTraits", [])).size() == 1)
-	assert(Array(boot_snapshot.get("selectedSkillCombos", [])).size() == 4)
-	var reversed_skill_ids := _skill_queue_ids(boot_skill_queue)
-	reversed_skill_ids.reverse()
+	assert(Array(boot_snapshot.get("selectedSkillCombos", [])).size() == 1)
+	var reversed_entry_ids: Array = []
+	var default_entry_ids := _skill_control_entry_ids(boot_skill_queue)
+	for index in range(1, default_entry_ids.size(), 2):
+		reversed_entry_ids.append(default_entry_ids[index])
+	for index in range(0, default_entry_ids.size(), 2):
+		reversed_entry_ids.append(default_entry_ids[index])
 	var reorder_response := Dictionary(isolated_session.submit_command({
-		"type": "SET_SKILL_ORDER",
-		"unitId": String(boot_snapshot.get("selected_unit_id", "")),
-		"orderedSkillIds": reversed_skill_ids,
+		"type": "SET_SKILL_CONTROL_ORDER",
+		"orderedEntryIds": reversed_entry_ids,
 	}))
 	assert(bool(reorder_response.get("accepted", false)))
-	assert(_skill_queue_ids(Array(isolated_session.current_snapshot().get("selectedSkillQueue", []))) == reversed_skill_ids)
+	assert(_skill_control_entry_ids(Array(isolated_session.current_snapshot().get("skillControlBar", []))) == reversed_entry_ids)
 	assert(Array(isolated_session.current_snapshot().get("selectedSkillCombos", [])).is_empty())
 	assert(isolated_session.replay_step_index() == 0)
 	isolated_session.reset(false)
@@ -612,10 +617,26 @@ func _run() -> void:
 	quit(0)
 
 
-func _skill_queue_ids(entries: Array) -> Array:
+func _skill_control_entry_ids(entries: Array) -> Array:
 	var result: Array = []
 	for entry_value in entries:
-		result.append(String(Dictionary(entry_value).get("skillId", "")))
+		result.append(String(Dictionary(entry_value).get("entryId", "")))
+	return result
+
+
+func _skill_bar_unit_ids(entries: Array) -> Array:
+	var result: Array = []
+	for entry_value in entries:
+		var unit_id := String(Dictionary(entry_value).get("unitId", ""))
+		if unit_id != "" and not result.has(unit_id):
+			result.append(unit_id)
+	return result
+
+
+func _skill_bar_slots(entries: Array) -> Array:
+	var result: Array = []
+	for entry_value in entries:
+		result.append(String(Dictionary(entry_value).get("skillSlot", "")))
 	return result
 
 

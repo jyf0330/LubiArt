@@ -6,6 +6,7 @@ signal slot_pressed(index: int)
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 
 var queue_index := -1
+var entry_id := ""
 var skill_id := ""
 var _picked := false
 
@@ -17,13 +18,21 @@ func _ready() -> void:
 
 func configure(index: int, entry: Dictionary) -> void:
 	queue_index = index
+	entry_id = String(entry.get("entryId", entry.get("entry_id", "")))
 	skill_id = String(entry.get("skillId", entry.get("skill_id", "")))
+	var unit_name := String(entry.get("unitName", entry.get("unit_name", "宠物"))).strip_edges()
+	var skill_slot := String(entry.get("skillSlot", entry.get("skill_slot", ""))).to_upper()
 	var label := String(entry.get("label", "")).strip_edges()
 	if label == "":
 		label = skill_id
-	text = "%d  %s" % [index + 1, label]
+	if entry_id == "" or skill_id == "":
+		text = "%d  —" % (index + 1)
+		tooltip_text = ""
+		disabled = true
+		return
+	text = "%d  %s %s · %s" % [index + 1, unit_name, skill_slot, label]
 	tooltip_text = RuntimeUiPolicy.text("UI_ACTION_SKILL_TOOLTIP")
-	disabled = skill_id == ""
+	disabled = entry_id == "" or skill_id == ""
 
 
 func set_picked(picked: bool) -> void:
@@ -36,7 +45,7 @@ func is_picked() -> bool:
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
-	if skill_id == "":
+	if entry_id == "" or skill_id == "":
 		return null
 	var preview := Label.new()
 	preview.text = text
