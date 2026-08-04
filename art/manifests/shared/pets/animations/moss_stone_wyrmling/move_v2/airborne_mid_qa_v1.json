@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "generation_service": "built_in_image_generation",
+  "generation_call_count": 1,
+  "quota_or_cost": "not_exposed_by_service",
+  "raw_path": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_airborne_mid_chroma_raw_v1.png",
+  "raw_sha256": "21d84d54b72ac6744f083ad3c987157bea27bda2de46d3688580284889fa7caa",
+  "transparent_hd_path": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_airborne_mid_transparent_hd_v1.png",
+  "midframe_path": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_airborne_mid_128_v1.png",
+  "preview_path": "output/moss_stone_wyrmling_airborne_mid_clean_4x_v1.png",
+  "canvas_size": [
+    128,
+    128
+  ],
+  "alpha_bbox": [
+    10,
+    17,
+    118,
+    110
+  ],
+  "alpha_binary": true,
+  "transparent_corners": true,
+  "residual_magenta_pixels": 0,
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PENDING_USER_REVIEW"
+}

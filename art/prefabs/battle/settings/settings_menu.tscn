@@ -1,0 +1,389 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/settings/settings_menu.gd" id="1_script"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hover_button"]
+content_margin_top = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.827451, 1, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 1
+shadow_color = Color(0, 0, 0, 0.145098)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal_button"]
+content_margin_top = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.827451, 0.698039, 0.094118, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 1
+shadow_color = Color(0, 0, 0, 0.145098)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pressed_button"]
+content_margin_top = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 1
+shadow_color = Color(0, 0, 0, 0.145098)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_border"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.55, 0.42, 0.12, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_inner_border"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.42, 0.12, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hover_inner_border"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.68, 0.16, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inner_button_border"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.588235, 0.427451, 0.117647, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_resign_button"]
+content_margin_top = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.95, 0.14, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_resign_hover_button"]
+content_margin_top = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.95, 0.14, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 1
+shadow_color = Color(1, 0.08, 0.03, 0.32)
+shadow_size = 12
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_resign_inner_border"]
+bg_color = Color(0.62, 0.025, 0.05, 0.28)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.68, 0.08, 0.03, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="Theme" id="Theme_settings_menu"]
+Button/font_sizes/font_size = 32
+Button/styles/focus = SubResource("StyleBoxEmpty_focus")
+Button/styles/hover = SubResource("StyleBoxFlat_hover_button")
+Button/styles/normal = SubResource("StyleBoxFlat_normal_button")
+Button/styles/pressed = SubResource("StyleBoxFlat_pressed_button")
+
+[node name="SettingsMenu" type="Control"]
+process_mode = 3
+z_index = 1000
+z_as_relative = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme = SubResource("Theme_settings_menu")
+script = ExtResource("1_script")
+hover_inner_border = SubResource("StyleBoxFlat_hover_inner_border")
+
+[node name="CompleteUISettingsButtonPrefab" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="01_UISettingsButtonVisual" type="Control" parent="CompleteUISettingsButtonPrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="02_UISettingsButtonInteraction" type="Control" parent="CompleteUISettingsButtonPrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="03_UISettingsButtonActions" type="Node" parent="CompleteUISettingsButtonPrefab"]
+
+[node name="BackgroundDim" type="ColorRect" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.055, 0.035, 0.02, 0.58)
+
+[node name="Menu" type="NinePatchRect" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -284.0
+offset_top = -395.5
+offset_right = 284.0
+offset_bottom = 395.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_border")
+
+[node name="MenuInnerBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_inner_border")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu"]
+layout_mode = 0
+offset_left = 58.5
+offset_top = 44.0
+offset_right = 509.5
+offset_bottom = 747.0
+theme_override_constants/separation = 30
+
+[node name="Settings" type="Button" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+text = "设置"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/Settings"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_inner_button_border")
+
+[node name="Continue" type="Button" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+text = "继续游戏"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/Continue"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_inner_button_border")
+
+[node name="SaveGame" type="Button" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+text = "保存存档"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/SaveGame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_inner_button_border")
+
+[node name="LoadGame" type="Button" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+text = "载入存档"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/LoadGame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_inner_button_border")
+
+[node name="MainMenu" type="Button" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+text = "退至主菜单"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/MainMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_inner_button_border")
+
+[node name="ResignSpacer" type="Control" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer"]
+custom_minimum_size = Vector2(0, 19)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Resign" type="Button" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.18, 0.05, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_resign_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_resign_hover_button")
+text = "放弃"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/Resign"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_resign_inner_border")

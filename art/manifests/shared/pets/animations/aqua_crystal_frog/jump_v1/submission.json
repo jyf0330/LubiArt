@@ -1,0 +1,31 @@
+{
+  "service": "Rika AI",
+  "endpoint": "https://api.rika-ai.com/v1/api/generate",
+  "gen_id": "ecd3f354-637f-4293-9950-8833bac5cb31",
+  "submitted_at": "2026-08-04T06:28:06.362677+00:00",
+  "expected_cost_credits": 5,
+  "credits_before": 970,
+  "input_images": [
+    "art/images/shared/pets/animations/aqua_crystal_frog/jump_v1/source/aqua_crystal_frog_rika_input_128_v1.png",
+    "art/images/shared/pets/animations/aqua_crystal_frog/jump_v1/source/aqua_crystal_frog_rika_input_128_v1.png"
+  ],
+  "params": {
+    "prompt": "front-facing aqua crystal frog performs one readable in-place jump cycle: crouch and compress, push off with both hind legs, rise into the air, extend the hind legs backward, descend, land on all four feet, then settle into the exact starting pose; keep the body centered horizontally and keep the start and end feet on the same baseline; preserve the exact huge navy eyes, mint belly, turquoise skin, blue crystal back spikes, spots, silhouette, palette, pixel clusters and proportions; no turning, no camera movement, no extra limbs, no projectile, no dust, no detached effects, no background motion",
+    "motion_type": "jump",
+    "pixel_size": "128",
+    "strength_low": 0.6,
+    "strength_high": 0.6,
+    "seed": 260804,
+    "fix_seed": true,
+    "length": 33,
+    "use_mid_image": false,
+    "use_end_image": true,
+    "scale_factor": 6,
+    "use_padding": false,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32,
+    "bg_color": "#004040",
+    "attack_type": "melee"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "service": "Rika AI",
+  "endpoint": "https://api.rika-ai.com/v1/api/generate",
+  "gen_id": "7f48594b-9633-40d3-bcf5-587340ee60ac",
+  "submitted_at": "2026-08-04T07:14:50.241432+00:00",
+  "expected_cost_credits": 5,
+  "credits_before": 960,
+  "input_images": [
+    "art/images/shared/pets/animations/azure_wind_feather/move_v1/source/azure_wind_feather_rika_start_128_v1.png",
+    "art/images/shared/pets/animations/azure_wind_feather/move_v1/source/azure_wind_feather_rika_start_128_v1.png"
+  ],
+  "params": {
+    "prompt": "right-facing three-quarter side-view cute four-legged celestial feather creature performs one slow in-place walking cycle that reads as walking across exactly one grid cell, front-left and rear-right legs step together then front-right and rear-left legs step together, clear alternating quadruped footfalls, gentle shoulder and hip weight transfer, small natural follow-through in the large cyan feathered ears, back plumes and tail plumes, body center remains fixed and all feet return to one stable baseline, no running, no hopping, no root translation, no turning, no camera movement, preserve the exact fluffy white body silhouette, bright cyan and deep blue crystal-feather appendages, black hard pixel outline, single visible cyan eye, gold forehead and cheek markings, golden paws, palette, proportions, face and pixel-art material, no extra legs, no extra wings, no detached effects, no background motion",
+    "motion_type": "walk",
+    "pixel_size": "128",
+    "strength_low": 0.52,
+    "strength_high": 0.52,
+    "seed": 260804,
+    "fix_seed": true,
+    "length": 33,
+    "use_mid_image": false,
+    "use_end_image": true,
+    "scale_factor": 6,
+    "use_padding": false,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32,
+    "bg_color": "#004040",
+    "attack_type": "melee"
+  }
+}

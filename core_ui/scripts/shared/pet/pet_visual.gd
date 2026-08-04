@@ -272,7 +272,7 @@ func start_damage_preview(
 	current_shield: int = -1,
 	projected_shield: int = -1,
 	max_hp: int = -1,
-	pinned: bool = false,
+	pinned: bool = true,
 	initial_hold: float = DAMAGE_PREVIEW_INITIAL_HOLD
 ) -> void:
 	var safe_current := maxi(0, current_hp)
@@ -300,7 +300,7 @@ func start_damage_preview(
 			release_damage_preview(initial_hold)
 		return
 	_stop_damage_preview_animation(false)
-	_damage_preview_uses_badge = side in ["player", "ally"] and incoming_damage_preview != null
+	_damage_preview_uses_badge = incoming_damage_preview != null
 	if not _damage_preview_uses_badge:
 		_damage_preview_revealed_stats = stats_root != null and not stats_root.visible
 		_show_battle_stats()

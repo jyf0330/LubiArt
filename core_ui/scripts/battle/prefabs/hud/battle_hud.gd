@@ -8,6 +8,7 @@ extends Control
 @onready var begin_turn_button: TextureButton = $BattlePrimaryActions/BeginTurnButton
 @onready var action_panel: Control = $BattleActionPanel
 @onready var attack_direction_drawer: Control = $AttackDirectionDrawer
+@onready var attack_timeline_layer: CanvasLayer = $AttackTimelineLayer
 @onready var attack_timeline: Control = $AttackTimelineLayer/AttackTimeline
 @onready var attack_timeline_toggle_button: Button = $AttackTimelineLayer/AttackTimelineToggleButton
 
@@ -15,10 +16,14 @@ extends Control
 func _ready() -> void:
 	attack_timeline.visible = false
 	attack_timeline_toggle_button.pressed.connect(_toggle_attack_timeline)
+	visibility_changed.connect(_sync_attack_timeline_layer_visibility)
+	_sync_attack_timeline_layer_visibility()
 	_refresh_attack_timeline_toggle_button()
 
 
 func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return
 	if not (event is InputEventKey):
 		return
 	var key_event := event as InputEventKey
@@ -66,8 +71,18 @@ func get_attack_timeline() -> Control:
 
 
 func _toggle_attack_timeline() -> void:
+	if not is_visible_in_tree():
+		return
 	attack_timeline.visible = not attack_timeline.visible
 	_refresh_attack_timeline_toggle_button()
+
+
+func _sync_attack_timeline_layer_visibility() -> void:
+	var battle_is_visible := is_visible_in_tree()
+	attack_timeline_layer.visible = battle_is_visible
+	if not battle_is_visible:
+		attack_timeline.visible = false
+		_refresh_attack_timeline_toggle_button()
 
 
 func _refresh_attack_timeline_toggle_button() -> void:

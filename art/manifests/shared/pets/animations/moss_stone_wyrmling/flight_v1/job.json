@@ -1,0 +1,55 @@
+{
+  "gen_id": "48b76aa7-7811-4c87-a98a-5cd88bd7ce34",
+  "job_type": "animation",
+  "status": "succeeded",
+  "input_params": {
+    "seed": 26080491,
+    "length": 33,
+    "prompt": "right-facing three-quarter side-view cute moss-covered baby stone dragon performs one continuous in-place flight cycle. The supplied START image is the exact first keyframe, the supplied MID image is the exact middle airborne keyframe, and the supplied END image is the exact same image as START. Animate in this order: begin from START, lift the body into flight as both bat wings open, transition smoothly into the supplied MID pose, hold a clearly airborne silhouette while all four hands and feet hang naturally and visibly below the belly, perform a readable wing flap, then reverse smoothly and return exactly to END. Keep the torso and head centered horizontally with only restrained vertical flight motion. Preserve the exact cream stone body, olive and lime moss patches, large amber-orange eye, gray-purple horns, dark purple bat wings with gray-purple borders, curled tail, four-limb anatomy, proportions, face scale, palette, black hard pixel outline, crisp pixel clusters and original camera scale. Keep generous empty background around the complete silhouette. No walking, running, forward travel, turning, camera movement, zoom, cropped wing tips, cropped feet, extra limbs, extra wings, detached effects, dust, ground shadow, blur, antialiasing, or background motion.",
+    "bg_color": "#004040",
+    "fix_seed": true,
+    "pixel_size": "128",
+    "attack_type": "melee",
+    "motion_type": "jump",
+    "use_padding": true,
+    "scale_factor": 6,
+    "strength_low": 0.55,
+    "strength_high": 0.55,
+    "use_end_image": true,
+    "use_mid_image": true,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32
+  },
+  "output_params": null,
+  "created_at": "2026-08-04T09:59:57.252816+00:00",
+  "updated_at": null,
+  "input_images": [
+    {
+      "key": "temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/in_0.png",
+      "url": "https://cdn.rika-ai.com/temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/in_0.png"
+    },
+    {
+      "key": "temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/in_1.png",
+      "url": "https://cdn.rika-ai.com/temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/in_1.png"
+    },
+    {
+      "key": "temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/in_2.png",
+      "url": "https://cdn.rika-ai.com/temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/in_2.png"
+    }
+  ],
+  "output_images": [
+    {
+      "key": "users/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/out_0.png",
+      "url": "https://cdn.rika-ai.com/users/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/48b76aa7-7811-4c87-a98a-5cd88bd7ce34/out_0.png"
+    }
+  ],
+  "persist_images": false,
+  "liked": null,
+  "error": null,
+  "downloaded_files": [
+    "art/images/shared/pets/animations/moss_stone_wyrmling/flight_v1/raw/output_001.png"
+  ],
+  "credits_after": 935,
+  "actual_credit_change": 5
+}

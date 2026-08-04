@@ -1,0 +1,37 @@
+{
+  "service": "Rika AI",
+  "endpoint": "https://api.rika-ai.com/v1/api/generate",
+  "gen_id": "48b76aa7-7811-4c87-a98a-5cd88bd7ce34",
+  "submitted_at": "2026-08-04T09:59:58.214808+00:00",
+  "expected_cost_credits": 5,
+  "credits_before": 940,
+  "input_images": [
+    "art/images/shared/pets/animations/moss_stone_wyrmling/flight_v1/source/rika_start_128_v1.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/flight_v1/source/rika_mid_128_v1.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/flight_v1/source/rika_end_128_v1.png"
+  ],
+  "source_keyframes": [
+    "art/images/shared/pets/animations/moss_stone_wyrmling/flight_v1/source/frame_001_first_160.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/flight_v1/source/frame_002_airborne_mid_face_scale_matched_160.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/flight_v1/source/frame_001_first_160.png"
+  ],
+  "params": {
+    "prompt": "right-facing three-quarter side-view cute moss-covered baby stone dragon performs one continuous in-place flight cycle. The supplied START image is the exact first keyframe, the supplied MID image is the exact middle airborne keyframe, and the supplied END image is the exact same image as START. Animate in this order: begin from START, lift the body into flight as both bat wings open, transition smoothly into the supplied MID pose, hold a clearly airborne silhouette while all four hands and feet hang naturally and visibly below the belly, perform a readable wing flap, then reverse smoothly and return exactly to END. Keep the torso and head centered horizontally with only restrained vertical flight motion. Preserve the exact cream stone body, olive and lime moss patches, large amber-orange eye, gray-purple horns, dark purple bat wings with gray-purple borders, curled tail, four-limb anatomy, proportions, face scale, palette, black hard pixel outline, crisp pixel clusters and original camera scale. Keep generous empty background around the complete silhouette. No walking, running, forward travel, turning, camera movement, zoom, cropped wing tips, cropped feet, extra limbs, extra wings, detached effects, dust, ground shadow, blur, antialiasing, or background motion.",
+    "motion_type": "jump",
+    "pixel_size": "128",
+    "strength_low": 0.55,
+    "strength_high": 0.55,
+    "seed": 26080491,
+    "fix_seed": true,
+    "length": 33,
+    "use_mid_image": true,
+    "use_end_image": true,
+    "scale_factor": 6,
+    "use_padding": true,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32,
+    "bg_color": "#004040",
+    "attack_type": "melee"
+  }
+}

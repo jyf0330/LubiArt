@@ -1,0 +1,39 @@
+{
+  "version": 3,
+  "operation": "exact_full_source_diff_bounding_block_transfer",
+  "before_raw": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_airborne_mid_before_raw_user_v1.png",
+  "before_raw_sha256": "21d84d54b72ac6744f083ad3c987157bea27bda2de46d3688580284889fa7caa",
+  "after_user_edit": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_airborne_mid_after_user_v1.png",
+  "after_user_edit_sha256": "bf51fb9e95bede1d3298eb8ff6af0406bc6195c294b933e7d084c24aff22e373",
+  "first_frame_source": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v1/frames/frame_001.png",
+  "first_frame_source_sha256": "f03e84737955103c07126cf1e329fcfb3f2bd1ba5a9be88172d5a692b147e6df",
+  "source_diff_pixel_count": 51,
+  "exact_source_block": [
+    31,
+    35,
+    47,
+    41
+  ],
+  "exact_source_block_pixel_count": 96,
+  "output": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_start_head_exact_block_128_v3.png",
+  "output_sha256": "3e890eb4262fe63ff7136f82a7ae081856d5888c9d2018f7f01bc52a11b8732e",
+  "actual_changed_pixel_count": 96,
+  "actual_changed_bbox": [
+    31,
+    35,
+    47,
+    41
+  ],
+  "output_block_byte_identical_to_user_block": true,
+  "all_pixels_outside_block_byte_identical_to_first_frame": true,
+  "first_frame_alpha_unchanged": true,
+  "preview": "output/moss_stone_wyrmling_start_head_exact_block_4x_v3.png",
+  "comparison": "output/moss_stone_wyrmling_headtop_exact_block_comparison_4x_v3.png",
+  "block_comparison": "output/moss_stone_wyrmling_headtop_exact_block_24x_v3.png",
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "BLOCKED",
+  "visual_qa_notes": [
+    "Rejected by the user because a byte-identical source block still does not reproduce the same overall head-top appearance on the differently shaped standing-frame base.",
+    "Do not use this output. An exact finished standing-frame edit or an explicit user-authored placement mask is required; automatic alignment would be another guess."
+  ]
+}

@@ -3,8 +3,6 @@ extends SceneTree
 const MainScene := preload("res://art/scenes/app/game.tscn")
 const MockSession := preload("res://session/mock_game_session.gd")
 const VISIBLE_CAPTURE := "lubi_damage_preview_visible.png"
-const HIDDEN_CAPTURE := "lubi_damage_preview_hidden.png"
-const LOOP_CAPTURE := "lubi_damage_preview_loop.png"
 
 
 func _initialize() -> void:
@@ -43,7 +41,7 @@ func _run() -> void:
 	await process_frame
 	var preview_pet := _preview_pet_by_unit_id(battle_view, String(drag_pair.get("target_unit_id", "")))
 	if preview_pet == null:
-		_fail("dragged attack range did not pin the enemy HP preview")
+		_fail("dragged attack range did not pin the enemy damage badge")
 		return
 	var visible_preview := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
 	if String(visible_preview.get("state", "")) != "visible" \
@@ -61,28 +59,22 @@ func _run() -> void:
 	_save_capture(VISIBLE_CAPTURE)
 
 	battle_view.call("_finish_unit_drag", drag_target)
-	var released_preview := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
-	if bool(released_preview.get("pinned", true)) \
-			or float(released_preview.get("seconds_to_switch", 0.0)) < 0.85:
-		_fail("released preview did not keep its one-second hold")
+	var settled_preview := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
+	if not bool(settled_preview.get("pinned", false)) \
+			or String(settled_preview.get("state", "")) != "visible" \
+			or not is_zero_approx(float(settled_preview.get("seconds_to_switch", -1.0))):
+		_fail("settled preview was not kept permanently visible")
 		return
-	if not await _wait_for_state(preview_pet, "hidden", 2500):
-		_fail("released preview did not fade out after one second")
+	await create_timer(1.25).timeout
+	settled_preview = Dictionary(preview_pet.call("get_damage_preview_snapshot"))
+	if not bool(settled_preview.get("pinned", false)) \
+			or String(settled_preview.get("state", "")) != "visible":
+		_fail("settled preview stopped being permanently visible")
 		return
 	await _stabilize_battle_view(battle_view)
 	await RenderingServer.frame_post_draw
-	_save_capture(HIDDEN_CAPTURE)
-
-	if not await _wait_for_state(preview_pet, "visible", 2500):
-		_fail("preview did not fade back in")
-		return
-	await RenderingServer.frame_post_draw
-	_save_capture(LOOP_CAPTURE)
-	print("VISIBLE_DAMAGE_PREVIEW_PASS visible=%s hidden=%s loop=%s" % [
-		_capture_path(VISIBLE_CAPTURE),
-		_capture_path(HIDDEN_CAPTURE),
-		_capture_path(LOOP_CAPTURE),
-	])
+	_save_capture(VISIBLE_CAPTURE)
+	print("VISIBLE_DAMAGE_PREVIEW_PASS permanent=%s" % _capture_path(VISIBLE_CAPTURE))
 	quit(0)
 
 
@@ -167,16 +159,6 @@ func _first_drag_pair(snapshot: Dictionary) -> Dictionary:
 					"target_unit_id": target_unit_id,
 				}
 	return {}
-
-
-func _wait_for_state(pet: Control, expected_state: String, timeout_msec: int) -> bool:
-	var deadline := Time.get_ticks_msec() + timeout_msec
-	while Time.get_ticks_msec() < deadline:
-		var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
-		if String(preview.get("state", "")) == expected_state:
-			return true
-		await process_frame
-	return false
 
 
 func _save_capture(file_name: String) -> void:

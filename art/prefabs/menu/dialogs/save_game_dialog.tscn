@@ -1,0 +1,299 @@
+[gd_scene format=3 uid="uid://cw20y8uy25my8"]
+
+[ext_resource type="StyleBox" uid="uid://6djmp2esmdln" path="res://art/themes/menu/hover_button.tres" id="1_hover"]
+[ext_resource type="StyleBox" uid="uid://bpbh2w3xu1u4k" path="res://art/themes/menu/normal_button.tres" id="2_normal"]
+[ext_resource type="StyleBox" uid="uid://d37suswmvbtxm" path="res://art/themes/menu/pressed_button.tres" id="3_pressed"]
+[ext_resource type="StyleBox" uid="uid://b1rk1q2anafg5" path="res://art/themes/menu/menu_border.tres" id="4_menu_border"]
+[ext_resource type="StyleBox" path="res://art/themes/menu/menu_inner_border.tres" id="5_menu_inner_border"]
+[ext_resource type="StyleBox" uid="uid://duotbk3m88r3t" path="res://art/themes/menu/hover_inner_button_border.tres" id="7_hover_inner"]
+[ext_resource type="StyleBox" uid="uid://dino5ahrvofkb" path="res://art/themes/menu/inner_button_border.tres" id="8_inner"]
+[ext_resource type="Script" path="res://core_ui/scripts/menu/prefabs/save_load_menu_controller.gd" id="9_navigation"]
+
+[sub_resource type="Theme" id="Theme_save_game"]
+Button/font_sizes/font_size = 32
+Button/styles/hover = ExtResource("1_hover")
+Button/styles/normal = ExtResource("2_normal")
+Button/styles/pressed = ExtResource("3_pressed")
+Label/font_sizes/font_size = 40
+
+[node name="UISaveGame" type="Control" unique_id=1727713864]
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_save_game")
+script = ExtResource("9_navigation")
+hover_inner_border = ExtResource("7_hover_inner")
+
+
+[node name="CompleteUISaveGamePrefab" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="01_UISaveGameVisual" type="Control" parent="CompleteUISaveGamePrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="02_UISaveGameInteraction" type="Control" parent="CompleteUISaveGamePrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="03_UISaveGameActions" type="Node" parent="CompleteUISaveGamePrefab"]
+[node name="Background" type="ColorRect" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.294118, 0.294118, 0.294118, 1)
+
+[node name="Menu" type="Control" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -284.0
+offset_top = -395.5
+offset_right = 284.0
+offset_bottom = 395.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("4_menu_border")
+
+[node name="MenuInnerBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("5_menu_inner_border")
+
+[node name="Title" type="Label" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu"]
+layout_mode = 0
+offset_left = 58.5
+offset_top = 42.0
+offset_right = 509.5
+offset_bottom = 90.0
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "保存存档"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleDecorationLeft" type="Control" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu"]
+layout_mode = 0
+offset_left = 108.0
+offset_top = 64.0
+offset_right = 174.0
+offset_bottom = 70.0
+mouse_filter = 2
+
+[node name="Line" type="ColorRect" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/TitleDecorationLeft"]
+layout_mode = 0
+offset_top = 1.0
+offset_right = 60.0
+offset_bottom = 3.0
+mouse_filter = 2
+color = Color(0.827451, 0.698039, 0.094118, 1)
+
+[node name="EndCap" type="ColorRect" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/TitleDecorationLeft"]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 1.0
+offset_right = 66.0
+offset_bottom = 6.0
+mouse_filter = 2
+color = Color(0.827451, 0.698039, 0.094118, 1)
+
+[node name="TitleDecorationRight" type="Control" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu"]
+layout_mode = 0
+offset_left = 394.0
+offset_top = 64.0
+offset_right = 460.0
+offset_bottom = 70.0
+mouse_filter = 2
+
+[node name="EndCap" type="ColorRect" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/TitleDecorationRight"]
+layout_mode = 0
+offset_top = 1.0
+offset_right = 6.0
+offset_bottom = 6.0
+mouse_filter = 2
+color = Color(0.827451, 0.698039, 0.094118, 1)
+
+[node name="Line" type="ColorRect" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/TitleDecorationRight"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 1.0
+offset_right = 66.0
+offset_bottom = 3.0
+mouse_filter = 2
+color = Color(0.827451, 0.698039, 0.094118, 1)
+
+[node name="SaveSlots" type="VBoxContainer" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu"]
+layout_mode = 0
+offset_left = 58.5
+offset_top = 126.0
+offset_right = 509.5
+offset_bottom = 650.0
+theme_override_constants/separation = 26
+
+[node name="SaveSlot1" type="Button" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "存档 01 · 第   天 · 第    小时"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots/SaveSlot1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")
+
+[node name="SaveSlot2" type="Button" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "存档 02 · 第   天 · 第    小时"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots/SaveSlot2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")
+
+[node name="SaveSlot3" type="Button" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "存档 03 · 第   天 · 第    小时"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots/SaveSlot3"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")
+
+[node name="SaveSlot4" type="Button" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "存档 04 · 第   天 · 第    小时"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots/SaveSlot4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")
+
+[node name="SaveSlot5" type="Button" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots"]
+custom_minimum_size = Vector2(451, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "存档 05 · 第   天 · 第    小时"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/SaveSlots/SaveSlot5"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")
+
+[node name="Back" type="Button" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu"]
+custom_minimum_size = Vector2(260, 64)
+layout_mode = 0
+offset_left = 154.0
+offset_top = 687.0
+offset_right = 414.0
+offset_bottom = 751.0
+theme_override_font_sizes/font_size = 24
+text = "返回"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUISaveGamePrefab/01_UISaveGameVisual/Menu/Back"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")

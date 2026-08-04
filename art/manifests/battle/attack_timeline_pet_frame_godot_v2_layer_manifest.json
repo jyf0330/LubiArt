@@ -74,63 +74,63 @@
       "source_layer": "01_background_states/state_background_earth",
       "classification": "STATE_RESOURCE",
       "state": "earth",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_earth_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_earth_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_fire",
       "classification": "STATE_RESOURCE",
       "state": "fire",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_fire_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_fire_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_ice",
       "classification": "STATE_RESOURCE",
       "state": "ice",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_ice_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_ice_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_light",
       "classification": "STATE_RESOURCE",
       "state": "light",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_light_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_light_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_mechanical",
       "classification": "STATE_RESOURCE",
       "state": "mechanical",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_mechanical_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_mechanical_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_nature",
       "classification": "STATE_RESOURCE",
       "state": "nature",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_nature_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_nature_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_shadow",
       "classification": "STATE_RESOURCE",
       "state": "shadow",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_shadow_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_shadow_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_water",
       "classification": "STATE_RESOURCE",
       "state": "water",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_water_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_water_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {
       "source_layer": "01_background_states/state_background_wind",
       "classification": "STATE_RESOURCE",
       "state": "wind",
-      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_wind_inset_v2.png",
+      "export_resource": "res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_wind_inset_v2.png",
       "target": "AttackTimelinePetFrame/Background"
     },
     {

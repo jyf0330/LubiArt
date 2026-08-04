@@ -1,0 +1,188 @@
+[gd_scene load_steps=9 format=3 uid="uid://dibm1ui50wkes"]
+
+[ext_resource type="StyleBox" uid="uid://6djmp2esmdln" path="res://art/themes/menu/hover_button.tres" id="1_hover"]
+[ext_resource type="StyleBox" uid="uid://bpbh2w3xu1u4k" path="res://art/themes/menu/normal_button.tres" id="2_normal"]
+[ext_resource type="StyleBox" uid="uid://d37suswmvbtxm" path="res://art/themes/menu/pressed_button.tres" id="3_pressed"]
+[ext_resource type="StyleBox" uid="uid://b1rk1q2anafg5" path="res://art/themes/menu/menu_border.tres" id="4_menu_border"]
+[ext_resource type="StyleBox" uid="uid://fvmyvd7i6pj6" path="res://art/themes/menu/menu_inner_border.tres" id="5_menu_inner_border"]
+[ext_resource type="StyleBox" uid="uid://duotbk3m88r3t" path="res://art/themes/menu/hover_inner_button_border.tres" id="7_hover_inner"]
+[ext_resource type="StyleBox" uid="uid://dino5ahrvofkb" path="res://art/themes/menu/inner_button_border.tres" id="8_inner"]
+[ext_resource type="Script" path="res://core_ui/scripts/menu/prefabs/abandon_game_dialog.gd" id="9_dialog"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[sub_resource type="Theme" id="Theme_abandon_game"]
+Button/font_sizes/font_size = 28
+Button/styles/focus = SubResource("StyleBoxEmpty_focus")
+Button/styles/hover = ExtResource("1_hover")
+Button/styles/normal = ExtResource("2_normal")
+Button/styles/pressed = ExtResource("3_pressed")
+Label/font_sizes/font_size = 40
+
+[node name="UIAbandonGame" type="Control"]
+z_index = 100
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_abandon_game")
+script = ExtResource("9_dialog")
+hover_inner_border = ExtResource("7_hover_inner")
+
+
+[node name="CompleteUIAbandonGamePrefab" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="01_UIAbandonGameVisual" type="Control" parent="CompleteUIAbandonGamePrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="02_UIAbandonGameInteraction" type="Control" parent="CompleteUIAbandonGamePrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="03_UIAbandonGameActions" type="Node" parent="CompleteUIAbandonGamePrefab"]
+[node name="BackgroundDim" type="ColorRect" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.055, 0.035, 0.02, 0.72)
+
+[node name="Dialog" type="Control" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -190.0
+offset_right = 340.0
+offset_bottom = 190.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.105882, 0.0941176, 0.0784314, 1)
+
+[node name="MenuBorder" type="Panel" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("4_menu_border")
+
+[node name="MenuInnerBorder" type="Panel" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("5_menu_inner_border")
+
+[node name="Question" type="Label" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog"]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 72.0
+offset_right = 620.0
+offset_bottom = 128.0
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "确认要放弃游戏吗？"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Divider" type="ColorRect" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 157.0
+offset_right = 588.0
+offset_bottom = 159.0
+mouse_filter = 2
+color = Color(0.55, 0.42, 0.12, 0.8)
+
+[node name="Buttons" type="HBoxContainer" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 217.0
+offset_right = 600.0
+offset_bottom = 297.0
+theme_override_constants/separation = 32
+
+[node name="Confirm" type="Button" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog/Buttons"]
+custom_minimum_size = Vector2(244, 80)
+layout_mode = 2
+focus_neighbor_left = NodePath("../Cancel")
+focus_neighbor_right = NodePath("../Cancel")
+text = "确认"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog/Buttons/Confirm"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")
+
+[node name="Cancel" type="Button" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog/Buttons"]
+custom_minimum_size = Vector2(244, 80)
+layout_mode = 2
+focus_neighbor_left = NodePath("../Confirm")
+focus_neighbor_right = NodePath("../Confirm")
+text = "取消"
+
+[node name="InnerBorder" type="Panel" parent="CompleteUIAbandonGamePrefab/01_UIAbandonGameVisual/Dialog/Buttons/Cancel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("8_inner")

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "asset_name": "emerald_wyrmling",
+  "action": "flight",
+  "status": "generated_and_locally_verified",
+  "generation": {
+    "service": "built_in_image_generation",
+    "confirmed_by_user": true,
+    "generation_call_count": 1,
+    "retry_call_count": 0,
+    "quota_or_cost": "not_exposed_by_service",
+    "raw_grid": {
+      "rows": 2,
+      "columns": 3,
+      "frame_count": 6,
+      "sheet_size": [1536, 1024],
+      "cell_size": [512, 512]
+    }
+  },
+  "prompt": "Use the supplied emerald baby dragon as the exact identity, anatomy, palette, pixel language and camera reference. Create exactly six sequential frames of the same creature flying in place in a 2-row by 3-column grid: wings fully raised; power stroke begins; maximum downstroke; rebound outward; nearly raised; return toward the first pose. Keep the torso center, head position, curled tail root, camera distance and anatomical scale stable. Preserve the purple head and body, single purple eye, lime-and-emerald markings, translucent green wing membranes with purple borders, black hard pixel outlines, proportions and claw count. Use a perfectly flat #FF00FF background, no grid borders, no labels, no projectile, no particles, no shadow, no motion blur, no antialiasing and no body part crossing a cell edge.",
+  "processing": {
+    "target": "creature",
+    "mode": "hover",
+    "output_frame_size": [256, 256],
+    "fit_scale": 0.82,
+    "align": "center",
+    "shared_scale": true,
+    "scale_strategy": "fit",
+    "component_mode": "largest",
+    "strict_qc": true,
+    "frame_duration_ms": 140,
+    "slow_check_duration_ms": 420
+  },
+  "processor_qc": {
+    "frame_count": 6,
+    "empty_frames": [],
+    "source_edge_touch_frames": [],
+    "output_edge_touch_frames": [],
+    "paste_clamped_frames": [],
+    "body_scale_cv": 0.05412711214711145,
+    "anchor_x_std": 0.04585276249359772,
+    "anchor_y_std": 0.04251782695312099
+  },
+  "paths": {
+    "source_reference": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/source/emerald_wyrmling_source_v1.png",
+    "raw_sheet": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/raw/raw_sheet_v1.png",
+    "clean_raw_sheet": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/raw/raw_sheet_clean_v1.png",
+    "transparent_sheet": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/raw/sheet_transparent_v1.png",
+    "source_frames": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/source_frames",
+    "delivery_frames": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/flight",
+    "overview": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/emerald_wyrmling_flight_overview_v1.png",
+    "overview_4x": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/emerald_wyrmling_flight_overview_4x_v1.png",
+    "final_gif": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/emerald_wyrmling_flight_preview_v1.gif",
+    "slow_check_gif": "art/images/shared/pets/animations/emerald_wyrmling/preview_v1/emerald_wyrmling_flight_slow_check_v1.gif",
+    "qa_report": "art/manifests/shared/pets/animations/emerald_wyrmling/preview_v1/qa_report.json",
+    "rebuild_script": "tools/build_emerald_wyrmling_flight_v1.py"
+  }
+}

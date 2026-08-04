@@ -13,15 +13,15 @@ const PET_TEXTURES := {
 }
 
 const ELEMENT_BACKGROUNDS := {
-	"无": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_nature_inset_v2.png"),
-	"火": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_fire_inset_v2.png"),
-	"水": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_water_inset_v2.png"),
-	"草": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_nature_inset_v2.png"),
-	"雷": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_light_inset_v2.png"),
-	"冰": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_ice_inset_v2.png"),
-	"地": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_earth_inset_v2.png"),
-	"暗": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_shadow_inset_v2.png"),
-	"龙": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds_runtime/creature_card_background_wind_inset_v2.png"),
+	"无": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_nature_inset_v2.png"),
+	"火": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_fire_inset_v2.png"),
+	"水": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_water_inset_v2.png"),
+	"草": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_nature_inset_v2.png"),
+	"雷": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_light_inset_v2.png"),
+	"冰": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_ice_inset_v2.png"),
+	"地": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_earth_inset_v2.png"),
+	"暗": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_shadow_inset_v2.png"),
+	"龙": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_wind_inset_v2.png"),
 }
 
 const QUALITY_FRAMES := {

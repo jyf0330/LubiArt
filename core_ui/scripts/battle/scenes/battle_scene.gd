@@ -6,6 +6,7 @@ extends Control
 ## command execution.
 
 signal command_requested(command: Dictionary)
+signal session_operation_requested(operation: StringName, arguments: Dictionary)
 signal trace_sequence_finished
 
 const BattleAssetRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
@@ -39,6 +40,7 @@ const DROP_RETURN_DURATION := 0.16
 @onready var vfx_player: Control = $Board/VfxHost
 @onready var hud: Control = $Hud
 @onready var overlay_host: Control = $OverlayHost
+@onready var settings_menu: Control = $OverlayHost/SettingsMenu
 @onready var auto_arrange_button: TextureButton = hud.call("get_auto_arrange_button") as TextureButton
 @onready var position_difficulty_button: Button = hud.call("get_position_difficulty_button") as Button
 @onready var begin_turn_button: TextureButton = hud.call("get_begin_turn_button") as TextureButton
@@ -132,6 +134,8 @@ func _ready() -> void:
 	_ensure_action_panel()
 	_ensure_direction_drawer()
 	_ensure_attack_timeline()
+	if settings_menu != null and settings_menu.has_signal("session_operation_requested"):
+		settings_menu.connect("session_operation_requested", _on_settings_session_operation_requested)
 
 
 func _exit_tree() -> void:
@@ -192,12 +196,19 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and _drag_unit_id == "":
-		_refresh_cursor_hover_state()
-	if event.is_action_pressed("ui_cancel") and _has_visible_detail():
-		_clear_active_detail()
+	if event.is_action_pressed("ui_cancel"):
+		if _settings_menu_is_open():
+			settings_menu.call("handle_cancel")
+		elif _has_visible_detail():
+			_clear_active_detail()
+		else:
+			settings_menu.call("open_menu")
 		get_viewport().set_input_as_handled()
 		return
+	if _settings_menu_is_open():
+		return
+	if event is InputEventMouseMotion and _drag_unit_id == "":
+		_refresh_cursor_hover_state()
 	if _battle_input_locked:
 		return
 	if _drag_unit_id == "" or not (event is InputEventMouseButton):
@@ -208,6 +219,17 @@ func _input(event: InputEvent) -> void:
 	var board_local := board_grid.get_global_transform_with_canvas().affine_inverse() * mouse_event.position
 	_finish_unit_drag(_grid_from_board_position(board_local))
 	get_viewport().set_input_as_handled()
+
+
+func _settings_menu_is_open() -> bool:
+	return settings_menu != null and bool(settings_menu.call("is_open"))
+
+
+func _on_settings_session_operation_requested(
+	operation: StringName,
+	arguments: Dictionary
+) -> void:
+	session_operation_requested.emit(operation, arguments.duplicate(true))
 
 
 func render_snapshot(snap: Dictionary) -> void:
@@ -1083,7 +1105,7 @@ func _finish_unit_drag(target: Vector2i) -> void:
 	var can_drop := _can_drop_dragged_unit_at(target)
 	var settle_preview := _take_drag_preview()
 	_clear_cell_highlight(origin)
-	_release_drag_damage_previews()
+	_retain_drag_damage_previews()
 	_clear_drag_attack_preview(false)
 	_clear_drag_hover_highlight()
 	_reset_drag_tracking()
@@ -1115,6 +1137,9 @@ func _finish_unit_drag(target: Vector2i) -> void:
 		}
 		_last_debug_drag_command = command.duplicate(true)
 		command_requested.emit(command)
+		# The mock command is handled synchronously and renders its returned Snapshot.
+		# Rebind the exported placement preview after that render clears transient UI caches.
+		_cache_manual_incoming_damage_preview(dragged_unit_id, target)
 		settled_grid = target
 	_suppress_next_select = true
 	_start_drop_settle(settle_preview, dragged_unit_id, origin, target, settled_grid)
@@ -1625,11 +1650,11 @@ func _clear_drag_damage_previews() -> void:
 	_drag_damage_preview_unit_ids.clear()
 
 
-func _release_drag_damage_previews() -> void:
+func _retain_drag_damage_previews() -> void:
 	for unit_id in _drag_damage_preview_unit_ids:
 		var unit := _rendered_unit_node(unit_id)
-		if unit != null and unit.has_method("release_damage_preview"):
-			unit.call("release_damage_preview", 1.0)
+		if unit != null and unit.has_method("pin_damage_preview"):
+			unit.call("pin_damage_preview")
 	_drag_damage_preview_unit_ids.clear()
 
 
@@ -1832,7 +1857,8 @@ func _sync_enemy_damage_previews(preserve_active_enemy_previews: bool = false) -
 			predicted_damage,
 			current_shield,
 			projected_shield,
-			int(cell_data.get("max_hp", cell_data.get("maxHp", current_hp)))
+			int(cell_data.get("max_hp", cell_data.get("maxHp", current_hp))),
+			true
 		)
 	if active_preview_count == 0:
 		_enemy_damage_preview_sync_epoch_msec = -1
