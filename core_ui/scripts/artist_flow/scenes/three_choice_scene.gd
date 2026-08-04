@@ -32,25 +32,33 @@ const BAG_SLOT_COUNT := 8
 const PARTY_SLOT_COUNT := 4
 const SHOP_SLOT_SIZE := Vector2(96.0, 96.0)
 const BAG_SLOT_SIZE := Vector2(110.0, 110.0)
-const PARTY_SLOT_SIZE := Vector2(105.0, 118.0)
+const BAG_SLOT_DISPLAY_SIZE := Vector2(110.0, 88.0)
+const BAG_SLOT_DISPLAY_OFFSET := Vector2(0.0, 14.0)
+const PARTY_SLOT_SIZE := Vector2(132.0, 132.0)
+const PARTY_SLOT_DISPLAY_OFFSET := Vector2.ZERO
+const BAG_FIRST_SLOT_HIGHLIGHT_EXTRA_OFFSET := Vector2(-1.0, 0.0)
+const BAG_OTHER_SLOT_HIGHLIGHT_EXTRA_OFFSET := Vector2(-3.0, 0.0)
 const SLOT_LAYOUT_SHOP := 0
 const SLOT_LAYOUT_COLLECTION := 1
+const SLOT_LAYOUT_PARTY := 2
 const COLLECTION_SLOT_SHADER_SOURCE := """
 shader_type canvas_item;
 
 uniform vec2 control_size = vec2(110.0, 110.0);
 uniform vec2 display_size = vec2(110.0, 73.3333);
+uniform vec2 display_offset = vec2(0.0, 0.0);
 uniform sampler2D source_texture : filter_nearest;
 uniform vec2 source_size = vec2(1.0, 1.0);
 
 void fragment() {
 	vec4 tint = COLOR;
 	vec2 pixel_position = UV * control_size;
-	bool outside = pixel_position.x >= display_size.x || pixel_position.y >= display_size.y;
+	vec2 display_pixel_position = pixel_position - display_offset;
+	bool outside = display_pixel_position.x < 0.0 || display_pixel_position.y < 0.0 || display_pixel_position.x >= display_size.x || display_pixel_position.y >= display_size.y;
 	if (outside) {
 		COLOR = vec4(0.0);
 	} else {
-		vec2 display_uv = pixel_position / display_size;
+		vec2 display_uv = display_pixel_position / display_size;
 		float source_aspect = source_size.x / source_size.y;
 		float target_aspect = display_size.x / display_size.y;
 		vec2 source_uv = display_uv;
@@ -75,22 +83,39 @@ const TARGET_SELL := &"sell"
 const RUN_TOOL_SIZE := Vector2(92.0, 48.0)
 const FIXED_TEST_PLAY_SEED := "ysbzs-test-play-20260715-v1"
 const BAG_CLOSED_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_closed.png")
-const BAG_OPEN_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_open.png")
+const BAG_OPEN_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_open_full.png")
+const BAG_STORAGE_STATE_TEXTURES := [
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_0.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_1.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_2.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_3.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_4.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_5.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_6.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_7.png"),
+	preload("res://art/images/route/three_choice_psd/bag_storage_state_8.png"),
+]
 
 @export_group("Item Slot Highlight")
 @export var item_slot_highlight_offset := Vector2.ZERO
-@export var item_slot_highlight_size := Vector2(110.0, 110.0)
 
 @onready var middle_three_option: Control = $MainBG/Containers/Middle/Middle_Three_Option
 @onready var bag_overlay_mask: Control = $MainBG/Containers/Middle/BagOverlayMask
 @onready var middle_shop: Control = $MainBG/Containers/Middle/Middle_Shop
 @onready var middle_bag: Control = $MainBG/Containers/Middle/Middle_Bag
-@onready var party_container: GridContainer = $MainBG/Containers/Party/Party_Container
+@onready var party_container: Control = $MainBG/Containers/Party/Party_Container
+@onready var party_shadows: Array[TextureRect] = [
+	$MainBG/Containers/Party/PartyShadow1,
+	$MainBG/Containers/Party/PartyShadow2,
+	$MainBG/Containers/Party/PartyShadow3,
+	$MainBG/Containers/Party/PartyShadow4,
+]
 @onready var top_shop: Control = get_node_or_null("MainBG/Containers/Top/Top_Shop") as Control
-@onready var top_sell_button: Button = get_node_or_null("MainBG/Containers/Top/Top_Sell") as Button
+@onready var top_sell_button: TextureButton = get_node_or_null("MainBG/Containers/Top/Top_Sell") as TextureButton
 @onready var shop_back_button: TextureButton = get_node_or_null("MainBG/Containers/Top/Top_Shop/Shop_BackButton") as TextureButton
 @onready var bags_panel: Control = $MainBG/Containers/Bags
 @onready var bag_button: TextureButton = $MainBG/Containers/Bags/Bag_Button
+@onready var bag_storage_state: TextureRect = $MainBG/Containers/Bags/BagStorageState
 @onready var time_label: Label = get_node_or_null("MainBG/Containers/Top/Hud/TimeLabel") as Label
 @onready var coin_label: Label = get_node_or_null("MainBG/Containers/Top/Hud/CoinLabel") as Label
 
@@ -147,6 +172,7 @@ func _ready() -> void:
 	_asset_registry.reload()
 	_build_runtime_slots()
 	_collect_slots()
+	_set_bag_storage_count(0)
 	_ensure_pet_detail_panel()
 	_ensure_bazaar_info_panel()
 	_apply_runtime_ui_mode()
@@ -167,12 +193,10 @@ func _build_runtime_slots() -> void:
 	draw_image.fill(Color.WHITE)
 	_slot_draw_texture = ImageTexture.create_from_image(draw_image)
 	var shop_slots := _slot_root(middle_shop) as GridContainer
-	if shop_slots != null:
-		shop_slots.position = Vector2(456.0, 563.0)
-		shop_slots.add_theme_constant_override("h_separation", 34)
+	var bag_slots := _slot_root(middle_bag) as GridContainer
 	_build_slot_buttons(shop_slots, "Shop_Slot", SHOP_SLOT_COUNT, SHOP_SLOT_SIZE, SLOT_LAYOUT_SHOP)
-	_build_slot_buttons(_slot_root(middle_bag), "Bag_Slot", BAG_SLOT_COUNT, BAG_SLOT_SIZE, SLOT_LAYOUT_COLLECTION)
-	_build_slot_buttons(party_container, "Party_Slot", PARTY_SLOT_COUNT, PARTY_SLOT_SIZE, SLOT_LAYOUT_COLLECTION)
+	_build_slot_buttons(bag_slots, "Bag_Slot", BAG_SLOT_COUNT, BAG_SLOT_SIZE, SLOT_LAYOUT_COLLECTION)
+	_configure_authored_slot_buttons(party_container, "Party_Slot", PARTY_SLOT_COUNT, PARTY_SLOT_SIZE, SLOT_LAYOUT_PARTY)
 
 
 func _build_slot_buttons(
@@ -180,33 +204,55 @@ func _build_slot_buttons(
 	base_name: String,
 	count: int,
 	slot_size: Vector2,
-	layout_mode: int
+	slot_layout_mode: int
 ) -> void:
 	if container == null:
 		return
 	for index in range(count):
 		var button := TextureButton.new()
 		button.name = base_name if index == 0 else "%s%d" % [base_name, index + 1]
-		button.custom_minimum_size = slot_size
-		button.ignore_texture_size = true
-		button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED if layout_mode == SLOT_LAYOUT_SHOP else TextureButton.STRETCH_SCALE
-		if layout_mode == SLOT_LAYOUT_COLLECTION:
-			button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-			button.material = _make_collection_slot_material(slot_size)
-		button.set_meta("slot_surface_self", true)
-		button.set_meta("drag_preview_size", SLOT_DRAG_PREVIEW_SIZE)
-		button.set_meta("highlight_offset", Vector2(-12.0, -12.0) if layout_mode == SLOT_LAYOUT_SHOP else Vector2.ZERO)
+		_configure_slot_button(button, slot_size, slot_layout_mode)
 		container.add_child(button)
 
 
-func _make_collection_slot_material(slot_size: Vector2) -> ShaderMaterial:
+func _configure_authored_slot_buttons(
+	container: Node,
+	base_name: String,
+	count: int,
+	slot_size: Vector2,
+	slot_layout_mode: int
+) -> void:
+	if container == null:
+		return
+	for index in range(count):
+		var button_name := base_name if index == 0 else "%s%d" % [base_name, index + 1]
+		var button := container.get_node_or_null(button_name) as TextureButton
+		if button != null:
+			_configure_slot_button(button, slot_size, slot_layout_mode)
+
+
+func _configure_slot_button(button: TextureButton, slot_size: Vector2, slot_layout_mode: int) -> void:
+	button.custom_minimum_size = slot_size
+	button.ignore_texture_size = true
+	button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED if slot_layout_mode == SLOT_LAYOUT_SHOP else TextureButton.STRETCH_SCALE
+	if slot_layout_mode == SLOT_LAYOUT_COLLECTION or slot_layout_mode == SLOT_LAYOUT_PARTY:
+		button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		button.material = _make_collection_slot_material(slot_size, slot_layout_mode)
+	button.set_meta("slot_surface_self", true)
+	button.set_meta("drag_preview_size", SLOT_DRAG_PREVIEW_SIZE)
+
+
+func _make_collection_slot_material(slot_size: Vector2, slot_layout_mode: int = SLOT_LAYOUT_COLLECTION) -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = COLLECTION_SLOT_SHADER_SOURCE
-	var material := ShaderMaterial.new()
-	material.shader = shader
-	material.set_shader_parameter("control_size", slot_size)
-	material.set_shader_parameter("display_size", Vector2(slot_size.x, slot_size.y * 120.0 / 180.0))
-	return material
+	var slot_material := ShaderMaterial.new()
+	slot_material.shader = shader
+	slot_material.set_shader_parameter("control_size", slot_size)
+	var display_size := slot_size if slot_layout_mode == SLOT_LAYOUT_PARTY else BAG_SLOT_DISPLAY_SIZE
+	var display_offset := PARTY_SLOT_DISPLAY_OFFSET if slot_layout_mode == SLOT_LAYOUT_PARTY else BAG_SLOT_DISPLAY_OFFSET
+	slot_material.set_shader_parameter("display_size", display_size)
+	slot_material.set_shader_parameter("display_offset", display_offset)
+	return slot_material
 
 
 func _set_slot_texture(button: TextureButton, texture_resource: Texture2D) -> void:
@@ -388,6 +434,8 @@ func _connect_buttons() -> void:
 	if not bag_button.pressed.is_connected(_on_bag_pressed):
 		bag_button.pressed.connect(_on_bag_pressed)
 	bag_button.focus_mode = Control.FOCUS_ALL
+	bag_button.set_meta("slot_surface_self", true)
+	bag_button.set_meta("focus_tint_disabled", true)
 	bags_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	if not bags_panel.gui_input.is_connected(_on_bags_gui_input):
 		bags_panel.gui_input.connect(_on_bags_gui_input)
@@ -474,6 +522,8 @@ func _grab_focus_for_current_view() -> void:
 
 
 func _on_focus_entered(button: BaseButton) -> void:
+	if bool(button.get_meta("focus_tint_disabled", false)):
+		return
 	var surface := _button_surface(button)
 	if surface != null:
 		surface.modulate = Color(1.18, 1.08, 0.72, 1.0)
@@ -683,23 +733,26 @@ func _render_roster(snap: Dictionary) -> void:
 		if not pet.is_empty():
 			var texture := _pet_texture(pet)
 			_render_shared_pet(slot, button, pet, texture)
+			_set_party_shadow_visible(index, true)
 			button.set_meta("drag_record", pet)
 			_clear_runtime_overlays(slot)
 			if texture == null:
 				_record_missing_image("party_active", pet)
 		else:
 			_clear_shared_pet(slot, button)
+			_set_party_shadow_visible(index, false)
 			button.set_meta("drag_record", {})
 			_clear_runtime_overlays(slot)
 
 	var bag_model := Dictionary(_inventory_presenter.call("page", snap, _bag_page, _bag_buttons.size()))
 	var bag_display := Array(bag_model.get("items", []))
 	_bag_page = int(bag_model.get("page", 0))
+	_set_bag_storage_count(int(bag_model.get("total_count", 0)))
 	for index in range(_bag_buttons.size()):
 		var button := _bag_buttons[index]
 		var slot := _bag_slots[index] if index < _bag_slots.size() else button.get_parent()
-		if index < bag_display.size():
-			var pet := Dictionary(bag_display[index])
+		var pet := Dictionary(bag_display[index]) if index < bag_display.size() else {}
+		if not pet.is_empty():
 			var texture := _pet_texture(pet)
 			_render_shared_pet(slot, button, pet, texture)
 			button.set_meta("drag_record", pet)
@@ -850,7 +903,10 @@ func _on_bag_slot_button_down(index: int) -> void:
 func _on_bag_pet_mouse_entered(index: int) -> void:
 	if _is_transitioning or _has_active_drag() or _current_view != VIEW_BAG:
 		return
-	_show_item_slot_highlight(_bag_slots[index] if index >= 0 and index < _bag_slots.size() else null)
+	_show_item_slot_highlight(
+		_bag_slots[index] if index >= 0 and index < _bag_slots.size() else null,
+		_bag_slot_highlight_extra_offset(index)
+	)
 	_show_storage_pet_context(DRAG_SOURCE_BAG, index)
 
 
@@ -888,6 +944,7 @@ func _input(event: InputEvent) -> void:
 		var mouse_position := (event as InputEventMouseMotion).global_position
 		if _has_active_drag():
 			_update_drag_preview(mouse_position)
+			_update_bag_drag_highlight(mouse_position)
 	if event is InputEventMouseButton:
 		var mouse_button_event := event as InputEventMouseButton
 		if mouse_button_event.button_index != MOUSE_BUTTON_LEFT or mouse_button_event.pressed:
@@ -1119,6 +1176,14 @@ func _update_drag_preview(mouse_position: Vector2) -> void:
 	_drag_preview.global_position = mouse_position - _drag_preview.size * 0.5
 
 
+func _update_bag_drag_highlight(mouse_position: Vector2) -> void:
+	var bag_index := _find_slot_at_position(_bag_slots, mouse_position)
+	if bag_index < 0:
+		_hide_item_slot_highlight()
+		return
+	_show_item_slot_highlight(_bag_slots[bag_index], _bag_slot_highlight_extra_offset(bag_index))
+
+
 func _clear_drag_preview() -> void:
 	if _drag_preview != null and is_instance_valid(_drag_preview):
 		if _drag_preview.get_parent() != null:
@@ -1135,12 +1200,16 @@ func _hide_drag_source_texture(texture: Texture2D) -> void:
 	_drag_hidden_button = button
 	_drag_hidden_texture = texture
 	_drag_hidden_restore = true
+	if _drag_candidate_source == DRAG_SOURCE_PARTY:
+		_set_party_shadow_visible(_drag_candidate_index, false)
 	_set_slot_texture(button, null)
 
 
 func _restore_drag_source_texture() -> void:
 	if _drag_hidden_restore and _drag_hidden_button != null:
 		_set_slot_texture(_drag_hidden_button, _drag_hidden_texture)
+		if _drag_candidate_source == DRAG_SOURCE_PARTY:
+			_set_party_shadow_visible(_drag_candidate_index, true)
 	_discard_drag_source_restore()
 
 
@@ -1164,7 +1233,6 @@ func _clear_drag_state() -> void:
 func _prepare_sell_button() -> void:
 	if top_sell_button == null:
 		return
-	top_sell_button.text = RuntimeUiPolicy.text("UI_SELL")
 	top_sell_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	top_sell_button.focus_mode = Control.FOCUS_NONE
 	_set_sell_button_visible(false)
@@ -1475,19 +1543,21 @@ func _close_pet_context_detail() -> void:
 		_pet_detail_panel.call("close_context_detail")
 
 
-func _show_item_slot_highlight(slot: Control) -> void:
+func _show_item_slot_highlight(slot: Control, extra_offset := Vector2.ZERO) -> void:
 	if slot == null:
 		return
 	var rect := slot.get_global_rect()
-	_item_slot_hover_highlight.size = item_slot_highlight_size
-	var generated_offset := slot.get_meta("highlight_offset", Vector2.ZERO) as Vector2
-	_item_slot_hover_highlight.global_position = rect.position + generated_offset + item_slot_highlight_offset
+	_item_slot_hover_highlight.global_position = rect.position + item_slot_highlight_offset + extra_offset
 	_item_slot_hover_highlight.visible = true
 	_item_slot_hover_highlight.move_to_front()
 
 
 func _hide_item_slot_highlight() -> void:
 	_item_slot_hover_highlight.visible = false
+
+
+func _bag_slot_highlight_extra_offset(index: int) -> Vector2:
+	return BAG_FIRST_SLOT_HIGHLIGHT_EXTRA_OFFSET if index == 0 else BAG_OTHER_SLOT_HIGHLIGHT_EXTRA_OFFSET
 
 
 func _detail_record_with_display_skill(record: Dictionary) -> Dictionary:
@@ -1829,12 +1899,6 @@ func _set_bag_button_open(is_open: bool) -> void:
 	if bag_button == null:
 		return
 	bag_button.texture_normal = BAG_OPEN_TEXTURE if is_open else BAG_CLOSED_TEXTURE
-	if is_open:
-		bag_button.position = Vector2(56.0, 0.0)
-		bag_button.size = Vector2(158.0, 182.0)
-	else:
-		bag_button.position = Vector2(55.0, 51.0)
-		bag_button.size = Vector2(161.0, 123.0)
 
 
 func _set_hovered_route_card(index: int) -> void:
@@ -1851,6 +1915,21 @@ func _render_shared_pet(_slot: Control, button: TextureButton, _record: Dictiona
 
 func _clear_shared_pet(_slot: Control, button: TextureButton) -> void:
 	_set_slot_texture(button, null)
+
+
+func _set_party_shadow_visible(index: int, is_visible: bool) -> void:
+	if index < 0 or index >= party_shadows.size():
+		return
+	var shadow := party_shadows[index]
+	if shadow != null:
+		shadow.visible = is_visible
+
+
+func _set_bag_storage_count(count: int) -> void:
+	if bag_storage_state == null:
+		return
+	var state_index := clampi(count, 0, BAG_STORAGE_STATE_TEXTURES.size() - 1)
+	bag_storage_state.texture = BAG_STORAGE_STATE_TEXTURES[state_index]
 
 
 func _route_texture(option: Dictionary, kind: String) -> Texture2D:
