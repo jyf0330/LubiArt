@@ -54,7 +54,7 @@ func render_snapshot(snap: Dictionary, view: StringName) -> void:
 		var page_count := _bag_page_count(snap)
 		if page_count > 1:
 			var page := int(snap.get("ui_bag_page", 0))
-			_primary_command = {"type": "UI_SET_BAG_PAGE", "page": (page + 1) % page_count, "label": RuntimeUiPolicy.text("UI_BAG_NEXT")}
+			_primary_command = {"type": "UI_SET_BAG_PAGE", "page": (page + 1) % page_count}
 			primary_button.text = RuntimeUiPolicy.text("UI_BAG_NEXT_PAGE", [page + 1, page_count])
 			primary_button.visible = true
 	else:
@@ -67,16 +67,13 @@ func _render_phase_snapshot(snap: Dictionary, phase: String, header: String) -> 
 		"shop":
 			title_label.text = "%s\n%s" % [header, RuntimeUiPolicy.text("UI_SHOP_TITLE")]
 			summary_label.text = _with_feedback(_shop_summary(snap))
-			_refresh_command = {
-				"type": "ROLL_SHOP",
-				"slots": int(Dictionary(snap.get("active_stall", {})).get("slots", 10))
-			}
+			_refresh_command = {"type": "ROLL_SHOP"}
 			refresh_button.visible = true
 			var events := Array(snap.get("shop_events", []))
 			if not events.is_empty():
 				var event := Dictionary(events[0])
-				_primary_command = {"type": "APPLY_SHOP_EVENT", "eventId": String(event.get("id", event.get("eventId", ""))), "label": String(event.get("name", "商店事件"))}
-				primary_button.text = String(_primary_command.get("label", "商店事件"))
+				_primary_command = {"type": "APPLY_SHOP_EVENT", "eventId": String(event.get("id", event.get("eventId", "")))}
+				primary_button.text = String(event.get("name", "商店事件"))
 				primary_button.visible = not String(_primary_command.get("eventId", "")).is_empty()
 		"reward":
 			title_label.text = "%s\n%s" % [header, RuntimeUiPolicy.text("UI_REWARD_TITLE")]
@@ -85,7 +82,7 @@ func _render_phase_snapshot(snap: Dictionary, phase: String, header: String) -> 
 			title_label.text = "%s\n%s" % [header, _terminal_title(phase)]
 			summary_label.text = _with_feedback(_terminal_summary(snap, phase))
 			_primary_command = _terminal_command(snap, phase)
-			primary_button.text = String(_primary_command.get("label", RuntimeUiPolicy.text("UI_CONTINUE")))
+			primary_button.text = _terminal_button_text(phase)
 			primary_button.visible = not _primary_command.is_empty()
 		_:
 			title_label.text = "%s\n%s" % [header, RuntimeUiPolicy.text("UI_ROUTE_TITLE")]
@@ -233,11 +230,18 @@ func _battle_outcome_label(result: Dictionary) -> String:
 	return RuntimeUiPolicy.text("UI_OUTCOME_WIN" if bool(result.get("win", false)) else "UI_OUTCOME_LOSS")
 
 
-func _terminal_command(snap: Dictionary, phase: String) -> Dictionary:
+func _terminal_command(_snap: Dictionary, phase: String) -> Dictionary:
 	match phase:
-		"battle_end": return {"type": "CONTINUE_AFTER_BATTLE", "label": RuntimeUiPolicy.text("UI_CONTINUE_SETTLEMENT")}
-		"day_end": return {"type": "START_NEXT_DAY", "day": int(snap.get("day", 1)) + 1, "label": RuntimeUiPolicy.text("UI_NEXT_DAY")}
-		_: return {"type": "NEW_RUN", "label": RuntimeUiPolicy.text("UI_NEW_RUN")}
+		"battle_end": return {"type": "CONTINUE_AFTER_BATTLE"}
+		"day_end": return {"type": "START_NEXT_DAY"}
+		_: return {"type": "NEW_RUN"}
+
+
+func _terminal_button_text(phase: String) -> String:
+	match phase:
+		"battle_end": return RuntimeUiPolicy.text("UI_CONTINUE_SETTLEMENT")
+		"day_end": return RuntimeUiPolicy.text("UI_NEXT_DAY")
+		_: return RuntimeUiPolicy.text("UI_NEW_RUN")
 
 
 func _on_refresh_pressed() -> void:
@@ -247,9 +251,7 @@ func _on_refresh_pressed() -> void:
 
 func _on_primary_pressed() -> void:
 	if not _primary_command.is_empty():
-		var command := _primary_command.duplicate(true)
-		command.erase("label")
-		command_requested.emit(command)
+		command_requested.emit(_primary_command.duplicate(true))
 
 
 func _with_feedback(base_text: String) -> String:

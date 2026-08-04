@@ -107,7 +107,7 @@ func on_cell_selected(grid: Vector2i) -> void:
 		_request_cell_detail(grid)
 		return
 	cell_detail_requested.emit(Vector2i(-1, -1), "")
-	command_requested.emit({"type": "SELECT_CELL", "x": grid.x, "y": grid.y, "cell": {"x": grid.x, "y": grid.y}})
+	command_requested.emit({"type": "SELECT_CELL", "x": grid.x, "y": grid.y})
 
 
 func on_cell_pressed(grid: Vector2i) -> void:
@@ -255,8 +255,7 @@ func _finish_unit_drag(target: Vector2i) -> void:
 			"type": "MOVE_HERO",
 			"unitId": dragged_unit_id,
 			"x": target.x,
-			"y": target.y,
-			"cell": {"x": target.x, "y": target.y}
+			"y": target.y
 		})
 		settled_grid = target
 	_suppress_next_select = true
@@ -356,7 +355,7 @@ func _request_cell_detail(grid: Vector2i) -> void:
 		Vector2i(x, y),
 		String(data.get("unitId", data.get("unit_id", "")))
 	)
-	command_requested.emit({"type": "GET_CELL_DETAIL", "x": x, "y": y, "cell": {"x": x, "y": y}})
+	command_requested.emit({"type": "GET_CELL_DETAIL", "x": x, "y": y})
 
 
 func _select_player_unit_and_request_detail(grid: Vector2i) -> void:
@@ -373,8 +372,7 @@ func _select_player_unit(grid: Vector2i) -> void:
 	command_requested.emit({
 		"type": "SELECT_CELL",
 		"x": grid.x,
-		"y": grid.y,
-		"cell": {"x": grid.x, "y": grid.y}
+		"y": grid.y
 	})
 
 

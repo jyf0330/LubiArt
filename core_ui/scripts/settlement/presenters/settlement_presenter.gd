@@ -10,7 +10,7 @@ func reward_cards(snapshot: Dictionary) -> Array:
 		var reward := Dictionary(records[index])
 		result.append({
 			"record": reward,
-			"command": reward_command(reward, index),
+			"command": reward_command(reward),
 		})
 	return result
 

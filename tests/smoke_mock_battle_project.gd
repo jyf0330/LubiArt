@@ -384,7 +384,7 @@ func _run() -> void:
 	var replay_step_before_empty_select := int(game_session.call("replay_step_index"))
 	var empty_select_response := Dictionary(game_session.call(
 		"submit_command",
-		{"type": "SELECT_CELL", "x": 4, "y": 4, "cell": {"x": 4, "y": 4}}
+		{"type": "SELECT_CELL", "x": 4, "y": 4}
 	))
 	assert(not bool(empty_select_response.get("accepted", true)))
 	assert(int(game_session.call("replay_step_index")) == replay_step_before_empty_select)

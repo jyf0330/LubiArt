@@ -537,11 +537,13 @@ func _render_route(snap: Dictionary) -> void:
 		if has_option:
 			_render_route_card(slot, button, _route_slot_texture(index), _route_slot_icon_texture(index), index)
 			button.set_meta("command", Dictionary(card.get("command", {})))
+			button.set_meta("route_kind", String(card.get("kind", "")))
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
 		else:
 			_clear_route_card(slot, button)
 			button.set_meta("command", {})
+			button.set_meta("route_kind", "")
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
 		button.set_meta("base_tint", Color.WHITE)
@@ -950,8 +952,6 @@ func _drop_dragged_shop_item(mouse_position: Vector2) -> void:
 		return
 	var command := {
 		"type": "DROP_ITEM_ON_TARGET",
-		"source_type": DRAG_SOURCE_SHOP,
-		"source_index": _drag_candidate_index,
 		"offer_id": String(offer_command.get("offer_id", "")),
 		"target_type": target_kind,
 		"target_index": int(target.get("index", -1))
@@ -977,8 +977,6 @@ func _drop_dragged_storage_item(mouse_position: Vector2) -> void:
 		return
 	var command := {
 		"type": "DROP_ITEM_ON_TARGET",
-		"source_type": _drag_candidate_source,
-		"source_index": _drag_candidate_index,
 		"unitId": unit_id,
 		"target_type": kind,
 		"target_index": int(target.get("index", -1))

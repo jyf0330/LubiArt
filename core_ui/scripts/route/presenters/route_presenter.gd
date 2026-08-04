@@ -12,7 +12,7 @@ func cards(snapshot: Dictionary) -> Array:
 		result.append({
 			"record": option,
 			"kind": kind,
-			"command": choose_command(option, kind),
+			"command": choose_command(option),
 		})
 	return result
 

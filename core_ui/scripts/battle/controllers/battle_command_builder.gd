@@ -8,7 +8,7 @@ func build(command_type: String, snapshot: Dictionary) -> Dictionary:
 	var slot_index := selected_slot_index(snapshot)
 	match command_type:
 		"SELECT_ACTION_SLOT":
-			return {"type": "SELECT_ACTION_SLOT", "slotId": slot_index, "index": slot_index}
+			return {"type": "SELECT_ACTION_SLOT", "slotId": slot_index}
 		"SET_ACTION_DIRECTION":
 			return {
 				"type": "SET_ACTION_DIRECTION",
@@ -30,7 +30,7 @@ func build(command_type: String, snapshot: Dictionary) -> Dictionary:
 				"slotId": slot_index,
 				"ap": selected_action_ap(snapshot),
 			}
-		"RUN_PLAYER_ALL_OUT", "END_PLAYER_TURN", "RUN_MONSTER_TURN", "RUN_BATTLE", "AUTO_POSITION_HEROES":
+		"RUN_PLAYER_ALL_OUT", "END_PLAYER_TURN", "RUN_MONSTER_TURN", "AUTO_POSITION_HEROES":
 			return {"type": command_type}
 	return {}
 
