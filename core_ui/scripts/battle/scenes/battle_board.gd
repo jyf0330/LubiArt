@@ -96,6 +96,11 @@ func clear_transient_state() -> void:
 	_drag_interaction.call("clear_transient_state")
 
 
+func set_background_texture(texture: Texture2D) -> void:
+	if texture != null:
+		board_background.texture = texture
+
+
 func board_dimensions() -> Vector2i:
 	return Vector2i(_board_columns, _board_rows)
 

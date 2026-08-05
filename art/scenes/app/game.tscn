@@ -12,6 +12,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_game")
+mock_start_phase = "battle"
 
 [node name="ThreeChoiceScene" parent="." unique_id=1470806941 instance=ExtResource("2_three_choice")]
 layout_mode = 1

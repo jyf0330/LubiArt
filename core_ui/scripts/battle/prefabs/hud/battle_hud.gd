@@ -207,6 +207,14 @@ func _on_begin_turn_pressed() -> void:
 	command_requested.emit({"type": "RUN_COMBAT_ROUND"})
 
 
+func request_auto_arrange() -> void:
+	_on_auto_arrange_pressed()
+
+
+func request_begin_turn() -> void:
+	_on_begin_turn_pressed()
+
+
 func _on_child_command_requested(command: Dictionary) -> void:
 	if _input_locked or not _phase_is_battle() or command.is_empty():
 		return
@@ -274,6 +282,10 @@ func _input(event: InputEvent) -> void:
 
 func get_attack_timeline() -> Control:
 	return attack_timeline
+
+
+func toggle_attack_timeline() -> void:
+	_toggle_attack_timeline()
 
 
 func _toggle_attack_timeline() -> void:

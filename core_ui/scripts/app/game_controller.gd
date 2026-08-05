@@ -12,6 +12,8 @@ const SceneRouterScript := preload("res://core_ui/scripts/app/scene_router.gd")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 const DEFAULT_RUN_SEED := "ysbzs-test-play-20260715-v1"
 
+@export_enum("route", "battle") var mock_start_phase := "battle"
+
 @onready var three_choice_view: Control = $ThreeChoiceScene
 @onready var feature_host: Control = $FeatureHost
 
@@ -37,8 +39,7 @@ func _ready() -> void:
 		feature_registry = FeatureRegistryScript.new()
 	if game_session == null:
 		game_session = SessionFactoryScript.create_local({
-			"run_seed": DEFAULT_RUN_SEED,
-			"start_phase": "battle",
+			"start_phase": mock_start_phase,
 			"board_dimensions": SessionFactoryScript.command_line_board_dimensions()
 		})
 	_session_bridge.bind_session(game_session)

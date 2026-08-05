@@ -29,7 +29,7 @@ func _run() -> void:
 	var lock_art := card.get_node("TraitLockSilver") as TextureRect
 	assert(card.call("get_silver_trait_variant_names") == PackedStringArray(EXPECTED_NAMES))
 	assert(card.call("get_silver_trait_art_size") == EXPECTED_ART_SIZE)
-	assert(int(card.call("get_silver_trait_index")) == 4)
+	assert(int(card.call("get_silver_trait_index")) == 0)
 	for index in range(EXPECTED_FILES.size()):
 		assert(bool(card.call("set_silver_trait_by_index", index)))
 		await process_frame
@@ -46,6 +46,6 @@ func _run() -> void:
 	assert(lock_art.texture != null)
 	assert(lock_art.texture.get_size() == EXPECTED_LOCK_SIZE)
 	assert(lock_art.size == EXPECTED_LOCK_SIZE)
-	assert(lock_art.texture.resource_path.get_file() == "trait_lock_silver.png")
+	assert(lock_art.texture.resource_path.get_file() == "trait_lock_gold.png")
 	print("SPRITE_INFO_CARD_SILVER_TRAIT_SMOKE_PASS")
 	quit(0)

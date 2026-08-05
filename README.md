@@ -5,7 +5,7 @@
 ## 结构
 
 - `art/scenes/`：保留 `app/game.tscn` 总装配 Scene、三选一和战斗两个正式 UI Scene，以及独立的 SpriteInfoCard 美术调试 Scene；项目从 `game.tscn` 启动
-- `art/prefabs/`：保留宠物、宠物详情、地形、地形详情四个公开 prefab，以及宠物详情内部使用的 `sprite_info_card.tscn`
+- `art/prefabs/`：保留宠物、宠物详情、地形、地形详情等公开 prefab，以及宠物详情内部使用的 `sprite_info_card.tscn`；`battle/hud/battle_map_controls.tscn` 提供正式战斗 Scene 使用的地图资源与右下角按钮组
 - `art/images/`：项目内完整图片资源
 - `art/manifests/`：图片 ID、切片和资源映射 JSON
 - `core_ui/scripts/`：Controller、Presenter、Adapter、Command Builder、Trace Projection 和预制体表现脚本

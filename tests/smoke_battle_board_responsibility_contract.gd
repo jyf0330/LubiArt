@@ -71,8 +71,12 @@ func _run() -> void:
 		"Board/VfxHost",
 		"Hud",
 		"OverlayHost",
+		"OverlayHost/SettingsMenu",
+		"MapControls",
+		"MapDebugButton",
+		"ShortcutHintDebugButton",
 	]
-	assert(scene.get_child_count() == 3)
+	assert(scene.get_child_count() == 6)
 	for path in expected_paths:
 		assert(scene.get_node_or_null(path) != null)
 	assert(scene.get_node("Board/CellHost").get_script() == null)

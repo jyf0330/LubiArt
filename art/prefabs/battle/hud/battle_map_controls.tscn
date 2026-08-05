@@ -1,0 +1,108 @@
+[gd_scene format=3 uid="uid://dc3ji3lomdhex"]
+
+[ext_resource type="Script" uid="uid://dhihylqfqgru6" path="res://core_ui/scripts/battle/prefabs/hud/battle_map_controls.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b8l4f28mvkigc" path="res://art/images/battle/map_controls/buttons/auto_arrange_normal.png" id="3_auto"]
+[ext_resource type="Texture2D" uid="uid://cl333ibkul6ya" path="res://art/images/battle/map_controls/buttons/reset_normal.png" id="4_reset"]
+[ext_resource type="Texture2D" uid="uid://blxex5j4p1cwf" path="res://art/images/battle/map_controls/buttons/speed_normal.png" id="5_speed"]
+[ext_resource type="Texture2D" uid="uid://c4kydpksexvvj" path="res://art/images/battle/map_controls/buttons/settings_normal.png" id="6_settings"]
+[ext_resource type="Texture2D" uid="uid://bpxiuetohexa2" path="res://art/images/battle/map_controls/buttons/attack_order_normal.png" id="7_attack_order"]
+[ext_resource type="Texture2D" uid="uid://bp4hof0casu11" path="res://art/images/battle/map_controls/buttons/bag_normal.png" id="8_bag"]
+[ext_resource type="Texture2D" uid="uid://c5687u7mexuwj" path="res://art/images/battle/map_controls/buttons/all_out_normal.png" id="9_all_out"]
+[ext_resource type="Texture2D" uid="uid://ducqyo7pbonu6" path="res://art/images/battle/map_controls/shortcut_hints.png" id="10_shortcut_hints"]
+
+[node name="BattleMapControls" type="Control" unique_id=1018758249]
+editor_description = "Fixed 287x752 battle control component derived from the confirmed 1920x1080 PSD button group. Map layers are intentionally excluded."
+custom_minimum_size = Vector2(287, 752)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 287.0
+offset_bottom = 752.0
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="AutoArrangeButton" type="TextureButton" parent="." unique_id=859655289]
+layout_mode = 0
+offset_left = 220.0
+offset_right = 286.0
+offset_bottom = 62.0
+pivot_offset = Vector2(33, 31)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("3_auto")
+
+[node name="ResetButton" type="TextureButton" parent="." unique_id=908798259]
+layout_mode = 0
+offset_left = 221.0
+offset_top = 82.0
+offset_right = 287.0
+offset_bottom = 144.0
+pivot_offset = Vector2(33, 31)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_reset")
+
+[node name="SpeedButton" type="TextureButton" parent="." unique_id=1238058765]
+layout_mode = 0
+offset_left = 221.0
+offset_top = 164.0
+offset_right = 286.0
+offset_bottom = 226.0
+pivot_offset = Vector2(32.5, 31)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+toggle_mode = true
+texture_normal = ExtResource("5_speed")
+metadata/speed_active = false
+
+[node name="SettingsButton" type="TextureButton" parent="." unique_id=677565926]
+layout_mode = 0
+offset_left = 222.0
+offset_top = 246.0
+offset_right = 287.0
+offset_bottom = 308.0
+pivot_offset = Vector2(32.5, 31)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_settings")
+
+[node name="AttackOrderButton" type="TextureButton" parent="." unique_id=1450587695]
+layout_mode = 0
+offset_left = 222.0
+offset_top = 328.0
+offset_right = 287.0
+offset_bottom = 390.0
+pivot_offset = Vector2(32.5, 31)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_attack_order")
+
+[node name="BagButton" type="TextureButton" parent="." unique_id=609206066]
+layout_mode = 0
+offset_left = 221.0
+offset_top = 410.0
+offset_right = 287.0
+offset_bottom = 472.0
+pivot_offset = Vector2(33, 31)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_bag")
+
+[node name="AllOutButton" type="TextureButton" parent="." unique_id=1264624892]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 688.0
+offset_right = 286.0
+offset_bottom = 752.0
+pivot_offset = Vector2(136, 32)
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_all_out")
+
+[node name="ShortcutHints" type="TextureRect" parent="." unique_id=1171482936]
+layout_mode = 0
+offset_top = 34.0
+offset_right = 259.0
+offset_bottom = 750.0
+mouse_filter = 2
+texture = ExtResource("10_shortcut_hints")
+expand_mode = 1

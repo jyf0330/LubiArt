@@ -16,6 +16,12 @@ const GameLogScript := preload("res://core/logging/game_log.gd")
 @onready var hud: Control = $Hud
 @onready var overlay: Control = $OverlayHost
 @onready var settings_menu: Control = $OverlayHost/SettingsMenu
+@onready var map_controls: Control = $MapControls
+@onready var map_debug_button: Button = $MapDebugButton
+@onready var shortcut_hint_debug_button: Button = $ShortcutHintDebugButton
+@onready var map_auto_arrange_button: TextureButton = $MapControls/AutoArrangeButton
+@onready var map_reset_button: TextureButton = $MapControls/ResetButton
+@onready var map_all_out_button: TextureButton = $MapControls/AllOutButton
 
 var _assets: RefCounted = null
 var _trace_projection := BattleTraceProjectionScript.new()
@@ -24,6 +30,7 @@ var _rendered_trace_count := -1
 var _pending_final_snapshot: Dictionary = {}
 var _pending_enemy_move_final_cells := {}
 var _battle_input_locked := false
+var _debug_map_index := -1
 
 
 func _ready() -> void:
@@ -47,6 +54,10 @@ func _ready() -> void:
 			"session_operation_requested",
 			Callable(self, "_on_settings_session_operation_requested")
 		)
+	_connect_map_controls()
+	map_debug_button.pressed.connect(_on_map_debug_button_pressed)
+	shortcut_hint_debug_button.pressed.connect(_on_shortcut_hint_debug_button_pressed)
+	_update_shortcut_hint_debug_button_label()
 
 
 func get_runtime_view() -> Control:
@@ -83,6 +94,7 @@ func render_snapshot(snapshot: Dictionary) -> void:
 	board.call("render_snapshot", visible_snapshot, visible_cells, pending_reset_ids)
 	hud.call("render_snapshot", visible_snapshot)
 	overlay.call("render_snapshot", visible_snapshot)
+	_sync_map_controls(visible_snapshot)
 	if not new_events.is_empty():
 		_rendered_trace_count = Array(incoming.get("battleTrace", incoming.get("battle_trace", []))).size()
 		_set_battle_input_locked(true)
@@ -171,6 +183,7 @@ func _apply_staged_final_snapshot() -> void:
 		board.call("render_snapshot", final_snapshot, final_cells)
 		hud.call("render_snapshot", final_snapshot)
 		overlay.call("render_snapshot", final_snapshot)
+		_sync_map_controls(final_snapshot)
 	else:
 		for unit_id_value in _pending_enemy_move_final_cells.keys():
 			board.call("apply_enemy_move_final_cell", String(unit_id_value), Dictionary(_pending_enemy_move_final_cells[unit_id_value]))
@@ -183,9 +196,10 @@ func _set_battle_input_locked(locked: bool) -> void:
 	_battle_input_locked = locked
 	board.call("set_input_locked", locked)
 	hud.call("set_input_locked", locked)
+	_update_map_control_availability(_last_snapshot)
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
 		return
 	if _settings_menu_is_open():
@@ -199,6 +213,101 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _settings_menu_is_open() -> bool:
 	return settings_menu != null and bool(settings_menu.call("is_open"))
+
+
+func _connect_map_controls() -> void:
+	var connections := {
+		"settings_requested": Callable(self, "_on_map_settings_requested"),
+		"attack_order_requested": Callable(self, "_on_map_attack_order_requested"),
+		"auto_arrange_requested": Callable(self, "_on_map_auto_arrange_requested"),
+		"reset_requested": Callable(self, "_on_map_reset_requested"),
+		"all_out_requested": Callable(self, "_on_map_all_out_requested"),
+	}
+	for signal_name in connections:
+		var callback := connections[signal_name] as Callable
+		if map_controls.has_signal(signal_name) and not map_controls.is_connected(signal_name, callback):
+			map_controls.connect(signal_name, callback)
+
+
+func _sync_map_controls(snapshot: Dictionary) -> void:
+	if _assets != null and _assets.has_method("battle_background_key"):
+		var map_id := String(_assets.call("battle_background_key", snapshot))
+		if bool(map_controls.call("set_map_by_id", map_id)):
+			_debug_map_index = int(map_controls.call("get_map_index"))
+			_update_map_debug_button_label()
+	_update_map_control_availability(snapshot)
+
+
+func _update_map_control_availability(snapshot: Dictionary) -> void:
+	var phase_is_battle := String(snapshot.get("phase", "")) == "battle"
+	map_auto_arrange_button.disabled = _battle_input_locked or not phase_is_battle
+	map_all_out_button.disabled = _battle_input_locked or not phase_is_battle
+	var reset_state := Dictionary(Dictionary(snapshot.get("pet_reset", {})).get("player", {}))
+	map_reset_button.disabled = (
+		_battle_input_locked or not phase_is_battle or not bool(reset_state.get("eligible", false))
+	)
+
+
+func _on_map_settings_requested() -> void:
+	if _settings_menu_is_open():
+		settings_menu.call("handle_cancel")
+	elif bool(overlay.call("has_visible_detail")):
+		overlay.call("clear")
+	else:
+		settings_menu.call("open_menu")
+
+
+func _on_map_attack_order_requested() -> void:
+	if hud.has_method("toggle_attack_timeline"):
+		hud.call("toggle_attack_timeline")
+
+
+func _on_map_auto_arrange_requested() -> void:
+	if _battle_input_locked or map_auto_arrange_button.disabled:
+		return
+	map_auto_arrange_button.disabled = true
+	if hud.has_method("request_auto_arrange"):
+		hud.call("request_auto_arrange")
+
+
+func _on_map_reset_requested() -> void:
+	if _battle_input_locked or map_reset_button.disabled:
+		return
+	command_requested.emit({"type": "RESET_PETS"})
+
+
+func _on_map_all_out_requested() -> void:
+	if _battle_input_locked or map_all_out_button.disabled:
+		return
+	if hud.has_method("request_begin_turn"):
+		hud.call("request_begin_turn")
+
+
+func _on_shortcut_hint_debug_button_pressed() -> void:
+	map_controls.call("toggle_shortcut_hints")
+	_update_shortcut_hint_debug_button_label()
+
+
+func _update_shortcut_hint_debug_button_label() -> void:
+	var hints_visible := bool(map_controls.call("are_shortcut_hints_visible"))
+	shortcut_hint_debug_button.text = "Shortcut Hints: %s" % ("ON" if hints_visible else "OFF")
+
+
+func _on_map_debug_button_pressed() -> void:
+	var map_ids := map_controls.call("get_map_ids") as PackedStringArray
+	if map_ids.is_empty():
+		return
+	_debug_map_index = (_debug_map_index + 1) % map_ids.size()
+	if not bool(map_controls.call("set_map_by_index", _debug_map_index)):
+		return
+	var texture := map_controls.call("get_map_texture") as Texture2D
+	if texture != null and board.has_method("set_background_texture"):
+		board.call("set_background_texture", texture)
+	_update_map_debug_button_label()
+
+
+func _update_map_debug_button_label() -> void:
+	map_debug_button.text = "调试地图：%s" % String(map_controls.call("get_map_display_name"))
 
 
 func _on_settings_session_operation_requested(

@@ -1,0 +1,36 @@
+{
+  "sourceArchive": "锁.zip",
+  "sourceUpdated": "2026-07-30",
+  "sourceSize": [476, 476],
+  "targetSize": [55, 52],
+  "targetNodes": ["TraitLockSilver", "TraitLockGold", "TraitLockCrystal"],
+  "qualityMapping": {
+    "bronze": "gold",
+    "silver": "silver",
+    "gold": "gold",
+    "crystal": "crystal"
+  },
+  "variants": [
+    {
+      "id": "silver",
+      "displayName": "白银锁",
+      "sourceEntry": "_0002_白银锁.png",
+      "sourceResource": "res://art/images/shared/pets/info_panel/sources/trait_locks/trait_lock_silver_source.png",
+      "resource": "res://art/images/shared/pets/info_panel/trait_lock_silver.png"
+    },
+    {
+      "id": "gold",
+      "displayName": "黄金锁",
+      "sourceEntry": "_0001_黄金锁.png",
+      "sourceResource": "res://art/images/shared/pets/info_panel/sources/trait_locks/trait_lock_gold_source.png",
+      "resource": "res://art/images/shared/pets/info_panel/trait_lock_gold.png"
+    },
+    {
+      "id": "crystal",
+      "displayName": "水晶锁",
+      "sourceEntry": "_0000_水晶锁.png",
+      "sourceResource": "res://art/images/shared/pets/info_panel/sources/trait_locks/trait_lock_crystal_source.png",
+      "resource": "res://art/images/shared/pets/info_panel/trait_lock_crystal.png"
+    }
+  ]
+}

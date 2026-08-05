@@ -88,6 +88,7 @@ text = "摆位难度：普通"
 
 [node name="BattlePrimaryActions" type="Control" parent="."]
 editor_description = "战斗主要操作区：依据提供的 PSD 制作。"
+visible = false
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
