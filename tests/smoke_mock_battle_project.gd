@@ -166,6 +166,21 @@ func _run() -> void:
 	assert(bool(mismatch_response.get("accepted", false)))
 	assert(bool(Dictionary(mismatch_response.get("result", {})).get("mock_noop", false)))
 	assert(_same_snapshot_identity(isolated_session.current_snapshot(), captured_initial))
+	var inventory_presenter: RefCounted = load("res://core_ui/scripts/inventory/presenters/inventory_presenter.gd").new()
+	var sparse_bag_page := Dictionary(inventory_presenter.call("page", {
+		"roster": [
+			{"id": "active_pet", "active": true, "slot": 1},
+			{"id": "bag_slot_5_pet", "active": false, "bag_slot": 5},
+			{"id": "bag_slot_1_pet", "active": false, "bag_slot": 1},
+		],
+	}, 0, 8))
+	var sparse_bag_items := Array(sparse_bag_page.get("items", []))
+	assert(sparse_bag_items.size() == 8)
+	assert(Dictionary(sparse_bag_items[0]).is_empty())
+	assert(String(Dictionary(sparse_bag_items[1]).get("id", "")) == "bag_slot_1_pet")
+	assert(Dictionary(sparse_bag_items[2]).is_empty())
+	assert(String(Dictionary(sparse_bag_items[5]).get("id", "")) == "bag_slot_5_pet")
+	assert(int(sparse_bag_page.get("total_count", 0)) == 2)
 	var direct_round_response := Dictionary(isolated_session.submit_command({"type": "RUN_COMBAT_ROUND"}))
 	assert(bool(direct_round_response.get("accepted", false)))
 	assert(int(direct_round_response.get("captureStep", 0)) == 2)
@@ -188,12 +203,16 @@ func _run() -> void:
 	assert(not three_choice_source.contains("[node name=\"AnimationPlayer\""))
 	assert(not three_choice_source.contains("[node name=\"Shop_Slot\""))
 	assert(not three_choice_source.contains("[node name=\"Bag_Slot\""))
-	assert(not three_choice_source.contains("[node name=\"Party_Slot\""))
+	assert(three_choice_source.contains("[node name=\"Party_Slot\" type=\"TextureButton\" parent=\"MainBG/Containers/Party/Party_Container\""))
+	for index in range(2, 5):
+		assert(three_choice_source.contains("[node name=\"Party_Slot%d\" type=\"TextureButton\" parent=\"MainBG/Containers/Party/Party_Container\"" % index))
 	assert(not three_choice_source.contains("res://art/prefabs/pet/pet.tscn"))
 	assert(three_choice_source.count("instance=ExtResource(\"5_card\")") == 3)
-	assert(three_choice_source.contains("route_portrait_shop.png"))
-	assert(three_choice_source.contains("route_portrait_event.png"))
-	assert(three_choice_source.contains("route_portrait_reward.png"))
+	var asset_registry_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd")
+	assert(asset_registry_source.contains("route_portrait_shop.png"))
+	assert(asset_registry_source.contains("route_portrait_event.png"))
+	assert(asset_registry_source.contains("route_portrait_reward.png"))
+	_assert_three_choice_scene_hierarchy(three_choice_source)
 	var three_choice_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/scenes/three_choice_scene.gd")
 	assert(not three_choice_script_source.contains("_ensure_item_slot_hover_highlight"))
 	assert(not three_choice_script_source.contains("ThreeChoiceCardScene.instantiate()"))
@@ -204,6 +223,7 @@ func _run() -> void:
 	assert(not three_choice_script_source.contains("feature_view_release_requested"))
 	assert(not three_choice_script_source.contains("_ensure_battle_view"))
 	assert(not three_choice_script_source.contains("battle_art_scene.tscn"))
+	_assert_three_choice_runtime_slot_policy(three_choice_script_source)
 	var card_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/route/prefabs/three_choice_card.gd")
 	assert(not card_script_source.contains("SLOT_LAYOUTS"))
 	assert(not card_script_source.contains("_apply_slot_layout"))
@@ -1120,3 +1140,70 @@ func _stat_edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> floa
 		return edge_start.x
 	var weight := clampf((y - edge_start.y) / (edge_end.y - edge_start.y), 0.0, 1.0)
 	return lerpf(edge_start.x, edge_end.x, weight)
+
+
+func _assert_three_choice_scene_hierarchy(scene_source: String) -> void:
+	assert(scene_source.contains("[node name=\"Middle\" type=\"Control\" parent=\"MainBG/Containers\""))
+	assert(_node_parent(scene_source, "Middle_Three_Option") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "BagOverlayMask") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "Middle_Shop") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "Middle_Bag") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "Bags") == "MainBG/Containers")
+
+	var middle_children := _direct_scene_children(scene_source, "MainBG/Containers/Middle")
+	assert(middle_children.size() == 4)
+	assert(middle_children[0] == "Middle_Three_Option")
+	assert(middle_children[1] == "BagOverlayMask")
+	assert(middle_children[2] == "Middle_Shop")
+	assert(middle_children[3] == "Middle_Bag")
+
+	var bag_children := _direct_scene_children(scene_source, "MainBG/Containers/Bags")
+	assert(bag_children.size() == 2)
+	assert(bag_children[0] == "Bag_Button")
+	assert(bag_children[1] == "BagStorageState")
+	assert(scene_source.contains("[node name=\"Top_Sell\" type=\"TextureButton\" parent=\"MainBG/Containers/Top\""))
+	assert(not scene_source.contains("[node name=\"SellHighlight\""))
+
+
+func _assert_three_choice_runtime_slot_policy(script_source: String) -> void:
+	assert(script_source.contains("_build_slot_buttons(shop_slots, \"Shop_Slot\", SHOP_SLOT_COUNT, SHOP_SLOT_SIZE, SLOT_LAYOUT_SHOP)"))
+	assert(script_source.contains("_build_slot_buttons(bag_slots, \"Bag_Slot\", BAG_SLOT_COUNT, BAG_SLOT_SIZE, SLOT_LAYOUT_COLLECTION)"))
+	assert(script_source.contains("_configure_authored_slot_buttons(party_container, \"Party_Slot\", PARTY_SLOT_COUNT, PARTY_SLOT_SIZE, SLOT_LAYOUT_PARTY)"))
+	assert(script_source.contains("var button := TextureButton.new()"))
+	assert(script_source.contains("container.add_child(button)"))
+	assert(not script_source.contains("res://art/prefabs/route/shop_slot"))
+	assert(not script_source.contains("res://art/prefabs/route/bag_slot"))
+	assert(not script_source.contains("res://art/prefabs/route/party_slot"))
+
+
+func _node_parent(scene_source: String, node_name: String) -> String:
+	var marker := "[node name=\"%s\"" % node_name
+	var start := scene_source.find(marker)
+	assert(start >= 0)
+	var line_end := scene_source.find("\n", start)
+	var line := scene_source.substr(start, line_end - start)
+	var parent_marker := " parent=\""
+	var parent_start := line.find(parent_marker)
+	assert(parent_start >= 0)
+	parent_start += parent_marker.length()
+	var parent_end := line.find("\"", parent_start)
+	assert(parent_end >= 0)
+	return line.substr(parent_start, parent_end - parent_start)
+
+
+func _direct_scene_children(scene_source: String, parent_path: String) -> Array[String]:
+	var children: Array[String] = []
+	var search_from := 0
+	while true:
+		var start := scene_source.find("[node name=\"", search_from)
+		if start < 0:
+			break
+		var line_end := scene_source.find("\n", start)
+		var line := scene_source.substr(start, line_end - start)
+		var parent_marker := " parent=\"%s\"" % parent_path
+		if line.contains(parent_marker):
+			var name_start := line.find("[node name=\"") + String("[node name=\"").length()
+			var name_end := line.find("\"", name_start)
+			children.append(line.substr(name_start, name_end - name_start))
+		search_from = line_end + 1
+	return children

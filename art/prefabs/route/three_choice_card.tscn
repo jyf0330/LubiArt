@@ -16,8 +16,8 @@ script = ExtResource("1_card_script")
 
 [node name="KindIcon" type="TextureRect" parent="." unique_id=30206432]
 layout_mode = 0
-offset_left = 106.86
-offset_right = 146.86
+offset_left = 83.91
+offset_right = 123.91001
 offset_bottom = 62.0
 mouse_filter = 2
 texture = ExtResource("2_icon")
@@ -25,10 +25,10 @@ stretch_mode = 5
 
 [node name="Portrait" type="TextureRect" parent="." unique_id=2114202963]
 layout_mode = 0
-offset_left = 56.31
-offset_top = 76.0
-offset_right = 176.31
-offset_bottom = 271.0
+offset_left = 5.0
+offset_top = 49.61
+offset_right = 212.0
+offset_bottom = 296.61
 mouse_filter = 2
 texture = ExtResource("3_portrait")
 stretch_mode = 5
@@ -36,12 +36,10 @@ stretch_mode = 5
 [node name="RouteHighlight" type="TextureRect" parent="." unique_id=777777398]
 visible = false
 layout_mode = 0
-offset_left = -21.03
-offset_top = -43.32
-offset_right = 277.97
-offset_bottom = 370.68
-offset_transform_enabled = true
-offset_transform_position = Vector2(-2.65, 0)
+offset_left = -63.62
+offset_top = -69.0
+offset_right = 311.38
+offset_bottom = 409.0
 mouse_filter = 2
 texture = ExtResource("6_highlight")
 stretch_mode = 5
@@ -49,20 +47,20 @@ stretch_mode = 5
 [node name="HoverSmoke" type="TextureRect" parent="." unique_id=843894824]
 visible = false
 layout_mode = 0
-offset_left = 18.15
-offset_top = 115.0
-offset_right = 137.15
-offset_bottom = 266.0
+offset_left = -9.0
+offset_top = 168.0
+offset_right = 113.0
+offset_bottom = 325.0
 mouse_filter = 2
 texture = ExtResource("4_smoke")
 stretch_mode = 5
 
 [node name="IncenseBurner" type="TextureRect" parent="." unique_id=1251348391]
 layout_mode = 0
-offset_left = 73.15
-offset_top = 258.0
-offset_right = 183.15
-offset_bottom = 376.0
+offset_left = 61.0
+offset_top = 315.0
+offset_right = 155.0
+offset_bottom = 410.0
 mouse_filter = 2
 texture = ExtResource("5_burner")
 stretch_mode = 5
