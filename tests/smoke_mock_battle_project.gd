@@ -214,10 +214,11 @@ func _run() -> void:
 	assert(asset_registry_source.contains("route_portrait_reward.png"))
 	_assert_three_choice_scene_hierarchy(three_choice_source)
 	var three_choice_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/scenes/three_choice_scene.gd")
+	var three_choice_drag_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/controllers/three_choice_drag_controller.gd")
 	assert(not three_choice_script_source.contains("_ensure_item_slot_hover_highlight"))
 	assert(not three_choice_script_source.contains("ThreeChoiceCardScene.instantiate()"))
 	assert(three_choice_script_source.contains("TextureButton.new()"))
-	assert(three_choice_script_source.contains("TextureRect.new()"))
+	assert(three_choice_drag_source.contains("TextureRect.new()"))
 	assert(three_choice_script_source.contains("signal presentation_settled"))
 	assert(not three_choice_script_source.contains("feature_view_requested"))
 	assert(not three_choice_script_source.contains("feature_view_release_requested"))
@@ -332,13 +333,15 @@ func _run() -> void:
 	assert(shop_slot_grid.get_child(0).get_child_count() == 0)
 	assert(bag_slot_grid.get_child(0).get_child_count() == 0)
 	assert(party_slot_grid.get_child(0).get_child_count() == 0)
-	var drag_preview_texture := load("res://art/images/route/three_choice_psd/item_selected_highlight.png") as Texture2D
-	route_three_choice_view.call("_create_drag_preview", drag_preview_texture, Vector2(96, 96))
+	var drag_controller := route_three_choice_view.get("_drag_controller") as RefCounted
+	assert(drag_controller != null)
+	assert(bool(drag_controller.call("begin_storage", &"party", 0, true, true)))
 	var drag_preview := route_three_choice_view.get_node("DragPreview") as TextureRect
 	assert(drag_preview.visible)
-	assert(drag_preview.texture == drag_preview_texture)
+	assert(drag_preview.texture != null)
 	assert(drag_preview.size.is_equal_approx(Vector2(96, 96)))
-	route_three_choice_view.call("_clear_drag_preview")
+	drag_controller.call("clear")
+	await process_frame
 	assert(route_three_choice_view.get_node_or_null("DragPreview") == null)
 	assert(route_main_instance.call("get_feature_controller", &"battle") == null)
 	assert(route_main_instance.call("get_active_feature_view") == null)
