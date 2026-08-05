@@ -1,0 +1,246 @@
+{
+  "version": 3,
+  "service": "Rika AI",
+  "generation_id": "e0a6985f-e400-4689-93fd-d80f00d4e49b",
+  "actual_credit_change": 5,
+  "source_sheet": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/raw/output_001.png",
+  "source_sheet_sha256": "c0d6622c8ad8216c0427b1a8e3b0d05d1354e376782415a5d4eaeecda5debc72",
+  "frame_count": 15,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_paths": [
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_001.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_002.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_003.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_004.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_005.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_006.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_007.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_008.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_009.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_010.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_011.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_012.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_013.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_014.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/frames/frame_015.png"
+  ],
+  "keyframe_contract": {
+    "start_source": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/source/moss_stone_wyrmling_grounded_keyframe_128_v1.png",
+    "mid_source": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/source/moss_stone_wyrmling_airborne_keyframe_128_v1.png",
+    "end_source": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/source/moss_stone_wyrmling_grounded_keyframe_128_v1.png",
+    "start_delivery_frame": 1,
+    "mid_delivery_frame": 9,
+    "end_delivery_frame": 15,
+    "processing": "shared palette quantization without dithering; source geometry and alpha retained"
+  },
+  "removed_raw_frames": [
+    14
+  ],
+  "removed_raw_frame_reason": "raw frame 14 wing tip touched and was visibly clipped by the right cell edge",
+  "alpha_bounding_boxes": [
+    [
+      10,
+      11,
+      118,
+      117
+    ],
+    [
+      11,
+      17,
+      125,
+      115
+    ],
+    [
+      15,
+      22,
+      122,
+      112
+    ],
+    [
+      16,
+      13,
+      110,
+      110
+    ],
+    [
+      13,
+      17,
+      115,
+      109
+    ],
+    [
+      4,
+      10,
+      123,
+      106
+    ],
+    [
+      5,
+      9,
+      115,
+      101
+    ],
+    [
+      4,
+      12,
+      121,
+      109
+    ],
+    [
+      10,
+      17,
+      118,
+      110
+    ],
+    [
+      21,
+      21,
+      115,
+      109
+    ],
+    [
+      9,
+      23,
+      118,
+      109
+    ],
+    [
+      6,
+      21,
+      124,
+      110
+    ],
+    [
+      16,
+      13,
+      118,
+      112
+    ],
+    [
+      10,
+      13,
+      117,
+      117
+    ],
+    [
+      10,
+      11,
+      118,
+      117
+    ]
+  ],
+  "edge_touch_frames": [],
+  "first_last_identical": true,
+  "sequential_difference_pixels_including_loop": [
+    7227,
+    5960,
+    5000,
+    4966,
+    5597,
+    3834,
+    4619,
+    5583,
+    5416,
+    4604,
+    3764,
+    5043,
+    6773,
+    6141,
+    0
+  ],
+  "gif": {
+    "path": "output/moss_stone_wyrmling_move_preview_v3.gif",
+    "frame_count": 15,
+    "durations_ms": [
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "exact_pixel_match": true,
+    "passed": true
+  },
+  "slow_gif": {
+    "path": "output/moss_stone_wyrmling_move_preview_slow_v3.gif",
+    "frame_count": 15,
+    "durations_ms": [
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "exact_pixel_match": true,
+    "passed": true
+  },
+  "overview": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3/moss_stone_wyrmling_move_overview_v3.png",
+  "zoom_overview": "output/moss_stone_wyrmling_move_frames_4x_v3.png",
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PASS",
+  "visual_review_notes": [
+    "Reviewed all 15 transparent PNG frames at original size and in the 4x overview.",
+    "The cycle reads as crouch, takeoff, airborne wing flap with all four limbs free, descent, landing, and return to crouch.",
+    "Character identity, facing direction, body scale, outline, palette, foot baseline at the grounded endpoints, and horizontal root position remain coherent.",
+    "No hard cut line, detached limb, duplicate limb, chroma fringe, ghosting, transparent-edge residue, or output-edge contact is visible.",
+    "Raw Rika frame 14 was excluded because its right wing tip was clipped at the source-cell edge; no generated pixels were painted in to conceal that defect.",
+    "Normal and slow GIFs were decoded frame by frame and match the delivered preview composites exactly with disposal method 2."
+  ]
+}

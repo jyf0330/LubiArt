@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/hud/battle_hud.gd" id="1_hud"]
 [ext_resource type="Texture2D" uid="uid://cj4wnh87c8q0q" path="res://art/images/battle/primary_actions/primary_actions_shadow.png" id="2_shadow"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://dif3syit17gbl" path="res://art/images/battle/hud/layout/hud_status_bar_background_001.png" id="11_status_bg"]
 [ext_resource type="Texture2D" uid="uid://1j51ky7dp3cs" path="res://art/images/battle/hud/clock/clock_dial_002.png" id="12_clock_dial"]
 [ext_resource type="Texture2D" uid="uid://1goj04hxtnsg" path="res://art/images/battle/hud/clock/clock_pointer_010.png" id="13_clock_pointer"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/attack_timeline.tscn" id="14_timeline"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_difficulty_normal"]
 bg_color = Color(0.192157, 0.164706, 0.133333, 1)
@@ -294,3 +295,23 @@ mouse_filter = 2
 texture = ExtResource("13_clock_pointer")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="AttackTimelineLayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="AttackTimeline" parent="AttackTimelineLayer" instance=ExtResource("14_timeline")]
+visible = false
+layout_mode = 0
+offset_left = 140.0
+offset_top = 150.0
+offset_right = 1780.0
+offset_bottom = 930.0
+
+[node name="AttackTimelineToggleButton" type="Button" parent="AttackTimelineLayer"]
+offset_left = 280.0
+offset_top = 90.0
+offset_right = 580.0
+offset_bottom = 138.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "技能释放时间轴"

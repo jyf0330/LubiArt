@@ -8,35 +8,43 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var pet := BattleUnitScene.instantiate() as Control
-	assert(pet != null)
-	root.add_child(pet)
-	await process_frame
-	pet.call("set_unit_data", {
-		"unitId": "incoming_damage_badge_test",
-		"hp": 20,
-		"max_hp": 20,
-		"shield": 2,
-		"atk": 5,
-	}, "player", null)
-	pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20, true)
-	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview") as Control
-	var value := badge.get_node("Value") as Label
-	var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
-	var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
-	assert(bool(preview.get("active", false)))
-	assert(bool(preview.get("uses_badge", false)))
-	assert(int(preview.get("displayed_damage", -1)) == 15)
-	assert(int(preview.get("displayed_hp", -1)) == 20)
-	assert(badge.visible)
-	assert(value.text == "15")
-	assert(value.self_modulate == Color.WHITE)
-	assert(not stats_root.visible)
-	assert(badge.position.x >= 0.0 and badge.position.y >= 0.0)
-	assert(badge.position.x + badge.size.x <= pet.size.x + 0.01)
-	assert(badge.position.y + badge.size.y <= pet.size.y + 0.01)
-	pet.call("stop_damage_preview")
-	assert(not badge.visible)
-	assert(value.text == "")
+	for side in ["player", "enemy"]:
+		var pet := BattleUnitScene.instantiate() as Control
+		assert(pet != null)
+		root.add_child(pet)
+		await process_frame
+		pet.call("set_unit_data", {
+			"unitId": "incoming_damage_badge_%s_test" % side,
+			"hp": 20,
+			"max_hp": 20,
+			"shield": 2,
+			"atk": 5,
+		}, side, null)
+		pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20)
+		var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview") as Control
+		var value := badge.get_node("Value") as Label
+		var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
+		var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
+		assert(bool(preview.get("active", false)))
+		assert(bool(preview.get("pinned", false)))
+		assert(bool(preview.get("uses_badge", false)))
+		assert(int(preview.get("displayed_damage", -1)) == 15)
+		assert(int(preview.get("displayed_hp", -1)) == 20)
+		assert(badge.visible)
+		assert(value.text == "15")
+		assert(value.self_modulate == Color.WHITE)
+		assert(stats_root.visible)
+		assert(is_equal_approx(badge.position.x, pet.size.x - badge.size.x * 0.75))
+		assert(is_equal_approx(badge.position.y + badge.size.y, 4.0))
+		assert(badge.position.y < 0.0)
+		await create_timer(1.25).timeout
+		preview = Dictionary(pet.call("get_damage_preview_snapshot"))
+		assert(String(preview.get("state", "")) == "visible")
+		assert(is_zero_approx(float(preview.get("seconds_to_switch", -1.0))))
+		assert(badge.visible and badge.modulate.a > 0.99)
+		pet.call("stop_damage_preview")
+		assert(not badge.visible)
+		assert(value.text == "")
+		pet.queue_free()
 	print("INCOMING_DAMAGE_BADGE_SMOKE_PASS")
 	quit(0)

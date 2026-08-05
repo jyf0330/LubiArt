@@ -38,7 +38,7 @@ func _ready() -> void:
 	if game_session == null:
 		game_session = SessionFactoryScript.create_local({
 			"run_seed": DEFAULT_RUN_SEED,
-			"start_phase": "route",
+			"start_phase": "battle",
 			"board_dimensions": SessionFactoryScript.command_line_board_dimensions()
 		})
 	_session_bridge.bind_session(game_session)
@@ -177,6 +177,12 @@ func _on_command_requested(command: Dictionary, request_id: int) -> void:
 
 
 func _on_session_operation_requested(operation: StringName, arguments: Dictionary, request_id: int) -> void:
+	var result := _perform_session_operation(operation, arguments)
+	if is_instance_valid(three_choice_view) and three_choice_view.has_method("complete_session_operation_request"):
+		three_choice_view.call("complete_session_operation_request", request_id, result)
+
+
+func _perform_session_operation(operation: StringName, arguments: Dictionary) -> Dictionary:
 	var ok := false
 	match operation:
 		&"save":
@@ -192,8 +198,20 @@ func _on_session_operation_requested(operation: StringName, arguments: Dictionar
 		"snapshot": _session_bridge.current_snapshot()
 	}
 	_prepare_feature_for_snapshot(Dictionary(result["snapshot"]))
-	if is_instance_valid(three_choice_view) and three_choice_view.has_method("complete_session_operation_request"):
-		three_choice_view.call("complete_session_operation_request", request_id, result)
+	return result
+
+
+func _on_battle_session_operation_requested(
+	operation: StringName,
+	arguments: Dictionary
+) -> void:
+	var result := _perform_session_operation(operation, arguments)
+	var snapshot := Dictionary(result.get("snapshot", {}))
+	_configure_three_choice_view(snapshot)
+	var active_view: Node = _feature_router.active_view() if _feature_router != null else null
+	if is_instance_valid(active_view) and active_view.has_method("render_snapshot"):
+		active_view.call("render_snapshot", snapshot)
+	_release_features_not_required(snapshot)
 
 
 func _on_asynchronous_snapshot_received(snapshot: Dictionary) -> void:
@@ -262,6 +280,10 @@ func _mount_battle(snapshot: Dictionary = {}) -> Node:
 		var command_callback := Callable(self, "_on_battle_command_requested")
 		if not battle_scene.is_connected("command_requested", command_callback):
 			battle_scene.connect("command_requested", command_callback)
+	if battle_scene != null and battle_scene.has_signal("session_operation_requested"):
+		var session_operation_callback := Callable(self, "_on_battle_session_operation_requested")
+		if not battle_scene.is_connected("session_operation_requested", session_operation_callback):
+			battle_scene.connect("session_operation_requested", session_operation_callback)
 	if battle_scene != null and three_choice_view.has_method("attach_feature_view"):
 		three_choice_view.call("attach_feature_view", FeatureRegistryScript.BATTLE_FEATURE, battle_scene)
 	if battle_scene != null and battle_scene.has_method("render_snapshot"):
@@ -279,6 +301,10 @@ func _clear_battle() -> void:
 		var command_callback := Callable(self, "_on_battle_command_requested")
 		if feature_view.is_connected("command_requested", command_callback):
 			feature_view.disconnect("command_requested", command_callback)
+	if is_instance_valid(feature_view) and feature_view.has_signal("session_operation_requested"):
+		var session_operation_callback := Callable(self, "_on_battle_session_operation_requested")
+		if feature_view.is_connected("session_operation_requested", session_operation_callback):
+			feature_view.disconnect("session_operation_requested", session_operation_callback)
 	if is_instance_valid(feature_view) and three_choice_view.has_method("detach_feature_view"):
 		three_choice_view.call("detach_feature_view", feature_id, feature_view)
 	_visible_auto_battle_running = false

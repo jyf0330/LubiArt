@@ -113,7 +113,8 @@ stretch_mode = 6
 
 [node name="IncomingDamagePreview" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual"]
 visible = false
-z_index = 12
+z_index = 202
+z_as_relative = false
 layout_mode = 0
 offset_right = 48.0
 offset_bottom = 48.0
@@ -237,8 +238,8 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Stats" type="Control" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=507778927]
-visible = false
-z_index = 2
+z_index = 203
+z_as_relative = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -406,7 +407,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-modulate = Color(1, 1, 1, 0.1)
+modulate = Color(1, 1, 1, 0.55)
 pivot_offset = Vector2(19.5, 24)
 scale = Vector2(1.02, 1.02)
 mouse_filter = 2

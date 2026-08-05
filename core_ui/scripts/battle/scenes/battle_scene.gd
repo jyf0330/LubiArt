@@ -4,6 +4,7 @@ extends Control
 ## semantic commands; this node only stages public Snapshot/Trace presentation.
 
 signal command_requested(command: Dictionary)
+signal session_operation_requested(operation: StringName, arguments: Dictionary)
 signal trace_sequence_finished
 
 const BattleAssetRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
@@ -14,6 +15,7 @@ const GameLogScript := preload("res://core/logging/game_log.gd")
 @onready var vfx_host: Control = $Board/VfxHost
 @onready var hud: Control = $Hud
 @onready var overlay: Control = $OverlayHost
+@onready var settings_menu: Control = $OverlayHost/SettingsMenu
 
 var _assets: RefCounted = null
 var _trace_projection := BattleTraceProjectionScript.new()
@@ -40,6 +42,11 @@ func _ready() -> void:
 	_connect_vfx_signal("trace_sequence_started", "_on_trace_sequence_started")
 	_connect_vfx_signal("trace_sequence_finished", "_on_trace_sequence_finished")
 	_connect_vfx_signal("enemy_move_projection_requested", "_on_enemy_move_projection_requested")
+	if settings_menu.has_signal("session_operation_requested"):
+		settings_menu.connect(
+			"session_operation_requested",
+			Callable(self, "_on_settings_session_operation_requested")
+		)
 
 
 func get_runtime_view() -> Control:
@@ -179,6 +186,23 @@ func _set_battle_input_locked(locked: bool) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and bool(overlay.call("has_visible_detail")):
+	if not event.is_action_pressed("ui_cancel"):
+		return
+	if _settings_menu_is_open():
+		settings_menu.call("handle_cancel")
+	elif bool(overlay.call("has_visible_detail")):
 		overlay.call("clear")
-		get_viewport().set_input_as_handled()
+	else:
+		settings_menu.call("open_menu")
+	get_viewport().set_input_as_handled()
+
+
+func _settings_menu_is_open() -> bool:
+	return settings_menu != null and bool(settings_menu.call("is_open"))
+
+
+func _on_settings_session_operation_requested(
+	operation: StringName,
+	arguments: Dictionary
+) -> void:
+	session_operation_requested.emit(operation, arguments.duplicate(true))

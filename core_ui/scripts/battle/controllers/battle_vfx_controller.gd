@@ -117,8 +117,8 @@ func _sequence_enemy_move(event: Dictionary) -> void:
 
 
 func _sequence_movement(event: Dictionary) -> void:
-	play_event(event)
-	await get_tree().create_timer(ARTIST_MOVE_DURATION + ARTIST_ACTION_STEP_DELAY).timeout
+	var unit := play_event(event)
+	await get_tree().create_timer(_movement_duration(unit) + ARTIST_ACTION_STEP_DELAY).timeout
 
 
 func _sequence_round_start(event: Dictionary) -> void:
@@ -223,12 +223,13 @@ func _play_element_applied_trace_sequence(event: Dictionary) -> void:
 		target_grids.append(target_grid)
 	if not suppress_projectile:
 		var layer_count: int = max(1, int(payload.get("layers", 1)))
+		var last_projectile: Node = null
 		for layer_index in range(layer_count):
 			for target_grid in target_grids:
-				play_projectile(element, actor_grid, target_grid)
+				last_projectile = play_projectile(element, actor_grid, target_grid)
 			if layer_index + 1 < layer_count:
 				await get_tree().create_timer(ELEMENT_LAYER_PROJECTILE_INTERVAL).timeout
-		await get_tree().create_timer(ARTIST_BULLET_FLIGHT_DURATION).timeout
+		await _await_projectile_impact(last_projectile)
 	for target_grid in target_grids:
 		play_element_impact(element, target_grid)
 	await get_tree().create_timer(0.54 + ARTIST_ACTION_STEP_DELAY).timeout
@@ -348,8 +349,19 @@ func play_movement(event: Dictionary) -> Node:
 	var from_cell := _cell_at(from_grid)
 	var to_cell := _cell_at(to_grid)
 	if from_cell != null and to_cell != null and unit.has_method("play_grid_movement"):
-		unit.call("play_grid_movement", from_cell.global_position, to_cell.global_position, ARTIST_MOVE_DURATION)
+		unit.call(
+			"play_grid_movement",
+			from_cell.global_position,
+			to_cell.global_position,
+			_movement_duration(unit)
+		)
 	return unit
+
+
+func _movement_duration(unit: Node) -> float:
+	if unit != null and unit.has_method("get_move_animation_duration"):
+		return maxf(float(unit.call("get_move_animation_duration", ARTIST_MOVE_DURATION)), ARTIST_MOVE_DURATION)
+	return ARTIST_MOVE_DURATION
 
 
 func play_damage_trace(event: Dictionary) -> Node:

@@ -33,8 +33,11 @@ const PROJECTILE_TEXTURES := {
 	"wind": preload("res://art/images/shared/pets/battle_complete/projectile_wind.png"),
 }
 const EARTH_SLIME_TEXTURE_PATH := "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png"
+const FRAME_ANIMATION_MANIFEST_PATH := "res://art/manifests/shared/pets/animations/pet_frame_animation_manifest.json"
 const EARTH_SLIME_IDLE_SQUASH := Vector2(1.035, 0.960)
 const EARTH_SLIME_IDLE_STRETCH := Vector2(0.985, 1.020)
+static var _frame_profiles_loaded := false
+static var _frame_profiles_by_texture_path: Dictionary = {}
 var _view: Control = null
 var _base_position := Vector2.ZERO
 var _shake_tween: Tween = null
@@ -48,6 +51,14 @@ var _idle_base_pivot := Vector2.ZERO
 var _idle_base_position := Vector2.ZERO
 var _idle_base_rotation := 0.0
 var _idle_pivot_ratio := Vector2(0.5, 1.0)
+var _base_sprite_texture: Texture2D = null
+var _frame_profile: Dictionary = {}
+var _frame_tween: Tween = null
+var _frame_playback_token := 0
+var _frame_action: StringName = &""
+var _frame_index := -1
+var _animation_texture_path := ""
+var _attack_release_delay := 0.0
 var _bite_frames: Array[TextureRect] = []
 var _projectile: TextureRect = null
 var _last_attack_snapshot: Dictionary = {}
@@ -89,14 +100,16 @@ func reset() -> void:
 func play_sprite_idle(
 	sprite: TextureRect,
 	texture_resource: Texture2D,
-	visible_foot_pivot: Vector2 = Vector2(-1.0, -1.0)
+	visible_foot_pivot: Vector2 = Vector2(-1.0, -1.0),
+	animation_texture_path: String = ""
 ) -> void:
 	_stop_sprite_idle()
 	if sprite == null or texture_resource == null:
 		return
-	if texture_resource.resource_path != EARTH_SLIME_TEXTURE_PATH:
-		return
 	_idle_sprite = sprite
+	_base_sprite_texture = texture_resource
+	_animation_texture_path = animation_texture_path if animation_texture_path != "" else texture_resource.resource_path
+	_frame_profile = _frame_profile_for_texture_path(_animation_texture_path)
 	_idle_base_scale = sprite.scale
 	_idle_base_pivot = sprite.pivot_offset
 	_idle_base_position = sprite.position
@@ -111,6 +124,10 @@ func play_sprite_idle(
 
 func _start_sprite_idle_loop() -> void:
 	if _idle_sprite == null:
+		return
+	if _play_frame_action(&"idle", true):
+		return
+	if _animation_texture_path != EARTH_SLIME_TEXTURE_PATH:
 		return
 	var sprite := _idle_sprite
 	_idle_tween = sprite.create_tween().set_loops()
@@ -139,6 +156,10 @@ func _start_sprite_idle_loop() -> void:
 
 func play_sprite_attack(direction: Vector2, duration: float = 0.42) -> void:
 	if not _begin_sprite_action():
+		return
+	_attack_release_delay = 0.0
+	if _play_frame_action(&"attack", false):
+		_attack_release_delay = _frame_action_release_delay(&"attack")
 		return
 	var sprite := _idle_sprite
 	var direction_sign := -1.0 if direction.x < 0.0 else 1.0
@@ -201,6 +222,8 @@ func play_sprite_attack(direction: Vector2, duration: float = 0.42) -> void:
 func play_sprite_move(direction: Vector2, duration: float = 0.36) -> void:
 	if not _begin_sprite_action():
 		return
+	if _play_frame_action(&"move", false):
+		return
 	var sprite := _idle_sprite
 	var direction_sign := -1.0 if direction.x < 0.0 else 1.0
 	var safe_duration := maxf(duration, 0.18)
@@ -257,6 +280,7 @@ func play_sprite_move(direction: Vector2, duration: float = 0.36) -> void:
 func _begin_sprite_action() -> bool:
 	if _idle_sprite == null:
 		return false
+	_stop_frame_tween()
 	if _idle_tween != null and _idle_tween.is_valid():
 		_idle_tween.kill()
 	_idle_tween = null
@@ -264,6 +288,7 @@ func _begin_sprite_action() -> bool:
 		_sprite_action_tween.kill()
 	_sprite_action_tween = null
 	_restore_sprite_pose()
+	_restore_sprite_texture()
 	refresh_idle_pivot()
 	return true
 
@@ -273,8 +298,140 @@ func _finish_sprite_action(sprite: TextureRect) -> void:
 		return
 	_sprite_action_tween = null
 	_restore_sprite_pose()
+	_restore_sprite_texture()
 	refresh_idle_pivot()
 	_start_sprite_idle_loop()
+
+
+func _play_frame_action(action: StringName, loop: bool) -> bool:
+	if _idle_sprite == null or not _frame_profile.has(String(action)):
+		return false
+	var definition := Dictionary(_frame_profile.get(String(action), {}))
+	var frame_paths := Array(definition.get("frames", []))
+	var durations_ms := Array(definition.get("durations_ms", []))
+	if frame_paths.is_empty() or frame_paths.size() != durations_ms.size():
+		push_warning("Invalid pet frame animation '%s' for %s" % [action, _animation_texture_path])
+		return false
+	var frame_textures: Array = []
+	for frame_path_value in frame_paths:
+		var frame_path := String(frame_path_value)
+		var frame_texture := load(frame_path) as Texture2D
+		if frame_texture == null:
+			push_warning("Missing pet animation frame: %s" % frame_path)
+			return false
+		frame_textures.append(frame_texture)
+	_stop_frame_tween()
+	_frame_playback_token += 1
+	var playback_token := _frame_playback_token
+	_frame_action = action
+	_frame_index = -1
+	_frame_tween = _idle_sprite.create_tween()
+	if loop:
+		_frame_tween.set_loops()
+	for index in range(frame_textures.size()):
+		_frame_tween.tween_callback(
+			_apply_animation_frame.bind(playback_token, index, frame_textures[index])
+		)
+		_frame_tween.tween_interval(maxf(float(durations_ms[index]) / 1000.0, 0.016))
+	if not loop:
+		_frame_tween.tween_callback(_finish_frame_action.bind(playback_token))
+	return true
+
+
+func _apply_animation_frame(playback_token: int, index: int, texture_resource: Texture2D) -> void:
+	if playback_token != _frame_playback_token or _idle_sprite == null:
+		return
+	_frame_index = index
+	_idle_sprite.texture = texture_resource
+
+
+func _finish_frame_action(playback_token: int) -> void:
+	if playback_token != _frame_playback_token or _idle_sprite == null:
+		return
+	_frame_tween = null
+	_frame_action = &""
+	_frame_index = -1
+	_restore_sprite_pose()
+	_restore_sprite_texture()
+	refresh_idle_pivot()
+	_start_sprite_idle_loop()
+
+
+func _stop_frame_tween() -> void:
+	_frame_playback_token += 1
+	if _frame_tween != null and _frame_tween.is_valid():
+		_frame_tween.kill()
+	_frame_tween = null
+	_frame_action = &""
+	_frame_index = -1
+
+
+func _restore_sprite_texture() -> void:
+	if _idle_sprite != null and _base_sprite_texture != null:
+		_idle_sprite.texture = _base_sprite_texture
+
+
+func _frame_profile_for_texture_path(texture_path: String) -> Dictionary:
+	_ensure_frame_profiles_loaded()
+	if texture_path == "" or not _frame_profiles_by_texture_path.has(texture_path):
+		return {}
+	return Dictionary(_frame_profiles_by_texture_path[texture_path]).duplicate(true)
+
+
+func _frame_action_duration(action: StringName, fallback: float = 0.0) -> float:
+	if not _frame_profile.has(String(action)):
+		return fallback
+	var definition := Dictionary(_frame_profile.get(String(action), {}))
+	var durations_ms := Array(definition.get("durations_ms", []))
+	if durations_ms.is_empty():
+		return fallback
+	var total_ms := 0.0
+	for duration_value in durations_ms:
+		total_ms += maxf(float(duration_value), 0.0)
+	return total_ms / 1000.0
+
+
+func _frame_action_release_delay(action: StringName) -> float:
+	if not _frame_profile.has(String(action)):
+		return 0.0
+	var definition := Dictionary(_frame_profile.get(String(action), {}))
+	var durations_ms := Array(definition.get("durations_ms", []))
+	var release_frame := clampi(int(definition.get("release_frame", 1)), 1, durations_ms.size())
+	var total_ms := 0.0
+	for index in range(release_frame - 1):
+		total_ms += maxf(float(durations_ms[index]), 0.0)
+	return total_ms / 1000.0
+
+
+func get_move_animation_duration(fallback: float = 0.22) -> float:
+	return _frame_action_duration(&"move", fallback)
+
+
+static func _ensure_frame_profiles_loaded() -> void:
+	if _frame_profiles_loaded:
+		return
+	_frame_profiles_loaded = true
+	_frame_profiles_by_texture_path = {}
+	if not FileAccess.file_exists(FRAME_ANIMATION_MANIFEST_PATH):
+		return
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(FRAME_ANIMATION_MANIFEST_PATH))
+	if not (parsed is Dictionary):
+		push_warning("Could not parse pet frame animation manifest")
+		return
+	_frame_profiles_by_texture_path = Dictionary(parsed).get("by_texture_path", {})
+
+
+func get_frame_animation_snapshot() -> Dictionary:
+	var actions: Dictionary = {}
+	for action_name in _frame_profile.keys():
+		var definition := Dictionary(_frame_profile[action_name])
+		actions[String(action_name)] = Array(definition.get("frames", [])).size()
+	return {
+		"source_texture_path": _animation_texture_path,
+		"actions": actions,
+		"active_action": String(_frame_action),
+		"frame_index": _frame_index,
+	}
 
 
 func _restore_sprite_pose() -> void:
@@ -292,6 +449,7 @@ func refresh_idle_pivot() -> void:
 
 
 func _stop_sprite_idle() -> void:
+	_stop_frame_tween()
 	if _idle_tween != null and _idle_tween.is_valid():
 		_idle_tween.kill()
 	_idle_tween = null
@@ -300,7 +458,12 @@ func _stop_sprite_idle() -> void:
 	_sprite_action_tween = null
 	if _idle_sprite != null:
 		_restore_sprite_pose()
+		_restore_sprite_texture()
 	_idle_sprite = null
+	_base_sprite_texture = null
+	_frame_profile = {}
+	_animation_texture_path = ""
+	_attack_release_delay = 0.0
 	_idle_base_scale = Vector2.ONE
 	_idle_base_pivot = Vector2.ZERO
 	_idle_base_position = Vector2.ZERO
@@ -417,8 +580,10 @@ func _play_element_projectile(element_id: String) -> Node:
 	var authored_scale := Vector2(_view.size.x / PSD_CANVAS_SIZE.x, _view.size.y / PSD_CANVAS_SIZE.y)
 	projectile.position = Vector2(_view.size.x * 0.46, authored_rect.position.y * authored_scale.y)
 	projectile.modulate.a = 1.0
-	projectile.visible = true
+	projectile.visible = false
 	_attack_tween = _view.create_tween()
+	_attack_tween.tween_interval(_attack_release_delay)
+	_attack_tween.tween_callback(_show_projectile.bind(projectile))
 	_attack_tween.tween_property(projectile, "position:x", _view.size.x * 0.82, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_attack_tween.parallel().tween_property(projectile, "modulate:a", 0.35, 0.18)
 	_attack_tween.tween_callback(_hide_rect.bind(projectile))
@@ -445,8 +610,10 @@ func _play_element_projectile_between(
 	var arc_offset := (parent_inverse * (from_global_center + Vector2(0.0, -arc_height))) - start_center
 	projectile.position = start_center - projectile.size * 0.5
 	projectile.modulate.a = 1.0
-	projectile.visible = true
+	projectile.visible = false
 	_attack_tween = _view.create_tween()
+	_attack_tween.tween_interval(_attack_release_delay)
+	_attack_tween.tween_callback(_show_projectile.bind(projectile))
 	_attack_tween.tween_method(
 		func(weight: float) -> void:
 			var center := start_center.lerp(end_center, weight) + arc_offset * (4.0 * weight * (1.0 - weight))
@@ -475,6 +642,12 @@ func _show_bite_frame(frame: TextureRect) -> void:
 func _hide_rect(rect: TextureRect) -> void:
 	if rect != null:
 		rect.visible = false
+
+
+func _show_projectile(rect: TextureRect) -> void:
+	if rect != null:
+		rect.modulate.a = 1.0
+		rect.visible = true
 
 
 func _hide_all_action_art() -> void:

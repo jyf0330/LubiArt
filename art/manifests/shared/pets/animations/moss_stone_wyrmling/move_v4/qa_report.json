@@ -1,0 +1,646 @@
+{
+  "version": 4,
+  "source_version": 3,
+  "source_qa": "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v3/qa_report.json",
+  "operation": "deterministic per-frame uniform nearest-neighbor scale and translation only",
+  "pose_pixel_editing": false,
+  "generated_or_inpainted_pixels": false,
+  "frame_count": 15,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_paths": [
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_001.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_002.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_003.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_004.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_005.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_006.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_007.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_008.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_009.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_010.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_011.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_012.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_013.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_014.png",
+    "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/frames/frame_015.png"
+  ],
+  "reference_eye_area": 140.0,
+  "maximum_correction_scale": 1.12,
+  "safe_margin": 1,
+  "transforms": [
+    {
+      "requested_scale": 1.0,
+      "applied_scale": 1.0,
+      "translation": [
+        0,
+        0
+      ],
+      "source_alpha_box": [
+        10,
+        11,
+        118,
+        117
+      ],
+      "output_alpha_box": [
+        10,
+        11,
+        118,
+        117
+      ],
+      "source_eye_area": 140,
+      "output_eye_area": 140,
+      "source_eye_box": [
+        38,
+        51,
+        15,
+        13
+      ],
+      "output_eye_box": [
+        38,
+        51,
+        15,
+        13
+      ]
+    },
+    {
+      "requested_scale": 1.0,
+      "applied_scale": 1.0,
+      "translation": [
+        0,
+        0
+      ],
+      "source_alpha_box": [
+        11,
+        17,
+        125,
+        115
+      ],
+      "output_alpha_box": [
+        11,
+        17,
+        125,
+        115
+      ],
+      "source_eye_area": 163,
+      "output_eye_area": 163,
+      "source_eye_box": [
+        38,
+        53,
+        14,
+        14
+      ],
+      "output_eye_box": [
+        38,
+        53,
+        14,
+        14
+      ]
+    },
+    {
+      "requested_scale": 1.0084451453012244,
+      "applied_scale": 1.0084451453012244,
+      "translation": [
+        0,
+        -1
+      ],
+      "source_alpha_box": [
+        15,
+        22,
+        122,
+        112
+      ],
+      "output_alpha_box": [
+        15,
+        21,
+        123,
+        112
+      ],
+      "source_eye_area": 154,
+      "output_eye_area": 167,
+      "source_eye_box": [
+        37,
+        53,
+        15,
+        15
+      ],
+      "output_eye_box": [
+        37,
+        52,
+        15,
+        16
+      ]
+    },
+    {
+      "requested_scale": 1.0253354359036733,
+      "applied_scale": 1.0253354359036733,
+      "translation": [
+        -1,
+        -2
+      ],
+      "source_alpha_box": [
+        16,
+        13,
+        110,
+        110
+      ],
+      "output_alpha_box": [
+        15,
+        11,
+        112,
+        111
+      ],
+      "source_eye_area": 131,
+      "output_eye_area": 142,
+      "source_eye_box": [
+        37,
+        51,
+        14,
+        15
+      ],
+      "output_eye_box": [
+        37,
+        50,
+        14,
+        16
+      ]
+    },
+    {
+      "requested_scale": 1.0337805812048977,
+      "applied_scale": 1.0337805812048977,
+      "translation": [
+        -2,
+        -2
+      ],
+      "source_alpha_box": [
+        13,
+        17,
+        115,
+        109
+      ],
+      "output_alpha_box": [
+        11,
+        16,
+        117,
+        110
+      ],
+      "source_eye_area": 131,
+      "output_eye_area": 145,
+      "source_eye_box": [
+        38,
+        47,
+        14,
+        15
+      ],
+      "output_eye_box": [
+        37,
+        46,
+        15,
+        16
+      ]
+    },
+    {
+      "requested_scale": 1.0431437843086657,
+      "applied_scale": 1.0431437843086657,
+      "translation": [
+        -2,
+        -2
+      ],
+      "source_alpha_box": [
+        4,
+        10,
+        123,
+        106
+      ],
+      "output_alpha_box": [
+        2,
+        8,
+        127,
+        109
+      ],
+      "source_eye_area": 131,
+      "output_eye_area": 132,
+      "source_eye_box": [
+        40,
+        39,
+        14,
+        14
+      ],
+      "output_eye_box": [
+        40,
+        39,
+        15,
+        14
+      ]
+    },
+    {
+      "requested_scale": 1.055518100403108,
+      "applied_scale": 1.055518100403108,
+      "translation": [
+        -3,
+        -3
+      ],
+      "source_alpha_box": [
+        5,
+        9,
+        115,
+        101
+      ],
+      "output_alpha_box": [
+        2,
+        6,
+        118,
+        104
+      ],
+      "source_eye_area": 122,
+      "output_eye_area": 139,
+      "source_eye_box": [
+        40,
+        39,
+        14,
+        13
+      ],
+      "output_eye_box": [
+        39,
+        38,
+        15,
+        14
+      ]
+    },
+    {
+      "requested_scale": 1.0707208649887896,
+      "applied_scale": 1.0683760683760684,
+      "translation": [
+        -3,
+        -3
+      ],
+      "source_alpha_box": [
+        4,
+        12,
+        121,
+        109
+      ],
+      "output_alpha_box": [
+        1,
+        10,
+        127,
+        114
+      ],
+      "source_eye_area": 128,
+      "output_eye_area": 151,
+      "source_eye_box": [
+        41,
+        41,
+        13,
+        13
+      ],
+      "output_eye_box": [
+        41,
+        41,
+        14,
+        14
+      ]
+    },
+    {
+      "requested_scale": 1.1014562582918987,
+      "applied_scale": 1.1014562582918987,
+      "translation": [
+        -5,
+        -5
+      ],
+      "source_alpha_box": [
+        10,
+        17,
+        118,
+        110
+      ],
+      "output_alpha_box": [
+        6,
+        14,
+        125,
+        116
+      ],
+      "source_eye_area": 80,
+      "output_eye_area": 97,
+      "source_eye_box": [
+        41,
+        48,
+        10,
+        10
+      ],
+      "output_eye_box": [
+        40,
+        48,
+        11,
+        11
+      ]
+    },
+    {
+      "requested_scale": 1.12,
+      "applied_scale": 1.12,
+      "translation": [
+        -6,
+        -7
+      ],
+      "source_alpha_box": [
+        21,
+        21,
+        115,
+        109
+      ],
+      "output_alpha_box": [
+        17,
+        16,
+        122,
+        115
+      ],
+      "source_eye_area": 90,
+      "output_eye_area": 110,
+      "source_eye_box": [
+        41,
+        51,
+        11,
+        11
+      ],
+      "output_eye_box": [
+        40,
+        50,
+        12,
+        12
+      ]
+    },
+    {
+      "requested_scale": 1.1089127174136189,
+      "applied_scale": 1.1089127174136189,
+      "translation": [
+        -5,
+        -6
+      ],
+      "source_alpha_box": [
+        9,
+        23,
+        118,
+        109
+      ],
+      "output_alpha_box": [
+        5,
+        20,
+        126,
+        115
+      ],
+      "source_eye_area": 99,
+      "output_eye_area": 118,
+      "source_eye_box": [
+        42,
+        53,
+        11,
+        12
+      ],
+      "output_eye_box": [
+        42,
+        53,
+        12,
+        13
+      ]
+    },
+    {
+      "requested_scale": 1.0678254348272378,
+      "applied_scale": 1.0593220338983051,
+      "translation": [
+        -5,
+        -3
+      ],
+      "source_alpha_box": [
+        6,
+        21,
+        124,
+        110
+      ],
+      "output_alpha_box": [
+        1,
+        19,
+        127,
+        114
+      ],
+      "source_eye_area": 121,
+      "output_eye_area": 132,
+      "source_eye_box": [
+        41,
+        50,
+        12,
+        15
+      ],
+      "output_eye_box": [
+        39,
+        50,
+        12,
+        16
+      ]
+    },
+    {
+      "requested_scale": 1.018912717413619,
+      "applied_scale": 1.018912717413619,
+      "translation": [
+        -1,
+        -1
+      ],
+      "source_alpha_box": [
+        16,
+        13,
+        118,
+        112
+      ],
+      "output_alpha_box": [
+        15,
+        12,
+        119,
+        113
+      ],
+      "source_eye_area": 142,
+      "output_eye_area": 142,
+      "source_eye_box": [
+        38,
+        51,
+        15,
+        15
+      ],
+      "output_eye_box": [
+        38,
+        51,
+        15,
+        15
+      ]
+    },
+    {
+      "requested_scale": 1.0,
+      "applied_scale": 1.0,
+      "translation": [
+        0,
+        0
+      ],
+      "source_alpha_box": [
+        10,
+        13,
+        117,
+        117
+      ],
+      "output_alpha_box": [
+        10,
+        13,
+        117,
+        117
+      ],
+      "source_eye_area": 169,
+      "output_eye_area": 169,
+      "source_eye_box": [
+        37,
+        49,
+        16,
+        16
+      ],
+      "output_eye_box": [
+        37,
+        49,
+        16,
+        16
+      ]
+    },
+    {
+      "requested_scale": 1.0,
+      "applied_scale": 1.0,
+      "translation": [
+        0,
+        0
+      ],
+      "source_alpha_box": [
+        10,
+        11,
+        118,
+        117
+      ],
+      "output_alpha_box": [
+        10,
+        11,
+        118,
+        117
+      ],
+      "source_eye_area": 140,
+      "output_eye_area": 140,
+      "source_eye_box": [
+        38,
+        51,
+        15,
+        13
+      ],
+      "output_eye_box": [
+        38,
+        51,
+        15,
+        13
+      ]
+    }
+  ],
+  "source_eye_scale_cv": 0.09699606935583388,
+  "output_eye_scale_cv": 0.07125980259289723,
+  "edge_touch_frames": [],
+  "first_frame_unchanged": true,
+  "last_frame_unchanged": true,
+  "first_last_identical": true,
+  "gif": {
+    "path": "output/moss_stone_wyrmling_move_preview_v4.gif",
+    "frame_count": 15,
+    "durations_ms": [
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "exact_pixel_match": true,
+    "passed": true
+  },
+  "slow_gif": {
+    "path": "output/moss_stone_wyrmling_move_preview_slow_v4.gif",
+    "frame_count": 15,
+    "durations_ms": [
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "exact_pixel_match": true,
+    "passed": true
+  },
+  "overview": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4/moss_stone_wyrmling_move_overview_v4.png",
+  "zoom_overview": "output/moss_stone_wyrmling_move_frames_4x_v4.png",
+  "comparison_gif": "output/moss_stone_wyrmling_move_compare_v3_v4.gif",
+  "comparison_slow_gif": "output/moss_stone_wyrmling_move_compare_v3_v4_slow.gif",
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PASS",
+  "visual_review_notes": [
+    "Reviewed all 15 corrected PNG frames at original size and in the 4x overview.",
+    "Reviewed the normal-speed, slow-speed, and v3-left/v4-right comparison GIFs.",
+    "Only uniform nearest-neighbor scale and whole-frame translation changed; wing, limb, head, tail, and body poses remain the v3 poses.",
+    "The correction rises smoothly from 1.0000 to 1.1200 around the airborne midpoint and returns to 1.0000 before landing.",
+    "The accepted first and last frames remain unchanged and pixel-identical.",
+    "No output edge touch, clipping, chroma fringe, ghosting, duplicate limb, or new hard cut line is visible.",
+    "Both GIFs decode to the same 15-frame composites with the expected order, duration, and disposal method."
+  ]
+}

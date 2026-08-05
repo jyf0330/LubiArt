@@ -16,6 +16,9 @@ const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy
 @onready var begin_turn_button: TextureButton = $BattlePrimaryActions/BeginTurnButton
 @onready var action_panel: Control = $BattleActionPanel
 @onready var attack_direction_drawer: Control = $AttackDirectionDrawer
+@onready var attack_timeline_layer: CanvasLayer = $AttackTimelineLayer
+@onready var attack_timeline: Control = $AttackTimelineLayer/AttackTimeline
+@onready var attack_timeline_toggle_button: Button = $AttackTimelineLayer/AttackTimelineToggleButton
 
 var _snapshot: Dictionary = {}
 var _input_locked := false
@@ -45,6 +48,11 @@ func _ready() -> void:
 			"direction_preview_changed",
 			Callable(self, "_on_direction_preview_changed")
 		)
+	attack_timeline.visible = false
+	attack_timeline_toggle_button.pressed.connect(_toggle_attack_timeline)
+	visibility_changed.connect(_sync_attack_timeline_layer_visibility)
+	_sync_attack_timeline_layer_visibility()
+	_refresh_attack_timeline_toggle_button()
 	_apply_position_difficulty_label("normal")
 	_apply_command_availability()
 
@@ -55,6 +63,8 @@ func render_snapshot(snapshot: Dictionary) -> void:
 		action_panel.call("render_snapshot", _snapshot)
 	if attack_direction_drawer.has_method("render_snapshot"):
 		attack_direction_drawer.call("render_snapshot", _snapshot)
+	if attack_timeline.has_method("render_snapshot"):
+		attack_timeline.call("render_snapshot", _snapshot)
 	if _auto_position_feedback_pending:
 		_consume_auto_position_feedback(_snapshot)
 	elif not _auto_position_feedback_visible:
@@ -250,3 +260,42 @@ func _command_type(entry: Dictionary) -> String:
 	var command_value: Variant = entry.get("command", {})
 	var nested := Dictionary(command_value) if command_value is Dictionary else {}
 	return String(entry.get("type", nested.get("type", ""))).strip_edges().to_upper()
+
+
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree() or not (event is InputEventKey):
+		return
+	var key_event := event as InputEventKey
+	if key_event.keycode != KEY_TAB or not key_event.pressed or key_event.echo:
+		return
+	_toggle_attack_timeline()
+	get_viewport().set_input_as_handled()
+
+
+func get_attack_timeline() -> Control:
+	return attack_timeline
+
+
+func _toggle_attack_timeline() -> void:
+	if not is_visible_in_tree():
+		return
+	attack_timeline.visible = not attack_timeline.visible
+	_refresh_attack_timeline_toggle_button()
+
+
+func _sync_attack_timeline_layer_visibility() -> void:
+	var battle_is_visible := is_visible_in_tree()
+	attack_timeline_layer.visible = battle_is_visible
+	if not battle_is_visible:
+		attack_timeline.visible = false
+		_refresh_attack_timeline_toggle_button()
+
+
+func _refresh_attack_timeline_toggle_button() -> void:
+	attack_timeline_toggle_button.text = (
+		"关闭技能时间轴" if attack_timeline.visible else "技能释放时间轴"
+	)
+
+
+func debug_is_attack_timeline_open() -> bool:
+	return attack_timeline.visible

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://c0am8pxw3phnn"]
+[gd_scene load_steps=8 format=3 uid="uid://c0am8pxw3phnn"]
 
 [ext_resource type="Texture2D" path="res://art/images/battle/maps/grassland_morning.png" id="1_bg"]
 [ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/scenes/battle_scene.gd" id="2_script"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_hud.tscn" id="4_hud"]
 [ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_board.gd" id="5_board"]
 [ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_overlay.gd" id="6_overlay"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/settings/settings_menu.tscn" id="7_settings"]
 
 [node name="BattleArtScene" type="Control"]
 editor_description = "正式战斗 Scene。只保留 Board、HUD 与 Overlay 三个职责边界；数据驱动格子、宠物和临时表现分别由对应 Host 管理。"
@@ -82,3 +83,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("6_overlay")
+
+[node name="SettingsMenu" parent="OverlayHost" instance=ExtResource("7_settings")]
+visible = false
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0

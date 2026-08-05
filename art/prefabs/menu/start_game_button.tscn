@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/menu/components/fantasy_game_button.gd" id="1_button"]
+
+[node name="StartGameButton" type="Control"]
+custom_minimum_size = Vector2(290, 120)
+offset_right = 290.0
+offset_bottom = 120.0
+mouse_default_cursor_shape = 2
+script = ExtResource("1_button")
+
+[node name="Caption" type="Label" parent="."]
+layout_mode = 0
+offset_right = 120.0
+offset_bottom = 38.0
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1

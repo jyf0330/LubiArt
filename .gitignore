@@ -1,4 +1,9 @@
 .godot/
+.codex-backups/
+.codex_tmp/
+tmp/
+__pycache__/
+*.pyc
 outputs/
 output/validation/
 *.log

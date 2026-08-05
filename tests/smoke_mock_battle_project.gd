@@ -289,7 +289,20 @@ func _run() -> void:
 	standalone_battle_instance.queue_free()
 	await process_frame
 
+	var startup_main_instance := main_scene.instantiate()
+	root.add_child(startup_main_instance)
+	for _frame in range(8):
+		await process_frame
+	var startup_session := startup_main_instance.call("get_game_session") as RefCounted
+	assert(startup_session != null)
+	assert(String(Dictionary(startup_session.call("current_snapshot")).get("phase", "")) == "battle")
+	assert(StringName(startup_main_instance.call("get_active_feature_id")) == &"battle")
+	assert(startup_main_instance.call("get_active_feature_view") != null)
+	startup_main_instance.queue_free()
+	await process_frame
+
 	var route_main_instance := main_scene.instantiate()
+	route_main_instance.call("set_game_session", MockSession.new({"start_phase": "route"}))
 	root.add_child(route_main_instance)
 	for _frame in range(8):
 		await process_frame
@@ -758,47 +771,36 @@ func _assert_damage_preview_cycle() -> void:
 		"shield": 0,
 		"atk": 5,
 	}, "enemy", null)
-	pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20, true)
+	pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20)
 	var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
-	var health_group := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health") as Control
 	var health_value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/Value_Text") as Label
+	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview") as Control
+	var badge_value := badge.get_node("Value") as Label
 	var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
 	assert(bool(preview.get("active", false)))
 	assert(bool(preview.get("pinned", false)))
+	assert(bool(preview.get("uses_badge", false)))
 	assert(String(preview.get("state", "")) == "visible")
-	assert(is_equal_approx(float(preview.get("initial_hold", 0.0)), 1.0))
-	assert(is_equal_approx(float(preview.get("visible_hold", 0.0)), 1.0))
-	assert(is_equal_approx(float(preview.get("hidden_hold", 0.0)), 1.0))
 	assert(int(preview.get("predicted_damage", 0)) == 15)
 	assert(int(preview.get("projected_shield", -1)) == 0)
-	assert(int(preview.get("displayed_hp", -1)) == 7)
+	assert(int(preview.get("displayed_hp", -1)) == 20)
+	assert(int(preview.get("displayed_damage", -1)) == 15)
 	assert(stats_root.visible)
-	assert(health_value.text == "HP:7")
-	assert(health_value.self_modulate == Color("ff5a4f"))
+	assert(health_value.text == "HP:20")
+	assert(badge.visible)
+	assert(badge_value.text == "15")
 	pet.call("_on_damage_preview_timeout")
-	await create_timer(0.15).timeout
+	await create_timer(1.25).timeout
 	assert(String(Dictionary(pet.call("get_damage_preview_snapshot")).get("state", "")) == "visible")
-	assert(health_group.modulate.a > 0.99)
-	pet.call("release_damage_preview", 1.0)
-	preview = Dictionary(pet.call("get_damage_preview_snapshot"))
-	assert(not bool(preview.get("pinned", true)))
-	assert(float(preview.get("seconds_to_switch", 0.0)) > 0.9)
-	pet.call("_on_damage_preview_timeout")
-	await create_timer(0.15).timeout
-	assert(String(Dictionary(pet.call("get_damage_preview_snapshot")).get("state", "")) == "hidden")
-	assert(health_group.modulate.a < 0.01)
-	pet.call("_on_damage_preview_timeout")
-	await create_timer(0.15).timeout
-	assert(String(Dictionary(pet.call("get_damage_preview_snapshot")).get("state", "")) == "visible")
-	assert(health_group.modulate.a > 0.99)
+	assert(is_zero_approx(float(Dictionary(pet.call(
+		"get_damage_preview_snapshot"
+	)).get("seconds_to_switch", -1.0))))
+	assert(badge.modulate.a > 0.99)
 	pet.call("stop_damage_preview")
 	assert(health_value.text == "HP:20")
-	assert(not stats_root.visible)
+	assert(stats_root.visible)
+	assert(not badge.visible)
 	assert(not bool(Dictionary(pet.call("get_damage_preview_snapshot")).get("active", true)))
-	pet.call("start_damage_preview", 20, 20, -1, 2, 2, 0, 20, true)
-	assert(health_value.text == "HP:20")
-	assert(health_value.self_modulate == Color.WHITE)
-	pet.call("stop_damage_preview")
 	pet.queue_free()
 	await process_frame
 
@@ -827,10 +829,10 @@ func _assert_incoming_damage_badge() -> void:
 	assert(badge.visible)
 	assert(value.text == "15")
 	assert(value.self_modulate == Color.WHITE)
-	assert(not stats_root.visible)
-	assert(badge.position.x >= 0.0 and badge.position.y >= 0.0)
-	assert(badge.position.x + badge.size.x <= pet.size.x + 0.01)
-	assert(badge.position.y + badge.size.y <= pet.size.y + 0.01)
+	assert(stats_root.visible)
+	assert(is_equal_approx(badge.position.x, pet.size.x - badge.size.x * 0.75))
+	assert(is_equal_approx(badge.position.y + badge.size.y, 4.0))
+	assert(badge.position.y < 0.0)
 	pet.call("stop_damage_preview")
 	assert(not badge.visible)
 	assert(value.text == "")
@@ -1064,9 +1066,6 @@ func _active_damage_preview_count(board_grid: Control) -> int:
 func _assert_active_damage_previews_synchronized(board_grid: Control) -> void:
 	var active_count := 0
 	var shared_epoch_msec := -1
-	var shared_state := ""
-	var minimum_seconds_to_switch := INF
-	var maximum_seconds_to_switch := 0.0
 	for cell in board_grid.get_children():
 		if not cell.has_method("get_unit_node"):
 			continue
@@ -1077,23 +1076,17 @@ func _assert_active_damage_previews_synchronized(board_grid: Control) -> void:
 		if not bool(preview.get("active", false)):
 			continue
 		var epoch_msec := int(preview.get("sync_epoch_msec", -1))
-		var state := String(preview.get("state", ""))
-		var seconds_to_switch := float(preview.get("seconds_to_switch", 0.0))
 		assert(epoch_msec >= 0)
-		assert(is_equal_approx(float(preview.get("initial_hold", 0.0)), 1.0))
-		assert(is_equal_approx(float(preview.get("visible_hold", 0.0)), 1.0))
-		assert(is_equal_approx(float(preview.get("hidden_hold", 0.0)), 1.0))
+		assert(bool(preview.get("pinned", false)))
+		assert(bool(preview.get("uses_badge", false)))
+		assert(String(preview.get("state", "")) == "visible")
+		assert(is_zero_approx(float(preview.get("seconds_to_switch", -1.0))))
 		if active_count == 0:
 			shared_epoch_msec = epoch_msec
-			shared_state = state
 		else:
 			assert(epoch_msec == shared_epoch_msec)
-			assert(state == shared_state)
-		minimum_seconds_to_switch = minf(minimum_seconds_to_switch, seconds_to_switch)
-		maximum_seconds_to_switch = maxf(maximum_seconds_to_switch, seconds_to_switch)
 		active_count += 1
 	assert(active_count > 1)
-	assert(maximum_seconds_to_switch - minimum_seconds_to_switch < 0.05)
 
 
 func _assert_cell_stat_column(cell: Control, pet: Control) -> void:

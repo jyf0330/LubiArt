@@ -1,0 +1,46 @@
+{
+  "gen_id": "7f48594b-9633-40d3-bcf5-587340ee60ac",
+  "job_type": "animation",
+  "status": "succeeded",
+  "input_params": {
+    "seed": 260804,
+    "length": 33,
+    "prompt": "right-facing three-quarter side-view cute four-legged celestial feather creature performs one slow in-place walking cycle that reads as walking across exactly one grid cell, front-left and rear-right legs step together then front-right and rear-left legs step together, clear alternating quadruped footfalls, gentle shoulder and hip weight transfer, small natural follow-through in the large cyan feathered ears, back plumes and tail plumes, body center remains fixed and all feet return to one stable baseline, no running, no hopping, no root translation, no turning, no camera movement, preserve the exact fluffy white body silhouette, bright cyan and deep blue crystal-feather appendages, black hard pixel outline, single visible cyan eye, gold forehead and cheek markings, golden paws, palette, proportions, face and pixel-art material, no extra legs, no extra wings, no detached effects, no background motion",
+    "bg_color": "#004040",
+    "fix_seed": true,
+    "pixel_size": "128",
+    "attack_type": "melee",
+    "motion_type": "walk",
+    "use_padding": false,
+    "scale_factor": 6,
+    "strength_low": 0.52,
+    "strength_high": 0.52,
+    "use_end_image": true,
+    "use_mid_image": false,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32
+  },
+  "output_params": null,
+  "created_at": "2026-08-04T07:14:51.980376+00:00",
+  "updated_at": null,
+  "input_images": [
+    {
+      "key": "temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/7f48594b-9633-40d3-bcf5-587340ee60ac/in_0.png",
+      "url": "https://cdn.rika-ai.com/temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/7f48594b-9633-40d3-bcf5-587340ee60ac/in_0.png"
+    },
+    {
+      "key": "temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/7f48594b-9633-40d3-bcf5-587340ee60ac/in_1.png",
+      "url": "https://cdn.rika-ai.com/temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/7f48594b-9633-40d3-bcf5-587340ee60ac/in_1.png"
+    }
+  ],
+  "output_images": [
+    {
+      "key": "users/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/7f48594b-9633-40d3-bcf5-587340ee60ac/out_0.png",
+      "url": "https://cdn.rika-ai.com/users/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/7f48594b-9633-40d3-bcf5-587340ee60ac/out_0.png"
+    }
+  ],
+  "persist_images": false,
+  "liked": null,
+  "error": null
+}

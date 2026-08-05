@@ -16,8 +16,8 @@ const DAMAGE_PREVIEW_COLOR := Color("ff5a4f")
 const DAMAGE_PREVIEW_HEALTH_SCALE := 1.45
 const STAT_COLUMN_GAP := 1.0
 const STAT_COLUMN_RIGHT_INSET := 4.0
-const STAT_HIDE_DELAY := 1.0
-const DRAG_PREVIEW_NAME := &"BattleUnitDragPreview"
+const DAMAGE_PREVIEW_BADGE_RIGHT_OVERHANG_RATIO := 0.25
+const DAMAGE_PREVIEW_BADGE_BOTTOM_INSET := 4.0
 static var _texture_used_rect_cache: Dictionary = {}
 static var _battle_texture_cache: Dictionary = {}
 static var _battle_visual_metrics_by_path: Dictionary = {}
@@ -86,9 +86,9 @@ var _damage_preview_shield_was_visible := false
 var _damage_preview_cap_was_visible := false
 var _damage_preview_uses_badge := false
 var _damage_preview_badge_base_modulate := Color.WHITE
-var _stat_visibility_token := 0
 var _cursor_hit_texture: Texture2D = null
 var _cursor_hit_image: Image = null
+var _display_texture_source: Texture2D = null
 
 
 func _ready() -> void:
@@ -113,11 +113,14 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 		_missing_mapping = Dictionary(result.get("missing", {}))
 	if sprite_rect.texture == null:
 		sprite_rect.texture = AUTHORED_CREATURE_TEXTURE
+	_display_texture_source = sprite_rect.texture
+	var animation_texture_path := _display_texture_source.resource_path
 	_layout_children()
 	animation.play_sprite_idle(
 		sprite_rect,
 		sprite_rect.texture,
-		_battle_sprite_visible_rect.end - sprite_rect.position
+		_battle_sprite_visible_rect.end - sprite_rect.position,
+		animation_texture_path
 	)
 	enemy_marker_group.visible = side == "enemy" or side == "monster"
 	status_view.bind_battle_data(cell_data)
@@ -139,8 +142,14 @@ func set_collection_data(data: Dictionary, texture_resource: Texture2D) -> void:
 	side = "player"
 	_display_mode = &"collection"
 	frame_rect.visible = false
+	_display_texture_source = texture_resource
 	_set_collection_presentation(texture_resource)
-	animation.play_sprite_idle(sprite_rect, sprite_rect.texture)
+	animation.play_sprite_idle(
+		sprite_rect,
+		sprite_rect.texture,
+		Vector2(-1.0, -1.0),
+		texture_resource.resource_path if texture_resource != null else ""
+	)
 	status_view.set_mode(&"collection")
 	clear_dead_mark()
 
@@ -178,6 +187,7 @@ func reset_pet_view() -> void:
 	frame_rect.texture = null
 	frame_rect.visible = false
 	sprite_rect.texture = null
+	_display_texture_source = null
 	sprite_rect.visible = false
 	_set_authored_root_visible(false)
 	death_mark_rect.texture = null
@@ -193,7 +203,7 @@ func get_display_mode() -> StringName:
 
 
 func get_display_texture() -> Texture2D:
-	return sprite_rect.texture
+	return _display_texture_source if _display_texture_source != null else sprite_rect.texture
 
 
 func get_battle_sprite_visible_rect() -> Rect2:
@@ -216,7 +226,7 @@ func _set_battle_presentation() -> void:
 	shadow_rect.visible = true
 	shadow_rect.z_index = 0
 	sprite_rect.z_index = 1
-	stats_root.visible = false
+	stats_root.visible = true
 	front_target_cell.visible = false
 	attack_actions.visible = true
 	enemy_marker_group.visible = side == "enemy" or side == "monster"
@@ -262,7 +272,7 @@ func start_damage_preview(
 	current_shield: int = -1,
 	projected_shield: int = -1,
 	max_hp: int = -1,
-	pinned: bool = false,
+	pinned: bool = true,
 	initial_hold: float = DAMAGE_PREVIEW_INITIAL_HOLD
 ) -> void:
 	var safe_current := maxi(0, current_hp)
@@ -290,7 +300,7 @@ func start_damage_preview(
 			release_damage_preview(initial_hold)
 		return
 	_stop_damage_preview_animation(false)
-	_damage_preview_uses_badge = side in ["player", "ally"] and incoming_damage_preview != null
+	_damage_preview_uses_badge = incoming_damage_preview != null
 	if not _damage_preview_uses_badge:
 		_damage_preview_revealed_stats = stats_root != null and not stats_root.visible
 		_show_battle_stats()
@@ -469,8 +479,7 @@ func _stop_damage_preview_animation(restore_current_hp: bool) -> void:
 	_damage_preview_sync_epoch_msec = -1
 	_leave_damage_preview_presentation()
 	if _damage_preview_revealed_stats and stats_root != null:
-		_stat_visibility_token += 1
-		stats_root.visible = false
+		stats_root.visible = _display_mode == &"battle"
 	_damage_preview_revealed_stats = false
 	_damage_preview_uses_badge = false
 	if restore_current_hp and psd_health_value != null:
@@ -577,34 +586,15 @@ func get_action_block_attack_range_snapshot() -> Dictionary:
 
 
 func set_dragging(is_dragging: bool) -> void:
-	if is_dragging:
-		_show_battle_stats()
-	elif name == DRAG_PREVIEW_NAME:
-		# The held pet is a prefab instance named by the battle drag presenter.
-		# Keep its existing Stats node visible for the full pickup duration.
-		_show_battle_stats()
-	else:
-		_show_battle_stats_then_hide()
+	_show_battle_stats()
 	visible = not is_dragging
 	modulate = Color(1.0, 1.0, 1.0, 0.62) if is_dragging else Color.WHITE
 	z_index = 40 if is_dragging else 0
 
 
 func _show_battle_stats() -> void:
-	_stat_visibility_token += 1
 	if stats_root != null and _display_mode == &"battle":
 		stats_root.visible = true
-
-
-func _show_battle_stats_then_hide() -> void:
-	_show_battle_stats()
-	var visibility_token := _stat_visibility_token
-	get_tree().create_timer(STAT_HIDE_DELAY).timeout.connect(func() -> void:
-		if visibility_token != _stat_visibility_token:
-			return
-		if stats_root != null:
-			stats_root.visible = false
-	)
 
 
 func contains_art_point(viewport_point: Vector2, alpha_threshold: float = 0.08) -> bool:
@@ -652,6 +642,10 @@ func play_shake(duration: float = 0.22, strength: float = 7.0) -> void:
 
 func move_to_position(target_position: Vector2, duration: float = 0.22) -> void:
 	animation.move_to_position(target_position, duration)
+
+
+func get_move_animation_duration(fallback: float = 0.22) -> float:
+	return animation.get_move_animation_duration(fallback)
 
 
 func play_attack_action(attack_type: String, element_id: String = "fire") -> void:
@@ -846,13 +840,10 @@ func _layout_incoming_damage_preview() -> void:
 	if incoming_damage_preview == null:
 		return
 	var badge_size := clampf(minf(size.x, size.y) * 0.34, 40.0, 48.0)
-	var sprite_bounds := _battle_sprite_visible_rect
-	if sprite_bounds.size.x <= 0.0 or sprite_bounds.size.y <= 0.0:
-		sprite_bounds = Rect2(Vector2.ZERO, size)
 	incoming_damage_preview.size = Vector2(badge_size, badge_size)
 	incoming_damage_preview.position = Vector2(
-		clampf(sprite_bounds.end.x - badge_size * 0.32, 0.0, maxf(0.0, size.x - badge_size)),
-		clampf(sprite_bounds.position.y - badge_size * 0.18, 0.0, maxf(0.0, size.y - badge_size))
+		size.x - badge_size * (1.0 - DAMAGE_PREVIEW_BADGE_RIGHT_OVERHANG_RATIO),
+		DAMAGE_PREVIEW_BADGE_BOTTOM_INSET - badge_size
 	)
 
 
@@ -1053,7 +1044,6 @@ func _set_authored_root_visible(visible_value: bool) -> void:
 
 
 func _reset_interaction_state() -> void:
-	_stat_visibility_token += 1
 	visible = true
 	modulate = Color.WHITE
 	z_index = 0

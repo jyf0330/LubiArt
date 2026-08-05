@@ -1,0 +1,217 @@
+[gd_scene load_steps=15 format=3 uid="uid://64ubxwigxkci"]
+
+[ext_resource type="Texture2D" path="res://art/images/menu/backgrounds/menu_background_001.png" id="1_background"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_grass_001.png" id="2_grass"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_fire_001.png" id="3_fire"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_rabbit_001.png" id="4_rabbit"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_wukong_001.png" id="5_wukong"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_tang_monk_001.png" id="6_tang"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_bird_001.png" id="7_bird"]
+[ext_resource type="Texture2D" path="res://art/images/menu/titles/menu_title_001.png" id="8_title"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_dragon_001.png" id="9_dragon"]
+[ext_resource type="Texture2D" path="res://art/images/menu/decorations/menu_decoration_spider_001.png" id="10_spider"]
+[ext_resource type="PackedScene" path="res://art/prefabs/menu/start_game_button.tscn" id="11_start_button"]
+[ext_resource type="Script" path="res://core_ui/scripts/menu/components/action_button.gd" id="12_action_button"]
+[ext_resource type="Script" path="res://core_ui/scripts/menu/scenes/menu_start_controller.gd" id="13_controller"]
+[ext_resource type="PackedScene" path="res://art/prefabs/menu/screens/menu_settings.tscn" id="14_settings"]
+
+[node name="StartScene" type="Control" unique_id=1540488906]
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+editor_description = "1920 x 1080 start screen. All artwork is visible directly in the editor and arranged in reference-image layer order."
+script = ExtResource("13_controller")
+
+
+[node name="CompleteStartScenePrefab" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="01_StartVisual" type="Control" parent="CompleteStartScenePrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="02_StartInteraction" type="Control" parent="CompleteStartScenePrefab"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="03_StartActions" type="Node" parent="CompleteStartScenePrefab"]
+[node name="Background" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("1_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="GrassSpirit" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 176.0
+offset_right = 362.0
+offset_bottom = 531.0
+mouse_filter = 2
+texture = ExtResource("2_grass")
+expand_mode = 1
+
+[node name="FireSpirit" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 234.0
+offset_top = 109.0
+offset_right = 510.0
+offset_bottom = 385.0
+mouse_filter = 2
+texture = ExtResource("3_fire")
+expand_mode = 1
+
+[node name="Rabbit" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 426.0
+offset_top = 31.0
+offset_right = 767.0
+offset_bottom = 504.0
+mouse_filter = 2
+texture = ExtResource("4_rabbit")
+expand_mode = 1
+
+[node name="Wukong" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 655.0
+offset_top = 69.0
+offset_right = 1281.0
+offset_bottom = 636.0
+mouse_filter = 2
+texture = ExtResource("5_wukong")
+expand_mode = 1
+
+[node name="TangMonk" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 1114.0
+offset_top = 0.0
+offset_right = 1542.0
+offset_bottom = 490.0
+mouse_filter = 2
+texture = ExtResource("6_tang")
+expand_mode = 1
+
+[node name="FlyingRabbit" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 1480.0
+offset_top = 32.0
+offset_right = 1731.0
+offset_bottom = 283.0
+mouse_filter = 2
+texture = ExtResource("7_bird")
+expand_mode = 1
+
+[node name="Title" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 424.0
+offset_top = 392.0
+offset_right = 1515.0
+offset_bottom = 813.0
+mouse_filter = 2
+texture = ExtResource("8_title")
+expand_mode = 1
+
+[node name="WaterDragon" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 105.0
+offset_top = 415.0
+offset_right = 435.0
+offset_bottom = 789.0
+mouse_filter = 2
+texture = ExtResource("9_dragon")
+expand_mode = 1
+
+[node name="SpiderDemon" type="TextureRect" parent="CompleteStartScenePrefab/01_StartVisual"]
+layout_mode = 0
+offset_left = 1352.0
+offset_top = 276.0
+offset_right = 1872.0
+offset_bottom = 690.0
+mouse_filter = 2
+texture = ExtResource("10_spider")
+expand_mode = 1
+
+[node name="StartGameButton" parent="CompleteStartScenePrefab/01_StartVisual" instance=ExtResource("11_start_button")]
+custom_minimum_size = Vector2(400, 166)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -182.0
+offset_right = 200.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+button_text = "开始游戏"
+
+[node name="SettingsButton" type="Control" parent="CompleteStartScenePrefab/01_StartVisual"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -129.0
+offset_right = -52.0
+offset_bottom = -41.0
+grow_horizontal = 0
+grow_vertical = 0
+tooltip_text = "设置"
+mouse_default_cursor_shape = 2
+script = ExtResource("12_action_button")
+action_type = 3
+
+[node name="BackButton" type="Control" parent="CompleteStartScenePrefab/01_StartVisual"]
+visible = false
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 52.0
+offset_top = -129.0
+offset_right = 140.0
+offset_bottom = -41.0
+grow_vertical = 0
+tooltip_text = "后退"
+mouse_default_cursor_shape = 2
+script = ExtResource("12_action_button")
+action_type = 5
+
+[node name="SettingsOverlay" parent="CompleteStartScenePrefab/01_StartVisual" instance=ExtResource("14_settings")]
+visible = false
+layout_mode = 1

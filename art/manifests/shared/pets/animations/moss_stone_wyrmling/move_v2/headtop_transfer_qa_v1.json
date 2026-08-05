@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "operation": "deterministic_headtop_pixel_transfer",
+  "source_user_edit": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_airborne_mid_user_edit_v1.png",
+  "source_user_edit_sha256": "bf51fb9e95bede1d3298eb8ff6af0406bc6195c294b933e7d084c24aff22e373",
+  "first_frame_source": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v1/frames/frame_001.png",
+  "first_frame_source_sha256": "f03e84737955103c07126cf1e329fcfb3f2bd1ba5a9be88172d5a692b147e6df",
+  "output": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source/moss_stone_wyrmling_start_headmatched_128_v1.png",
+  "output_sha256": "5a9eb4dd61f70be45e0877c5f6b3a3990f0fbad591be5590e309c452eba3cf59",
+  "preview": "output/moss_stone_wyrmling_start_headmatched_4x_v1.png",
+  "comparison": "output/moss_stone_wyrmling_headtop_comparison_4x_v1.png",
+  "roi": [
+    24,
+    27,
+    50,
+    44
+  ],
+  "source_y_offset": 2,
+  "changed_pixel_count": 89,
+  "changed_pixel_bbox": [
+    26,
+    29,
+    50,
+    41
+  ],
+  "changed_outside_roi_count": 0,
+  "alpha_unchanged": true,
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "BLOCKED",
+  "visual_qa_notes": [
+    "The head-top moss now follows the brighter irregular shape and cream notch from the user-edited airborne keyframe.",
+    "Both horns, face, eye, mouth, body, wings, feet and tail remain unchanged from the standing first-frame source.",
+    "All 89 changed pixels are confined to the head-top bounding box x=26..49, y=29..40; alpha and silhouette are unchanged.",
+    "No rectangular seam, hard horizontal cut, disconnected outline or new transparent hole is visible at original size or 4x review scale.",
+    "Rejected by the user because the head-top change was inferred instead of copied from an exact source diff; this output must not be used."
+  ]
+}

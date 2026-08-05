@@ -13,6 +13,8 @@
 - `data/mock_battle_snapshot.json`：项目方通过正式 `LocalGameSession` 读取存档槽2，再每回合执行一次“自动布置 → 开始行动”，直到战斗结算后导出的公共 Snapshot 序列
 - `tests/`：独立项目契约 smoke
 
+项目默认从 `game.tscn` 启动，并直接进入战斗界面，方便美术调试；三选一界面及其路由能力仍保留在总装配中。
+
 运行时装配链为：
 
 `game.tscn -> MockGameSession -> ThreeChoiceScene -> FeatureRegistry -> SceneRouter -> BattleArtScene -> 四类公开 art/prefabs`

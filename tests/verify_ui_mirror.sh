@@ -25,6 +25,8 @@ required_files=(
   "art/prefabs/shop/bazaar_info_panel.tscn"
   "art/prefabs/battle/hud/battle_hud.tscn"
   "art/prefabs/battle/hud/attack_direction_drawer.tscn"
+  "art/prefabs/battle/hud/attack_timeline.tscn"
+  "art/prefabs/battle/hud/attack_timeline_pet_frame.tscn"
   "art/prefabs/shared/cursor/game_cursor.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"
@@ -56,13 +58,22 @@ expected_scenes=(
 actual_scenes="$(cd "$MOCK_ROOT" && find art/scenes -type f -name "*.tscn" | sort)"
 expected_scenes_text="$(printf '%s\n' "${expected_scenes[@]}")"
 if [[ "$actual_scenes" != "$expected_scenes_text" ]]; then
-  printf '%s\n' "Standalone project must contain the Game shell, two formal UI scenes and the SpriteInfoCard debug scene." >&2
+  printf '%s\n' "Standalone project must contain the Game shell, two formal UI scenes, and the approved debug scenes." >&2
   exit 1
 fi
 
 expected_prefabs=(
   "art/prefabs/battle/hud/attack_direction_drawer.tscn"
+  "art/prefabs/battle/hud/attack_timeline.tscn"
+  "art/prefabs/battle/hud/attack_timeline_pet_frame.tscn"
   "art/prefabs/battle/hud/battle_hud.tscn"
+  "art/prefabs/battle/settings/settings_menu.tscn"
+  "art/prefabs/menu/dialogs/abandon_game_dialog.tscn"
+  "art/prefabs/menu/dialogs/load_game_dialog.tscn"
+  "art/prefabs/menu/dialogs/save_game_dialog.tscn"
+  "art/prefabs/menu/screens/menu_settings.tscn"
+  "art/prefabs/menu/screens/menu_start.tscn"
+  "art/prefabs/menu/start_game_button.tscn"
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
