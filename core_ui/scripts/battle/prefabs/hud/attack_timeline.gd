@@ -1,15 +1,15 @@
 extends Control
 
-## Authored attack timeline presentation. It reads player units from the public
-## battle Snapshot, owns drag/playback visuals, and never mutates battle state.
+## Authored attack timeline presentation. It projects the authoritative shared
+## A/B skill control bar and emits one semantic reorder intent after a drag.
 
-signal order_changed(unit_ids: Array[String])
-signal release_preview(unit_id: String, order: int)
+signal command_requested(command: Dictionary)
+signal order_changed(entry_ids: Array[String])
+signal release_preview(entry_id: String, order: int)
 
 const MARKER_WIDTH := 170.0
 const MARKER_Y := 4.0
 const MIN_MARKER_X := 32.0
-const ATTACKS_PER_UNIT := 2
 
 @onready var marker_layer: Control = $TimelineArea/MarkerLayer
 @onready var playback_cursor: Control = $TimelineArea/PlaybackCursor
@@ -77,33 +77,38 @@ func _input(event: InputEvent) -> void:
 
 
 func render_snapshot(snapshot: Dictionary) -> void:
-	var player_units: Array[Dictionary] = []
+	var units_by_id := {}
 	for unit_value in Array(snapshot.get("units", [])):
 		var unit := Dictionary(unit_value)
-		if String(unit.get("side", "")) != "player" or not bool(unit.get("active", true)):
+		if String(unit.get("side", "")) != "player":
 			continue
-		player_units.append(unit)
-	player_units.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return int(a.get("slot", 0)) < int(b.get("slot", 0))
-	)
-	var attack_entries: Array[Dictionary] = []
-	for unit in player_units:
-		for attack_index in range(ATTACKS_PER_UNIT):
-			attack_entries.append({"unit": unit, "attack_index": attack_index})
+		var unit_id := String(unit.get("id", unit.get("pet_id", "")))
+		if unit_id != "":
+			units_by_id[unit_id] = unit
+	var control_bar := Array(snapshot.get("skillControlBar", snapshot.get("skill_control_bar", [])))
 	for index in range(_markers.size()):
 		var marker := _markers[index]
-		var has_unit := index < attack_entries.size()
-		marker.visible = has_unit
-		if not has_unit:
+		var has_entry := index < control_bar.size()
+		marker.visible = has_entry
+		if not has_entry:
+			marker.set_meta("entry_id", "")
 			marker.set_meta("unit_id", "")
-			marker.set_meta("attack_index", -1)
+			marker.set_meta("skill_slot", "")
 			continue
-		var entry := attack_entries[index]
-		var unit := Dictionary(entry.get("unit", {}))
-		marker.set_meta("unit_id", String(unit.get("id", unit.get("pet_id", ""))))
-		marker.set_meta("attack_index", int(entry.get("attack_index", 0)))
-		marker.set_meta("marker_name", String(unit.get("name", "精灵")))
-		(marker.get_node("NameLabel") as Label).text = String(unit.get("name", "精灵"))
+		var entry := Dictionary(control_bar[index])
+		var entry_id := String(entry.get("entryId", entry.get("entry_id", ""))).strip_edges()
+		var unit_id := String(entry.get("unitId", entry.get("unit_id", ""))).strip_edges()
+		var skill_slot := String(entry.get("skillSlot", entry.get("skill_slot", ""))).strip_edges().to_lower()
+		var unit := Dictionary(units_by_id.get(unit_id, {})).duplicate(true)
+		unit["id"] = unit_id
+		unit["name"] = String(entry.get("unitName", entry.get("unit_name", unit.get("name", "精灵"))))
+		var slot_label := skill_slot.to_upper()
+		var skill_label := String(entry.get("label", entry.get("skillId", entry.get("skill_id", slot_label))))
+		marker.set_meta("entry_id", entry_id)
+		marker.set_meta("unit_id", unit_id)
+		marker.set_meta("skill_slot", skill_slot)
+		marker.set_meta("marker_name", "%s %s" % [String(unit["name"]), slot_label])
+		(marker.get_node("NameLabel") as Label).text = "%s · %s" % [slot_label, skill_label]
 		var pet_frame := marker.get_node("PetFrame") as TextureButton
 		if pet_frame.has_method("configure"):
 			pet_frame.call("configure", unit)
@@ -147,7 +152,16 @@ func _finish_drag(emit_change: bool = true) -> void:
 	_update_order_badges()
 	status_label.text = "顺序已更新 · 点击“开始演示”查看释放节奏"
 	if emit_change:
-		order_changed.emit(debug_order_ids())
+		_emit_order_intent()
+
+
+func _emit_order_intent() -> void:
+	var ordered_entry_ids := debug_order_ids()
+	order_changed.emit(ordered_entry_ids)
+	command_requested.emit({
+		"type": "SET_SKILL_CONTROL_ORDER",
+		"orderedEntryIds": ordered_entry_ids,
+	})
 
 
 func _on_marker_mouse_entered(marker: Control) -> void:
@@ -199,11 +213,7 @@ func _sorted_markers() -> Array[Control]:
 	var ordered := _visible_markers()
 	ordered.sort_custom(func(a: Control, b: Control) -> bool:
 		if is_equal_approx(a.position.x, b.position.x):
-			var a_id := String(a.get_meta("unit_id", ""))
-			var b_id := String(b.get_meta("unit_id", ""))
-			if a_id == b_id:
-				return int(a.get_meta("attack_index", 0)) < int(b.get_meta("attack_index", 0))
-			return a_id < b_id
+			return String(a.get_meta("entry_id", "")) < String(b.get_meta("entry_id", ""))
 		return a.position.x < b.position.x
 	)
 	return ordered
@@ -251,7 +261,7 @@ func _play_sequence() -> void:
 
 func _release_marker(marker: Control, order: int) -> void:
 	status_label.text = "第 %d 位释放：%s" % [order, _marker_name(marker)]
-	release_preview.emit(String(marker.get_meta("unit_id", "")), order)
+	release_preview.emit(String(marker.get_meta("entry_id", "")), order)
 	var pet_frame := marker.get_node("PetFrame") as TextureButton
 	var pulse := create_tween()
 	pulse.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_parallel(true)
@@ -274,12 +284,12 @@ func debug_marker_count() -> int:
 	return _visible_markers().size()
 
 
-func debug_set_marker_position(unit_id: String, normalized_position: float, attack_index: int = 0) -> bool:
+func debug_set_marker_position(entry_or_unit_id: String, normalized_position: float, attack_index: int = 0) -> bool:
 	for marker in _markers:
-		if (
-			String(marker.get_meta("unit_id", "")) != unit_id
-			or int(marker.get_meta("attack_index", 0)) != attack_index
-		):
+		var expected_entry_id := entry_or_unit_id
+		if not expected_entry_id.contains(":"):
+			expected_entry_id = "%s:%s" % [entry_or_unit_id, "a" if attack_index == 0 else "b"]
+		if String(marker.get_meta("entry_id", "")) != expected_entry_id:
 			continue
 		var max_x := maxf(0.0, marker_layer.size.x - MARKER_WIDTH)
 		marker.position.x = lerpf(MIN_MARKER_X, max_x, clampf(normalized_position, 0.0, 1.0))
@@ -291,8 +301,12 @@ func debug_set_marker_position(unit_id: String, normalized_position: float, atta
 func debug_order_ids() -> Array[String]:
 	var result: Array[String] = []
 	for marker in _sorted_markers():
-		result.append(String(marker.get_meta("unit_id", "")))
+		result.append(String(marker.get_meta("entry_id", "")))
 	return result
+
+
+func debug_commit_order() -> void:
+	_emit_order_intent()
 
 
 func debug_play_sequence() -> void:

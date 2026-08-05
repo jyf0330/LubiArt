@@ -30,18 +30,12 @@ func _run() -> void:
 	var snapshot := Dictionary(MockSession.new({"start_phase": "battle"}).call("current_snapshot"))
 	timeline.call("render_snapshot", snapshot)
 	await process_frame
-	var expected_ids: Array[String] = []
-	var expected_attack_ids: Array[String] = []
-	for unit_value in Array(snapshot.get("units", [])):
-		var unit := Dictionary(unit_value)
-		if String(unit.get("side", "")) == "player" and bool(unit.get("active", true)):
-			var unit_id := String(unit.get("id", unit.get("pet_id", "")))
-			expected_ids.append(unit_id)
-			expected_attack_ids.append(unit_id)
-			expected_attack_ids.append(unit_id)
+	var expected_entry_ids: Array[String] = []
+	for entry_value in Array(snapshot.get("skillControlBar", [])):
+		expected_entry_ids.append(String(Dictionary(entry_value).get("entryId", "")))
 	var initial_order := Array(timeline.call("debug_order_ids"))
-	assert(int(timeline.call("debug_marker_count")) == expected_attack_ids.size())
-	assert(initial_order == expected_attack_ids)
+	assert(int(timeline.call("debug_marker_count")) == expected_entry_ids.size())
+	assert(initial_order == expected_entry_ids)
 	assert(timeline.get_node("TimelineArea/MarkerLayer").get_child_count() == 10)
 	assert(timeline.get_node("TimelineArea/MarkerLayer/Marker1/PetFrame") != null)
 	assert((timeline.get_node("TimelineArea/MarkerLayer/Marker1/OrderBadge") as Label).position == Vector2(-6.0, -7.0))
@@ -71,10 +65,19 @@ func _run() -> void:
 	assert(first_background.size == Vector2(166.0, 166.0))
 	assert(first_frame.position == Vector2.ZERO)
 	assert(first_frame.size == Vector2(170.0, 170.0))
-	assert(timeline.call("debug_set_marker_position", expected_ids[0], 1.0))
+	assert(timeline.call("debug_set_marker_position", expected_entry_ids[0], 1.0))
 	var reordered := Array(timeline.call("debug_order_ids"))
-	assert(reordered.size() == expected_attack_ids.size())
+	assert(reordered.size() == expected_entry_ids.size())
 	assert(is_equal_approx((timeline.get_node("TimelineArea/MarkerLayer/Marker1") as Control).position.x, 1270.0))
+	var commands: Array[Dictionary] = []
+	timeline.command_requested.connect(func(command: Dictionary) -> void:
+		commands.append(command.duplicate(true))
+	)
+	timeline.call("debug_commit_order")
+	assert(commands.size() == 1)
+	assert(commands[0].keys().size() == 2)
+	assert(String(commands[0].get("type", "")) == "SET_SKILL_CONTROL_ORDER")
+	assert(Array(commands[0].get("orderedEntryIds", [])) == reordered)
 	timeline.call("set_interaction_locked", true)
 	assert((timeline.get_node("PlayButton") as Button).disabled)
 	assert((timeline.get_node("ResetButton") as Button).disabled)

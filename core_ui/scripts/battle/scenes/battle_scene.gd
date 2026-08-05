@@ -69,6 +69,14 @@ func is_battle_input_locked() -> bool:
 	return _battle_input_locked
 
 
+func configure_trace_cursor(cursor: int) -> void:
+	_rendered_trace_count = maxi(-1, cursor)
+
+
+func get_trace_cursor() -> int:
+	return _rendered_trace_count
+
+
 func render_snapshot(snapshot: Dictionary) -> void:
 	var incoming := snapshot.duplicate(true)
 	var new_events := Array(_trace_projection.call("new_events", incoming, _rendered_trace_count))

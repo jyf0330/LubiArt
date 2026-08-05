@@ -48,6 +48,8 @@ func _ready() -> void:
 			"direction_preview_changed",
 			Callable(self, "_on_direction_preview_changed")
 		)
+	if attack_timeline.has_signal("command_requested"):
+		attack_timeline.connect("command_requested", Callable(self, "_on_child_command_requested"))
 	attack_timeline.visible = false
 	attack_timeline_toggle_button.pressed.connect(_toggle_attack_timeline)
 	visibility_changed.connect(_sync_attack_timeline_layer_visibility)
@@ -76,6 +78,8 @@ func set_input_locked(locked: bool) -> void:
 	_input_locked = locked
 	if action_panel.has_method("set_input_locked"):
 		action_panel.call("set_input_locked", locked)
+	if attack_timeline.has_method("set_interaction_locked"):
+		attack_timeline.call("set_interaction_locked", locked)
 	attack_direction_drawer.process_mode = (
 		Node.PROCESS_MODE_DISABLED if locked else Node.PROCESS_MODE_INHERIT
 	)
@@ -289,7 +293,7 @@ func toggle_attack_timeline() -> void:
 
 
 func _toggle_attack_timeline() -> void:
-	if not is_visible_in_tree():
+	if not is_visible_in_tree() or _input_locked:
 		return
 	attack_timeline.visible = not attack_timeline.visible
 	_refresh_attack_timeline_toggle_button()
