@@ -130,7 +130,12 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func render_snapshot(snapshot: Dictionary, cells: Array, pending_reset_ids: Dictionary = {}) -> void:
+func render_snapshot(
+	snapshot: Dictionary,
+	cells: Array,
+	pending_reset_ids: Dictionary = {},
+	reconcile_unit_presentation: bool = false
+) -> void:
 	_last_snapshot = snapshot.duplicate(true)
 	_render_battle_background(snapshot)
 	_missing_mappings = {}
@@ -138,7 +143,7 @@ func render_snapshot(snapshot: Dictionary, cells: Array, pending_reset_ids: Dict
 	_set_board_dimensions(BattleBoardDimensionsScript.from_board(board_data, Vector2i(_board_columns, _board_rows)))
 	_ensure_board()
 	_last_rendered_cell_count = 0
-	_render_board_cells(cells, pending_reset_ids)
+	_render_board_cells(cells, pending_reset_ids, reconcile_unit_presentation)
 	_preview_coordinator.call("render_snapshot", _last_snapshot)
 	_drag_interaction.call("restore_after_snapshot")
 
@@ -151,7 +156,11 @@ func _render_battle_background(snapshot: Dictionary) -> void:
 		board_background.texture = texture_resource
 
 
-func _render_board_cells(cells: Array, pending_reset_ids: Dictionary = {}) -> void:
+func _render_board_cells(
+	cells: Array,
+	pending_reset_ids: Dictionary = {},
+	reconcile_unit_presentation: bool = false
+) -> void:
 	var desired_unit_ids := {}
 	for cell_value in cells:
 		var desired_cell := Dictionary(cell_value)
@@ -176,7 +185,7 @@ func _render_board_cells(cells: Array, pending_reset_ids: Dictionary = {}) -> vo
 			cell_node.call("set_cell_data", cell, _assets)
 			_render_cell_trace_effects(cell_node, cell)
 			_last_rendered_cell_count += 1
-		_sync_cell_unit(cell_node, cell, cell_changed)
+		_sync_cell_unit(cell_node, cell, cell_changed, reconcile_unit_presentation)
 		_collect_cell_missing_mappings(cell_node)
 	for cell in _cells:
 		var cell_id := String(_cell_data_for_cell(cell).get("unitId", _cell_data_for_cell(cell).get("unit_id", "")))
@@ -200,7 +209,12 @@ func _release_unused_units(desired_unit_ids: Dictionary) -> void:
 		_unit_pool.append(unit)
 
 
-func _sync_cell_unit(cell: Control, cell_data: Dictionary, data_changed: bool = true) -> void:
+func _sync_cell_unit(
+	cell: Control,
+	cell_data: Dictionary,
+	data_changed: bool = true,
+	reconcile_presentation: bool = false
+) -> void:
 	if cell == null:
 		return
 	var unit_id := String(cell_data.get("unitId", cell_data.get("unit_id", "")))
@@ -223,9 +237,12 @@ func _sync_cell_unit(cell: Control, cell_data: Dictionary, data_changed: bool = 
 	unit.z_index = 2
 	if cell.has_method("set_unit_node"):
 		cell.call("set_unit_node", unit)
-	if (created or data_changed) and unit.has_method("set_unit_data"):
+	if created or data_changed:
 		var side := String(cell_data.get("side", cell_data.get("unitSide", "")))
-		unit.call("set_unit_data", cell_data, side, _assets)
+		if reconcile_presentation and not created and unit.has_method("reconcile_unit_data"):
+			unit.call("reconcile_unit_data", cell_data, side, _assets)
+		elif unit.has_method("set_unit_data"):
+			unit.call("set_unit_data", cell_data, side, _assets)
 	if unit.has_method("get_missing_mapping"):
 		var missing := Dictionary(unit.call("get_missing_mapping"))
 		if not missing.is_empty():

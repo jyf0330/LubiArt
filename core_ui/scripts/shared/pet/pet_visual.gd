@@ -127,6 +127,49 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 	clear_dead_mark()
 
 
+func reconcile_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> void:
+	var incoming := data.duplicate(true)
+	if _requires_full_unit_rebind(incoming, unit_side, assets):
+		set_unit_data(incoming, unit_side, assets)
+		return
+	# Snapshot reconciliation is a presentation-cache commit, not a second
+	# gameplay write. Keep the existing prefab and its animation lifecycle alive;
+	# only refresh data-driven labels and stable side markers.
+	cell_data = incoming
+	side = unit_side
+	_assets = assets
+	status_view.bind_battle_data(cell_data)
+	enemy_marker_group.visible = side == "enemy" or side == "monster"
+
+
+func _requires_full_unit_rebind(data: Dictionary, unit_side: String, assets: RefCounted) -> bool:
+	if _display_mode != &"battle" or get_unit_id() != _unit_id(data):
+		return true
+	if side != unit_side or _assets != assets:
+		return true
+	return _visual_source_key(cell_data) != _visual_source_key(data)
+
+
+func _unit_id(data: Dictionary) -> String:
+	return String(data.get("unitId", data.get("unit_id", data.get("id", ""))))
+
+
+func _visual_source_key(data: Dictionary) -> String:
+	for key in ["image", "image_path", "sprite", "sprite_path", "icon", "icon_path"]:
+		var path := String(data.get(key, "")).strip_edges()
+		if path != "":
+			return "path:%s" % path
+	for key in ["pet_id", "petId", "source_pet_id", "sourcePetId"]:
+		var pet_id := String(data.get(key, "")).strip_edges()
+		if pet_id != "":
+			return "pet:%s" % pet_id
+	for key in ["name", "displayName", "unitName"]:
+		var unit_name := String(data.get(key, "")).strip_edges()
+		if unit_name != "":
+			return "name:%s" % unit_name
+	return "unit:%s" % _unit_id(data)
+
+
 func set_battle_stat_layout_scale(
 	value: float,
 	cell_corners: PackedVector2Array = PackedVector2Array()

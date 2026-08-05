@@ -180,7 +180,7 @@ func _apply_staged_final_snapshot() -> void:
 		var final_snapshot := _pending_final_snapshot.duplicate(true)
 		_pending_final_snapshot = {}
 		var final_cells := Array(Dictionary(final_snapshot.get("board", {})).get("cells", [])).duplicate(true)
-		board.call("render_snapshot", final_snapshot, final_cells)
+		board.call("render_snapshot", final_snapshot, final_cells, {}, true)
 		hud.call("render_snapshot", final_snapshot)
 		overlay.call("render_snapshot", final_snapshot)
 		_sync_map_controls(final_snapshot)
