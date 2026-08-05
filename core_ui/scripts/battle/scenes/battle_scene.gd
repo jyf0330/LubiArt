@@ -26,6 +26,7 @@ const GameLogScript := preload("res://core/logging/game_log.gd")
 var _assets: RefCounted = null
 var _trace_projection := BattleTraceProjectionScript.new()
 var _last_snapshot: Dictionary = {}
+var _presented_snapshot: Dictionary = {}
 var _rendered_trace_count := -1
 var _pending_final_snapshot: Dictionary = {}
 var _pending_enemy_move_final_cells := {}
@@ -70,31 +71,33 @@ func is_battle_input_locked() -> bool:
 
 func render_snapshot(snapshot: Dictionary) -> void:
 	var incoming := snapshot.duplicate(true)
-	var previous := _last_snapshot.duplicate(true)
 	var new_events := Array(_trace_projection.call("new_events", incoming, _rendered_trace_count))
-	var stage_from_previous := not new_events.is_empty() and not previous.is_empty()
+	var stage_for_active_trace := not _presented_snapshot.is_empty() and (
+		not new_events.is_empty()
+		or not _pending_final_snapshot.is_empty()
+		or _battle_input_locked
+	)
 	_last_snapshot = incoming
-	var visible_snapshot := previous if stage_from_previous else incoming
 	var final_cells := Array(Dictionary(incoming.get("board", {})).get("cells", [])).duplicate(true)
-	var visible_cells := Array(Dictionary(visible_snapshot.get("board", {})).get("cells", [])).duplicate(true)
-	var pending_reset_ids := Dictionary(_trace_projection.call("pending_reset_unit_ids", new_events))
-	if stage_from_previous:
+	if stage_for_active_trace:
 		_pending_final_snapshot = incoming.duplicate(true)
 		_pending_enemy_move_final_cells.merge(
 			Dictionary(_trace_projection.call("collect_enemy_move_final_cells", final_cells, new_events)),
 			true
 		)
-		pending_reset_ids = {}
+		_refresh_pending_enemy_move_final_cells(final_cells)
 	else:
 		_pending_final_snapshot = {}
+		var visible_cells := final_cells.duplicate(true)
 		_pending_enemy_move_final_cells.merge(
 			Dictionary(_trace_projection.call("defer_enemy_move_projection", visible_cells, new_events)),
 			true
 		)
-	board.call("render_snapshot", visible_snapshot, visible_cells, pending_reset_ids)
-	hud.call("render_snapshot", visible_snapshot)
-	overlay.call("render_snapshot", visible_snapshot)
-	_sync_map_controls(visible_snapshot)
+		_commit_presentation_snapshot(
+			incoming,
+			visible_cells,
+			Dictionary(_trace_projection.call("pending_reset_unit_ids", new_events))
+		)
 	if not new_events.is_empty():
 		_rendered_trace_count = Array(incoming.get("battleTrace", incoming.get("battle_trace", []))).size()
 		_set_battle_input_locked(true)
@@ -180,16 +183,42 @@ func _apply_staged_final_snapshot() -> void:
 		var final_snapshot := _pending_final_snapshot.duplicate(true)
 		_pending_final_snapshot = {}
 		var final_cells := Array(Dictionary(final_snapshot.get("board", {})).get("cells", [])).duplicate(true)
-		board.call("render_snapshot", final_snapshot, final_cells, {}, true)
-		hud.call("render_snapshot", final_snapshot)
-		overlay.call("render_snapshot", final_snapshot)
-		_sync_map_controls(final_snapshot)
+		_commit_presentation_snapshot(final_snapshot, final_cells, {}, true)
 	else:
 		for unit_id_value in _pending_enemy_move_final_cells.keys():
 			board.call("apply_enemy_move_final_cell", String(unit_id_value), Dictionary(_pending_enemy_move_final_cells[unit_id_value]))
 	_pending_enemy_move_final_cells.clear()
 	_set_battle_input_locked(false)
 	trace_sequence_finished.emit()
+
+
+func _commit_presentation_snapshot(
+	snapshot: Dictionary,
+	cells: Array,
+	pending_reset_ids: Dictionary = {},
+	reconcile_unit_presentation: bool = false
+) -> void:
+	board.call(
+		"render_snapshot",
+		snapshot,
+		cells,
+		pending_reset_ids,
+		reconcile_unit_presentation
+	)
+	hud.call("render_snapshot", snapshot)
+	overlay.call("render_snapshot", snapshot)
+	_sync_map_controls(snapshot)
+	_presented_snapshot = snapshot.duplicate(true)
+
+
+func _refresh_pending_enemy_move_final_cells(final_cells: Array) -> void:
+	if _pending_enemy_move_final_cells.is_empty():
+		return
+	for cell_value in final_cells:
+		var cell := Dictionary(cell_value)
+		var unit_id := String(cell.get("unitId", cell.get("unit_id", "")))
+		if _pending_enemy_move_final_cells.has(unit_id):
+			_pending_enemy_move_final_cells[unit_id] = cell.duplicate(true)
 
 
 func _set_battle_input_locked(locked: bool) -> void:

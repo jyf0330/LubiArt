@@ -32,11 +32,9 @@ func _run() -> void:
 	target_unit.rotation = presentation_rotation
 
 	battle.trace_sequence_finished.connect(_on_trace_finished)
-	battle.call("render_snapshot", _snapshot(2, 6, 1, [_damage_event()]))
-	var deadline := Time.get_ticks_msec() + 4000
-	while not _trace_finished and Time.get_ticks_msec() < deadline:
-		await process_frame
-	_expect(_trace_finished, "trace sequence reaches the final Snapshot reconciliation point")
+	var damage_event := _damage_event("reconcile_damage_1", 10, 6, 3, 1)
+	battle.call("render_snapshot", _snapshot(2, 6, 1, [damage_event]))
+	await _wait_for_trace("first Trace reaches the final Snapshot reconciliation point")
 
 	target_cell = probe.cell_at(Vector2i(5, 2))
 	var reconciled_unit := target_cell.call("get_unit_node") as Control if target_cell != null else null
@@ -52,6 +50,28 @@ func _run() -> void:
 	var final_cell_data := Dictionary(cell_summary.get("data", {}))
 	_expect(int(final_cell_data.get("hp", -1)) == 6, "board presentation cache commits final HP")
 	_expect(int(final_cell_data.get("shield", -1)) == 1, "board presentation cache commits final shield")
+
+	_trace_finished = false
+	var second_event := _damage_event("reconcile_damage_2", 6, 4, 1, 0)
+	var two_events := [damage_event, second_event]
+	battle.call("render_snapshot", _snapshot(3, 4, 0, two_events))
+	battle.call("render_snapshot", _snapshot(4, 3, 0, two_events))
+	final_cell_data = Dictionary(probe.cell_summary(Vector2i(5, 2)).get("data", {}))
+	_expect(int(final_cell_data.get("hp", -1)) == 6, "same-Trace Snapshot replacement stays staged until feedback finishes")
+	await _wait_for_trace("same-Trace replacement finishes as one presentation transaction")
+	final_cell_data = Dictionary(probe.cell_summary(Vector2i(5, 2)).get("data", {}))
+	_expect(int(final_cell_data.get("hp", -1)) == 3, "same-Trace replacement commits only its latest final Snapshot")
+
+	_trace_finished = false
+	var third_event := _damage_event("reconcile_damage_3", 3, 2, 0, 0)
+	var fourth_event := _damage_event("reconcile_damage_4", 2, 1, 0, 0)
+	battle.call("render_snapshot", _snapshot(5, 2, 0, [damage_event, second_event, third_event]))
+	battle.call("render_snapshot", _snapshot(6, 1, 0, [damage_event, second_event, third_event, fourth_event]))
+	final_cell_data = Dictionary(probe.cell_summary(Vector2i(5, 2)).get("data", {}))
+	_expect(int(final_cell_data.get("hp", -1)) == 3, "appended Trace Snapshot does not expose an intermediate final state")
+	await _wait_for_trace("appended Trace events drain before the latest final Snapshot")
+	final_cell_data = Dictionary(probe.cell_summary(Vector2i(5, 2)).get("data", {}))
+	_expect(int(final_cell_data.get("hp", -1)) == 1, "appended Trace sequence commits the newest final Snapshot once")
 
 	_finish(battle)
 
@@ -91,25 +111,38 @@ func _unit_cell(grid: Vector2i, unit_id: String, unit_side: String, hp: int, shi
 	}
 
 
-func _damage_event() -> Dictionary:
+func _damage_event(
+	event_id: String,
+	hp_from: int,
+	hp_to: int,
+	shield_from: int,
+	shield_to: int
+) -> Dictionary:
 	return {
-		"eventId": "reconcile_damage_1",
+		"eventId": event_id,
 		"type": "DAMAGE_APPLIED",
 		"actor": {"id": "player_reconcile", "name": "灰尾狸", "side": "player", "x": 1, "y": 6},
 		"target": {"id": "enemy_reconcile", "name": "棉角羊", "side": "enemy", "x": 5, "y": 2},
 		"payload": {
 			"element": "water",
 			"sourceType": "action",
-			"rawDamage": 6,
-			"finalDamage": 6,
-			"shieldDamage": 2,
-			"hpDamage": 4,
-			"hpFrom": 10,
-			"hpTo": 6,
-			"shieldFrom": 3,
-			"shieldTo": 1,
+			"rawDamage": hp_from - hp_to + shield_from - shield_to,
+			"finalDamage": hp_from - hp_to + shield_from - shield_to,
+			"shieldDamage": shield_from - shield_to,
+			"hpDamage": hp_from - hp_to,
+			"hpFrom": hp_from,
+			"hpTo": hp_to,
+			"shieldFrom": shield_from,
+			"shieldTo": shield_to,
 		},
 	}
+
+
+func _wait_for_trace(message: String) -> void:
+	var deadline := Time.get_ticks_msec() + 6000
+	while not _trace_finished and Time.get_ticks_msec() < deadline:
+		await process_frame
+	_expect(_trace_finished, message)
 
 
 func _on_trace_finished() -> void:
