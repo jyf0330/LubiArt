@@ -1,0 +1,13 @@
+[remap]
+
+importer="psd_importer"
+type="Image"
+uid="uid://y560dj4daw2f"
+path="res://.godot/imported/component_battle_map_controls.psd-8f55308b266f37b62c403c1b8b48a3e1.res"
+
+[deps]
+
+source_file="res://output/psd/battle_map_controls/component_battle_map_controls.psd"
+dest_files=["res://.godot/imported/component_battle_map_controls.psd-8f55308b266f37b62c403c1b8b48a3e1.res"]
+
+[params]

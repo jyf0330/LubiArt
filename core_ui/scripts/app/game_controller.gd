@@ -9,8 +9,11 @@ const SessionFactoryScript := preload("res://session/session_factory.gd")
 const SessionBridgeScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_session_bridge.gd")
 const FeatureRegistryScript := preload("res://core_ui/scripts/app/feature_registry.gd")
 const SceneRouterScript := preload("res://core_ui/scripts/app/scene_router.gd")
+const SettingsMenuScene := preload("res://art/prefabs/battle/settings/settings_menu.tscn")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 const DEFAULT_RUN_SEED := "ysbzs-test-play-20260715-v1"
+
+@export_enum("route", "battle") var mock_start_phase := "battle"
 
 @onready var three_choice_view: Control = $ThreeChoiceScene
 @onready var feature_host: Control = $FeatureHost
@@ -29,6 +32,7 @@ var feature_registry: RefCounted = null
 var _feature_router: RefCounted = null
 var _session_bridge := SessionBridgeScript.new()
 var _visible_auto_battle_running := false
+var _global_settings_menu: Control = null
 
 
 func _ready() -> void:
@@ -37,8 +41,7 @@ func _ready() -> void:
 		feature_registry = FeatureRegistryScript.new()
 	if game_session == null:
 		game_session = SessionFactoryScript.create_local({
-			"run_seed": DEFAULT_RUN_SEED,
-			"start_phase": "battle",
+			"start_phase": mock_start_phase,
 			"board_dimensions": SessionFactoryScript.command_line_board_dimensions()
 		})
 	_session_bridge.bind_session(game_session)
@@ -132,6 +135,87 @@ func get_battle_missing_mapping_report() -> Array:
 func set_developer_tools_enabled(enabled: bool) -> void:
 	if three_choice_view != null and three_choice_view.has_method("set_developer_tools_enabled"):
 		three_choice_view.call("set_developer_tools_enabled", enabled)
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not event is InputEventKey:
+		return
+	var key_event := event as InputEventKey
+	if not key_event.pressed or key_event.echo or not _is_h_key(key_event):
+		return
+	if _text_input_has_focus():
+		return
+	_toggle_global_save_load_menu()
+	get_viewport().set_input_as_handled()
+
+
+func _is_h_key(event: InputEventKey) -> bool:
+	return event.keycode == KEY_H or event.physical_keycode == KEY_H
+
+
+func _text_input_has_focus() -> bool:
+	var focused := get_viewport().gui_get_focus_owner()
+	return focused is LineEdit or focused is TextEdit
+
+
+func _toggle_global_save_load_menu() -> void:
+	var menu := _active_settings_menu()
+	if menu != null and bool(menu.call("is_open")):
+		if menu == _global_settings_menu:
+			_dispose_global_settings_menu()
+		else:
+			menu.call("close_menu")
+		return
+	if menu != null:
+		menu.call("open_menu")
+		return
+	_mount_global_settings_menu()
+
+
+func _active_settings_menu() -> Control:
+	if is_instance_valid(_global_settings_menu):
+		return _global_settings_menu
+	_global_settings_menu = null
+	var feature_view := get_active_feature_view()
+	if not is_instance_valid(feature_view):
+		return null
+	var runtime_view := feature_view
+	if feature_view.has_method("get_runtime_view"):
+		var candidate := feature_view.call("get_runtime_view") as Node
+		if is_instance_valid(candidate):
+			runtime_view = candidate
+	var menu := runtime_view.get_node_or_null("OverlayHost/SettingsMenu") as Control
+	if menu == null or not menu.has_method("open_menu") or not menu.has_method("is_open"):
+		return null
+	return menu
+
+
+func _mount_global_settings_menu() -> void:
+	var menu := SettingsMenuScene.instantiate() as Control
+	if menu == null:
+		push_error("GLOBAL_SETTINGS_MENU_INSTANTIATION_FAILED")
+		return
+	menu.name = "GlobalSettingsMenu"
+	menu.visible = false
+	_global_settings_menu = menu
+	menu.connect(
+		"session_operation_requested",
+		Callable(self, "_on_battle_session_operation_requested")
+	)
+	add_child(menu)
+	if menu.has_method("configure_formal_session_mode"):
+		menu.call("configure_formal_session_mode")
+	menu.call("open_menu")
+
+
+func _dispose_global_settings_menu() -> void:
+	if not is_instance_valid(_global_settings_menu):
+		_global_settings_menu = null
+		return
+	var menu := _global_settings_menu
+	_global_settings_menu = null
+	menu.call("close_menu")
+	menu.queue_free()
 
 
 func _connect_three_choice_view() -> void:

@@ -10,21 +10,10 @@ const CAPTURE_PATH := "res://data/mock_battle_snapshot.json"
 const DEFAULT_SKILLS := [
 	{"id": "skill_vanguard", "name": "先锋击"},
 	{"id": "skill_flank", "name": "侧翼击"},
-	{"id": "skill_pierce", "name": "穿阵击"},
-	{"id": "skill_revolve", "name": "回旋击"},
-	{"id": "skill_chase", "name": "追风击"},
-	{"id": "skill_break", "name": "裂阵击"},
-	{"id": "skill_suppress", "name": "压制击"},
-	{"id": "skill_finale", "name": "终幕击"},
 ]
 const DEFAULT_COMBOS := [
 	{"id": "combo_pincer", "name": "前后夹击", "skills": ["skill_vanguard", "skill_flank"]},
-	{"id": "combo_piercing_arc", "name": "穿回连携", "skills": ["skill_pierce", "skill_revolve"]},
-	{"id": "combo_breakthrough", "name": "追裂连携", "skills": ["skill_chase", "skill_break"]},
-	{"id": "combo_finale", "name": "压制终幕", "skills": ["skill_suppress", "skill_finale"]},
 ]
-const DAMAGE_PREVIEW_TEMPLATES_KEY := "mock_damage_preview_templates_by_actor"
-const INCOMING_DAMAGE_PREVIEW_TEMPLATE_KEY := "mock_incoming_damage_preview_template"
 const START_PHASE_ROUTE := "route"
 const START_PHASE_BATTLE := "battle"
 
@@ -34,7 +23,12 @@ var _battle_bootstrap_snapshot: Dictionary = {}
 var _snapshot: Dictionary = {}
 var _steps: Array = []
 var _step_index := 0
-var _skill_orders: Dictionary = {}
+var _skill_control_order: Array = []
+var _skill_control_units: Array = []
+var _captured_target_preview_templates: Dictionary = {}
+var _captured_incoming_preview_template: Dictionary = {}
+var _incoming_projection_unit_ids: Dictionary = {}
+var _projected_incoming_previews: Dictionary = {}
 var _start_phase := START_PHASE_ROUTE
 
 
@@ -88,14 +82,21 @@ func submit_command(command: Dictionary) -> Dictionary:
 			command_type,
 			{"type": "RESET_MOCK", "ok": true, "message": "已回到正式运行数据起点"}
 		)
-	if command_type in ["GET_CELL_DETAIL", "SELECT_UNIT"]:
+	if command_type == "GET_CELL_DETAIL":
+		_clear_captured_incoming_preview_projection()
 		return _accepted_projection(
 			command,
 			command_type,
 			_projection_result(command_type, command)
 		)
-	if command_type == "SET_SKILL_ORDER":
-		return _accepted_projection(command, command_type, _set_skill_order(command))
+	if command_type == "SELECT_UNIT":
+		return _accepted_projection(
+			command,
+			command_type,
+			_projection_result(command_type, command)
+		)
+	if command_type == "SET_SKILL_CONTROL_ORDER":
+		return _accepted_projection(command, command_type, _set_skill_control_order(command))
 	if command_type == "SELECT_CELL":
 		var selection := _projection_result(command_type, command)
 		if bool(selection.get("ok", false)):
@@ -151,13 +152,26 @@ func reset(emit_change: bool = true) -> void:
 		_snapshot = _battle_bootstrap_snapshot.duplicate(true)
 	else:
 		_snapshot = _presentation_bootstrap_snapshot.duplicate(true)
-	_skill_orders = {}
+	_skill_control_order = []
+	_skill_control_units = []
+	for unit_value in Array(_battle_bootstrap_snapshot.get("units", [])):
+		var unit := Dictionary(unit_value)
+		if String(unit.get("side", "")) != "player":
+			continue
+		_skill_control_units.append({
+			"id": String(unit.get("id", unit.get("unitId", ""))),
+			"name": String(unit.get("name", unit.get("id", "宠物"))),
+		})
+		if _skill_control_units.size() >= 4:
+			break
+	_incoming_projection_unit_ids = {}
+	_projected_incoming_previews = {}
+	_captured_target_preview_templates = _collect_damage_preview_templates(capture)
+	_captured_incoming_preview_template = _collect_incoming_damage_preview_template(capture)
+	_ensure_captured_target_preview_projection()
 	_ensure_action_block_ranges_projection()
-	_ensure_skill_queue_projection()
+	_ensure_skill_control_projection()
 	_steps = Array(capture.get("steps", [])).duplicate(true)
-	_snapshot[DAMAGE_PREVIEW_TEMPLATES_KEY] = _collect_damage_preview_templates(capture)
-	_snapshot[INCOMING_DAMAGE_PREVIEW_TEMPLATE_KEY] = \
-		_collect_incoming_damage_preview_template(capture)
 	_step_index = 0
 	if emit_change:
 		_emit_snapshot(
@@ -305,6 +319,9 @@ func _project_move_hero(command: Dictionary) -> Dictionary:
 	board["cells"] = cells
 	_snapshot["board"] = board
 	_project_unit_coordinates(unit_id, target_x, target_y)
+	_incoming_projection_unit_ids[unit_id] = true
+	_ensure_captured_target_preview_projection()
+	_ensure_captured_incoming_preview_for_unit(unit_id)
 	var next_version := int(_snapshot.get("stateVersion", 0)) + 1
 	_snapshot["stateVersion"] = next_version
 	_snapshot["state_version"] = next_version
@@ -547,8 +564,10 @@ func _apply_snapshot_delta(delta: Dictionary) -> void:
 		var key := String(key_value)
 		_snapshot[key] = Dictionary(delta.get("set", {}))[key_value]
 	_snapshot = _snapshot.duplicate(true)
+	_ensure_captured_target_preview_projection()
+	_ensure_tracked_incoming_preview_projection()
 	_ensure_action_block_ranges_projection()
-	_ensure_skill_queue_projection()
+	_ensure_skill_control_projection()
 
 
 func _ensure_action_block_ranges_projection() -> void:
@@ -570,41 +589,73 @@ func _ensure_action_block_ranges_projection() -> void:
 	_snapshot["action_block_ranges_by_unit"] = ranges_by_unit
 
 
-func _ensure_skill_queue_projection() -> void:
-	var unit_id := String(_snapshot.get("selected_unit_id", _snapshot.get("selectedUnitId", "")))
-	var order := Array(_skill_orders.get(unit_id, _default_skill_ids())).duplicate()
+func _ensure_skill_control_projection() -> void:
+	var entries_by_id := {}
+	var default_order: Array = []
+	for unit_value in _skill_control_units:
+		var unit := Dictionary(unit_value)
+		var unit_id := String(unit.get("id", ""))
+		for slot_index in range(DEFAULT_SKILLS.size()):
+			var skill := Dictionary(DEFAULT_SKILLS[slot_index])
+			var skill_slot := "a" if slot_index == 0 else "b"
+			var entry_id := "%s:%s" % [unit_id, skill_slot]
+			entries_by_id[entry_id] = {
+				"entryId": entry_id,
+				"unitId": unit_id,
+				"unitName": String(unit.get("name", unit_id)),
+				"skillSlot": skill_slot,
+				"skillId": String(skill.get("id", "")),
+				"label": String(skill.get("name", "")),
+			}
+			default_order.append(entry_id)
+	var order := _skill_control_order.duplicate()
+	for entry_id in default_order:
+		if not order.has(entry_id):
+			order.append(entry_id)
 	var entries: Array = []
 	for index in range(order.size()):
-		var skill_id := String(order[index])
-		entries.append({
-			"entryId": "%s:%s" % [unit_id, skill_id],
-			"ownerUnitId": unit_id,
-			"skillId": skill_id,
-			"label": _skill_name(skill_id),
-			"orderIndex": index,
-		})
-	_snapshot["selected_skill_queue"] = entries
-	_snapshot["selectedSkillQueue"] = entries.duplicate(true)
+		if not entries_by_id.has(order[index]):
+			continue
+		var entry := Dictionary(entries_by_id[order[index]]).duplicate(true)
+		entry["orderIndex"] = entries.size()
+		entries.append(entry)
+	_snapshot["skill_control_bar"] = entries
+	_snapshot["skillControlBar"] = entries.duplicate(true)
 	var traits := [_mock_trait_for_selected_unit()]
-	var combos := _mock_combos_for_order(order)
+	var combos := _mock_combos_for_order(_skill_ids_for_entries(entries))
 	_snapshot["selected_traits"] = traits
 	_snapshot["selectedTraits"] = traits.duplicate(true)
 	_snapshot["selected_skill_combos"] = combos
 	_snapshot["selectedSkillCombos"] = combos.duplicate(true)
 
 
-func _set_skill_order(command: Dictionary) -> Dictionary:
-	var unit_id := String(command.get("unitId", command.get("unit_id", "")))
-	var requested := Array(command.get("orderedSkillIds", command.get("ordered_skill_ids", [])))
-	var current := Array(_skill_orders.get(unit_id, _default_skill_ids()))
+func _set_skill_control_order(command: Dictionary) -> Dictionary:
+	var requested := Array(command.get("orderedEntryIds", command.get("ordered_entry_ids", [])))
+	var current := _default_skill_control_entry_ids() if _skill_control_order.is_empty() else _skill_control_order
 	if requested.size() != current.size():
-		return {"type": "SET_SKILL_ORDER", "ok": false, "message": "技能顺序必须包含全部8个技能"}
-	for skill_id in current:
-		if requested.count(skill_id) != 1:
-			return {"type": "SET_SKILL_ORDER", "ok": false, "message": "技能顺序包含重复或缺失技能"}
-	_skill_orders[unit_id] = requested.duplicate()
-	_ensure_skill_queue_projection()
-	return {"type": "SET_SKILL_ORDER", "ok": true, "unitId": unit_id, "skillQueue": Array(_snapshot["selectedSkillQueue"]).duplicate(true)}
+		return {"type": "SET_SKILL_CONTROL_ORDER", "ok": false, "message": "技能控制条必须包含全部8个宠物 A/B 格"}
+	for entry_id in current:
+		if requested.count(entry_id) != 1:
+			return {"type": "SET_SKILL_CONTROL_ORDER", "ok": false, "message": "技能控制条包含重复或缺失格"}
+	_skill_control_order = requested.duplicate()
+	_ensure_skill_control_projection()
+	return {"type": "SET_SKILL_CONTROL_ORDER", "ok": true, "skillControlBar": Array(_snapshot["skillControlBar"]).duplicate(true)}
+
+
+func _default_skill_control_entry_ids() -> Array:
+	var result: Array = []
+	for unit_value in _skill_control_units:
+		var unit_id := String(Dictionary(unit_value).get("id", ""))
+		result.append("%s:a" % unit_id)
+		result.append("%s:b" % unit_id)
+	return result
+
+
+func _skill_ids_for_entries(entries: Array) -> Array:
+	var result: Array = []
+	for entry_value in entries:
+		result.append(String(Dictionary(entry_value).get("skillId", "")))
+	return result
 
 
 func _default_skill_ids() -> Array:
@@ -701,6 +752,209 @@ func _project_action_direction(command: Dictionary) -> Dictionary:
 		"dir": direction,
 		"previewOnly": true,
 	})
+
+
+func _ensure_captured_target_preview_projection() -> void:
+	if _captured_target_preview_templates.is_empty():
+		return
+	var board := Dictionary(_snapshot.get("board", {})).duplicate(true)
+	var cells := Array(board.get("cells", [])).duplicate(true)
+	if cells.is_empty():
+		return
+	var actor_ids := PackedStringArray(_captured_target_preview_templates.keys())
+	actor_ids.sort()
+	var changed := false
+	for cell_index in range(cells.size()):
+		var cell := Dictionary(cells[cell_index]).duplicate(true)
+		if not _cell_is_enemy_target(cell):
+			continue
+		var previews := Array(cell.get("previews", [])).duplicate(true)
+		for actor_id in actor_ids:
+			if _has_enemy_preview_for_actor(cell, previews, actor_id):
+				continue
+			var projected := _captured_target_preview_for_cell(
+				Dictionary(_captured_target_preview_templates[actor_id]),
+				cell
+			)
+			if projected.is_empty():
+				continue
+			previews.append(projected)
+			changed = true
+		if previews.size() != Array(cell.get("previews", [])).size():
+			cell["previews"] = previews
+			cells[cell_index] = cell
+	if not changed:
+		return
+	board["cells"] = cells
+	_snapshot["board"] = board
+
+
+func _cell_is_enemy_target(cell: Dictionary) -> bool:
+	var unit_id := String(cell.get("unitId", cell.get("unit_id", ""))).strip_edges()
+	if unit_id == "":
+		return false
+	var side := String(cell.get("side", cell.get("unitSide", ""))).to_lower()
+	return side in ["enemy", "monster", "enemy_leader", "boss"]
+
+
+func _cell_is_friendly_target(cell: Dictionary) -> bool:
+	var unit_id := String(cell.get("unitId", cell.get("unit_id", ""))).strip_edges()
+	if unit_id == "":
+		return false
+	var side := String(cell.get("side", cell.get("unitSide", ""))).to_lower()
+	return side in ["player", "ally", "hero_leader", "player_leader"]
+
+
+func _has_enemy_preview_for_actor(cell: Dictionary, previews: Array, actor_id: String) -> bool:
+	var candidates := previews.duplicate()
+	for key in ["action_preview_data", "actionPreviewData", "preview"]:
+		var value = cell.get(key, null)
+		if value is Dictionary and not Dictionary(value).is_empty():
+			candidates.append(value)
+	for value in candidates:
+		if not (value is Dictionary):
+			continue
+		var preview := Dictionary(value)
+		var preview_actor := String(preview.get(
+			"actorId",
+			preview.get("actor_id", preview.get("unitId", preview.get("unit_id", "")))
+		))
+		if preview_actor != actor_id:
+			continue
+		if bool(preview.get("hitEnemy", preview.get("hit_enemy", false))) \
+				or String(preview.get("preview_type", preview.get("previewType", ""))) \
+				in ["enemy", "target"]:
+			return true
+	return false
+
+
+func _captured_target_preview_for_cell(template: Dictionary, cell: Dictionary) -> Dictionary:
+	# This is a Mock-only retargeting of a captured public result. It clamps the
+	# already-captured final damage to exported target stats; it does not read
+	# attack, element, resistance, content or any formal combat service.
+	var captured_damage := maxi(0, int(template.get(
+		"predictedDamage",
+		template.get("predicted_damage", 0)
+	)))
+	if captured_damage <= 0:
+		return {}
+	var current_hp := maxi(0, int(cell.get("hp", 0)))
+	var current_shield := maxi(0, int(cell.get("shield", 0)))
+	var shield_damage := mini(current_shield, captured_damage)
+	var hp_damage := mini(current_hp, maxi(0, captured_damage - shield_damage))
+	var projected_damage := shield_damage + hp_damage
+	if projected_damage <= 0:
+		return {}
+	var target_id := String(cell.get("unitId", cell.get("unit_id", "")))
+	var x := int(cell.get("x", cell.get("c", -1)))
+	var y := int(cell.get("y", cell.get("r", -1)))
+	var projected := template.duplicate(true)
+	projected["x"] = x
+	projected["y"] = y
+	projected["c"] = x
+	projected["r"] = y
+	projected["targetId"] = target_id
+	projected["target_unit_id"] = target_id
+	projected["hitEnemy"] = true
+	projected["hitAlly"] = false
+	projected["preview_type"] = "target"
+	projected["predictedDamage"] = projected_damage
+	projected["predictedShieldDamage"] = shield_damage
+	projected["predictedHpDamage"] = hp_damage
+	projected["predictedShieldFrom"] = current_shield
+	projected["predictedShieldTo"] = current_shield - shield_damage
+	projected["predictedHpFrom"] = current_hp
+	projected["predictedHpTo"] = current_hp - hp_damage
+	return projected
+
+
+func _ensure_tracked_incoming_preview_projection() -> void:
+	var unit_ids := PackedStringArray(_incoming_projection_unit_ids.keys())
+	unit_ids.sort()
+	for unit_id in unit_ids:
+		_ensure_captured_incoming_preview_for_unit(unit_id)
+
+
+func _ensure_captured_incoming_preview_for_unit(unit_id: String) -> void:
+	if unit_id == "" or _captured_incoming_preview_template.is_empty():
+		return
+	var cell := _board_cell_for_unit(unit_id)
+	if cell.is_empty() or not _cell_is_friendly_target(cell):
+		return
+	var by_unit := Dictionary(_snapshot.get(
+		"placement_damage_by_unit",
+		_snapshot.get("placementDamageByUnit", {})
+	)).duplicate(true)
+	if by_unit.has(unit_id) and by_unit[unit_id] is Dictionary \
+			and not Dictionary(by_unit[unit_id]).is_empty():
+		return
+	var projected := _captured_incoming_preview_for_cell(
+		_captured_incoming_preview_template,
+		cell
+	)
+	if projected.is_empty():
+		return
+	by_unit[unit_id] = projected
+	_projected_incoming_previews[unit_id] = projected.duplicate(true)
+	_snapshot["placement_damage_by_unit"] = by_unit
+	_snapshot["placementDamageByUnit"] = by_unit.duplicate(true)
+
+
+func _clear_captured_incoming_preview_projection() -> void:
+	if _projected_incoming_previews.is_empty():
+		_incoming_projection_unit_ids.clear()
+		return
+	var by_unit := Dictionary(_snapshot.get(
+		"placement_damage_by_unit",
+		_snapshot.get("placementDamageByUnit", {})
+	)).duplicate(true)
+	for unit_id_value in _projected_incoming_previews.keys():
+		var unit_id := String(unit_id_value)
+		var current = by_unit.get(unit_id, null)
+		if current is Dictionary \
+				and Dictionary(current) == Dictionary(_projected_incoming_previews[unit_id_value]):
+			by_unit.erase(unit_id)
+	_snapshot["placement_damage_by_unit"] = by_unit
+	_snapshot["placementDamageByUnit"] = by_unit.duplicate(true)
+	_incoming_projection_unit_ids.clear()
+	_projected_incoming_previews.clear()
+
+
+func _captured_incoming_preview_for_cell(template: Dictionary, cell: Dictionary) -> Dictionary:
+	# As above, only a captured public total is clamped to exported presentation
+	# stats. No formal damage formula or legality decision is reproduced here.
+	var captured_damage := maxi(0, int(template.get(
+		"totalDamage",
+		template.get("damage", template.get("threat", 0))
+	)))
+	if captured_damage <= 0:
+		return {}
+	var current_hp := maxi(0, int(cell.get("hp", 0)))
+	var current_shield := maxi(0, int(cell.get("shield", 0)))
+	var shield_damage := mini(current_shield, captured_damage)
+	var hp_damage := mini(current_hp, maxi(0, captured_damage - shield_damage))
+	var projected_damage := shield_damage + hp_damage
+	if projected_damage <= 0:
+		return {}
+	var projected := template.duplicate(true)
+	projected["unitId"] = String(cell.get("unitId", cell.get("unit_id", "")))
+	projected["totalDamage"] = projected_damage
+	projected["damage"] = projected_damage
+	projected["shieldDamage"] = shield_damage
+	projected["hpDamage"] = hp_damage
+	projected["shieldFrom"] = current_shield
+	projected["shieldTo"] = current_shield - shield_damage
+	projected["hpFrom"] = current_hp
+	projected["hpTo"] = current_hp - hp_damage
+	return projected
+
+
+func _board_cell_for_unit(unit_id: String) -> Dictionary:
+	for value in Array(Dictionary(_snapshot.get("board", {})).get("cells", [])):
+		var cell := Dictionary(value)
+		if String(cell.get("unitId", cell.get("unit_id", ""))) == unit_id:
+			return cell.duplicate(true)
+	return {}
 
 
 func _collect_damage_preview_templates(capture: Dictionary) -> Dictionary:
@@ -815,7 +1069,9 @@ func _projection_result(command_type: String, command: Dictionary) -> Dictionary
 		var unit := _unit_by_id(unit_id)
 		if not unit.is_empty():
 			_snapshot["selected_unit_id"] = unit_id
-			_ensure_skill_queue_projection()
+			_incoming_projection_unit_ids[unit_id] = true
+			_ensure_captured_incoming_preview_for_unit(unit_id)
+			_ensure_skill_control_projection()
 		return {
 			"type": "SELECT_UNIT",
 			"ok": not unit.is_empty(),
@@ -849,7 +1105,9 @@ func _projection_result(command_type: String, command: Dictionary) -> Dictionary
 			"x": x,
 			"y": y,
 		}
-		_ensure_skill_queue_projection()
+		_incoming_projection_unit_ids[selected_unit_id] = true
+		_ensure_captured_incoming_preview_for_unit(selected_unit_id)
+		_ensure_skill_control_projection()
 		return {
 			"type": "SELECT_CELL",
 			"ok": selected_unit_id != "",

@@ -246,7 +246,7 @@
   "overview": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v1/moss_stone_wyrmling_move_overview_v1.png",
   "zoom_overview": "output/moss_stone_wyrmling_move_frames_4x_v1.png",
   "skill_processor_qc": {
-    "pipeline_meta": "art/images/shared/pets/animations/moss_stone_wyrmling/move_v1/processor_qc/pipeline-meta.json",
+    "pipeline_meta": "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v1/pipeline-meta.json",
     "empty_frames": [],
     "source_edge_touch_frames": [],
     "output_edge_touch_frames": [],

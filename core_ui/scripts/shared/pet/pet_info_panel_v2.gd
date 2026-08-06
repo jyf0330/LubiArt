@@ -20,6 +20,8 @@ const BASE_ART_SIZE := Vector2(472.0, 540.0)
 const STAT_SLOT_ART_SIZE := Vector2(322.0, 174.0)
 const ELEMENT_ART_SIZE := Vector2(93.0, 115.0)
 const SILVER_TRAIT_ART_SIZE := Vector2(48.0, 48.0)
+const TRAIT_LOCK_ART_SIZE := Vector2(55.0, 52.0)
+const TRAIT_LOCK_NODE_NAMES := ["TraitLockSilver", "TraitLockGold", "TraitLockCrystal"]
 const BASE_ART_ORDER := ["bronze", "silver", "gold", "crystal"]
 const BASE_ART_NAMES := ["青铜", "白银", "黄金", "水晶"]
 const ELEMENT_ORDER := ["dark", "water", "ice", "grass", "electric", "wind", "fire", "dragon", "earth"]
@@ -110,24 +112,28 @@ const QUALITY_LAYERS := {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_bronze.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_bronze.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_bronze.png"),
+		"lock": preload("res://art/images/shared/pets/info_panel/trait_lock_gold.png"),
 		"base_position": Vector2(14.0, 22.0),
 	},
 	"silver": {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_silver.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_silver.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_silver.png"),
+		"lock": preload("res://art/images/shared/pets/info_panel/trait_lock_silver.png"),
 		"base_position": Vector2(7.0, 11.0),
 	},
 	"gold": {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_gold.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_gold.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_gold.png"),
+		"lock": preload("res://art/images/shared/pets/info_panel/trait_lock_gold.png"),
 		"base_position": Vector2(10.0, 22.0),
 	},
 	"crystal": {
 		"base": preload("res://art/images/shared/pets/info_panel/panel_base_crystal.png"),
 		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_crystal.png"),
 		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_crystal.png"),
+		"lock": preload("res://art/images/shared/pets/info_panel/trait_lock_crystal.png"),
 		"base_position": Vector2(2.0, 0.0),
 	},
 }
@@ -465,10 +471,21 @@ func _apply_base_art() -> void:
 	stat_slot_art.visible = true
 	stat_slot_art.position = Vector2(49.0, 308.0)
 	stat_slot_art.size = STAT_SLOT_ART_SIZE
+	_apply_trait_lock_art(layers["lock"] as Texture2D, tier)
 	base_art.set_meta("quality_tier", tier)
 	attack_format_plate.set_meta("quality_tier", tier)
 	stat_slot_art.set_meta("quality_tier", tier)
 	_editor_base_art_selection = base_art_selection
+
+
+func _apply_trait_lock_art(texture: Texture2D, tier: String) -> void:
+	for node_name in TRAIT_LOCK_NODE_NAMES:
+		var lock_art := get_node_or_null(node_name) as TextureRect
+		if lock_art == null:
+			continue
+		lock_art.texture = texture
+		lock_art.size = TRAIT_LOCK_ART_SIZE
+		lock_art.set_meta("quality_tier", tier)
 
 
 func _selected_base_art_tier() -> String:

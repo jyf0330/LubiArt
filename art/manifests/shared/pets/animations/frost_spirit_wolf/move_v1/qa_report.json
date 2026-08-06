@@ -222,7 +222,7 @@
   "overview": "art/images/shared/pets/animations/frost_spirit_wolf/move_v1/frost_spirit_wolf_move_overview_v1.png",
   "zoom_overview": "output/frost_spirit_wolf_move_frames_4x_v1.png",
   "skill_processor_qc": {
-    "pipeline_meta": "art/images/shared/pets/animations/frost_spirit_wolf/move_v1/processor_qc/pipeline-meta.json",
+    "pipeline_meta": "art/manifests/shared/pets/animations/frost_spirit_wolf/move_v1/pipeline-meta.json",
     "empty_frames": [],
     "source_edge_touch_frames": [],
     "output_edge_touch_frames": [],

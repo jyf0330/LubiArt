@@ -6,8 +6,8 @@
     "height": 1080
   },
   "scenes": [
-    "res://art/scenes/menu/menu_start.tscn",
-    "res://art/scenes/menu/menu_settings.tscn"
+    "res://art/prefabs/menu/screens/menu_start.tscn",
+    "res://art/prefabs/menu/screens/menu_settings.tscn"
   ],
   "prefabs": [
     "res://art/prefabs/menu/start_game_button.tscn",

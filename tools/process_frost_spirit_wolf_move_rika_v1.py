@@ -26,6 +26,7 @@ GIF_PATH = ROOT / "output/frost_spirit_wolf_move_preview_v1.gif"
 SLOW_GIF_PATH = ROOT / "output/frost_spirit_wolf_move_preview_slow_v1.gif"
 SUBMISSION_PATH = ROOT / "art/manifests/shared/pets/animations/frost_spirit_wolf/move_v1/submission.json"
 QA_REPORT_PATH = ROOT / "art/manifests/shared/pets/animations/frost_spirit_wolf/move_v1/qa_report.json"
+PIPELINE_META_PATH = ROOT / "art/manifests/shared/pets/animations/frost_spirit_wolf/move_v1/pipeline-meta.json"
 
 FRAME_SIZE = (128, 128)
 GRID_SIZE = (4, 4)
@@ -99,6 +100,9 @@ def run_skill_processor() -> None:
         str(FRAME_DURATION_MS),
     ]
     subprocess.run(command, cwd=ROOT, check=True)
+    generated_meta_path = SKILL_OUTPUT_DIR / "pipeline-meta.json"
+    PIPELINE_META_PATH.parent.mkdir(parents=True, exist_ok=True)
+    generated_meta_path.replace(PIPELINE_META_PATH)
 
 
 def extract_exact_frames(raw: Image.Image) -> list[Image.Image]:
@@ -242,7 +246,7 @@ def main() -> None:
         for index, box in enumerate(valid_boxes)
         if box[0] == 0 or box[1] == 0 or box[2] == 128 or box[3] == 128
     ]
-    skill_meta_path = SKILL_OUTPUT_DIR / "pipeline-meta.json"
+    skill_meta_path = PIPELINE_META_PATH
     skill_meta = json.loads(skill_meta_path.read_text(encoding="utf-8"))
     submission = json.loads(SUBMISSION_PATH.read_text(encoding="utf-8"))
     report = {

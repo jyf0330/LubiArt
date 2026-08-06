@@ -7,8 +7,8 @@ extends Control
 signal mock_action_requested(action: StringName)
 signal session_operation_requested(operation: StringName, arguments: Dictionary)
 
-const MenuSettingsScene := preload("res://art/scenes/menu/menu_settings.tscn")
-const MenuStartScene := preload("res://art/scenes/menu/menu_start.tscn")
+const MenuSettingsScene := preload("res://art/prefabs/menu/screens/menu_settings.tscn")
+const MenuStartScene := preload("res://art/prefabs/menu/screens/menu_start.tscn")
 const SaveGameDialogScene := preload("res://art/prefabs/menu/dialogs/save_game_dialog.tscn")
 const LoadGameDialogScene := preload("res://art/prefabs/menu/dialogs/load_game_dialog.tscn")
 const AbandonGameDialogScene := preload("res://art/prefabs/menu/dialogs/abandon_game_dialog.tscn")

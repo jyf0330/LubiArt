@@ -11,6 +11,7 @@ const BattleTraceProjection := preload("res://core_ui/scripts/battle/controllers
 const BattleAssetRegistry := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
 const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const BattleTerrainScene := preload("res://art/prefabs/terrain/terrain.tscn")
+const BattleSceneProbe := preload("res://tests/helpers/battle_scene_probe.gd")
 
 
 class RoutingSession:
@@ -94,19 +95,24 @@ func _run() -> void:
 	var isolated_session := MockSession.new({"start_phase": "battle"})
 	var boot_snapshot := Dictionary(isolated_session.current_snapshot())
 	_assert_snapshot_contract(boot_snapshot)
-	var boot_skill_queue := Array(boot_snapshot.get("selectedSkillQueue", []))
+	var boot_skill_queue := Array(boot_snapshot.get("skillControlBar", []))
 	assert(boot_skill_queue.size() == 8)
+	assert(_skill_bar_unit_ids(boot_skill_queue).size() == 4)
+	assert(_skill_bar_slots(boot_skill_queue) == ["a", "b", "a", "b", "a", "b", "a", "b"])
 	assert(Array(boot_snapshot.get("selectedTraits", [])).size() == 1)
-	assert(Array(boot_snapshot.get("selectedSkillCombos", [])).size() == 4)
-	var reversed_skill_ids := _skill_queue_ids(boot_skill_queue)
-	reversed_skill_ids.reverse()
+	assert(Array(boot_snapshot.get("selectedSkillCombos", [])).size() == 1)
+	var reversed_entry_ids: Array = []
+	var default_entry_ids := _skill_control_entry_ids(boot_skill_queue)
+	for index in range(1, default_entry_ids.size(), 2):
+		reversed_entry_ids.append(default_entry_ids[index])
+	for index in range(0, default_entry_ids.size(), 2):
+		reversed_entry_ids.append(default_entry_ids[index])
 	var reorder_response := Dictionary(isolated_session.submit_command({
-		"type": "SET_SKILL_ORDER",
-		"unitId": String(boot_snapshot.get("selected_unit_id", "")),
-		"orderedSkillIds": reversed_skill_ids,
+		"type": "SET_SKILL_CONTROL_ORDER",
+		"orderedEntryIds": reversed_entry_ids,
 	}))
 	assert(bool(reorder_response.get("accepted", false)))
-	assert(_skill_queue_ids(Array(isolated_session.current_snapshot().get("selectedSkillQueue", []))) == reversed_skill_ids)
+	assert(_skill_control_entry_ids(Array(isolated_session.current_snapshot().get("skillControlBar", []))) == reversed_entry_ids)
 	assert(Array(isolated_session.current_snapshot().get("selectedSkillCombos", [])).is_empty())
 	assert(isolated_session.replay_step_index() == 0)
 	isolated_session.reset(false)
@@ -114,17 +120,9 @@ func _run() -> void:
 	var captured_initial := Dictionary(capture.get("initial_snapshot", {}))
 	assert(_same_snapshot_identity(boot_snapshot, captured_initial))
 	assert(String(boot_snapshot.get("phase", "")) == "battle")
-	var damage_preview_templates := Dictionary(boot_snapshot.get(
-		"mock_damage_preview_templates_by_actor",
-		{}
-	))
-	assert(not damage_preview_templates.is_empty())
-	assert(damage_preview_templates.has(_first_player_unit_id(boot_snapshot)))
-	var incoming_preview_template := Dictionary(boot_snapshot.get(
-		"mock_incoming_damage_preview_template",
-		{}
-	))
-	assert(int(incoming_preview_template.get("totalDamage", 0)) > 0)
+	assert(not _has_dictionary_key_with_prefix(boot_snapshot, "mock_"))
+	assert(_public_target_preview_count(boot_snapshot) > 0)
+	assert(Dictionary(boot_snapshot.get("placement_damage_by_unit", {})).is_empty())
 	assert(isolated_session.replay_step_count() == captured_steps.size())
 	assert(isolated_session.capture_source() == capture_source)
 	assert(
@@ -168,6 +166,21 @@ func _run() -> void:
 	assert(bool(mismatch_response.get("accepted", false)))
 	assert(bool(Dictionary(mismatch_response.get("result", {})).get("mock_noop", false)))
 	assert(_same_snapshot_identity(isolated_session.current_snapshot(), captured_initial))
+	var inventory_presenter: RefCounted = load("res://core_ui/scripts/inventory/presenters/inventory_presenter.gd").new()
+	var sparse_bag_page := Dictionary(inventory_presenter.call("page", {
+		"roster": [
+			{"id": "active_pet", "active": true, "slot": 1},
+			{"id": "bag_slot_5_pet", "active": false, "bag_slot": 5},
+			{"id": "bag_slot_1_pet", "active": false, "bag_slot": 1},
+		],
+	}, 0, 8))
+	var sparse_bag_items := Array(sparse_bag_page.get("items", []))
+	assert(sparse_bag_items.size() == 8)
+	assert(Dictionary(sparse_bag_items[0]).is_empty())
+	assert(String(Dictionary(sparse_bag_items[1]).get("id", "")) == "bag_slot_1_pet")
+	assert(Dictionary(sparse_bag_items[2]).is_empty())
+	assert(String(Dictionary(sparse_bag_items[5]).get("id", "")) == "bag_slot_5_pet")
+	assert(int(sparse_bag_page.get("total_count", 0)) == 2)
 	var direct_round_response := Dictionary(isolated_session.submit_command({"type": "RUN_COMBAT_ROUND"}))
 	assert(bool(direct_round_response.get("accepted", false)))
 	assert(int(direct_round_response.get("captureStep", 0)) == 2)
@@ -190,22 +203,28 @@ func _run() -> void:
 	assert(not three_choice_source.contains("[node name=\"AnimationPlayer\""))
 	assert(not three_choice_source.contains("[node name=\"Shop_Slot\""))
 	assert(not three_choice_source.contains("[node name=\"Bag_Slot\""))
-	assert(not three_choice_source.contains("[node name=\"Party_Slot\""))
+	assert(three_choice_source.contains("[node name=\"Party_Slot\" type=\"TextureButton\" parent=\"MainBG/Containers/Party/Party_Container\""))
+	for index in range(2, 5):
+		assert(three_choice_source.contains("[node name=\"Party_Slot%d\" type=\"TextureButton\" parent=\"MainBG/Containers/Party/Party_Container\"" % index))
 	assert(not three_choice_source.contains("res://art/prefabs/pet/pet.tscn"))
 	assert(three_choice_source.count("instance=ExtResource(\"5_card\")") == 3)
-	assert(three_choice_source.contains("route_portrait_shop.png"))
-	assert(three_choice_source.contains("route_portrait_event.png"))
-	assert(three_choice_source.contains("route_portrait_reward.png"))
+	var asset_registry_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd")
+	assert(asset_registry_source.contains("route_portrait_shop.png"))
+	assert(asset_registry_source.contains("route_portrait_event.png"))
+	assert(asset_registry_source.contains("route_portrait_reward.png"))
+	_assert_three_choice_scene_hierarchy(three_choice_source)
 	var three_choice_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/scenes/three_choice_scene.gd")
+	var three_choice_drag_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/controllers/three_choice_drag_controller.gd")
 	assert(not three_choice_script_source.contains("_ensure_item_slot_hover_highlight"))
 	assert(not three_choice_script_source.contains("ThreeChoiceCardScene.instantiate()"))
 	assert(three_choice_script_source.contains("TextureButton.new()"))
-	assert(three_choice_script_source.contains("TextureRect.new()"))
+	assert(three_choice_drag_source.contains("TextureRect.new()"))
 	assert(three_choice_script_source.contains("signal presentation_settled"))
 	assert(not three_choice_script_source.contains("feature_view_requested"))
 	assert(not three_choice_script_source.contains("feature_view_release_requested"))
 	assert(not three_choice_script_source.contains("_ensure_battle_view"))
 	assert(not three_choice_script_source.contains("battle_art_scene.tscn"))
+	_assert_three_choice_runtime_slot_policy(three_choice_script_source)
 	var card_script_source := FileAccess.get_file_as_string("res://core_ui/scripts/route/prefabs/three_choice_card.gd")
 	assert(not card_script_source.contains("SLOT_LAYOUTS"))
 	assert(not card_script_source.contains("_apply_slot_layout"))
@@ -253,15 +272,17 @@ func _run() -> void:
 	for _frame in range(8):
 		await process_frame
 	var standalone_battle_snapshot := Dictionary(standalone_battle_session.call("current_snapshot"))
+	var standalone_probe := BattleSceneProbe.new(standalone_battle_instance)
+	assert(standalone_probe.is_ready())
 	assert(String(standalone_battle_snapshot.get("phase", "")) == "battle")
 	assert(Array(standalone_battle_snapshot.get("units", [])).size() > 0)
 	assert(Array(Dictionary(standalone_battle_snapshot.get("board", {})).get("cells", [])).size() > 0)
-	assert(int(standalone_battle_instance.call("debug_last_rendered_cell_count")) > 0)
+	assert(standalone_probe.rendered_cell_count() > 0)
 	var standalone_commands: Array[Dictionary] = []
 	standalone_battle_instance.connect("command_requested", func(command: Dictionary) -> void:
 		standalone_commands.append(command.duplicate(true))
 	)
-	standalone_battle_instance.call("debug_emit_command", "AUTO_POSITION_HEROES")
+	standalone_probe.press_hud_command(&"AUTO_POSITION_HEROES")
 	await process_frame
 	assert(standalone_commands.size() == 1)
 	assert(String(standalone_commands[0].get("type", "")) == "AUTO_POSITION_HEROES")
@@ -312,13 +333,15 @@ func _run() -> void:
 	assert(shop_slot_grid.get_child(0).get_child_count() == 0)
 	assert(bag_slot_grid.get_child(0).get_child_count() == 0)
 	assert(party_slot_grid.get_child(0).get_child_count() == 0)
-	var drag_preview_texture := load("res://art/images/route/three_choice_psd/item_selected_highlight.png") as Texture2D
-	route_three_choice_view.call("_create_drag_preview", drag_preview_texture, Vector2(96, 96))
+	var drag_controller := route_three_choice_view.get("_drag_controller") as RefCounted
+	assert(drag_controller != null)
+	assert(bool(drag_controller.call("begin_storage", &"party", 0, true, true)))
 	var drag_preview := route_three_choice_view.get_node("DragPreview") as TextureRect
 	assert(drag_preview.visible)
-	assert(drag_preview.texture == drag_preview_texture)
+	assert(drag_preview.texture != null)
 	assert(drag_preview.size.is_equal_approx(Vector2(96, 96)))
-	route_three_choice_view.call("_clear_drag_preview")
+	drag_controller.call("clear")
+	await process_frame
 	assert(route_three_choice_view.get_node_or_null("DragPreview") == null)
 	assert(route_main_instance.call("get_feature_controller", &"battle") == null)
 	assert(route_main_instance.call("get_active_feature_view") == null)
@@ -381,6 +404,8 @@ func _run() -> void:
 
 	var battle_view := main_instance.call("get_feature_controller", &"battle") as Control
 	assert(battle_view != null)
+	var battle_probe := BattleSceneProbe.new(battle_view)
+	assert(battle_probe.is_ready())
 	assert(battle_view.get_node_or_null("Board/VfxHost") != null)
 	var action_panel := battle_view.get_node_or_null("Hud/BattleActionPanel") as Control
 	assert(action_panel != null)
@@ -400,7 +425,7 @@ func _run() -> void:
 	var replay_step_before_empty_select := int(game_session.call("replay_step_index"))
 	var empty_select_response := Dictionary(game_session.call(
 		"submit_command",
-		{"type": "SELECT_CELL", "x": 4, "y": 4, "cell": {"x": 4, "y": 4}}
+		{"type": "SELECT_CELL", "x": 4, "y": 4}
 	))
 	assert(not bool(empty_select_response.get("accepted", true)))
 	assert(int(game_session.call("replay_step_index")) == replay_step_before_empty_select)
@@ -501,12 +526,12 @@ func _run() -> void:
 	assert(int(Dictionary(action_panel.call("visual_state_summary")).get("picked_skill_index", -1)) == 0)
 	first_skill_slot.pressed.emit()
 	assert(not bool(first_skill_slot.call("is_picked")))
-	var range_summary := Dictionary(battle_view.call("debug_selected_action_range_summary"))
+	var range_summary := battle_probe.selected_action_range_summary(selected_snapshot)
 	assert(String(range_summary.get("unitId", "")) == String(selected_snapshot.get("selected_unit_id", "")))
 	assert(int(range_summary.get("visibleCellCount", 0)) > 0)
 	assert(_visible_range_fill_count(board_grid) == int(range_summary.get("visibleCellCount", 0)))
 	assert(_visible_attack_highlight_count(board_grid) == 0)
-	_assert_corner_heroes_are_locked(battle_view, board_grid, current_board)
+	_assert_corner_heroes_are_locked(battle_probe, board_grid, current_board)
 
 	var drag_origin: Control = null
 	var drag_target: Control = null
@@ -517,21 +542,38 @@ func _run() -> void:
 		if cell == null or not cell.visible:
 			continue
 		var unit_id := _cell_unit_id(cell)
-		if drag_origin == null and unit_id != "" and bool(battle_view.call("_cell_has_draggable_player_unit", cell)):
+		if drag_origin == null and _cell_data_is_draggable(Dictionary(cell.get("cell_data"))):
 			drag_origin = cell
 		elif drag_target == null and unit_id == "":
 			drag_target = cell
 		elif occupied_target == null and unit_id != "":
 			occupied_target = cell
 		if blank_detail_target == null and unit_id == "":
-			var candidate_grid := cell.call("get_grid_position") as Vector2i
-			if not bool(battle_view.call("_cell_has_visible_elements", candidate_grid)):
+			if not _has_visible_elements(Dictionary(cell.get("cell_data")).get("elements", {})):
 				blank_detail_target = cell
+	var preferred_drag_case := battle_probe.first_player_drag_case(
+		Dictionary(game_session.call("current_snapshot"))
+	)
+	if not preferred_drag_case.is_empty():
+		var preferred_origin := Dictionary(preferred_drag_case.get("origin", {}))
+		var preferred_target := Dictionary(preferred_drag_case.get("target", {}))
+		drag_origin = battle_probe.cell_at(Vector2i(
+			int(preferred_origin.get("x", -1)), int(preferred_origin.get("y", -1))
+		))
+		drag_target = battle_probe.cell_at(Vector2i(
+			int(preferred_target.get("x", -1)), int(preferred_target.get("y", -1))
+		))
+	for cell_value in board_grid.get_children():
+		var occupied_candidate := cell_value as Control
+		if occupied_candidate != null and occupied_candidate != drag_origin \
+				and occupied_candidate != drag_target and _cell_unit_id(occupied_candidate) != "":
+			occupied_target = occupied_candidate
+			break
 	assert(drag_origin != null and drag_target != null and occupied_target != null and blank_detail_target != null)
 	var blank_grid := blank_detail_target.call("get_grid_position") as Vector2i
 	blank_detail_target.cell_selected.emit(blank_grid.x, blank_grid.y)
 	await process_frame
-	assert(not bool(Dictionary(battle_view.call("debug_detail_panel_summary")).get("visible", true)))
+	assert(not bool(battle_probe.detail_summary().get("visible", true)))
 
 	var detail_grid := drag_origin.call("get_grid_position") as Vector2i
 	drag_origin.cell_selected.emit(detail_grid.x, detail_grid.y)
@@ -541,20 +583,20 @@ func _run() -> void:
 	var cancel_event := InputEventKey.new()
 	cancel_event.keycode = KEY_ESCAPE
 	cancel_event.pressed = true
-	battle_view.call("_input", cancel_event)
-	assert(not bool(Dictionary(battle_view.call("debug_detail_panel_summary")).get("visible", true)))
+	battle_view.get_viewport().push_input(cancel_event, true)
+	await process_frame
+	assert(not bool(battle_probe.detail_summary().get("visible", true)))
 
 	var dragged_unit_id := _cell_unit_id(drag_origin)
 	var drag_origin_grid := drag_origin.call("get_grid_position") as Vector2i
 	var drag_target_grid := drag_target.call("get_grid_position") as Vector2i
 	var occupied_grid := occupied_target.call("get_grid_position") as Vector2i
 	var occupied_unit_id := _cell_unit_id(occupied_target)
-	battle_view.call("_start_unit_drag", drag_origin_grid)
+	assert(bool(battle_probe.start_drag(drag_origin_grid, drag_target_grid).get("started", false)))
 	assert(StringName(game_cursor.call("debug_state")) == &"grabbing")
-	battle_view.call("_debug_update_drag_preview_position", drag_target_grid)
+	await battle_probe.update_drag(drag_target_grid, Dictionary(game_session.call("current_snapshot")))
 	assert(_visible_attack_highlight_count(board_grid) > 0)
-	battle_view.call("_finish_unit_drag", drag_target_grid)
-	var move_command := Dictionary(battle_view.get("_last_debug_drag_command"))
+	var move_command := battle_probe.finish_drag(drag_target_grid)
 	assert(String(move_command.get("type", "")) == "MOVE_HERO")
 	assert(String(move_command.get("unitId", "")) == dragged_unit_id)
 	assert(StringName(game_cursor.call("debug_state")) == &"pointer")
@@ -563,16 +605,14 @@ func _run() -> void:
 	assert(_visible_attack_highlight_count(board_grid) == 0)
 	assert(int(game_session.call("replay_step_index")) == 0)
 	await create_timer(0.2).timeout
-	battle_view.call("_start_unit_drag", drag_target_grid)
-	battle_view.call("_debug_update_drag_preview_position", occupied_grid)
+	assert(bool(battle_probe.start_drag(drag_target_grid, occupied_grid).get("started", false)))
+	await battle_probe.update_drag(occupied_grid, Dictionary(game_session.call("current_snapshot")))
 	assert(not bool(occupied_target.call("is_hover_highlight_visible")))
 	assert(_visible_attack_highlight_count(board_grid) == 0)
-	battle_view.call("_finish_unit_drag", occupied_grid)
+	var rejected_command := battle_probe.finish_drag(occupied_grid)
+	assert(rejected_command.is_empty())
 	assert(_cell_unit_id(drag_target) == dragged_unit_id)
 	assert(_cell_unit_id(occupied_target) == occupied_unit_id)
-	var rejected_drop := Dictionary(battle_view.call("debug_drop_settle_summary"))
-	assert(bool(rejected_drop.get("returned", false)))
-	assert(Dictionary(rejected_drop.get("settled", {})) == {"x": drag_target_grid.x, "y": drag_target_grid.y})
 	await create_timer(0.2).timeout
 
 	var player_unit_id := _first_player_unit_id(Dictionary(game_session.call("current_snapshot")))
@@ -581,7 +621,7 @@ func _run() -> void:
 		Dictionary(game_session.call("current_snapshot")),
 		player_unit_id
 	)
-	(battle_view.get_node("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("MapControls/AutoArrangeButton") as TextureButton).pressed.emit()
 	await process_frame
 	await process_frame
 	await process_frame
@@ -591,7 +631,7 @@ func _run() -> void:
 	_assert_active_damage_previews_synchronized(board_grid)
 
 	var main_before_round := int(main_positioned.get("battle_round", 0))
-	(battle_view.get_node("Hud/BattlePrimaryActions/BeginTurnButton") as TextureButton).pressed.emit()
+	(battle_view.get_node("MapControls/AllOutButton") as TextureButton).pressed.emit()
 	await process_frame
 	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("state", "")) == "executing")
 	assert(String(Dictionary(action_panel.call("visual_state_summary")).get("flow_text", "")).contains("执行中"))
@@ -614,10 +654,26 @@ func _run() -> void:
 	quit(0)
 
 
-func _skill_queue_ids(entries: Array) -> Array:
+func _skill_control_entry_ids(entries: Array) -> Array:
 	var result: Array = []
 	for entry_value in entries:
-		result.append(String(Dictionary(entry_value).get("skillId", "")))
+		result.append(String(Dictionary(entry_value).get("entryId", "")))
+	return result
+
+
+func _skill_bar_unit_ids(entries: Array) -> Array:
+	var result: Array = []
+	for entry_value in entries:
+		var unit_id := String(Dictionary(entry_value).get("unitId", ""))
+		if unit_id != "" and not result.has(unit_id):
+			result.append(unit_id)
+	return result
+
+
+func _skill_bar_slots(entries: Array) -> Array:
+	var result: Array = []
+	for entry_value in entries:
+		result.append(String(Dictionary(entry_value).get("skillSlot", "")))
 	return result
 
 
@@ -629,7 +685,7 @@ func _assert_presentation_patterns_load() -> void:
 	assert(BattleDetailController.new() != null)
 	assert(BattleCommandBuilder.new() != null)
 	var battle_scene_script := FileAccess.get_file_as_string("res://core_ui/scripts/battle/scenes/battle_scene.gd")
-	assert(battle_scene_script.contains("command_requested.emit(command)"))
+	assert(battle_scene_script.contains("command_requested.emit(command.duplicate(true))"))
 	var trace_projection := BattleTraceProjection.new()
 	assert(trace_projection != null)
 	var projected_cell := {"buffs": [{"active": false, "max_damage_per_hit": 99}]}
@@ -920,8 +976,45 @@ func _cell_unit_id(cell: Control) -> String:
 	return String(data.get("unitId", data.get("unit_id", "")))
 
 
+func _cell_data_is_draggable(data: Dictionary) -> bool:
+	var unit_id := String(data.get("unitId", data.get("unit_id", "")))
+	var side := String(data.get("side", data.get("unitSide", "")))
+	var unit_type := String(data.get("type", data.get("unitType", data.get("unit_type", "")))).to_lower()
+	return unit_id != "" and side in ["player", "ally"] \
+		and unit_type != "hero" and unit_id not in ["player_hero", "enemy_hero"]
+
+
+func _has_visible_elements(value: Variant) -> bool:
+	if not (value is Dictionary):
+		return false
+	for amount in Dictionary(value).values():
+		if int(amount) > 0:
+			return true
+	return false
+
+
+func _public_target_preview_count(snapshot: Dictionary) -> int:
+	var count := 0
+	for cell_value in Array(Dictionary(snapshot.get("board", {})).get("cells", [])):
+		count += Array(Dictionary(cell_value).get("previews", [])).size()
+	return count
+
+
+func _has_dictionary_key_with_prefix(value: Variant, prefix: String) -> bool:
+	if value is Dictionary:
+		for key_value in Dictionary(value).keys():
+			if String(key_value).begins_with(prefix) \
+					or _has_dictionary_key_with_prefix(Dictionary(value)[key_value], prefix):
+				return true
+	elif value is Array:
+		for entry in Array(value):
+			if _has_dictionary_key_with_prefix(entry, prefix):
+				return true
+	return false
+
+
 func _assert_corner_heroes_are_locked(
-	battle_view: Control,
+	battle_probe: RefCounted,
 	board_grid: Control,
 	board: Dictionary
 ) -> void:
@@ -936,12 +1029,7 @@ func _assert_corner_heroes_are_locked(
 		var cell := _board_cell_at(board_grid, grid)
 		assert(cell != null)
 		assert(_cell_unit_id(cell) == String(expected_heroes[grid]))
-		assert(not bool(battle_view.call("_cell_has_draggable_player_unit", cell)))
-		battle_view.call("_start_unit_drag", grid)
-		var drag_state := Dictionary(battle_view.call(
-			"debug_update_drag_preview_to_target",
-			{"x": grid.x, "y": grid.y}
-		))
+		var drag_state := Dictionary(battle_probe.call("start_drag", grid, grid))
 		assert(not bool(drag_state.get("dragging", true)))
 		assert(not bool(drag_state.get("preview_was_active", true)))
 
@@ -1062,3 +1150,70 @@ func _stat_edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> floa
 		return edge_start.x
 	var weight := clampf((y - edge_start.y) / (edge_end.y - edge_start.y), 0.0, 1.0)
 	return lerpf(edge_start.x, edge_end.x, weight)
+
+
+func _assert_three_choice_scene_hierarchy(scene_source: String) -> void:
+	assert(scene_source.contains("[node name=\"Middle\" type=\"Control\" parent=\"MainBG/Containers\""))
+	assert(_node_parent(scene_source, "Middle_Three_Option") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "BagOverlayMask") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "Middle_Shop") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "Middle_Bag") == "MainBG/Containers/Middle")
+	assert(_node_parent(scene_source, "Bags") == "MainBG/Containers")
+
+	var middle_children := _direct_scene_children(scene_source, "MainBG/Containers/Middle")
+	assert(middle_children.size() == 4)
+	assert(middle_children[0] == "Middle_Three_Option")
+	assert(middle_children[1] == "BagOverlayMask")
+	assert(middle_children[2] == "Middle_Shop")
+	assert(middle_children[3] == "Middle_Bag")
+
+	var bag_children := _direct_scene_children(scene_source, "MainBG/Containers/Bags")
+	assert(bag_children.size() == 2)
+	assert(bag_children[0] == "Bag_Button")
+	assert(bag_children[1] == "BagStorageState")
+	assert(scene_source.contains("[node name=\"Top_Sell\" type=\"TextureButton\" parent=\"MainBG/Containers/Top\""))
+	assert(not scene_source.contains("[node name=\"SellHighlight\""))
+
+
+func _assert_three_choice_runtime_slot_policy(script_source: String) -> void:
+	assert(script_source.contains("_build_slot_buttons(shop_slots, \"Shop_Slot\", SHOP_SLOT_COUNT, SHOP_SLOT_SIZE, SLOT_LAYOUT_SHOP)"))
+	assert(script_source.contains("_build_slot_buttons(bag_slots, \"Bag_Slot\", BAG_SLOT_COUNT, BAG_SLOT_SIZE, SLOT_LAYOUT_COLLECTION)"))
+	assert(script_source.contains("_configure_authored_slot_buttons(party_container, \"Party_Slot\", PARTY_SLOT_COUNT, PARTY_SLOT_SIZE, SLOT_LAYOUT_PARTY)"))
+	assert(script_source.contains("var button := TextureButton.new()"))
+	assert(script_source.contains("container.add_child(button)"))
+	assert(not script_source.contains("res://art/prefabs/route/shop_slot"))
+	assert(not script_source.contains("res://art/prefabs/route/bag_slot"))
+	assert(not script_source.contains("res://art/prefabs/route/party_slot"))
+
+
+func _node_parent(scene_source: String, node_name: String) -> String:
+	var marker := "[node name=\"%s\"" % node_name
+	var start := scene_source.find(marker)
+	assert(start >= 0)
+	var line_end := scene_source.find("\n", start)
+	var line := scene_source.substr(start, line_end - start)
+	var parent_marker := " parent=\""
+	var parent_start := line.find(parent_marker)
+	assert(parent_start >= 0)
+	parent_start += parent_marker.length()
+	var parent_end := line.find("\"", parent_start)
+	assert(parent_end >= 0)
+	return line.substr(parent_start, parent_end - parent_start)
+
+
+func _direct_scene_children(scene_source: String, parent_path: String) -> Array[String]:
+	var children: Array[String] = []
+	var search_from := 0
+	while true:
+		var start := scene_source.find("[node name=\"", search_from)
+		if start < 0:
+			break
+		var line_end := scene_source.find("\n", start)
+		var line := scene_source.substr(start, line_end - start)
+		var parent_marker := " parent=\"%s\"" % parent_path
+		if line.contains(parent_marker):
+			var name_start := line.find("[node name=\"") + String("[node name=\"").length()
+			var name_end := line.find("\"", name_start)
+			children.append(line.substr(name_start, name_end - name_start))
+		search_from = line_end + 1
+	return children

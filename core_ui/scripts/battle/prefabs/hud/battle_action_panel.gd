@@ -24,7 +24,6 @@ var _picked_skill_index := -1
 var _trace_cursor := -1
 var _latest_result_text := ""
 var _input_locked := false
-var _selected_unit_id_cache := ""
 
 
 func _ready() -> void:
@@ -45,13 +44,8 @@ func render_snapshot(snap: Dictionary) -> void:
 	_snapshot = snap.duplicate(true)
 	_update_result_feedback(snap)
 	var selected_id := String(snap.get("selected_unit_id", snap.get("selectedUnitId", "")))
-	if selected_id != _selected_unit_id_cache:
-		_picked_skill_index = -1
-		if _selected_unit_id_cache != "":
-			_latest_result_text = ""
-		_selected_unit_id_cache = selected_id
 	var selected := _selected_unit(selected_id)
-	var queue := Array(snap.get("selectedSkillQueue", snap.get("selected_skill_queue", [])))
+	var queue := Array(snap.get("skillControlBar", snap.get("skill_control_bar", [])))
 	title_label.text = RuntimeUiPolicy.text("UI_ACTION_TITLE", [int(snap.get("battle_round", 0))])
 	var summary_lines := [
 		String(selected.get("name", selected_id if selected_id != "" else RuntimeUiPolicy.text("UI_ACTION_NO_SELECTION"))),
@@ -163,19 +157,18 @@ func _emit(command_type: String) -> void:
 func _move_skill(from_index: int, to_index: int) -> void:
 	if _input_locked:
 		return
-	var queue := Array(_snapshot.get("selectedSkillQueue", _snapshot.get("selected_skill_queue", [])))
+	var queue := Array(_snapshot.get("skillControlBar", _snapshot.get("skill_control_bar", [])))
 	if from_index < 0 or from_index >= queue.size() or to_index < 0 or to_index >= queue.size():
 		return
 	var ordered_ids: Array = []
 	for entry_value in queue:
 		var entry := Dictionary(entry_value)
-		ordered_ids.append(String(entry.get("skillId", entry.get("skill_id", ""))))
+		ordered_ids.append(String(entry.get("entryId", entry.get("entry_id", ""))))
 	var moved: Variant = ordered_ids.pop_at(from_index)
 	ordered_ids.insert(to_index, moved)
 	command_requested.emit({
-		"type": "SET_SKILL_ORDER",
-		"unitId": String(_snapshot.get("selected_unit_id", _snapshot.get("selectedUnitId", ""))),
-		"orderedSkillIds": ordered_ids,
+		"type": "SET_SKILL_CONTROL_ORDER",
+		"orderedEntryIds": ordered_ids,
 	})
 	_picked_skill_index = -1
 	_latest_result_text = ""
@@ -248,14 +241,13 @@ func _apply_control_availability() -> void:
 	if not is_node_ready():
 		return
 	var phase_is_battle := String(_snapshot.get("phase", "")) == "battle"
-	var selected_id := String(_snapshot.get("selected_unit_id", _snapshot.get("selectedUnitId", "")))
-	var queue := Array(_snapshot.get("selectedSkillQueue", _snapshot.get("selected_skill_queue", [])))
+	var queue := Array(_snapshot.get("skillControlBar", _snapshot.get("skill_control_bar", [])))
 	var reset_state := Dictionary(Dictionary(_snapshot.get("pet_reset", {})).get("player", {}))
 	reset_pets_button.disabled = _input_locked or not phase_is_battle or not bool(reset_state.get("eligible", false))
 	for child in skill_queue_grid.get_children():
 		var skill_id := String(child.get("skill_id")) if child.get("skill_id") != null else ""
 		(child as Button).disabled = _input_locked or not phase_is_battle or skill_id == ""
-	all_out_button.disabled = _input_locked or not phase_is_battle or selected_id == "" or queue.is_empty()
+	all_out_button.disabled = _input_locked or not phase_is_battle or queue.is_empty()
 	end_turn_button.disabled = _input_locked or not phase_is_battle
 	monster_turn_button.disabled = _input_locked or not phase_is_battle
 

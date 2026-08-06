@@ -1,5 +1,5 @@
 {
-  "source_psd": "/Users/02r/Desktop/2026公司文件/西游/新三选2_副本.psd",
+  "source_psd": "新三选2_副本.psd",
   "canvas": [
     1920,
     1080
@@ -8,7 +8,7 @@
   "exports": [
     {
       "name": "background",
-      "source_layer": "Artboard 1/背景",
+      "source_layer": "Artboard 1/背景/新背景",
       "path": "res://art/images/route/three_choice_psd/background.png",
       "bbox": [
         0,
@@ -23,7 +23,7 @@
     },
     {
       "name": "temple_base",
-      "source_layer": "Artboard 1/庙/庙底图",
+      "source_layer": "Artboard 1/庙/庙底图/新庙 阴影 50% + Artboard 1/庙/庙底图/新庙 阴影2 50% + 新庙.png",
       "path": "res://art/images/route/three_choice_psd/temple_base.png",
       "bbox": [
         0,
@@ -37,228 +37,187 @@
       ]
     },
     {
-      "name": "top_frame",
-      "source_layer": "Artboard 1/顶部",
-      "path": "res://art/images/route/three_choice_psd/top_frame.png",
-      "bbox": [
-        0,
-        0,
-        1920,
-        1080
-      ],
-      "size": [
-        1920,
-        1080
-      ]
-    },
-    {
       "name": "item_bar_base",
-      "source_layer": "Artboard 1/物品栏/物品栏/底图 + Artboard 1/物品栏/物品栏/格子",
+      "source_layer": "Artboard 1/新物品栏/底图 + Artboard 1/新物品栏/背包栏位",
       "path": "res://art/images/route/three_choice_psd/item_bar_base.png",
       "bbox": [
-        393,
-        525,
-        1530,
-        718
+        138,
+        364,
+        1720,
+        891
       ],
       "size": [
-        1137,
-        193
+        1582,
+        527
       ]
     },
     {
       "name": "sell_highlight",
-      "source_layer": "Artboard 1/物品栏/出售高亮/高亮 + Artboard 1/物品栏/出售高亮/光效",
+      "source_layer": "Artboard 1/新物品栏/出售高亮",
       "path": "res://art/images/route/three_choice_psd/sell_highlight.png",
       "bbox": [
-        1303,
-        707,
-        1535,
-        858
+        1276,
+        730,
+        1527,
+        879
       ],
       "size": [
-        232,
-        151
+        251,
+        149
       ]
     },
     {
       "name": "item_selected_highlight",
-      "source_layer": "Artboard 1/物品栏/选中/发光 + Artboard 1/物品栏/选中/光效",
+      "source_layer": "Artboard 1/新物品栏/选中高亮/发光 + Artboard 1/新物品栏/选中高亮/高亮",
       "path": "res://art/images/route/three_choice_psd/item_selected_highlight.png",
       "bbox": [
-        1350,
-        545,
-        1481,
-        668
+        1262,
+        544,
+        1417,
+        692
       ],
       "size": [
-        131,
-        123
+        155,
+        148
       ]
     },
     {
-      "name": "party_shelf",
-      "source_layer": "Artboard 1/庙/精灵/Layer 15",
-      "path": "res://art/images/route/three_choice_psd/party_shelf.png",
+      "name": "pet_shadow",
+      "source_layer": "Artboard 1/庙/精灵/精灵阴影 third slot crop",
+      "path": "res://art/images/route/three_choice_psd/pet_shadow.png",
       "bbox": [
-        657,
-        784,
-        1266,
-        844
+        948,
+        819,
+        1063,
+        879
       ],
       "size": [
-        609,
+        115,
         60
-      ]
+      ],
+      "note": "A single shared pet shadow resource. Scene has one authored shadow node per party slot and script only toggles visibility when that slot contains a pet."
     },
     {
       "name": "coin_icon",
       "source_layer": "Artboard 1/庙/金币/金币标",
       "path": "res://art/images/route/three_choice_psd/coin_icon.png",
       "bbox": [
-        1385,
-        877,
-        1416,
-        909
+        1363,
+        910,
+        1396,
+        944
       ],
       "size": [
-        31,
-        32
+        33,
+        34
       ]
     },
     {
       "name": "bag_closed",
-      "source_layer": "Artboard 1/庙/背包/关闭",
+      "source_layer": "Artboard 1/庙/新背包/关",
       "path": "res://art/images/route/three_choice_psd/bag_closed.png",
       "bbox": [
-        422,
-        744,
-        583,
-        867
+        328,
+        728,
+        568,
+        1005
       ],
       "size": [
-        161,
-        123
-      ]
+        240,
+        277
+      ],
+      "note": "Padded to the shared bag state canvas. Closed artwork remains at PSD bbox [392, 749, 568, 858], so runtime swaps texture without changing authored Control geometry."
     },
     {
-      "name": "bag_open",
-      "source_layer": "Artboard 1/庙/背包/打开",
-      "path": "res://art/images/route/three_choice_psd/bag_open.png",
+      "name": "bag_open_full",
+      "source_layer": "Artboard 1/庙/新背包/开 + Artboard 1/庙/新背包/遮挡",
+      "path": "res://art/images/route/three_choice_psd/bag_open_full.png",
       "bbox": [
-        423,
-        693,
-        581,
-        875
+        328,
+        728,
+        568,
+        1005
       ],
       "size": [
-        158,
-        182
-      ]
+        240,
+        277
+      ],
+      "note": "Open bag and foreground cover are merged into one state texture."
     },
     {
-      "name": "bag_cover",
-      "source_layer": "Artboard 1/庙/背包/遮挡",
-      "path": "res://art/images/route/three_choice_psd/bag_cover.png",
+      "name": "bag_storage_state",
+      "source_layer": "Artboard 1/庙/新背包/格/格1-格8 + Artboard 1/庙/新背包/新背包格",
+      "path": "res://art/images/route/three_choice_psd/bag_storage_state_*.png",
+      "classification": "STATE_RESOURCE",
+      "target_nodes": [
+        "MainBG/Containers/Bags/BagStorageState"
+      ],
       "bbox": [
-        367,
-        842,
-        584,
-        979
+        366,
+        879,
+        523,
+        946
       ],
       "size": [
-        217,
-        137
-      ]
-    },
-    {
-      "name": "bag_grid_lines",
-      "source_layer": "Artboard 1/庙/背包格/格子线",
-      "path": "res://art/images/route/three_choice_psd/bag_grid_lines.png",
-      "bbox": [
-        404,
-        869,
-        556,
-        919
+        157,
+        67
       ],
-      "size": [
-        152,
-        50
-      ]
-    },
-    {
-      "name": "bag_slot_empty",
-      "source_layer": "Artboard 1/庙/背包格/格子",
-      "path": "res://art/images/route/three_choice_psd/bag_slot_empty.png",
-      "bbox": [
-        405,
-        873,
-        441,
-        894
+      "states": [
+        "bag_storage_state_0",
+        "bag_storage_state_1",
+        "bag_storage_state_2",
+        "bag_storage_state_3",
+        "bag_storage_state_4",
+        "bag_storage_state_5",
+        "bag_storage_state_6",
+        "bag_storage_state_7",
+        "bag_storage_state_8"
       ],
-      "size": [
-        36,
-        21
-      ]
-    },
-    {
-      "name": "bag_slot_glow",
-      "source_layer": "Artboard 1/庙/背包格/发光",
-      "path": "res://art/images/route/three_choice_psd/bag_slot_glow.png",
-      "bbox": [
-        397,
-        863,
-        450,
-        904
-      ],
-      "size": [
-        53,
-        41
-      ]
+      "note": "One scene node switches between nine cumulative occupancy textures. Every state includes the grid lines; state 0 shows only the grid, and state N adds slots 1 through N."
     },
     {
       "name": "route_portrait_shop",
-      "source_layer": "Artboard 1/庙/三选/Group 1/白小常",
+      "source_layer": "Artboard 1/庙/三选/莲花小仙",
       "path": "res://art/images/route/three_choice_psd/route_portrait_shop.png",
       "bbox": [
-        514,
-        350,
-        732,
-        542
+        507,
+        365,
+        696,
+        560
       ],
       "size": [
-        218,
-        192
-      ]
-    },
-    {
-      "name": "route_portrait_event",
-      "source_layer": "Artboard 1/庙/三选/Group 2/采药商",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_event.png",
-      "bbox": [
-        890,
-        355,
-        1010,
-        550
-      ],
-      "size": [
-        120,
+        189,
         195
       ]
     },
     {
-      "name": "route_portrait_reward",
-      "source_layer": "Artboard 1/庙/三选/Group 3/矮武士",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_reward.png",
+      "name": "route_portrait_event",
+      "source_layer": "Artboard 1/庙/三选/Layer 16",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_event.png",
       "bbox": [
-        1221,
-        361,
-        1368,
-        544
+        838,
+        322,
+        1045,
+        569
       ],
       "size": [
-        147,
-        183
+        207,
+        247
+      ]
+    },
+    {
+      "name": "route_portrait_reward",
+      "source_layer": "Artboard 1/庙/三选/拳师商人",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_reward.png",
+      "bbox": [
+        1208,
+        355,
+        1343,
+        568
+      ],
+      "size": [
+        135,
+        213
       ]
     },
     {
@@ -308,32 +267,32 @@
     },
     {
       "name": "incense_burner",
-      "source_layer": "Artboard 1/庙/香炉/香炉2",
+      "source_layer": "Artboard 1/庙/新香炉/香炉2",
       "path": "res://art/images/route/three_choice_psd/incense_burner.png",
       "bbox": [
-        908,
-        537,
-        1018,
-        655
+        894,
+        594,
+        988,
+        689
       ],
       "size": [
-        110,
-        118
+        94,
+        95
       ]
     },
     {
       "name": "incense_smoke",
-      "source_layer": "Artboard 1/庙/香炉/烟2",
+      "source_layer": "Artboard 1/庙/新香炉/烟雾/烟2",
       "path": "res://art/images/route/three_choice_psd/incense_smoke.png",
       "bbox": [
-        853,
-        394,
-        972,
-        545
+        824,
+        447,
+        946,
+        604
       ],
       "size": [
-        119,
-        151
+        122,
+        157
       ]
     },
     {
@@ -341,14 +300,59 @@
       "source_layer": "Artboard 1/庙/香炉/阴影",
       "path": "res://art/images/route/three_choice_psd/incense_shadow.png",
       "bbox": [
-        576,
-        629,
-        1341,
-        671
+        552,
+        659,
+        1324,
+        702
       ],
       "size": [
-        765,
-        42
+        772,
+        43
+      ]
+    },
+    {
+      "name": "route_highlight_1",
+      "path": "res://art/images/route/three_choice_psd/route_highlight_1.png",
+      "source_layer": "Artboard 1/庙/新三选高亮/高亮1",
+      "bbox": [
+        443,
+        211,
+        805,
+        689
+      ],
+      "size": [
+        362,
+        478
+      ]
+    },
+    {
+      "name": "route_highlight_2",
+      "path": "res://art/images/route/three_choice_psd/route_highlight_2.png",
+      "source_layer": "Artboard 1/庙/新三选高亮/高亮2",
+      "bbox": [
+        771,
+        210,
+        1146,
+        688
+      ],
+      "size": [
+        375,
+        478
+      ]
+    },
+    {
+      "name": "route_highlight_3",
+      "path": "res://art/images/route/three_choice_psd/route_highlight_3.png",
+      "source_layer": "Artboard 1/庙/新三选高亮/高亮3",
+      "bbox": [
+        1107,
+        211,
+        1469,
+        689
+      ],
+      "size": [
+        362,
+        478
       ]
     }
   ]

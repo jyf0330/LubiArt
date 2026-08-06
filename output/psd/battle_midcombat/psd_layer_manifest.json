@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "document": "screen_battle_midcombat",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "source_scene": "res://art/scenes/battle/battle_art_scene.tscn",
+  "snapshot_source": "res://data/mock_battle_snapshot.json",
+  "snapshot_replay_step": 2,
+  "layers": [
+    {
+      "source_layer": "ref_full_midcombat",
+      "classification": "IGNORE",
+      "export": "00_ref_full_midcombat.png",
+      "target": "reference_only",
+      "rect": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "state": "round_2_after_one_combat_round"
+    },
+    {
+      "source_layer": "background_grassland_morning",
+      "classification": "MERGE_TEXTURE",
+      "export": "01_background.png",
+      "target": "BattleArtScene/Board/Background",
+      "rect": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "state": "grassland_morning"
+    },
+    {
+      "source_layer": "ref_board_grid_guides",
+      "classification": "IGNORE",
+      "export": "02_board_grid_guides.png",
+      "target": "BattleArtScene/Board/CellHost",
+      "rect": [
+        345,
+        89,
+        1232,
+        962
+      ],
+      "state": "hidden_by_default"
+    },
+    {
+      "source_layer": "player_units_round_2",
+      "classification": "COMPONENT",
+      "export": "03_player_units.png",
+      "target": "BattleArtScene/Board/UnitHost -> pet.tscn",
+      "rect": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "state": "snapshot_step_2"
+    },
+    {
+      "source_layer": "enemy_units_round_2",
+      "classification": "COMPONENT",
+      "export": "04_enemy_units.png",
+      "target": "BattleArtScene/Board/UnitHost -> pet.tscn",
+      "rect": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "state": "snapshot_step_2"
+    },
+    {
+      "source_layer": "hud_art_round_2",
+      "classification": "COMPONENT",
+      "export": "05_hud_art.png",
+      "target": "BattleArtScene/Hud",
+      "rect": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "state": "battle"
+    },
+    {
+      "source_layer": "txt_*",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "BattleArtScene/Hud and runtime unit fields",
+      "rect": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "state": "editable_photoshop_text"
+    },
+    {
+      "source_layer": "state_vfx_reference",
+      "classification": "STATE_RESOURCE",
+      "export": null,
+      "target": "BattleArtScene/Board/VfxHost",
+      "rect": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "state": "hidden_reference_group"
+    }
+  ],
+  "nine_slice": [
+    {
+      "source": "hud_status_bar_background_001.png",
+      "target": "Hud/TopInfoBar/StatusBarBackground",
+      "margins": {
+        "left": 32,
+        "top": 0,
+        "right": 32,
+        "bottom": 0
+      }
+    }
+  ],
+  "notes": [
+    "PSD is a Godot-dedicated screen_battle document reconstructed from the authored Scene geometry, project assets, and formal replay snapshot step 2.",
+    "Dynamic labels remain editable Photoshop text layers and are not intended for texture export.",
+    "Board grid guides and full preview are reference-only and hidden by default in the PSD."
+  ]
+}

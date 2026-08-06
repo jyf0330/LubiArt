@@ -2,6 +2,7 @@ extends SceneTree
 
 const MainScene := preload("res://art/scenes/app/game.tscn")
 const MockSession := preload("res://session/mock_game_session.gd")
+const BattleSceneProbe := preload("res://tests/helpers/battle_scene_probe.gd")
 const VISIBLE_CAPTURE := "lubi_damage_preview_visible.png"
 
 
@@ -23,6 +24,7 @@ func _run() -> void:
 	if battle_view == null or session == null:
 		_fail("battle view is unavailable")
 		return
+	var probe := BattleSceneProbe.new(battle_view)
 
 	var drag_pair := _first_drag_pair(Dictionary(session.call("current_snapshot")))
 	if drag_pair.is_empty():
@@ -36,9 +38,8 @@ func _run() -> void:
 		int(Dictionary(drag_pair.get("drag_target", {})).get("x", drag_origin.x)),
 		int(Dictionary(drag_pair.get("drag_target", {})).get("y", drag_origin.y))
 	)
-	battle_view.call("_start_unit_drag", drag_origin)
-	battle_view.call("_debug_update_drag_preview_position", drag_target)
-	await process_frame
+	probe.start_drag(drag_origin, drag_target)
+	await probe.update_drag(drag_target, Dictionary(session.call("current_snapshot")))
 	var preview_pet := _preview_pet_by_unit_id(battle_view, String(drag_pair.get("target_unit_id", "")))
 	if preview_pet == null:
 		_fail("dragged attack range did not pin the enemy damage badge")
@@ -58,7 +59,7 @@ func _run() -> void:
 	await RenderingServer.frame_post_draw
 	_save_capture(VISIBLE_CAPTURE)
 
-	battle_view.call("_finish_unit_drag", drag_target)
+	probe.finish_drag(drag_target)
 	var settled_preview := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
 	if not bool(settled_preview.get("pinned", false)) \
 			or String(settled_preview.get("state", "")) != "visible" \

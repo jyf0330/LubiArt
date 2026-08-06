@@ -1,6 +1,6 @@
 {
-  "sourceArchive": "卡底.zip",
-  "sourceUpdated": "2026-07-29",
+  "sourceArchive": "新卡底.zip",
+  "sourceUpdated": "2026-07-30",
   "sourceSize": {
     "width": 472,
     "height": 541
@@ -27,7 +27,7 @@
     {
       "id": "bronze",
       "displayName": "青铜",
-      "sourceEntry": "青铜.png",
+      "sourceEntry": "青铜_材质增强.png",
       "sourceResource": "res://art/images/shared/pets/info_panel/sources/card_bases/panel_base_bronze_source.png",
       "resource": "res://art/images/shared/pets/info_panel/panel_base_bronze.png",
       "statSlotSourceEntry": "青铜.png",
@@ -38,7 +38,7 @@
     {
       "id": "silver",
       "displayName": "白银",
-      "sourceEntry": "白银.png",
+      "sourceEntry": "白银_材质增强.png",
       "sourceResource": "res://art/images/shared/pets/info_panel/sources/card_bases/panel_base_silver_source.png",
       "resource": "res://art/images/shared/pets/info_panel/panel_base_silver.png",
       "statSlotSourceEntry": "白银.png",
@@ -49,7 +49,7 @@
     {
       "id": "gold",
       "displayName": "黄金",
-      "sourceEntry": "黄金.png",
+      "sourceEntry": "黄金_材质增强.png",
       "sourceResource": "res://art/images/shared/pets/info_panel/sources/card_bases/panel_base_gold_source.png",
       "resource": "res://art/images/shared/pets/info_panel/panel_base_gold.png",
       "statSlotSourceEntry": "黄金.png",
@@ -60,7 +60,7 @@
     {
       "id": "crystal",
       "displayName": "水晶",
-      "sourceEntry": "水晶.png",
+      "sourceEntry": "水晶_材质增强.png",
       "sourceResource": "res://art/images/shared/pets/info_panel/sources/card_bases/panel_base_crystal_source.png",
       "resource": "res://art/images/shared/pets/info_panel/panel_base_crystal.png",
       "statSlotSourceEntry": "水晶.png",

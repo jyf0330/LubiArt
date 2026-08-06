@@ -14,8 +14,8 @@
     {"id": "vitality", "displayName": "壮体", "source": "壮体.png", "sourceResource": "res://art/images/shared/pets/info_panel/sources/silver_traits/trait_silver_vitality_source.png", "resource": "trait_silver_vitality.png"}
   ],
   "lockOverlay": {
-    "source": "锁.png",
-    "sourceResource": "res://art/images/shared/pets/info_panel/sources/silver_traits/trait_lock_silver_source.png",
+    "source": "锁.zip/_0002_白银锁.png",
+    "sourceResource": "res://art/images/shared/pets/info_panel/sources/trait_locks/trait_lock_silver_source.png",
     "targetNode": "TraitLockSilver",
     "targetSize": [55, 52],
     "resource": "trait_lock_silver.png"

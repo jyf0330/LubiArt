@@ -222,7 +222,7 @@
   "overview": "art/images/shared/pets/animations/azure_wind_feather/move_v1/azure_wind_feather_move_overview_v1.png",
   "zoom_overview": "output/azure_wind_feather_move_frames_4x_v1.png",
   "skill_processor_qc": {
-    "pipeline_meta": "art/images/shared/pets/animations/azure_wind_feather/move_v1/processor_qc/pipeline-meta.json",
+    "pipeline_meta": "art/manifests/shared/pets/animations/azure_wind_feather/move_v1/pipeline-meta.json",
     "empty_frames": [],
     "source_edge_touch_frames": [],
     "output_edge_touch_frames": [],

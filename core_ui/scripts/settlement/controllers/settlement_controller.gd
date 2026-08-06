@@ -7,11 +7,8 @@ func rewards(snapshot: Dictionary) -> Array:
 	return Array(snapshot.get("reward_options", [])).duplicate(true)
 
 
-func reward_command(reward: Dictionary, index: int) -> Dictionary:
-	var command := {"type": "PICK_REWARD", "index": index}
-	if String(reward.get("id", "")) != "":
-		command["id"] = String(reward.get("id", ""))
-	return command
+func reward_command(reward: Dictionary) -> Dictionary:
+	return {"type": "PICK_REWARD", "rewardId": String(reward.get("id", ""))}
 
 
 func terminal_action(snapshot: Dictionary, new_run_seed: String) -> Dictionary:
@@ -21,7 +18,7 @@ func terminal_action(snapshot: Dictionary, new_run_seed: String) -> Dictionary:
 		"day_end":
 			return {
 				"title": "下一天",
-				"command": {"type": "START_NEXT_DAY", "day": int(snapshot.get("day", 1)) + 1},
+				"command": {"type": "START_NEXT_DAY"},
 			}
 		_:
 			return {"title": "重新开局", "command": {"type": "NEW_RUN", "seed": new_run_seed}}
