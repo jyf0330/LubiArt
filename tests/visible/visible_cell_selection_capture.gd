@@ -138,7 +138,7 @@ func _visible_attack_highlight_count(board_grid: Control) -> int:
 		var cell := cell_value as Control
 		if cell == null or not cell.visible:
 			continue
-		var highlight := cell.get_node_or_null("AttackHighlight") as Polygon2D
-		if highlight != null and highlight.visible:
+		var border := cell.get_node_or_null("AttackHighlightBorder") as Line2D
+		if border != null and border.visible:
 			count += 1
 	return count

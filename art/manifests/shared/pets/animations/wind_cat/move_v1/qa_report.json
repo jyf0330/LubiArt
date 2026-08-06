@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "service": "Rika AI",
+  "generation_id": "680a1197-71d5-4bd0-90f0-129fe93b290f",
+  "source_sheet": "art/images/shared/pets/animations/wind_cat/move_v1/raw/output_001.png",
+  "source_sheet_sha256": "e190f59a0d3432abe52d18b95483df3fef04f9a8cb489f2a1f6485ab4c5efe9e",
+  "frame_count": 16,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_paths": [
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_001.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_002.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_003.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_004.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_005.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_006.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_007.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_008.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_009.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_010.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_011.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_012.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_013.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_014.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_015.png",
+    "art/images/shared/pets/animations/wind_cat/move_v1/frames/frame_016.png"
+  ],
+  "alpha_bounding_boxes": [
+    [
+      8,
+      25,
+      120,
+      119
+    ],
+    [
+      15,
+      25,
+      120,
+      116
+    ],
+    [
+      15,
+      25,
+      119,
+      120
+    ],
+    [
+      11,
+      25,
+      120,
+      118
+    ],
+    [
+      9,
+      25,
+      120,
+      118
+    ],
+    [
+      15,
+      26,
+      120,
+      118
+    ],
+    [
+      12,
+      24,
+      119,
+      118
+    ],
+    [
+      7,
+      26,
+      120,
+      118
+    ],
+    [
+      15,
+      26,
+      120,
+      116
+    ],
+    [
+      15,
+      26,
+      120,
+      116
+    ],
+    [
+      15,
+      25,
+      119,
+      119
+    ],
+    [
+      8,
+      25,
+      120,
+      115
+    ],
+    [
+      15,
+      25,
+      120,
+      117
+    ],
+    [
+      15,
+      25,
+      120,
+      120
+    ],
+    [
+      15,
+      26,
+      119,
+      119
+    ],
+    [
+      7,
+      26,
+      120,
+      115
+    ]
+  ],
+  "center_x_range": [
+    63.5,
+    67.5
+  ],
+  "footline_bottom_range": [
+    115,
+    120
+  ],
+  "source_edge_touch_frames": [],
+  "sequential_difference_pixels_including_loop": [
+    3793,
+    3429,
+    3059,
+    3767,
+    3297,
+    3855,
+    3198,
+    3636,
+    3233,
+    3403,
+    3290,
+    3543,
+    3686,
+    3575,
+    4020,
+    3655
+  ],
+  "first_last_identical": false,
+  "palette_color_count": 118,
+  "gif": {
+    "path": "output/wind_cat_move_preview_v1.gif",
+    "exact_pixel_match": true,
+    "durations_ms": [
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170
+    ],
+    "disposal": 2
+  },
+  "slow_gif": {
+    "path": "output/wind_cat_move_preview_slow_v1.gif",
+    "exact_pixel_match": true,
+    "durations_ms": [
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380
+    ],
+    "disposal": 2
+  },
+  "overview": "art/images/shared/pets/animations/wind_cat/move_v1/wind_cat_move_overview_v1.png",
+  "zoom_overview": "output/wind_cat_move_frames_4x_v1.png",
+  "skill_processor_qc": {
+    "pipeline_meta": "art/images/shared/pets/animations/wind_cat/move_v1/processor_qc/pipeline-meta.json",
+    "empty_frames": [],
+    "source_edge_touch_frames": [],
+    "output_edge_touch_frames": [],
+    "paste_clamped_frames": [],
+    "qc_summary": {
+      "frame_count": 16,
+      "valid_frame_count": 16,
+      "empty_count": 0,
+      "edge_touch_count": 0,
+      "paste_clamped_count": 0,
+      "body_scale_mean": 0.44602681927541077,
+      "output_subject_height_mean": 87.3125,
+      "body_scale_cv": 0.012457059382485678,
+      "anchor_x_std": 0.030398204025120973,
+      "anchor_y_std": 0.01603912861880551,
+      "anchor_y_mean": 0.86474609375
+    }
+  },
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PASS",
+  "visual_qa_notes": [
+    "All 16 frames preserve the accepted left-facing Wind Cat identity, gray and mint palette, forward-facing travel gaze, hard pixel outline, facial proportions and curled green tail.",
+    "The entire head, ears, eye, muzzle and outline move as one connected form with the neck and shoulders; no frozen head, sliding facial features, neck crack or detached head was found at original size or 4x review scale.",
+    "Front and rear paws alternate through a restrained grounded walking cadence without running, pouncing, root translation, extra limbs, missing limbs or detached effects.",
+    "No source or output frame touches an edge, no frame is empty or paste-clamped, and both decoded GIFs exactly match the delivered PNG sequence with disposal mode 2 and no ghosting.",
+    "The final-to-first pixel difference is within the measured adjacent-frame range, so the loop transition does not introduce an exceptional visual jump."
+  ]
+}

@@ -66,6 +66,7 @@ var _drag_attack_marker_keys: Array[String] = []
 var _drag_damage_preview_unit_ids: Array[String] = []
 var _manual_incoming_damage_previews_by_unit := {}
 var _direction_hover_highlight_keys: Array[String] = []
+var _selected_action_range_keys: Array[String] = []
 var _drag_hover_grid := Vector2i(-1, -1)
 var _drag_start_mouse_position := Vector2.ZERO
 var _drag_has_moved := false
@@ -405,6 +406,7 @@ func _safe_node_name(value: String) -> String:
 
 
 func _apply_selected_action_block_ranges(snap: Dictionary) -> void:
+	_clear_selected_action_range_highlights()
 	for cell in _cells:
 		if cell == null or not cell.has_method("get_unit_node"):
 			continue
@@ -446,6 +448,30 @@ func _apply_selected_action_block_ranges(snap: Dictionary) -> void:
 			board_grid.global_position,
 			_attack_range_geometry()
 		)
+		var range_summary := Dictionary(selected_unit_node.call("get_action_block_attack_range_snapshot"))
+		for range_cell_value in Array(range_summary.get("cells", [])):
+			var range_cell := Dictionary(range_cell_value)
+			var target_grid := selected_grid + Vector2i(
+				int(range_cell.get("x", 0)),
+				int(range_cell.get("y", 0))
+			)
+			if not _is_visible_board_cell(target_grid.x, target_grid.y):
+				continue
+			_set_cell_highlight(target_grid, "range")
+			var target_key := _cell_key(target_grid)
+			if not _selected_action_range_keys.has(target_key):
+				_selected_action_range_keys.append(target_key)
+
+
+func _clear_selected_action_range_highlights() -> void:
+	for key in _selected_action_range_keys:
+		var parts := key.split(",")
+		if parts.size() != 2:
+			continue
+		var grid := Vector2i(int(parts[0]), int(parts[1]))
+		if not _drag_attack_highlight_keys.has(key) and not _direction_hover_highlight_keys.has(key):
+			_clear_cell_highlight(grid)
+	_selected_action_range_keys.clear()
 
 
 func _attack_range_geometry() -> Dictionary:
@@ -1472,7 +1498,7 @@ func _clear_drag_attack_preview(stop_damage_previews: bool = true) -> void:
 		var parts := key.split(",")
 		if parts.size() != 2:
 			continue
-		_clear_cell_highlight(Vector2i(int(parts[0]), int(parts[1])))
+		_restore_selected_range_or_clear(Vector2i(int(parts[0]), int(parts[1])))
 	_drag_attack_highlight_keys.clear()
 	for key in _drag_attack_marker_keys:
 		var parts := key.split(",")
@@ -1492,7 +1518,7 @@ func _clear_direction_hover_preview() -> void:
 		if cell != null and cell.has_method("set_attack_highlight_blinking"):
 			cell.call("set_attack_highlight_blinking", false)
 		if not _drag_attack_highlight_keys.has(key):
-			_clear_cell_highlight(grid)
+			_restore_selected_range_or_clear(grid)
 	_direction_hover_highlight_keys.clear()
 
 
@@ -1802,8 +1828,16 @@ func _clear_cell_highlight(grid: Vector2i) -> void:
 		cell.call("clear_highlight")
 
 
+func _restore_selected_range_or_clear(grid: Vector2i) -> void:
+	if _selected_action_range_keys.has(_cell_key(grid)):
+		_set_cell_highlight(grid, "range")
+	else:
+		_clear_cell_highlight(grid)
+
+
 func _clear_all_cell_highlights() -> void:
 	_direction_hover_highlight_keys.clear()
+	_selected_action_range_keys.clear()
 	for cell in _cells:
 		if cell != null and cell.has_method("clear_highlight"):
 			cell.call("clear_highlight")

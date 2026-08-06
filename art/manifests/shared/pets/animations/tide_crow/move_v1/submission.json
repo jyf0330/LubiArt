@@ -1,0 +1,31 @@
+{
+  "service": "Rika AI",
+  "endpoint": "https://api.rika-ai.com/v1/api/generate",
+  "gen_id": "db5387bc-4dc0-4744-a77b-f94060b20bb2",
+  "submitted_at": "2026-08-05T06:15:22.270176+00:00",
+  "expected_cost_credits": 5,
+  "credits_before": 899,
+  "input_images": [
+    "art/images/shared/pets/animations/tide_crow/move_v1/source/tide_crow_rika_start_128_v1.png",
+    "art/images/shared/pets/animations/tide_crow/move_v1/source/tide_crow_rika_start_128_v1.png"
+  ],
+  "params": {
+    "prompt": "right-facing three-quarter side-view blue-black crow creature wearing oversized cyan goggles performs one seamless in-place flying movement cycle. Keep the bird airborne throughout. Animate a clear readable wingbeat in this order: wings rise and gather, wings spread to the widest silhouette, a strong downward power stroke, lowest compressed wing position, then a smooth recovery back to the supplied first pose. The body may bob vertically by only a few pixels in response to the wingbeat; the head and torso stay centered with no horizontal root translation. Keep the tail and feet attached with small delayed follow-through, and keep the beak closed. Preserve the exact crow identity, right-facing pose, compact rounded body, layered dark navy wing and tail feathers, pale blue head and chest feathers, charcoal beak and feet, large reflective cyan goggles, palette, proportions, crisp hard black pixel outlines, stepped pixel clusters and original camera scale. Keep generous empty background around the complete silhouette. No walking, running, hopping, landing, forward travel, turning, camera movement, zoom, cropped wing tips, cropped tail, extra wings, extra legs, detached feathers, wind trails, dust, ground shadow, projectile, glow, blur, antialiasing, or background motion.",
+    "motion_type": "idle",
+    "pixel_size": "128",
+    "strength_low": 0.5,
+    "strength_high": 0.5,
+    "seed": 26080521,
+    "fix_seed": true,
+    "length": 33,
+    "use_mid_image": false,
+    "use_end_image": true,
+    "scale_factor": 6,
+    "use_padding": false,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32,
+    "bg_color": "#004040",
+    "attack_type": "melee"
+  }
+}

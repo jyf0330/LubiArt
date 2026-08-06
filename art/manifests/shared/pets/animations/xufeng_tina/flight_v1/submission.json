@@ -1,0 +1,32 @@
+{
+  "service": "Rika AI",
+  "endpoint": "https://api.rika-ai.com/v1/api/generate",
+  "gen_id": "3de4a3f4-0f1a-4942-a18e-51dd27ae831c",
+  "submitted_at": "2026-08-05T06:17:51.430874+00:00",
+  "expected_cost_credits": 5,
+  "credits_before": 889,
+  "input_images": [
+    "art/images/shared/pets/animations/xufeng_tina/flight_v1/source/xufeng_tina_rika_start_128_v1.png",
+    "art/images/shared/pets/animations/xufeng_tina/flight_v1/source/xufeng_tina_rika_start_128_v1.png"
+  ],
+  "source_image": "art/images/shared/pets/animations/xufeng_tina/flight_v1/source/xufeng_tina_source_v1.png",
+  "params": {
+    "prompt": "front-facing cute pixel-art fairy girl riding a soft lavender cloud performs one seamless in-place flying movement cycle. Both large pale iridescent wings complete one clear synchronized flap: raised and open, controlled downstroke, lowest open position, rebound, then return to the exact raised start pose. The lavender cloud gently compresses and expands with only restrained vertical hover buoyancy, while the seated torso stays centered and upright; pink hair tips, leaf ornaments and small sleeves have subtle delayed follow-through. Keep the character continuously airborne and seated on the cloud with legs hanging naturally in the same arrangement. Preserve the exact identity and camera scale from the supplied reference: bright pink bob haircut and bangs, closed calm eyes, green leaf-and-flower head ornaments, green dress with white belt details, brown boots, two huge symmetrical pale lavender-to-cream wings, lime glow near the wing roots, lavender cloud, thick black hard pixel outline, crisp square pixel clusters, palette, proportions, facial features and materials. Keep the complete silhouette safely inside the 128 by 128 canvas in every frame with empty teal margin on all sides. No walking, running, landing, jump arc, horizontal root travel, body sway, turning, camera motion, zoom, cropped wing tips, cropped cloud, extra wings, extra limbs, detached effects, sparkles, dust, ground shadow, blur, antialiasing, text, borders, or background motion.",
+    "motion_type": "idle",
+    "pixel_size": "128",
+    "strength_low": 0.5,
+    "strength_high": 0.5,
+    "seed": 26080517,
+    "fix_seed": true,
+    "length": 33,
+    "use_mid_image": false,
+    "use_end_image": true,
+    "scale_factor": 6,
+    "use_padding": false,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32,
+    "bg_color": "#004040",
+    "attack_type": "melee"
+  }
+}

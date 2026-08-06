@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "service": "Rika AI",
+  "generation_id": "03865f1f-10ad-4f1d-abda-787de7ba9e78",
+  "source_sheet": "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/raw/output_001.png",
+  "source_sheet_sha256": "62a6fb25d2f554df3a2eecb7e68685ac5ddfcadfc2ad4aca4393ac484a61281a",
+  "frame_count": 16,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_paths": [
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_001.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_002.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_003.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_004.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_005.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_006.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_007.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_008.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_009.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_010.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_011.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_012.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_013.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_014.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_015.png",
+    "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/frames/frame_016.png"
+  ],
+  "alpha_bounding_boxes": [
+    [
+      10,
+      17,
+      118,
+      118
+    ],
+    [
+      10,
+      17,
+      118,
+      118
+    ],
+    [
+      10,
+      15,
+      120,
+      118
+    ],
+    [
+      10,
+      16,
+      119,
+      118
+    ],
+    [
+      10,
+      17,
+      118,
+      118
+    ],
+    [
+      10,
+      16,
+      118,
+      118
+    ],
+    [
+      10,
+      16,
+      120,
+      118
+    ],
+    [
+      10,
+      17,
+      118,
+      118
+    ],
+    [
+      10,
+      17,
+      118,
+      118
+    ],
+    [
+      10,
+      17,
+      118,
+      118
+    ],
+    [
+      10,
+      15,
+      120,
+      118
+    ],
+    [
+      10,
+      17,
+      119,
+      118
+    ],
+    [
+      10,
+      17,
+      118,
+      118
+    ],
+    [
+      10,
+      16,
+      118,
+      118
+    ],
+    [
+      10,
+      16,
+      120,
+      118
+    ],
+    [
+      10,
+      17,
+      118,
+      118
+    ]
+  ],
+  "bounding_box_extrema": {
+    "left": [
+      10,
+      10
+    ],
+    "top": [
+      15,
+      17
+    ],
+    "right": [
+      118,
+      120
+    ],
+    "bottom": [
+      118,
+      118
+    ]
+  },
+  "center_x_range": [
+    64.0,
+    65.0
+  ],
+  "footline_bottom_range": [
+    118,
+    118
+  ],
+  "source_edge_touch_frames": [],
+  "sequential_difference_pixels_including_loop": [
+    4229,
+    5974,
+    4853,
+    4719,
+    4883,
+    3896,
+    4910,
+    3404,
+    3417,
+    6073,
+    5221,
+    3985,
+    5203,
+    4003,
+    5419,
+    5443
+  ],
+  "loop_transition_within_sequence_range": true,
+  "first_last_identical": false,
+  "palette_color_count": 120,
+  "gif": {
+    "path": "output/red_gem_short_leg_dog_move_preview_v1.gif",
+    "exact_pixel_match": true,
+    "durations_ms": [
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160,
+      160
+    ],
+    "disposal": 2
+  },
+  "slow_gif": {
+    "path": "output/red_gem_short_leg_dog_move_preview_slow_v1.gif",
+    "exact_pixel_match": true,
+    "durations_ms": [
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360
+    ],
+    "disposal": 2
+  },
+  "overview": "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/red_gem_short_leg_dog_move_overview_v1.png",
+  "zoom_overview": "output/red_gem_short_leg_dog_move_frames_4x_v1.png",
+  "skill_processor_qc": {
+    "pipeline_meta": "art/images/shared/pets/animations/red_gem_short_leg_dog/move_v1/processor_qc/pipeline-meta.json",
+    "empty_frames": [],
+    "source_edge_touch_frames": [],
+    "output_edge_touch_frames": [],
+    "paste_clamped_frames": [],
+    "qc_summary": {
+      "frame_count": 16,
+      "valid_frame_count": 16,
+      "empty_count": 0,
+      "edge_touch_count": 0,
+      "paste_clamped_count": 0,
+      "body_scale_mean": 0.5514058356185622,
+      "output_subject_height_mean": 98.5625,
+      "body_scale_cv": 0.014404302786610474,
+      "anchor_x_std": 0.024000401811415054,
+      "anchor_y_std": 0.005167483029423029,
+      "anchor_y_mean": 0.888671875
+    }
+  },
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PASS",
+  "visual_qa_notes": [
+    "All 16 frames preserve the same left-facing short-legged dog identity, gray-white and cyan palette, red forehead gem, short whiskers, hard pixel outline, face, ears, chest fur and enormous curled tail.",
+    "Front and rear legs alternate through a readable slow walking cadence without root translation, hopping, running, extra limbs, missing limbs or detached effects.",
+    "Body center, silhouette scale and foot baseline remain stable; head-body, tail-body and limb-body connections remain continuous at original size and 4x review scale.",
+    "The final-to-first transition is within the measured adjacent-frame difference range, and both decoded GIFs exactly match the delivered PNG frame sequence with disposal mode 2 and no ghosting."
+  ]
+}

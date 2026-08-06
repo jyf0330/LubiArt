@@ -51,6 +51,10 @@ GODOT_LATEST_UI_SOURCE=/path/to/godot-latest ./tests/verify_ui_mirror.sh
 
 美术侧不需要执行来源比较。若 `godot` 不在命令行 PATH 中，请把示例中的 `godot` 替换为本机 Godot 可执行文件路径。
 
+## Aseprite
+
+项目提供本机 Aseprite 的一键导出工具，可生成逐帧透明 PNG、总览图、GIF 和相对路径 manifest，Godot 运行时不依赖 Aseprite。接入检查、命令示例和目录规则见 [`docs/ASEPRITE_WORKFLOW.md`](docs/ASEPRITE_WORKFLOW.md)。
+
 ## 可操作内容
 
 - 点击棋盘宠物：打开宠物详情预制体

@@ -3,24 +3,7 @@ extends Control
 const GameLogScript := preload("res://core/logging/game_log.gd")
 const DEBUG_BUTTON_PATH := "MainBG/DebugButton"
 
-const REPLACEMENT_GROUPS := [
-	{
-		"container_path": "MainBG/Containers/Middle/Middle_Three_Option",
-		"texture": preload("res://art/images/debug/artist_ui/three_qi.png"),
-	},
-	{
-		"container_path": "MainBG/Containers/Middle/Middle_Shop",
-		"texture": preload("res://art/images/debug/artist_ui/shop_xue.png"),
-	},
-	{
-		"container_path": "MainBG/Containers/Middle/Middle_Bag",
-		"texture": preload("res://art/images/debug/artist_ui/bag_ping.png"),
-	},
-	{
-		"container_path": "MainBG/Containers/Party/Party_Container",
-		"texture": preload("res://art/images/debug/artist_ui/party_tang.png"),
-	},
-]
+const REPLACEMENT_GROUPS: Array[Dictionary] = []
 
 
 func _ready() -> void:

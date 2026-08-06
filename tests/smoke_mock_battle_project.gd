@@ -504,6 +504,7 @@ func _run() -> void:
 	var range_summary := Dictionary(battle_view.call("debug_selected_action_range_summary"))
 	assert(String(range_summary.get("unitId", "")) == String(selected_snapshot.get("selected_unit_id", "")))
 	assert(int(range_summary.get("visibleCellCount", 0)) > 0)
+	assert(_visible_range_fill_count(board_grid) == int(range_summary.get("visibleCellCount", 0)))
 	assert(_visible_attack_highlight_count(board_grid) == 0)
 	_assert_corner_heroes_are_locked(battle_view, board_grid, current_board)
 
@@ -959,8 +960,21 @@ func _visible_attack_highlight_count(board_grid: Control) -> int:
 		var cell := cell_value as Control
 		if cell == null or not cell.visible:
 			continue
-		var highlight := cell.get_node_or_null("AttackHighlight") as Polygon2D
-		if highlight != null and highlight.visible:
+		var border := cell.get_node_or_null("AttackHighlightBorder") as Line2D
+		if border != null and border.visible:
+			count += 1
+	return count
+
+
+func _visible_range_fill_count(board_grid: Control) -> int:
+	var count := 0
+	for cell_value in board_grid.get_children():
+		var cell := cell_value as Control
+		if cell == null or not cell.visible:
+			continue
+		var fill := cell.get_node_or_null("AttackHighlight") as Polygon2D
+		var border := cell.get_node_or_null("AttackHighlightBorder") as Line2D
+		if fill != null and fill.visible and border != null and not border.visible:
 			count += 1
 	return count
 

@@ -1,0 +1,46 @@
+{
+  "gen_id": "680a1197-71d5-4bd0-90f0-129fe93b290f",
+  "job_type": "animation",
+  "status": "succeeded",
+  "input_params": {
+    "seed": 26080517,
+    "length": 33,
+    "prompt": "left-facing three-quarter side-view cute gray wind cat performs one slow, grounded, in-place four-beat walking cycle that reads as moving across exactly one grid cell. Use the supplied image as the exact first and final pose. Preserve the exact head-facing-forward travel direction: the entire head, both ears, eyes, muzzle, cheeks, chin and outline move together around the neck root and remain continuously attached to the shoulders. The head follows the shoulder motion with small natural vertical settling and a subtle delayed recovery; never freeze the head in screen space and never slide the facial features inside a stationary head. Use a natural feline walk with four distinct alternating footfalls, front-left, rear-right, front-right, rear-left, with shoulder and hip weight transfer. Keep the body root centered and all planted paws returning to one stable ground baseline. The enormous curled green wind tail makes a restrained delayed counter-sway while remaining attached and fully inside frame. Preserve the exact gray fur, cream muzzle and chest, emerald eye, mint back stripe, green tail with pale stripe, proportions, hard dark pixel outline, crisp pixel clusters, palette, camera angle and scale. No running, hopping, pouncing, attack, forward root translation, whole-body sliding, turning toward the viewer, camera movement, zoom, extra or missing limbs, extra tail, detached effects, dust, shadow, blur, antialiasing, background motion or cropping.",
+    "bg_color": "#004040",
+    "fix_seed": true,
+    "pixel_size": "128",
+    "attack_type": "melee",
+    "motion_type": "walk",
+    "use_padding": false,
+    "scale_factor": 6,
+    "strength_low": 0.42,
+    "strength_high": 0.42,
+    "use_end_image": true,
+    "use_mid_image": false,
+    "padding_position": "mc",
+    "use_quantization": false,
+    "quantization_colors": 32
+  },
+  "output_params": null,
+  "created_at": "2026-08-05T06:43:47.568276+00:00",
+  "updated_at": null,
+  "input_images": [
+    {
+      "key": "temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/680a1197-71d5-4bd0-90f0-129fe93b290f/in_0.png",
+      "url": "https://cdn.rika-ai.com/temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/680a1197-71d5-4bd0-90f0-129fe93b290f/in_0.png"
+    },
+    {
+      "key": "temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/680a1197-71d5-4bd0-90f0-129fe93b290f/in_1.png",
+      "url": "https://cdn.rika-ai.com/temp/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/680a1197-71d5-4bd0-90f0-129fe93b290f/in_1.png"
+    }
+  ],
+  "output_images": [
+    {
+      "key": "users/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/680a1197-71d5-4bd0-90f0-129fe93b290f/out_0.png",
+      "url": "https://cdn.rika-ai.com/users/909cfab9-cb40-4d3e-b8f5-6896ec98cc78/gen/680a1197-71d5-4bd0-90f0-129fe93b290f/out_0.png"
+    }
+  ],
+  "persist_images": false,
+  "liked": null,
+  "error": null
+}

@@ -1,0 +1,238 @@
+{
+  "version": 1,
+  "service": "Rika AI",
+  "generation_id": "ca9ed939-0720-4403-b3d4-42b75e017c14",
+  "credits_before": 873,
+  "credits_after": 868,
+  "actual_credit_change": 5,
+  "source_sheet": "art/images/shared/pets/animations/tide_crow/move_v2/raw/output_001.png",
+  "source_sheet_sha256": "5259fc8240fd6529b30d5680bfff5c7b82e9b66e6c5c749ecd0fb88f37fbf4f7",
+  "frame_count": 16,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_paths": [
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_001.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_002.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_003.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_004.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_005.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_006.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_007.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_008.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_009.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_010.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_011.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_012.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_013.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_014.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_015.png",
+    "art/images/shared/pets/animations/tide_crow/move_v2/frames/frame_016.png"
+  ],
+  "alpha_bounding_boxes": [
+    [
+      22,
+      33,
+      106,
+      95
+    ],
+    [
+      15,
+      40,
+      106,
+      96
+    ],
+    [
+      14,
+      38,
+      89,
+      99
+    ],
+    [
+      12,
+      37,
+      97,
+      93
+    ],
+    [
+      22,
+      33,
+      106,
+      95
+    ],
+    [
+      15,
+      40,
+      105,
+      96
+    ],
+    [
+      14,
+      38,
+      90,
+      99
+    ],
+    [
+      12,
+      36,
+      97,
+      93
+    ],
+    [
+      22,
+      33,
+      106,
+      95
+    ],
+    [
+      15,
+      40,
+      106,
+      96
+    ],
+    [
+      14,
+      38,
+      89,
+      100
+    ],
+    [
+      12,
+      37,
+      103,
+      93
+    ],
+    [
+      22,
+      33,
+      106,
+      95
+    ],
+    [
+      13,
+      40,
+      101,
+      96
+    ],
+    [
+      14,
+      37,
+      89,
+      99
+    ],
+    [
+      11,
+      37,
+      103,
+      94
+    ]
+  ],
+  "center_x_range": [
+    51.5,
+    64.0
+  ],
+  "center_y_range": [
+    64.0,
+    69.0
+  ],
+  "source_edge_touch_frames": [],
+  "sequential_difference_pixels_including_loop": [
+    2924,
+    2595,
+    2604,
+    3360,
+    2994,
+    2542,
+    2597,
+    3411,
+    2998,
+    2531,
+    2811,
+    3345,
+    3142,
+    2582,
+    2790,
+    3472
+  ],
+  "loop_transition_within_sequence_range": false,
+  "first_last_identical": false,
+  "palette_color_count": 116,
+  "gif": {
+    "path": "output/tide_crow_move_preview_v2.gif",
+    "exact_pixel_match": true,
+    "durations_ms": [
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130
+    ],
+    "disposal": 2
+  },
+  "slow_gif": {
+    "path": "output/tide_crow_move_preview_slow_v2.gif",
+    "exact_pixel_match": true,
+    "durations_ms": [
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360
+    ],
+    "disposal": 2
+  },
+  "overview": "art/images/shared/pets/animations/tide_crow/move_v2/tide_crow_move_overview_v2.png",
+  "zoom_overview": "output/tide_crow_move_frames_4x_v2.png",
+  "skill_processor_qc": {
+    "pipeline_meta": "art/images/shared/pets/animations/tide_crow/move_v2/processor_qc/pipeline-meta.json",
+    "empty_frames": [],
+    "source_edge_touch_frames": [],
+    "output_edge_touch_frames": [],
+    "paste_clamped_frames": [],
+    "qc_summary": {
+      "frame_count": 16,
+      "valid_frame_count": 16,
+      "empty_count": 0,
+      "edge_touch_count": 0,
+      "paste_clamped_count": 0,
+      "body_scale_mean": 0.35926673394806463,
+      "output_subject_height_mean": 69.5,
+      "body_scale_cv": 0.04964615296701142,
+      "anchor_x_std": 0.03648738611771368,
+      "anchor_y_std": 0.015097289876699518,
+      "anchor_y_mean": 0.5185546875
+    }
+  },
+  "blocking_issues": [],
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PASS",
+  "visual_qa_notes": [
+    "All 16 frames retain complete wing tips, tail, feet, goggles, and transparent margins.",
+    "The head/body anchor remains stable while the wings cycle through raised, extended, downstroke, and recovery poses.",
+    "No hard cut, detached limb, duplicate wing, green fringe, ghosting, or background residue was observed at original size or 4x review.",
+    "Normal and slow GIF previews decode to the exact composited source PNG frames with disposal mode 2."
+  ]
+}

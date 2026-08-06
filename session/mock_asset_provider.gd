@@ -1,8 +1,6 @@
 extends RefCounted
 class_name MockAssetProvider
 
-const PLAYER_FRAME := preload("res://art/images/battle/runtime/prefabs/select_frames/selection-blue-64.png")
-const ENEMY_FRAME := preload("res://art/images/battle/runtime/prefabs/select_frames/selection-red-64.png")
 const PET_TEXTURES := {
 	"pal_001": preload("res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png"),
 	"pal_002": preload("res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png"),
@@ -19,8 +17,8 @@ const PET_TEXTURES := {
 }
 
 
-func frame_texture(side: String) -> Texture2D:
-	return PLAYER_FRAME if side in ["player", "hero_leader"] else ENEMY_FRAME
+func frame_texture(_side: String) -> Texture2D:
+	return null
 
 
 func texture_for_unit(data: Dictionary, _side: String) -> Dictionary:

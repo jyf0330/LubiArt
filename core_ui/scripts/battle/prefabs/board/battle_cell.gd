@@ -25,6 +25,8 @@ const STYLE_SHADOW_SIZE := 5
 const STYLE_SHADOW_OFFSET := Vector2(0.0, 3.0)
 const PERSPECTIVE_DEFAULT_FILL := Color(0.82, 0.84, 0.86, 0.015)
 const PERSPECTIVE_DEFAULT_BORDER := Color(0.86, 0.89, 0.91, 0.12)
+const ATTACK_HIGHLIGHT_FILL := Color(0.92, 0.1, 0.08, 0.42)
+const RANGE_HIGHLIGHT_FILL := Color(1.0, 0.16, 0.10, 0.30)
 @export var use_perspective_geometry := true
 @export var polygon := PackedVector2Array([
 	Vector2(3.660006, 0.0),
@@ -429,8 +431,10 @@ func _sync_attack_highlight_geometry() -> void:
 
 func _update_attack_highlight() -> void:
 	var is_attack := _highlight_mode == "attack"
+	var is_range := _highlight_mode == "range"
 	if _attack_highlight != null:
-		_attack_highlight.visible = is_attack
+		_attack_highlight.color = RANGE_HIGHLIGHT_FILL if is_range else ATTACK_HIGHLIGHT_FILL
+		_attack_highlight.visible = is_attack or is_range
 	if _attack_highlight_border != null:
 		_attack_highlight_border.visible = is_attack
 

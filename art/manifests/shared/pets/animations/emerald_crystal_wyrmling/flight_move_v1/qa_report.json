@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "service": "Rika AI",
+  "generation_id": "38986f64-b1fe-40d4-9d56-56c397d743a5",
+  "generation_call_count": 1,
+  "expected_credit_cost": 5,
+  "actual_credit_change": 6,
+  "source_sheet": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/raw/output_001.png",
+  "source_sheet_sha256": "8cad8f8e2f4df9be8cd29fb5c4a379735728c2fc15a8d3a3b234d0ce0803d645",
+  "frame_count": 7,
+  "frame_size": [
+    128,
+    128
+  ],
+  "raw_grid": [
+    4,
+    4
+  ],
+  "delivery_grid": [
+    4,
+    2
+  ],
+  "selected_raw_frames": [
+    1,
+    2,
+    4,
+    5,
+    7,
+    8
+  ],
+  "excluded_edge_touch_raw_frames": [
+    3,
+    6,
+    11,
+    14
+  ],
+  "frame_paths": [
+    "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/frames/frame_001.png",
+    "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/frames/frame_002.png",
+    "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/frames/frame_003.png",
+    "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/frames/frame_004.png",
+    "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/frames/frame_005.png",
+    "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/frames/frame_006.png",
+    "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/frames/frame_007.png"
+  ],
+  "keyframe_contract": {
+    "start_source": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/source/emerald_crystal_wyrmling_transparent_128_v1.png",
+    "end_source": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/source/emerald_crystal_wyrmling_transparent_128_v1.png",
+    "start_delivery_frame": 1,
+    "end_delivery_frame": 7,
+    "first_last_pixel_identical": true
+  },
+  "alpha_bounding_boxes": [
+    [
+      16,
+      21,
+      112,
+      107
+    ],
+    [
+      7,
+      30,
+      118,
+      107
+    ],
+    [
+      10,
+      33,
+      94,
+      113
+    ],
+    [
+      11,
+      32,
+      96,
+      114
+    ],
+    [
+      8,
+      29,
+      117,
+      110
+    ],
+    [
+      15,
+      22,
+      113,
+      108
+    ],
+    [
+      16,
+      21,
+      112,
+      107
+    ]
+  ],
+  "alpha_binary": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "edge_touch_frames": [],
+  "residual_teal_pixels": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "first_last_identical": true,
+  "sequential_difference_pixels_including_loop": [
+    4172,
+    4338,
+    2513,
+    4078,
+    3449,
+    3300,
+    0
+  ],
+  "gif": {
+    "path": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/emerald_crystal_wyrmling_flight_preview_v1.gif",
+    "frame_count": 7,
+    "durations_ms": [
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "source_preview_pixel_exact": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "passed": true
+  },
+  "slow_gif": {
+    "path": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/emerald_crystal_wyrmling_flight_slow_check_v1.gif",
+    "frame_count": 7,
+    "durations_ms": [
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "source_preview_pixel_exact": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "passed": true
+  },
+  "sheet": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/emerald_crystal_wyrmling_flight_sheet_v1.png",
+  "overview": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/emerald_crystal_wyrmling_flight_overview_v1.png",
+  "zoom_overview": "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1/emerald_crystal_wyrmling_flight_overview_4x_v1.png",
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PASS",
+  "visual_qa_notes": [
+    "Reviewed at native 128x128 frame size and 4x nearest-neighbor scale.",
+    "Delivery frames preserve two wings, four connected limbs, the curled tail, the violet eye, and the emerald/lavender pixel-art identity.",
+    "The selected sequence reads as raised wings, downstroke, lowest-position hold, rebound, and exact return to the starting pose.",
+    "No delivery frame has cropped wing tips, hard cut lines, detached anatomy, extra limbs, extra wings, teal spill, blur, ghosting, or visible root drift.",
+    "Raw frames 3, 6, 11, and 14 remain archived as rejected because their left wing touched the source-cell edge; they are not part of the delivery sequence."
+  ]
+}
