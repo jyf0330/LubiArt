@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "componentType": "component_battle_map_controls",
   "sourcePsd": {
     "logicalName": "component_battle_map_controls_v2.psd",
@@ -9,7 +9,7 @@
     "reason": "The user requested that the PSD map group not be imported. Exported button assets are self-contained runtime dependencies."
   },
   "sourceCanvas": [1920, 1080],
-  "componentSourceRect": [1621, 295, 1908, 1047],
+  "componentSourceRect": [0, 0, 1920, 1080],
   "targetPrefab": "res://art/prefabs/battle/hud/battle_map_controls.tscn",
   "targetScript": "res://core_ui/scripts/battle/prefabs/hud/battle_map_controls.gd",
   "rectSemantics": "source_canvas_xyxy",
@@ -23,10 +23,9 @@
   "formalSceneIntegration": {
     "scene": "res://art/scenes/battle/battle_art_scene.tscn",
     "instanceNode": "MapControls",
-    "mapControlsRect": [1621, 295, 1908, 1047],
+    "mapControlsRect": [0, 0, 1920, 1080],
     "backgroundTarget": "Board/Background",
     "mapDebugButton": "MapDebugButton",
-    "shortcutHintDebugButton": "ShortcutHintDebugButton",
     "hiddenLegacyControlGroup": "Hud/BattlePrimaryActions"
   },
   "layers": [
@@ -39,23 +38,23 @@
     {"sourceLayer": "???/???(??)???", "classification": "IGNORE", "export": null, "targetNode": null, "rect": [0, 0, 1920, 1080]},
     {"sourceLayer": "???/???(??)???", "classification": "IGNORE", "export": null, "targetNode": null, "rect": [-2, 0, 1925, 1080]},
     {"sourceLayer": "???/???(??)???", "classification": "IGNORE", "export": null, "targetNode": null, "rect": [-4, 0, 1923, 1080]},
-    {"sourceLayer": "???", "classification": "COMPONENT", "export": null, "targetNode": "BattleMapControls", "rect": [1621, 295, 1908, 1047], "prefabRect": [0, 0, 287, 752]},
-    {"sourceLayer": "???/???????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/auto_arrange_normal.png", "targetNode": "AutoArrangeButton", "rect": [1841, 295, 1907, 357], "prefabRect": [220, 0, 286, 62], "state": "normal"},
-    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/reset_normal.png", "targetNode": "ResetButton", "rect": [1842, 377, 1908, 439], "prefabRect": [221, 82, 287, 144], "state": "normal"},
-    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/speed_normal.png", "targetNode": "SpeedButton", "rect": [1842, 459, 1907, 521], "prefabRect": [221, 164, 286, 226], "state": "normal"},
-    {"sourceLayer": "???/????(????)", "classification": "STATE_RESOURCE", "export": "res://art/images/battle/map_controls/buttons/speed_active.png", "targetNode": "SpeedButton", "rect": [1842, 459, 1907, 521], "prefabRect": [221, 164, 286, 226], "state": "active"},
-    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/settings_normal.png", "targetNode": "SettingsButton", "rect": [1843, 541, 1908, 603], "prefabRect": [222, 246, 287, 308], "state": "normal"},
-    {"sourceLayer": "???/???????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/attack_order_normal.png", "targetNode": "AttackOrderButton", "rect": [1843, 623, 1908, 685], "prefabRect": [222, 328, 287, 390], "state": "normal"},
-    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/bag_normal.png", "targetNode": "BagButton", "rect": [1842, 705, 1908, 767], "prefabRect": [221, 410, 287, 472], "state": "normal"},
-    {"sourceLayer": "???/???????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/all_out_normal.png", "targetNode": "AllOutButton", "rect": [1635, 983, 1907, 1047], "prefabRect": [14, 688, 286, 752], "state": "normal"},
-    {"sourceLayer": "???/???????", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1621, 329, 1880, 1045], "prefabRect": [0, 34, 259, 750]},
-    {"sourceLayer": "???/???????/A", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1837, 329, 1865, 358], "state": "A"},
-    {"sourceLayer": "???/???????/R", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1837, 410, 1865, 439], "state": "R"},
-    {"sourceLayer": "???/???????/D", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1838, 492, 1864, 521], "state": "D"},
-    {"sourceLayer": "???/???????/ESC", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1838, 574, 1880, 603], "state": "Escape"},
-    {"sourceLayer": "???/???????/TAB", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1838, 656, 1880, 685], "state": "Tab"},
-    {"sourceLayer": "???/???????/B", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1837, 738, 1865, 767], "state": "B"},
-    {"sourceLayer": "???/???????/???", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1621, 1020, 1678, 1045], "state": "Space"}
+    {"sourceLayer": "???", "classification": "COMPONENT", "export": null, "targetNode": "BattleMapControls", "rect": [0, 0, 1920, 1080], "prefabRect": [0, 0, 1920, 1080]},
+    {"sourceLayer": "???/???????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/auto_arrange_normal.png", "targetNode": "AutoArrangeButton", "rect": [1772, 915, 1838, 977], "prefabRect": [1772, 915, 1838, 977], "state": "normal"},
+    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/reset_normal.png", "targetNode": "ResetButton", "rect": [1841, 915, 1907, 977], "prefabRect": [1841, 915, 1907, 977], "state": "normal"},
+    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/speed_normal.png", "targetNode": "SpeedButton", "rect": [90, 985, 155, 1047], "prefabRect": [90, 985, 155, 1047], "state": "normal"},
+    {"sourceLayer": "???/????(????)", "classification": "STATE_RESOURCE", "export": "res://art/images/battle/map_controls/buttons/speed_active.png", "targetNode": "SpeedButton", "rect": [90, 985, 155, 1047], "prefabRect": [90, 985, 155, 1047], "state": "active"},
+    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/settings_normal.png", "targetNode": "SettingsButton", "rect": [20, 985, 85, 1047], "prefabRect": [20, 985, 85, 1047], "state": "normal"},
+    {"sourceLayer": "???/???????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/attack_order_normal.png", "targetNode": "AttackOrderButton", "rect": [1704, 915, 1769, 977], "prefabRect": [1704, 915, 1769, 977], "state": "normal"},
+    {"sourceLayer": "???/????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/bag_normal.png", "targetNode": "BagButton", "rect": [1635, 915, 1701, 977], "prefabRect": [1635, 915, 1701, 977], "state": "normal"},
+    {"sourceLayer": "???/???????", "classification": "GODOT_CONTROL", "export": "res://art/images/battle/map_controls/buttons/all_out_normal.png", "targetNode": "AllOutButton", "rect": [1635, 983, 1907, 1047], "prefabRect": [1635, 983, 1907, 1047], "state": "normal"},
+    {"sourceLayer": "???/???????", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [0, 948, 1920, 1047], "prefabRect": [0, 948, 1920, 1047]},
+    {"sourceLayer": "???/???????/A", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1767, 948, 1795, 977], "state": "A"},
+    {"sourceLayer": "???/???????/R", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1836, 948, 1864, 977], "state": "R"},
+    {"sourceLayer": "???/???????/D", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [85, 1018, 111, 1047], "state": "D"},
+    {"sourceLayer": "???/???????/ESC", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [15, 1018, 57, 1047], "state": "Escape"},
+    {"sourceLayer": "???/???????/TAB", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1699, 948, 1741, 977], "state": "Tab"},
+    {"sourceLayer": "???/???????/B", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1630, 948, 1658, 977], "state": "B"},
+    {"sourceLayer": "???/???????/???", "classification": "MERGE_TEXTURE", "export": "res://art/images/battle/map_controls/shortcut_hints.png", "targetNode": "ShortcutHints", "rect": [1621, 986, 1678, 1011], "state": "Space"}
   ],
   "buttonBehavior": {
     "pressScale": 0.92,

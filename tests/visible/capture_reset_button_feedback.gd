@@ -21,7 +21,7 @@ func _run() -> void:
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	root.add_child(background)
 	_prefab = PREFAB.instantiate() as Control
-	_prefab.position = Vector2(1621.0, 295.0)
+	_prefab.position = Vector2.ZERO
 	root.add_child(_prefab)
 	await process_frame
 	await process_frame

@@ -57,6 +57,7 @@ var _frame_tween: Tween = null
 var _frame_playback_token := 0
 var _frame_action: StringName = &""
 var _frame_index := -1
+var _frame_render_scale := Vector2.ONE
 var _animation_texture_path := ""
 var _attack_release_delay := 0.0
 var _bite_frames: Array[TextureRect] = []
@@ -325,6 +326,15 @@ func _play_frame_action(action: StringName, loop: bool) -> bool:
 	var playback_token := _frame_playback_token
 	_frame_action = action
 	_frame_index = -1
+	var render_scale_value = definition.get("render_scale", 1.0)
+	if render_scale_value is Array and Array(render_scale_value).size() >= 2:
+		_frame_render_scale = Vector2(
+			float(Array(render_scale_value)[0]),
+			float(Array(render_scale_value)[1])
+		)
+	else:
+		var uniform_render_scale := maxf(float(render_scale_value), 0.01)
+		_frame_render_scale = Vector2.ONE * uniform_render_scale
 	_frame_tween = _idle_sprite.create_tween()
 	if loop:
 		_frame_tween.set_loops()
@@ -343,6 +353,7 @@ func _apply_animation_frame(playback_token: int, index: int, texture_resource: T
 		return
 	_frame_index = index
 	_idle_sprite.texture = texture_resource
+	_idle_sprite.scale = _idle_base_scale * _frame_render_scale
 
 
 func _finish_frame_action(playback_token: int) -> void:
@@ -364,6 +375,7 @@ func _stop_frame_tween() -> void:
 	_frame_tween = null
 	_frame_action = &""
 	_frame_index = -1
+	_frame_render_scale = Vector2.ONE
 
 
 func _restore_sprite_texture() -> void:
@@ -431,6 +443,7 @@ func get_frame_animation_snapshot() -> Dictionary:
 		"actions": actions,
 		"active_action": String(_frame_action),
 		"frame_index": _frame_index,
+		"render_scale": _frame_render_scale,
 	}
 
 
@@ -463,6 +476,7 @@ func _stop_sprite_idle() -> void:
 	_base_sprite_texture = null
 	_frame_profile = {}
 	_animation_texture_path = ""
+	_frame_render_scale = Vector2.ONE
 	_attack_release_delay = 0.0
 	_idle_base_scale = Vector2.ONE
 	_idle_base_pivot = Vector2.ZERO

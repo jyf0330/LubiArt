@@ -11,6 +11,8 @@ const FeatureRegistryScript := preload("res://core_ui/scripts/app/feature_regist
 const SceneRouterScript := preload("res://core_ui/scripts/app/scene_router.gd")
 const SettingsMenuScene := preload("res://art/prefabs/battle/settings/settings_menu.tscn")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
+const ShortcutCatalog := preload("res://core_ui/scripts/shared/shortcut_catalog.gd")
+const UiPreferencesScript := preload("res://core_ui/scripts/app/ui_preferences.gd")
 const DEFAULT_RUN_SEED := "ysbzs-test-play-20260715-v1"
 
 @export_enum("route", "battle") var mock_start_phase := "battle"
@@ -33,10 +35,16 @@ var _feature_router: RefCounted = null
 var _session_bridge := SessionBridgeScript.new()
 var _visible_auto_battle_running := false
 var _global_settings_menu: Control = null
+var _button_shortcut_hints_visible := true
+var _ui_preferences: RefCounted = UiPreferencesScript.new()
 
 
 func _ready() -> void:
 	RuntimeUiPolicy.install()
+	ShortcutCatalog.load_bindings(_ui_preferences.call("load_shortcut_bindings"))
+	_button_shortcut_hints_visible = bool(
+		_ui_preferences.call("load_button_shortcut_hints_visible", true)
+	)
 	if feature_registry == null:
 		feature_registry = FeatureRegistryScript.new()
 	if game_session == null:
@@ -137,11 +145,9 @@ func set_developer_tools_enabled(enabled: bool) -> void:
 		three_choice_view.call("set_developer_tools_enabled", enabled)
 
 
-func _unhandled_key_input(event: InputEvent) -> void:
-	if not event is InputEventKey:
-		return
-	var key_event := event as InputEventKey
-	if not key_event.pressed or key_event.echo or not _is_h_key(key_event):
+func _unhandled_input(event: InputEvent) -> void:
+	if not _is_shortcut_press(event) \
+			or not ShortcutCatalog.event_matches_action(event, ShortcutCatalog.ACTION_SAVE_LOAD):
 		return
 	if _text_input_has_focus():
 		return
@@ -149,8 +155,13 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
-func _is_h_key(event: InputEventKey) -> bool:
-	return event.keycode == KEY_H or event.physical_keycode == KEY_H
+func _is_shortcut_press(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		return key_event.pressed and not key_event.echo
+	if event is InputEventMouseButton:
+		return (event as InputEventMouseButton).pressed
+	return false
 
 
 func _text_input_has_focus() -> bool:
@@ -202,7 +213,18 @@ func _mount_global_settings_menu() -> void:
 		"session_operation_requested",
 		Callable(self, "_on_battle_session_operation_requested")
 	)
+	if menu.has_signal("button_shortcut_hints_visibility_changed"):
+		menu.connect(
+			"button_shortcut_hints_visibility_changed",
+			Callable(self, "_on_button_shortcut_hints_visibility_changed")
+		)
+	if menu.has_signal("shortcut_bindings_changed"):
+		menu.connect(
+			"shortcut_bindings_changed",
+			Callable(self, "_on_shortcut_bindings_changed")
+		)
 	add_child(menu)
+	menu.call("set_button_shortcut_hints_visible", _button_shortcut_hints_visible)
 	if menu.has_method("configure_formal_session_mode"):
 		menu.call("configure_formal_session_mode")
 	menu.call("open_menu")
@@ -298,6 +320,22 @@ func _on_battle_session_operation_requested(
 	_release_features_not_required(snapshot)
 
 
+func _on_button_shortcut_hints_visibility_changed(hints_visible: bool) -> void:
+	_button_shortcut_hints_visible = hints_visible
+	_ui_preferences.call("save_button_shortcut_hints_visible", hints_visible)
+	if is_instance_valid(_global_settings_menu):
+		_global_settings_menu.call("set_button_shortcut_hints_visible", hints_visible)
+	var battle_scene: Node = _feature_router.active_view() if _feature_router != null else null
+	if is_instance_valid(battle_scene) \
+			and battle_scene.has_method("set_button_shortcut_hints_visible"):
+		battle_scene.call("set_button_shortcut_hints_visible", hints_visible)
+
+
+func _on_shortcut_bindings_changed(bindings: Dictionary) -> void:
+	ShortcutCatalog.load_bindings(bindings)
+	_ui_preferences.call("save_shortcut_bindings", ShortcutCatalog.serialized_bindings())
+
+
 func _on_asynchronous_snapshot_received(snapshot: Dictionary) -> void:
 	if not is_instance_valid(three_choice_view) or snapshot.is_empty():
 		return
@@ -368,6 +406,16 @@ func _mount_battle(snapshot: Dictionary = {}) -> Node:
 		var session_operation_callback := Callable(self, "_on_battle_session_operation_requested")
 		if not battle_scene.is_connected("session_operation_requested", session_operation_callback):
 			battle_scene.connect("session_operation_requested", session_operation_callback)
+	if battle_scene != null and battle_scene.has_signal("button_shortcut_hints_visibility_changed"):
+		var shortcut_hints_callback := Callable(self, "_on_button_shortcut_hints_visibility_changed")
+		if not battle_scene.is_connected("button_shortcut_hints_visibility_changed", shortcut_hints_callback):
+			battle_scene.connect("button_shortcut_hints_visibility_changed", shortcut_hints_callback)
+	if battle_scene != null and battle_scene.has_signal("shortcut_bindings_changed"):
+		var keybind_callback := Callable(self, "_on_shortcut_bindings_changed")
+		if not battle_scene.is_connected("shortcut_bindings_changed", keybind_callback):
+			battle_scene.connect("shortcut_bindings_changed", keybind_callback)
+	if battle_scene != null and battle_scene.has_method("set_button_shortcut_hints_visible"):
+		battle_scene.call("set_button_shortcut_hints_visible", _button_shortcut_hints_visible)
 	if battle_scene != null and three_choice_view.has_method("attach_feature_view"):
 		three_choice_view.call("attach_feature_view", FeatureRegistryScript.BATTLE_FEATURE, battle_scene)
 	if battle_scene != null and battle_scene.has_method("render_snapshot"):
@@ -389,6 +437,14 @@ func _clear_battle() -> void:
 		var session_operation_callback := Callable(self, "_on_battle_session_operation_requested")
 		if feature_view.is_connected("session_operation_requested", session_operation_callback):
 			feature_view.disconnect("session_operation_requested", session_operation_callback)
+	if is_instance_valid(feature_view) and feature_view.has_signal("button_shortcut_hints_visibility_changed"):
+		var shortcut_hints_callback := Callable(self, "_on_button_shortcut_hints_visibility_changed")
+		if feature_view.is_connected("button_shortcut_hints_visibility_changed", shortcut_hints_callback):
+			feature_view.disconnect("button_shortcut_hints_visibility_changed", shortcut_hints_callback)
+	if is_instance_valid(feature_view) and feature_view.has_signal("shortcut_bindings_changed"):
+		var keybind_callback := Callable(self, "_on_shortcut_bindings_changed")
+		if feature_view.is_connected("shortcut_bindings_changed", keybind_callback):
+			feature_view.disconnect("shortcut_bindings_changed", keybind_callback)
 	if is_instance_valid(feature_view) and three_choice_view.has_method("detach_feature_view"):
 		three_choice_view.call("detach_feature_view", feature_id, feature_view)
 	_visible_auto_battle_running = false

@@ -73,12 +73,14 @@ func _run() -> void:
 		"OverlayHost",
 		"OverlayHost/SettingsMenu",
 		"MapControls",
-		"MapDebugButton",
-		"ShortcutHintDebugButton",
+		"Hud/BattleActionPanel/Margin/Content/MapDebugButton",
+		"Hud/BattleActionPanel/Margin/Content/PositionDifficultyButton",
+		"Hud/DebugDrawerToggleButton",
 	]
-	assert(scene.get_child_count() == 6)
+	assert(scene.get_child_count() == 4)
 	for path in expected_paths:
 		assert(scene.get_node_or_null(path) != null)
+	assert(scene.get_node_or_null("ShortcutHintDebugButton") == null)
 	assert(scene.get_node("Board/CellHost").get_script() == null)
 	assert(scene.get_node("Board/UnitHost").get_script() == null)
 	var board := scene.get_node("Board")

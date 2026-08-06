@@ -35,8 +35,9 @@ func _run() -> void:
 	var unit_host := art_scene.get_node_or_null("Board/UnitHost") as Control
 	var vfx_host := art_scene.get_node_or_null("Board/VfxHost") as Control
 	var map_controls := art_scene.get_node_or_null("MapControls") as Control
-	var map_debug_button := art_scene.get_node_or_null("MapDebugButton") as Button
-	var shortcut_hint_debug_button := art_scene.get_node_or_null("ShortcutHintDebugButton") as Button
+	var map_debug_button := art_scene.get_node_or_null(
+		"Hud/BattleActionPanel/Margin/Content/MapDebugButton"
+	) as Button
 	var map_auto_button := art_scene.get_node_or_null("MapControls/AutoArrangeButton") as TextureButton
 	var map_reset_button := art_scene.get_node_or_null("MapControls/ResetButton") as TextureButton
 	var map_speed_button := art_scene.get_node_or_null("MapControls/SpeedButton") as TextureButton
@@ -48,36 +49,25 @@ func _run() -> void:
 	var hud := art_scene.get_node_or_null("Hud") as Control
 	var attack_timeline_layer := art_scene.get_node_or_null("Hud/AttackTimelineLayer") as CanvasLayer
 	var attack_timeline := art_scene.get_node_or_null("Hud/AttackTimelineLayer/AttackTimeline") as Control
-	var attack_timeline_toggle_button := art_scene.get_node_or_null("Hud/AttackTimelineLayer/AttackTimelineToggleButton") as Button
 	var primary_actions := art_scene.get_node_or_null("Hud/BattlePrimaryActions") as Control
 	var primary_actions_shadow := art_scene.get_node_or_null("Hud/BattlePrimaryActions/Shadow") as TextureRect
 	var auto_arrange_button := art_scene.get_node_or_null("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton
 	var begin_turn_button := art_scene.get_node_or_null("Hud/BattlePrimaryActions/BeginTurnButton") as TextureButton
-	var direction_drawer := art_scene.get_node_or_null("Hud/AttackDirectionDrawer") as Control
-	var direction_rows := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows") as Control
-	var direction_background := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows/Row1/Background") as TextureRect
-	var direction_arrow := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows/Row1/Arrow1") as TextureRect
-	var direction_last_arrow := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/Rows/Row4/Arrow3") as TextureRect
-	var direction_collapse_button := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/CollapseButton") as TextureButton
-	var direction_collapse_triangle := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/CollapseButton/Triangle") as TextureRect
-	var direction_scroll_hint := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/ScrollHint") as TextureRect
-	var direction_scroll_highlight := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/ScrollHint/WheelHighlight") as TextureRect
-	var direction_scroll_animation := art_scene.get_node_or_null("Hud/AttackDirectionDrawer/ScrollHint/AnimationPlayer") as AnimationPlayer
-	var top_info_bar := art_scene.get_node_or_null("Hud/TopInfoBar") as Control
-	var battle_clock := art_scene.get_node_or_null("Hud/TopInfoBar/BattleClock") as Control
-	var clock_dial := art_scene.get_node_or_null("Hud/TopInfoBar/BattleClock/Dial") as TextureRect
-	var clock_pointer := art_scene.get_node_or_null("Hud/TopInfoBar/BattleClock/Pointer") as TextureRect
+	var action_panel := art_scene.get_node_or_null("Hud/BattleActionPanel") as Control
+	var position_difficulty_button := art_scene.get_node_or_null(
+		"Hud/BattleActionPanel/Margin/Content/PositionDifficultyButton"
+	) as Button
+	var debug_drawer_toggle_button := art_scene.get_node_or_null(
+		"Hud/DebugDrawerToggleButton"
+	) as Button
 	var cell_detail := art_scene.get_node_or_null("OverlayHost") as Control
 	var settings_menu := art_scene.get_node_or_null("OverlayHost/SettingsMenu") as Control
 	var bottom_left_cell := board_grid.get_child(48) as Control if board_grid != null else null
 	var bottom_right_cell := board_grid.get_child(55) as Control if board_grid != null else null
 	var bottom_left_center := bottom_left_cell.position + bottom_left_cell.size * 0.5 if bottom_left_cell != null else Vector2.ZERO
 	var bottom_right_center := bottom_right_cell.position + bottom_right_cell.size * 0.5 if bottom_right_cell != null else Vector2.ZERO
-	var drawer_collapses := false
-	var attack_timeline_toggle_works := false
-	var direction_scroll_hint_works := false
-	var direction_wheel_sequence := false
-	var direction_hover_signal_works := false
+	var attack_timeline_button_works := false
+	var debug_drawer_works := false
 	var asset_registry := BattleAssetRegistryScript.new()
 	var background_variants_match: bool = (
 		asset_registry.call("battle_background_key", {"day": 1, "battle_period": "上午"}) == "grassland_morning"
@@ -104,122 +94,64 @@ func _run() -> void:
 				return unique
 				, []).size() == 8
 		)
-	var shortcut_hint_toggle_works := false
-	if shortcut_hint_debug_button != null and shortcut_hints != null:
-		var hints_visible_before := shortcut_hints.visible
-		shortcut_hint_debug_button.pressed.emit()
-		await process_frame
-		var hints_changed := shortcut_hints.visible != hints_visible_before
-		shortcut_hint_debug_button.pressed.emit()
-		await process_frame
-		shortcut_hint_toggle_works = hints_changed and shortcut_hints.visible == hints_visible_before
-	if direction_arrow != null and direction_scroll_hint != null and direction_scroll_animation != null:
-		direction_arrow.mouse_entered.emit()
-		await process_frame
-		var highlight_alpha_before := direction_scroll_highlight.modulate.a if direction_scroll_highlight != null else -1.0
-		direction_scroll_hint_works = (
-			direction_scroll_hint.visible
-			and direction_scroll_animation.current_animation == &"scroll_hint_blink"
+	if hud != null and action_panel != null and debug_drawer_toggle_button != null:
+		var expanded_panel_position := action_panel.position
+		var expanded_toggle_position := debug_drawer_toggle_button.position
+		debug_drawer_toggle_button.pressed.emit()
+		await create_timer(0.25).timeout
+		var collapsed_works := (
+			bool(hud.call("debug_is_action_panel_collapsed"))
+			and action_panel.position == Vector2(-462.0, 150.0)
+			and debug_drawer_toggle_button.position == Vector2(0.0, 174.0)
+			and debug_drawer_toggle_button.text == "›"
 		)
-		await create_timer(0.32).timeout
-		var highlight_alpha_after := direction_scroll_highlight.modulate.a if direction_scroll_highlight != null else -1.0
-		direction_scroll_hint_works = (
-			direction_scroll_hint_works
-			and not is_equal_approx(highlight_alpha_before, highlight_alpha_after)
+		debug_drawer_toggle_button.pressed.emit()
+		await create_timer(0.25).timeout
+		debug_drawer_works = (
+			collapsed_works
+			and not bool(hud.call("debug_is_action_panel_collapsed"))
+			and action_panel.position == expanded_panel_position
+			and debug_drawer_toggle_button.position == expanded_toggle_position
+			and debug_drawer_toggle_button.text == "‹"
 		)
-		direction_arrow.mouse_exited.emit()
-		await process_frame
-		direction_scroll_hint_works = direction_scroll_hint_works and not direction_scroll_hint.visible
-		if direction_last_arrow != null:
-			direction_last_arrow.mouse_entered.emit()
-			await process_frame
-			direction_scroll_hint_works = direction_scroll_hint_works and direction_scroll_hint.visible
-			direction_last_arrow.mouse_exited.emit()
-			await process_frame
-			direction_scroll_hint_works = direction_scroll_hint_works and not direction_scroll_hint.visible
-	if direction_drawer != null and direction_arrow != null:
-		var direction_commands: Array[Dictionary] = []
-		var direction_hover_previews: Array[Dictionary] = []
-		direction_drawer.command_requested.connect(func(command: Dictionary) -> void:
-			direction_commands.append(command.duplicate(true))
-		)
-		direction_drawer.direction_preview_changed.connect(func(preview: Dictionary) -> void:
-			direction_hover_previews.append(preview.duplicate(true))
-		)
-		direction_drawer.call("render_snapshot", {
-			"phase": "battle",
-			"units": [{"id": "wheel_test", "name": "滚轮测试", "side": "player", "active": true, "slot": 1}],
-			"action_dirs": {"wheel_test:slot0": "up"},
-		})
-		var wheel_down := InputEventMouseButton.new()
-		wheel_down.button_index = MOUSE_BUTTON_WHEEL_DOWN
-		wheel_down.pressed = true
-		wheel_down.factor = 1.0
-		var wheel_up := InputEventMouseButton.new()
-		wheel_up.button_index = MOUSE_BUTTON_WHEEL_UP
-		wheel_up.pressed = true
-		wheel_up.factor = 1.0
-		for _step in range(4):
-			direction_arrow.gui_input.emit(wheel_down)
-		for _step in range(4):
-			direction_arrow.gui_input.emit(wheel_up)
-		var emitted_directions: Array[String] = []
-		for command in direction_commands:
-			emitted_directions.append(String(command.get("dir", "")))
-		direction_wheel_sequence = (
-			emitted_directions == ["right", "down", "left", "up", "left", "down", "right", "up"]
-			and String(direction_commands[0].get("unitId", "")) == "wheel_test"
-			and int(direction_commands[0].get("slotId", -1)) == 0
-			and direction_arrow.texture.resource_path.get_file() == "direction_arrow_002.png"
-		)
-		direction_arrow.mouse_entered.emit()
-		await process_frame
-		direction_arrow.mouse_exited.emit()
-		await process_frame
-		direction_hover_signal_works = (
-			direction_hover_previews.size() >= 2
-			and String(direction_hover_previews[direction_hover_previews.size() - 2].get("unit_id", "")) == "wheel_test"
-			and int(direction_hover_previews[direction_hover_previews.size() - 2].get("slot_index", -1)) == 0
-			and String(direction_hover_previews[direction_hover_previews.size() - 2].get("direction", "")) == "up"
-			and direction_hover_previews[direction_hover_previews.size() - 1].is_empty()
-		)
-	if direction_drawer != null and direction_collapse_button != null and direction_rows != null:
-		direction_collapse_button.pressed.emit()
-		await process_frame
-		drawer_collapses = not direction_rows.visible and not bool(direction_drawer.call("is_expanded"))
-		direction_collapse_button.pressed.emit()
-		await process_frame
-	if hud != null and attack_timeline != null and attack_timeline_toggle_button != null:
+	if hud != null and attack_timeline != null and map_controls != null and map_attack_order_button != null:
 		var starts_closed := not attack_timeline.visible and not bool(hud.call("debug_is_attack_timeline_open"))
-		attack_timeline_toggle_button.pressed.emit()
+		var duplicate_button_removed := art_scene.get_node_or_null(
+			"Hud/AttackTimelineLayer/AttackTimelineToggleButton"
+		) == null
+		map_attack_order_button.pressed.emit()
 		await process_frame
-		var opens_on_press := attack_timeline.visible and bool(hud.call("debug_is_attack_timeline_open"))
-		var open_text_is_correct := attack_timeline_toggle_button.text == "关闭技能时间轴"
-		attack_timeline_toggle_button.pressed.emit()
+		var opens_on_button := attack_timeline.visible and bool(hud.call("debug_is_attack_timeline_open"))
+		map_attack_order_button.pressed.emit()
 		await process_frame
+		var closes_on_button := not attack_timeline.visible
 		var tab_press := InputEventKey.new()
 		tab_press.keycode = KEY_TAB
 		tab_press.pressed = true
-		hud.call("_input", tab_press)
-		var opens_on_tab := attack_timeline.visible and bool(hud.call("debug_is_attack_timeline_open"))
+		map_controls.call("_unhandled_key_input", tab_press)
 		var tab_echo := InputEventKey.new()
 		tab_echo.keycode = KEY_TAB
 		tab_echo.pressed = true
 		tab_echo.echo = true
-		hud.call("_input", tab_echo)
-		var echo_keeps_open := attack_timeline.visible
-		hud.call("_input", tab_press)
-		attack_timeline_toggle_works = (
+		map_controls.call("_unhandled_key_input", tab_echo)
+		var echo_keeps_closed := not attack_timeline.visible
+		var tab_release := InputEventKey.new()
+		tab_release.keycode = KEY_TAB
+		tab_release.pressed = false
+		map_controls.call("_unhandled_key_input", tab_release)
+		var opens_on_tab := attack_timeline.visible and bool(hud.call("debug_is_attack_timeline_open"))
+		map_attack_order_button.pressed.emit()
+		attack_timeline_button_works = (
 			starts_closed
-			and opens_on_press
-			and open_text_is_correct
+			and duplicate_button_removed
+			and opens_on_button
+			and closes_on_button
+			and echo_keeps_closed
 			and opens_on_tab
-			and echo_keeps_open
 			and not attack_timeline.visible
-			and attack_timeline_toggle_button.text == "技能释放时间轴"
 		)
 	var passed: bool = (
-		art_scene_source.count("[node ") == 12
+		art_scene_source.count("[node ") == 10
 		and occupied_cell_count > 0
 		and board != null
 		and board_background != null
@@ -243,11 +175,9 @@ func _run() -> void:
 		and attack_timeline != null
 		and attack_timeline.size == Vector2(1640.0, 780.0)
 		and int(attack_timeline.call("debug_marker_count")) == 8
-		and attack_timeline_toggle_button != null
-		and attack_timeline_toggle_button.position == Vector2(280.0, 90.0)
-		and attack_timeline_toggle_button.size == Vector2(300.0, 48.0)
-		and attack_timeline_toggle_works
-		and art_scene.get_child_count() == 6
+		and art_scene.get_node_or_null("Hud/AttackTimelineLayer/AttackTimelineToggleButton") == null
+		and attack_timeline_button_works
+		and art_scene.get_child_count() == 4
 		and board.get_child_count() == 4
 		and bottom_left_cell != null
 		and bottom_left_cell.visible
@@ -259,42 +189,38 @@ func _run() -> void:
 		and bottom_right_cell.visible
 		and bottom_right_cell.call("get_grid_position") == Vector2i(7, 6)
 		and bottom_right_cell.call("contains_board_point", bottom_right_center)
-		and top_info_bar != null
-		and battle_clock != null
-		and clock_dial != null
-		and clock_pointer != null
-		and is_equal_approx(clock_dial.size.x * 1304.0 / 1448.0, 220.0)
-		and clock_dial.position == clock_pointer.position
-		and clock_dial.size == clock_pointer.size
+		and art_scene.get_node_or_null("Hud/TopInfoBar") == null
 		and cell_detail != null
 		and settings_menu != null
 		and art_scene.get_node_or_null("Board/VfxHost") != null
 		and art_scene.get_node_or_null("Hud/BattleActionPanel") != null
+		and position_difficulty_button != null
+		and debug_drawer_toggle_button != null
+		and debug_drawer_works
 		and map_controls != null
-		and map_controls.position == Vector2(1621.0, 295.0)
-		and map_controls.size == Vector2(287.0, 752.0)
+		and map_controls.position == Vector2.ZERO
+		and map_controls.size == Vector2(1920.0, 1080.0)
 		and map_controls.get_node_or_null("MapBackground") == null
 		and map_debug_button != null
-		and Rect2(map_debug_button.position, map_debug_button.size) == Rect2(1426.0, 636.0, 288.0, 42.0)
+		and map_debug_button.get_parent() == action_panel.get_node("Margin/Content")
+		and map_debug_button.custom_minimum_size.y == 42.0
 		and map_auto_button != null
-		and Rect2(map_auto_button.position, map_auto_button.size) == Rect2(220.0, 0.0, 66.0, 62.0)
+		and Rect2(map_auto_button.position, map_auto_button.size) == Rect2(1772.0, 915.0, 66.0, 62.0)
 		and map_reset_button != null
-		and Rect2(map_reset_button.position, map_reset_button.size) == Rect2(221.0, 82.0, 66.0, 62.0)
+		and Rect2(map_reset_button.position, map_reset_button.size) == Rect2(1841.0, 915.0, 66.0, 62.0)
 		and map_speed_button != null
-		and Rect2(map_speed_button.position, map_speed_button.size) == Rect2(221.0, 164.0, 65.0, 62.0)
+		and Rect2(map_speed_button.position, map_speed_button.size) == Rect2(90.0, 985.0, 65.0, 62.0)
 		and map_settings_button != null
-		and Rect2(map_settings_button.position, map_settings_button.size) == Rect2(222.0, 246.0, 65.0, 62.0)
+		and Rect2(map_settings_button.position, map_settings_button.size) == Rect2(20.0, 985.0, 65.0, 62.0)
 		and map_attack_order_button != null
-		and Rect2(map_attack_order_button.position, map_attack_order_button.size) == Rect2(222.0, 328.0, 65.0, 62.0)
+		and Rect2(map_attack_order_button.position, map_attack_order_button.size) == Rect2(1704.0, 915.0, 65.0, 62.0)
 		and map_bag_button != null
-		and Rect2(map_bag_button.position, map_bag_button.size) == Rect2(221.0, 410.0, 66.0, 62.0)
+		and Rect2(map_bag_button.position, map_bag_button.size) == Rect2(1635.0, 915.0, 66.0, 62.0)
 		and map_all_out_button != null
-		and Rect2(map_all_out_button.position, map_all_out_button.size) == Rect2(14.0, 688.0, 272.0, 64.0)
+		and Rect2(map_all_out_button.position, map_all_out_button.size) == Rect2(1635.0, 983.0, 272.0, 64.0)
 		and shortcut_hints != null
-		and Rect2(shortcut_hints.position, shortcut_hints.size) == Rect2(0.0, 34.0, 259.0, 716.0)
-		and shortcut_hint_debug_button != null
-		and Rect2(shortcut_hint_debug_button.position, shortcut_hint_debug_button.size) == Rect2(1621.0, 245.0, 287.0, 42.0)
-		and shortcut_hint_toggle_works
+		and Rect2(shortcut_hints.position, shortcut_hints.size) == Rect2(0.0, 948.0, 1920.0, 99.0)
+		and art_scene.get_node_or_null("ShortcutHintDebugButton") == null
 		and primary_actions != null
 		and not primary_actions.visible
 		and primary_actions.anchor_left == 1.0
@@ -313,41 +239,35 @@ func _run() -> void:
 		and begin_turn_button.size == Vector2(321.0, 379.0)
 		and begin_turn_button.texture_normal != null
 		and begin_turn_button.texture_pressed != null
-		and direction_drawer != null
-		and direction_drawer.anchor_left == 1.0
-		and direction_drawer.position == Vector2(1538.0, 56.0)
-		and direction_drawer.size == Vector2(300.0, 421.0)
-		and direction_rows != null
-		and direction_rows.visible
-		and direction_background != null
-		and direction_background.size == Vector2(300.0, 110.0)
-		and direction_background.texture != null
-		and direction_background.texture.get_size() == Vector2(600.0, 220.0)
-		and direction_arrow != null
-		and direction_arrow.size == Vector2(64.0, 64.0)
-		and direction_arrow.texture != null
-		and direction_arrow.texture.get_size() == Vector2(64.0, 64.0)
-		and direction_collapse_button != null
-		and direction_collapse_button.size == Vector2(110.0, 47.0)
-		and direction_collapse_triangle != null
-		and direction_collapse_triangle.size == Vector2(40.0, 40.0)
-		and direction_scroll_hint != null
-		and direction_scroll_hint.size == Vector2(48.0, 48.0)
-		and direction_scroll_hint.texture != null
-		and direction_scroll_highlight != null
-		and direction_scroll_highlight.size == Vector2(48.0, 48.0)
-		and direction_scroll_highlight.texture != null
-		and direction_scroll_animation != null
-		and direction_scroll_hint_works
-		and direction_wheel_sequence
-		and direction_hover_signal_works
-		and drawer_collapses
+		and art_scene.get_node_or_null("Hud/AttackDirectionDrawer") == null
 		and art_scene.get_node_or_null("Board/AutoArrangeButton") == null
 		and art_scene.get_node_or_null("Board/BeginTurnButton") == null
 		and art_scene.get_node_or_null("Runtime") == null
 		and art_scene.get_node_or_null("PrefabCatalog") == null
 	)
 	if not passed:
+		print({
+			"scene_nodes": art_scene_source.count("[node "),
+			"occupied_cells": occupied_cell_count,
+			"board_children": board.get_child_count() if board != null else -1,
+			"grid_children": board_grid.get_child_count() if board_grid != null else -1,
+			"unit_children": unit_host.get_child_count() if unit_host != null else -1,
+			"timeline_markers": int(attack_timeline.call("debug_marker_count")) if attack_timeline != null else -1,
+			"timeline_button_works": attack_timeline_button_works,
+			"scene_children": art_scene.get_child_count(),
+			"background_variants": background_variants_match,
+			"debug_map_cycle": debug_map_cycle_works,
+			"debug_drawer": debug_drawer_works,
+			"action_panel_position": action_panel.position if action_panel != null else Vector2.ZERO,
+			"action_panel_size": action_panel.size if action_panel != null else Vector2.ZERO,
+			"drawer_toggle_position": debug_drawer_toggle_button.position if debug_drawer_toggle_button != null else Vector2.ZERO,
+			"map_debug_parent": str(map_debug_button.get_parent().get_path()) if map_debug_button != null else "",
+			"map_debug_minimum": map_debug_button.custom_minimum_size if map_debug_button != null else Vector2.ZERO,
+			"difficulty_button": position_difficulty_button != null,
+			"shortcut_hint_debug_removed": art_scene.get_node_or_null("ShortcutHintDebugButton") == null,
+			"top_info_removed": art_scene.get_node_or_null("Hud/TopInfoBar") == null,
+			"direction_drawer_removed": art_scene.get_node_or_null("Hud/AttackDirectionDrawer") == null,
+		})
 		push_error("MOCK_BATTLE_ART_SCENE_FAIL: minimal battle hierarchy mismatch")
 	art_scene.queue_free()
 	await process_frame

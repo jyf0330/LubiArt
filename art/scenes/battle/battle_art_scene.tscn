@@ -32,6 +32,7 @@ mouse_filter = 2
 script = ExtResource("5_board")
 
 [node name="Background" type="TextureRect" parent="Board" unique_id=1769418974]
+editor_description = "战斗地图背景图。只负责显示当前战斗场景的静态地图底图。"
 layout_mode = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
@@ -40,6 +41,7 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="CellHost" type="Control" parent="Board" unique_id=2015484735]
+editor_description = "战斗格子容器。由 Board 根据公共 Snapshot 创建并管理当前存在的可交互格子。"
 custom_minimum_size = Vector2(1232, 962)
 anchors_preset = 0
 offset_left = 345.0
@@ -49,6 +51,7 @@ offset_bottom = 1051.0
 mouse_filter = 1
 
 [node name="UnitHost" type="Control" parent="Board" unique_id=120416614]
+editor_description = "战斗单位容器。由 Board 挂载并管理我方与敌方宠物的可见实例、选择和拖拽表现。"
 custom_minimum_size = Vector2(1232, 962)
 anchors_preset = 0
 offset_left = 345.0
@@ -71,36 +74,13 @@ mouse_filter = 2
 script = ExtResource("3_vfx")
 
 [node name="MapControls" parent="." unique_id=1710127243 instance=ExtResource("8_map_controls")]
+editor_description = "地图操作按钮组。提供自动布置、重置、速度、设置、攻击顺序、背包和全军出击入口。"
 anchors_preset = 0
-offset_left = 1621.0
-offset_top = 295.0
-offset_right = 1908.0
-offset_bottom = 1047.0
-
-[node name="MapDebugButton" type="Button" parent="." unique_id=755270265]
-layout_mode = 0
-offset_left = 1426.0
-offset_top = 636.0
-offset_right = 1714.0
-offset_bottom = 678.0
-tooltip_text = "仅用于美术调试：循环切换 Board/Background，不修改正式 Snapshot。"
-focus_mode = 0
-mouse_default_cursor_shape = 2
-text = "调试地图：草原（早）"
-
-
-[node name="ShortcutHintDebugButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 1621.0
-offset_top = 245.0
-offset_right = 1908.0
-offset_bottom = 287.0
-tooltip_text = "Artist debug only: toggle all shortcut hints; does not modify Snapshot."
-focus_mode = 0
-mouse_default_cursor_shape = 2
-text = "Shortcut Hints: ON"
+offset_right = 1920.0
+offset_bottom = 1080.0
 
 [node name="Hud" parent="." unique_id=1317306424 instance=ExtResource("4_hud")]
+editor_description = "战斗 HUD。集中显示行动控制、技能顺序与攻击时间线，并把操作请求交给战斗页面根。"
 
 [node name="OverlayHost" type="Control" parent="." unique_id=680115176]
 editor_description = "按需挂载当前宠物或地形详情。"
@@ -116,6 +96,7 @@ mouse_filter = 2
 script = ExtResource("6_overlay")
 
 [node name="SettingsMenu" parent="OverlayHost" instance=ExtResource("7_settings")]
+editor_description = "设置菜单实例。由 OverlayHost 在需要时显示或隐藏，不负责战斗阶段与页面路由。"
 visible = false
 layout_mode = 0
 offset_right = 1920.0

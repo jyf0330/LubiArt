@@ -19,6 +19,7 @@ const InventoryPresenterScript := preload("res://core_ui/scripts/inventory/prese
 const PartyPresenterScript := preload("res://core_ui/scripts/party/presenters/party_presenter.gd")
 const SettlementPresenterScript := preload("res://core_ui/scripts/settlement/presenters/settlement_presenter.gd")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
+const ShortcutCatalog := preload("res://core_ui/scripts/shared/shortcut_catalog.gd")
 const RequestBrokerScript := preload("res://core_ui/scripts/artist_flow/controllers/three_choice_request_broker.gd")
 const FocusCoordinatorScript := preload("res://core_ui/scripts/artist_flow/controllers/three_choice_focus_coordinator.gd")
 const DeveloperToolbarScript := preload("res://core_ui/scripts/artist_flow/controllers/three_choice_developer_toolbar.gd")
@@ -146,6 +147,8 @@ var _slot_draw_texture: ImageTexture = null
 var _is_toggling_bag := false
 var _bag_page := 0
 var _hovered_route_index := -1
+var _hovered_storage_source := DRAG_SOURCE_NONE
+var _hovered_storage_index := -1
 var _battle_view: Control = null
 var _pet_detail_panel: Control = null
 var _bazaar_info_panel: Control = null
@@ -322,6 +325,8 @@ func render_battle_command_response(command: Dictionary, response: Dictionary) -
 	var before_snapshot := _current_snapshot()
 	var after_snapshot := Dictionary(response.get("snapshot", before_snapshot))
 	_snapshot = after_snapshot.duplicate(true)
+	if _battle_view != null and _battle_view.has_method("render_command_response"):
+		_battle_view.call("render_command_response", command, response)
 	if not bool(response.get("accepted", false)):
 		var command_type := String(response.get("command", command.get("type", "")))
 		var error := Dictionary(response.get("error", {}))
@@ -817,11 +822,13 @@ func _on_party_button_down(index: int) -> void:
 func _on_party_pet_mouse_entered(index: int) -> void:
 	if _is_transitioning or _has_active_drag() or _current_view == VIEW_BATTLE:
 		return
+	_set_hovered_storage_target(DRAG_SOURCE_PARTY, index)
 	_show_storage_pet_context(DRAG_SOURCE_PARTY, index)
 
-func _on_party_pet_mouse_exited(_index: int) -> void:
+func _on_party_pet_mouse_exited(index: int) -> void:
 	if _has_active_drag():
 		return
+	_clear_hovered_storage_target(DRAG_SOURCE_PARTY, index)
 	_close_pet_context_detail()
 
 func _on_bag_slot_button_down(index: int) -> void:
@@ -830,15 +837,17 @@ func _on_bag_slot_button_down(index: int) -> void:
 func _on_bag_pet_mouse_entered(index: int) -> void:
 	if _is_transitioning or _has_active_drag() or _current_view != VIEW_BAG:
 		return
+	_set_hovered_storage_target(DRAG_SOURCE_BAG, index)
 	_show_item_slot_highlight(
 		_bag_slots[index] if index >= 0 and index < _bag_slots.size() else null,
 		_bag_slot_highlight_extra_offset(index)
 	)
 	_show_storage_pet_context(DRAG_SOURCE_BAG, index)
 
-func _on_bag_pet_mouse_exited(_index: int) -> void:
+func _on_bag_pet_mouse_exited(index: int) -> void:
 	if _has_active_drag() or _current_view != VIEW_BAG:
 		return
+	_clear_hovered_storage_target(DRAG_SOURCE_BAG, index)
 	_hide_item_slot_highlight()
 	_close_pet_context_detail()
 
@@ -848,11 +857,58 @@ func _start_storage_drag_candidate(source: StringName, index: int) -> void:
 	_drag_controller.begin_storage(source, index, true, _can_sell_storage_items())
 
 func _input(event: InputEvent) -> void:
+	if _is_sell_shortcut_pressed(event):
+		get_viewport().set_input_as_handled()
+		await _sell_shortcut_target()
+		return
 	var release_plan := _drag_controller.handle_input(event)
 	if release_plan.is_empty():
 		return
 	await _execute_drag_release_plan(release_plan)
 	_clear_drag_state()
+
+
+func _is_sell_shortcut_pressed(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		return key_event.pressed \
+				and not key_event.echo \
+				and ShortcutCatalog.event_matches_action(
+					key_event, ShortcutCatalog.ACTION_SELL_ITEM
+				)
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		return mouse_event.pressed \
+				and ShortcutCatalog.event_matches_action(
+					mouse_event, ShortcutCatalog.ACTION_SELL_ITEM
+				)
+	return false
+
+
+func _sell_shortcut_target() -> void:
+	if _is_transitioning or not _can_sell_storage_items():
+		return
+	var plan := _drag_controller.plan_sell()
+	if StringName(plan.get("kind", DragControllerScript.PLAN_NONE)) != DragControllerScript.PLAN_SUBMIT:
+		plan = _drag_controller.plan_sell(_hovered_storage_source, _hovered_storage_index)
+	if StringName(plan.get("kind", DragControllerScript.PLAN_NONE)) != DragControllerScript.PLAN_SUBMIT:
+		return
+	_clear_hovered_storage_target()
+	await _execute_drag_release_plan(plan)
+	_clear_drag_state()
+
+
+func _set_hovered_storage_target(source: StringName, index: int) -> void:
+	_hovered_storage_source = source
+	_hovered_storage_index = index
+
+
+func _clear_hovered_storage_target(source := DRAG_SOURCE_NONE, index := -1) -> void:
+	if source != DRAG_SOURCE_NONE \
+			and (_hovered_storage_source != source or _hovered_storage_index != index):
+		return
+	_hovered_storage_source = DRAG_SOURCE_NONE
+	_hovered_storage_index = -1
 
 func _has_active_drag() -> bool:
 	return _drag_controller.is_active()

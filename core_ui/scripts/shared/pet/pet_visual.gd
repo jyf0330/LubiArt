@@ -116,10 +116,14 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 	_display_texture_source = sprite_rect.texture
 	var animation_texture_path := _display_texture_source.resource_path
 	_layout_children()
+	var visible_foot_pivot := Vector2(
+		_battle_sprite_visible_rect.get_center().x,
+		_battle_sprite_visible_rect.end.y
+	) - sprite_rect.position
 	animation.play_sprite_idle(
 		sprite_rect,
 		sprite_rect.texture,
-		_battle_sprite_visible_rect.end - sprite_rect.position,
+		visible_foot_pivot,
 		animation_texture_path
 	)
 	enemy_marker_group.visible = side == "enemy" or side == "monster"

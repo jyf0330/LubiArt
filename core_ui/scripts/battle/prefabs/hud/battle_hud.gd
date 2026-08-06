@@ -4,7 +4,6 @@ extends Control
 ## emits semantic command requests; Game remains the only Session owner.
 
 signal command_requested(command: Dictionary)
-signal direction_preview_changed(preview: Dictionary)
 
 const BattleHudControllerScript := preload("res://core_ui/scripts/battle/controllers/battle_hud_controller.gd")
 const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
@@ -12,13 +11,18 @@ const GameLogScript := preload("res://core/logging/game_log.gd")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 
 @onready var auto_arrange_button: TextureButton = $BattlePrimaryActions/AutoArrangeButton
-@onready var position_difficulty_button: Button = $PositionDifficultyButton
+@onready var position_difficulty_button: Button = $BattleActionPanel/Margin/Content/PositionDifficultyButton
 @onready var begin_turn_button: TextureButton = $BattlePrimaryActions/BeginTurnButton
 @onready var action_panel: Control = $BattleActionPanel
-@onready var attack_direction_drawer: Control = $AttackDirectionDrawer
+@onready var debug_drawer_toggle_button: Button = $DebugDrawerToggleButton
 @onready var attack_timeline_layer: CanvasLayer = $AttackTimelineLayer
 @onready var attack_timeline: Control = $AttackTimelineLayer/AttackTimeline
-@onready var attack_timeline_toggle_button: Button = $AttackTimelineLayer/AttackTimelineToggleButton
+
+const DEBUG_DRAWER_EXPANDED_PANEL_POSITION := Vector2(18.0, 150.0)
+const DEBUG_DRAWER_COLLAPSED_PANEL_POSITION := Vector2(-462.0, 150.0)
+const DEBUG_DRAWER_EXPANDED_TOGGLE_POSITION := Vector2(480.0, 174.0)
+const DEBUG_DRAWER_COLLAPSED_TOGGLE_POSITION := Vector2(0.0, 174.0)
+const DEBUG_DRAWER_TWEEN_DURATION := 0.18
 
 var _snapshot: Dictionary = {}
 var _input_locked := false
@@ -27,6 +31,9 @@ var _auto_position_feedback_visible := false
 var _pending_state_version := -1
 var _pending_command_log_size := -1
 var _position_feedback_serial := 0
+var _debug_drawer_collapsed := false
+var _debug_drawer_tween: Tween = null
+var _attack_timeline_obscured := false
 var _hud_controller: RefCounted = BattleHudControllerScript.new()
 var _command_builder: RefCounted = BattleCommandBuilderScript.new()
 
@@ -36,26 +43,18 @@ func _ready() -> void:
 	auto_arrange_button.pressed.connect(_on_auto_arrange_pressed)
 	position_difficulty_button.toggled.connect(_on_position_difficulty_toggled)
 	begin_turn_button.pressed.connect(_on_begin_turn_pressed)
+	debug_drawer_toggle_button.pressed.connect(_on_debug_drawer_toggle_pressed)
 	if action_panel.has_signal("command_requested"):
 		action_panel.connect("command_requested", Callable(self, "_on_child_command_requested"))
-	if attack_direction_drawer.has_signal("command_requested"):
-		attack_direction_drawer.connect(
-			"command_requested",
-			Callable(self, "_on_child_command_requested")
-		)
-	if attack_direction_drawer.has_signal("direction_preview_changed"):
-		attack_direction_drawer.connect(
-			"direction_preview_changed",
-			Callable(self, "_on_direction_preview_changed")
-		)
 	if attack_timeline.has_signal("command_requested"):
 		attack_timeline.connect("command_requested", Callable(self, "_on_child_command_requested"))
+	if attack_timeline.has_signal("close_requested"):
+		attack_timeline.connect("close_requested", Callable(self, "close_attack_timeline"))
 	attack_timeline.visible = false
-	attack_timeline_toggle_button.pressed.connect(_toggle_attack_timeline)
 	visibility_changed.connect(_sync_attack_timeline_layer_visibility)
 	_sync_attack_timeline_layer_visibility()
-	_refresh_attack_timeline_toggle_button()
 	_apply_position_difficulty_label("normal")
+	_refresh_debug_drawer_toggle()
 	_apply_command_availability()
 
 
@@ -63,8 +62,7 @@ func render_snapshot(snapshot: Dictionary) -> void:
 	_snapshot = snapshot.duplicate(true)
 	if action_panel.has_method("render_snapshot"):
 		action_panel.call("render_snapshot", _snapshot)
-	if attack_direction_drawer.has_method("render_snapshot"):
-		attack_direction_drawer.call("render_snapshot", _snapshot)
+	debug_drawer_toggle_button.visible = action_panel.visible
 	if attack_timeline.has_method("render_snapshot"):
 		attack_timeline.call("render_snapshot", _snapshot)
 	if _auto_position_feedback_pending:
@@ -80,12 +78,49 @@ func set_input_locked(locked: bool) -> void:
 		action_panel.call("set_input_locked", locked)
 	if attack_timeline.has_method("set_interaction_locked"):
 		attack_timeline.call("set_interaction_locked", locked)
-	attack_direction_drawer.process_mode = (
-		Node.PROCESS_MODE_DISABLED if locked else Node.PROCESS_MODE_INHERIT
-	)
-	if locked:
-		direction_preview_changed.emit({})
 	_apply_command_availability()
+
+
+func render_command_response(command: Dictionary, response: Dictionary) -> void:
+	if _command_type(command) != "AUTO_POSITION_HEROES" \
+			or not _auto_position_feedback_pending:
+		return
+	var response_snapshot_value: Variant = response.get("snapshot", {})
+	var response_snapshot := (
+		Dictionary(response_snapshot_value).duplicate(true)
+		if response_snapshot_value is Dictionary and not Dictionary(response_snapshot_value).is_empty()
+		else _snapshot.duplicate(true)
+	)
+	var result_value: Variant = response.get("result", {})
+	var result := (
+		Dictionary(result_value).duplicate(true)
+		if result_value is Dictionary
+		else {}
+	)
+	var feedback_text := ""
+	if bool(result.get("mock_noop", false)):
+		feedback_text = String(_hud_controller.call(
+			"auto_position_skipped_feedback",
+			response_snapshot
+		))
+		_complete_auto_position_feedback(
+			response_snapshot,
+			result,
+			feedback_text,
+			"未执行"
+		)
+		return
+	if not result.has("ok"):
+		result["ok"] = (
+			bool(response.get("accepted", false))
+			and bool(response.get("ok", response.get("accepted", false)))
+		)
+	feedback_text = String(_hud_controller.call(
+		"auto_position_feedback",
+		response_snapshot,
+		result
+	))
+	_complete_auto_position_feedback(response_snapshot, result, feedback_text)
 
 
 func _on_auto_arrange_pressed() -> void:
@@ -158,18 +193,29 @@ func _consume_auto_position_feedback(snapshot: Dictionary) -> void:
 	)
 	if not (result_value is Dictionary) or not Dictionary(result_value).has("ok"):
 		return
-	_auto_position_feedback_pending = false
-	_pending_state_version = -1
-	_pending_command_log_size = -1
 	var result := Dictionary(result_value).duplicate(true)
-	var difficulty := String(snapshot.get("difficulty", "normal"))
 	var feedback_text := String(_hud_controller.call(
 		"auto_position_feedback",
 		snapshot,
 		result
 	))
+	_complete_auto_position_feedback(snapshot, result, feedback_text)
+
+
+func _complete_auto_position_feedback(
+	snapshot: Dictionary,
+	result: Dictionary,
+	feedback_text: String,
+	outcome: String = ""
+) -> void:
+	_auto_position_feedback_pending = false
+	_pending_state_version = -1
+	_pending_command_log_size = -1
+	var difficulty := String(snapshot.get("difficulty", "normal"))
 	GameLogScript.info("表现/自动布置", "核心结果已显示给玩家", {
-		"结果": "成功" if bool(result.get("ok", false)) else "失败",
+		"结果": outcome if not outcome.is_empty() else (
+			"成功" if bool(result.get("ok", false)) else "失败"
+		),
 		"提示": feedback_text,
 		"移动宠物": Array(result.get("moves", [])).size(),
 		"难度": difficulty,
@@ -205,6 +251,52 @@ func _on_position_difficulty_toggled(use_easy: bool) -> void:
 	command_requested.emit({"type": "SET_DIFFICULTY", "difficulty": difficulty})
 
 
+func _on_debug_drawer_toggle_pressed() -> void:
+	_set_debug_drawer_collapsed(not _debug_drawer_collapsed)
+
+
+func _set_debug_drawer_collapsed(collapsed: bool, animate: bool = true) -> void:
+	_debug_drawer_collapsed = collapsed
+	if _debug_drawer_tween != null and _debug_drawer_tween.is_valid():
+		_debug_drawer_tween.kill()
+	var panel_target := (
+		DEBUG_DRAWER_COLLAPSED_PANEL_POSITION
+		if collapsed
+		else DEBUG_DRAWER_EXPANDED_PANEL_POSITION
+	)
+	var toggle_target := (
+		DEBUG_DRAWER_COLLAPSED_TOGGLE_POSITION
+		if collapsed
+		else DEBUG_DRAWER_EXPANDED_TOGGLE_POSITION
+	)
+	if animate and is_inside_tree():
+		_debug_drawer_tween = create_tween().set_parallel(true)
+		_debug_drawer_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		_debug_drawer_tween.tween_property(
+			action_panel,
+			"position",
+			panel_target,
+			DEBUG_DRAWER_TWEEN_DURATION
+		)
+		_debug_drawer_tween.tween_property(
+			debug_drawer_toggle_button,
+			"position",
+			toggle_target,
+			DEBUG_DRAWER_TWEEN_DURATION
+		)
+	else:
+		action_panel.position = panel_target
+		debug_drawer_toggle_button.position = toggle_target
+	_refresh_debug_drawer_toggle()
+
+
+func _refresh_debug_drawer_toggle() -> void:
+	debug_drawer_toggle_button.text = "›" if _debug_drawer_collapsed else "‹"
+	debug_drawer_toggle_button.tooltip_text = (
+		"展开调试菜单" if _debug_drawer_collapsed else "收起调试菜单"
+	)
+
+
 func _on_begin_turn_pressed() -> void:
 	if _input_locked or not _phase_is_battle():
 		return
@@ -223,12 +315,6 @@ func _on_child_command_requested(command: Dictionary) -> void:
 	if _input_locked or not _phase_is_battle() or command.is_empty():
 		return
 	command_requested.emit(command.duplicate(true))
-
-
-func _on_direction_preview_changed(preview: Dictionary) -> void:
-	if _input_locked or not _phase_is_battle():
-		return
-	direction_preview_changed.emit(preview.duplicate(true))
 
 
 func _apply_position_difficulty_label(difficulty: String) -> void:
@@ -274,16 +360,6 @@ func _command_type(entry: Dictionary) -> String:
 	return String(entry.get("type", nested.get("type", ""))).strip_edges().to_upper()
 
 
-func _input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or not (event is InputEventKey):
-		return
-	var key_event := event as InputEventKey
-	if key_event.keycode != KEY_TAB or not key_event.pressed or key_event.echo:
-		return
-	_toggle_attack_timeline()
-	get_viewport().set_input_as_handled()
-
-
 func get_attack_timeline() -> Control:
 	return attack_timeline
 
@@ -292,26 +368,31 @@ func toggle_attack_timeline() -> void:
 	_toggle_attack_timeline()
 
 
+func close_attack_timeline() -> void:
+	attack_timeline.visible = false
+
+
+func set_attack_timeline_obscured(obscured: bool) -> void:
+	_attack_timeline_obscured = obscured
+	_sync_attack_timeline_layer_visibility()
+
+
 func _toggle_attack_timeline() -> void:
 	if not is_visible_in_tree() or _input_locked:
 		return
 	attack_timeline.visible = not attack_timeline.visible
-	_refresh_attack_timeline_toggle_button()
 
 
 func _sync_attack_timeline_layer_visibility() -> void:
 	var battle_is_visible := is_visible_in_tree()
-	attack_timeline_layer.visible = battle_is_visible
+	attack_timeline_layer.visible = battle_is_visible and not _attack_timeline_obscured
 	if not battle_is_visible:
 		attack_timeline.visible = false
-		_refresh_attack_timeline_toggle_button()
-
-
-func _refresh_attack_timeline_toggle_button() -> void:
-	attack_timeline_toggle_button.text = (
-		"关闭技能时间轴" if attack_timeline.visible else "技能释放时间轴"
-	)
 
 
 func debug_is_attack_timeline_open() -> bool:
 	return attack_timeline.visible
+
+
+func debug_is_action_panel_collapsed() -> bool:
+	return _debug_drawer_collapsed

@@ -20,3 +20,8 @@ func auto_position_feedback(snapshot: Dictionary, result: Dictionary) -> String:
 		return RuntimeUiPolicy.text("UI_POSITION_FAILED", [difficulty_text])
 	var move_count := Array(result.get("moves", [])).size()
 	return RuntimeUiPolicy.text("UI_POSITION_MOVED", [difficulty_text, move_count]) if move_count > 0 else RuntimeUiPolicy.text("UI_POSITION_OPTIMAL", [difficulty_text])
+
+
+func auto_position_skipped_feedback(snapshot: Dictionary) -> String:
+	var difficulty_text := RuntimeUiPolicy.text("UI_DIFFICULTY_EASY" if String(snapshot.get("difficulty", "normal")) == "easy" else "UI_DIFFICULTY_NORMAL")
+	return RuntimeUiPolicy.text("UI_POSITION_SKIPPED", [difficulty_text])

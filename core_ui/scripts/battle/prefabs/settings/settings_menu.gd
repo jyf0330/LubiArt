@@ -6,6 +6,8 @@ extends Control
 
 signal mock_action_requested(action: StringName)
 signal session_operation_requested(operation: StringName, arguments: Dictionary)
+signal button_shortcut_hints_visibility_changed(hints_visible: bool)
+signal shortcut_bindings_changed(bindings: Dictionary)
 
 const MenuSettingsScene := preload("res://art/prefabs/menu/screens/menu_settings.tscn")
 const MenuStartScene := preload("res://art/prefabs/menu/screens/menu_start.tscn")
@@ -16,6 +18,7 @@ const AbandonGameDialogScene := preload("res://art/prefabs/menu/dialogs/abandon_
 @export var hover_inner_border: StyleBox
 
 @onready var menu_visual: Control = get_node("CompleteUISettingsButtonPrefab") as Control
+@onready var menu_panel: Control = get_node("CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu") as Control
 @onready var settings_button: Button = get_node("CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/Settings") as Button
 @onready var continue_button: Button = get_node("CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/Continue") as Button
 @onready var save_game_button: Button = get_node("CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/SaveGame") as Button
@@ -25,6 +28,8 @@ const AbandonGameDialogScene := preload("res://art/prefabs/menu/dialogs/abandon_
 
 var _normal_inner_borders := {}
 var _active_panel: Control
+var _active_panel_closes_menu := false
+var _button_shortcut_hints_visible := true
 
 
 func _ready() -> void:
@@ -37,6 +42,20 @@ func _ready() -> void:
 	resign_button.pressed.connect(_open_abandon_dialog)
 	for button in [settings_button, continue_button, save_game_button, load_game_button, main_menu_button]:
 		_bind_inner_border_feedback(button)
+
+
+func _gui_input(event: InputEvent) -> void:
+	if not menu_visual.visible or is_instance_valid(_active_panel):
+		return
+	if not event is InputEventMouseButton:
+		return
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+		return
+	if menu_panel.get_global_rect().has_point(mouse_event.global_position):
+		return
+	accept_event()
+	close_menu()
 
 
 func open_menu() -> void:
@@ -58,7 +77,10 @@ func close_menu() -> void:
 
 func handle_cancel() -> void:
 	if is_instance_valid(_active_panel):
-		_close_active_panel()
+		if _active_panel_closes_menu:
+			close_menu()
+		else:
+			_close_active_panel()
 	else:
 		close_menu()
 
@@ -71,10 +93,30 @@ func has_active_panel() -> bool:
 	return is_instance_valid(_active_panel)
 
 
+func is_capturing_shortcut() -> bool:
+	return is_instance_valid(_active_panel) \
+			and _active_panel.has_method("is_capturing_shortcut") \
+			and bool(_active_panel.call("is_capturing_shortcut"))
+
+
+func set_button_shortcut_hints_visible(hints_visible: bool) -> void:
+	_button_shortcut_hints_visible = hints_visible
+	if is_instance_valid(_active_panel) \
+			and _active_panel.has_method("set_button_shortcut_hints_visible"):
+		_active_panel.call("set_button_shortcut_hints_visible", hints_visible)
+
+
+func are_button_shortcut_hints_visible() -> bool:
+	return _button_shortcut_hints_visible
+
+
 func _open_settings_panel() -> void:
-	var panel := _mount_panel(MenuSettingsScene)
-	panel.connect("close_requested", _close_active_panel)
+	var panel := _mount_panel(MenuSettingsScene, true)
+	panel.call("set_button_shortcut_hints_visible", _button_shortcut_hints_visible)
+	panel.connect("close_requested", close_menu)
 	panel.connect("option_selected", _on_settings_option_selected)
+	panel.connect("button_shortcut_hints_toggled", _on_button_shortcut_hints_toggled)
+	panel.connect("shortcut_bindings_changed", _on_shortcut_bindings_changed)
 	mock_action_requested.emit(&"settings")
 
 
@@ -104,10 +146,11 @@ func _open_abandon_dialog() -> void:
 	mock_action_requested.emit(&"resign")
 
 
-func _mount_panel(scene: PackedScene) -> Control:
+func _mount_panel(scene: PackedScene, closes_menu := false) -> Control:
 	_dispose_active_panel()
 	menu_visual.hide()
 	_active_panel = scene.instantiate() as Control
+	_active_panel_closes_menu = closes_menu
 	add_child(_active_panel)
 	_active_panel.tree_exited.connect(_on_active_panel_tree_exited.bind(_active_panel))
 	return _active_panel
@@ -125,6 +168,7 @@ func _dispose_active_panel() -> void:
 		var panel := _active_panel
 		_active_panel = null
 		panel.queue_free()
+	_active_panel_closes_menu = false
 	menu_visual.show()
 
 
@@ -145,6 +189,15 @@ func _on_settings_option_selected(option_number: int) -> void:
 	mock_action_requested.emit(StringName("settings_option_%d" % option_number))
 
 
+func _on_button_shortcut_hints_toggled(hints_visible: bool) -> void:
+	_button_shortcut_hints_visible = hints_visible
+	button_shortcut_hints_visibility_changed.emit(hints_visible)
+
+
+func _on_shortcut_bindings_changed(bindings: Dictionary) -> void:
+	shortcut_bindings_changed.emit(bindings.duplicate(true))
+
+
 func _on_continue_from_main_menu(_continue_existing: bool) -> void:
 	mock_action_requested.emit(&"continue_from_main_menu")
 	close_menu()
@@ -162,9 +215,15 @@ func _on_abandon_confirmed(source: StringName) -> void:
 func _show_start_screen(has_active_game: bool) -> void:
 	var panel := _mount_panel(MenuStartScene)
 	panel.call("set_has_active_game", has_active_game)
+	panel.call("set_button_shortcut_hints_visible", _button_shortcut_hints_visible)
 	panel.connect("start_game_requested", _on_continue_from_main_menu)
 	panel.connect("settings_requested", _on_main_menu_settings_requested)
 	panel.connect("abandon_confirmed", _on_abandon_confirmed.bind(&"main_menu"))
+	panel.connect(
+		"button_shortcut_hints_visibility_changed",
+		_on_button_shortcut_hints_toggled
+	)
+	panel.connect("shortcut_bindings_changed", _on_shortcut_bindings_changed)
 
 
 func _bind_inner_border_feedback(button: Button) -> void:

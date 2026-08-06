@@ -120,6 +120,28 @@ func plan_release(mouse_position: Vector2) -> Dictionary:
 	return {"kind": PLAN_NONE}
 
 
+func plan_sell(source := SOURCE_NONE, index := -1) -> Dictionary:
+	var sell_source: StringName = _candidate_source if source == SOURCE_NONE else source
+	var sell_index: int = _candidate_index if index < 0 else index
+	if sell_source != SOURCE_PARTY and sell_source != SOURCE_BAG:
+		return {"kind": PLAN_NONE}
+	var record := record_for_source(sell_source, sell_index)
+	var unit_id := _record_ref(record)
+	if unit_id == "":
+		return {"kind": PLAN_NONE}
+	return {
+		"kind": PLAN_SUBMIT,
+		"source": sell_source,
+		"target_kind": TARGET_SELL,
+		"command": {
+			"type": "DROP_ITEM_ON_TARGET",
+			"unitId": unit_id,
+			"target_type": String(TARGET_SELL),
+			"target_index": -1,
+		}
+	}
+
+
 func accept_release() -> void:
 	_discard_source_restore()
 

@@ -59,13 +59,16 @@ func render_snapshot(snap: Dictionary) -> void:
 	var alive_threshold := int(reset_state.get("aliveThreshold", 2))
 	var reset_charges := int(reset_state.get("charges", 0))
 	var next_charge_round := int(reset_state.get("nextChargeRound", 5))
-	var cooldown_remaining := int(reset_state.get("cooldownRemaining", 0))
+	var rounds_until_next_charge := int(reset_state.get(
+		"roundsUntilNextCharge",
+		reset_state.get("cooldownRemaining", 0)
+	))
 	if reset_ready:
 		reset_pets_button.text = RuntimeUiPolicy.text("UI_ACTION_RESET_READY", [reset_charges])
 	elif reset_charges > 0:
 		reset_pets_button.text = RuntimeUiPolicy.text("UI_ACTION_RESET_THRESHOLD", [alive_threshold, reset_charges])
 	else:
-		reset_pets_button.text = RuntimeUiPolicy.text("UI_ACTION_RESET_WAIT", [next_charge_round, cooldown_remaining])
+		reset_pets_button.text = RuntimeUiPolicy.text("UI_ACTION_RESET_WAIT", [next_charge_round, rounds_until_next_charge])
 	var skill_catalog := Dictionary(snap.get("skill_catalog", {}))
 	for index in range(skill_queue_grid.get_child_count()):
 		var entry := Dictionary(queue[index]) if index < queue.size() else {}

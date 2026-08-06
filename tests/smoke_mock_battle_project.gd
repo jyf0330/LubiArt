@@ -286,7 +286,38 @@ func _run() -> void:
 	await process_frame
 	assert(standalone_commands.size() == 1)
 	assert(String(standalone_commands[0].get("type", "")) == "AUTO_POSITION_HEROES")
-	assert(int(standalone_battle_session.call("replay_step_index")) == 0)
+	var first_auto_response := Dictionary(standalone_battle_session.call(
+		"submit_command",
+		standalone_commands[0]
+	))
+	standalone_battle_instance.call(
+		"render_command_response",
+		standalone_commands[0],
+		first_auto_response
+	)
+	standalone_battle_instance.call("render_snapshot", first_auto_response.get("snapshot", {}))
+	await process_frame
+	assert(int(standalone_battle_session.call("replay_step_index")) == 1)
+	standalone_probe.press_hud_command(&"AUTO_POSITION_HEROES")
+	await process_frame
+	assert(standalone_commands.size() == 2)
+	var repeated_auto_response := Dictionary(standalone_battle_session.call(
+		"submit_command",
+		standalone_commands[1]
+	))
+	assert(bool(Dictionary(repeated_auto_response.get("result", {})).get("mock_noop", false)))
+	standalone_battle_instance.call(
+		"render_command_response",
+		standalone_commands[1],
+		repeated_auto_response
+	)
+	await process_frame
+	var standalone_difficulty_button := standalone_battle_instance.get_node(
+		"Hud/BattleActionPanel/Margin/Content/PositionDifficultyButton"
+	) as Button
+	assert(standalone_difficulty_button.text != "摆位计算中…")
+	assert(standalone_difficulty_button.text.contains("未执行"))
+	assert(not standalone_difficulty_button.disabled)
 	standalone_battle_instance.queue_free()
 	await process_frame
 
@@ -410,6 +441,9 @@ func _run() -> void:
 	var action_panel := battle_view.get_node_or_null("Hud/BattleActionPanel") as Control
 	assert(action_panel != null)
 	assert(action_panel.get_node_or_null("Margin/Content/FlowState") != null)
+	assert(action_panel.get_node_or_null("Margin/Content/MapDebugButton") != null)
+	assert(action_panel.get_node_or_null("Margin/Content/PositionDifficultyButton") != null)
+	assert(battle_view.get_node_or_null("Hud/DebugDrawerToggleButton") != null)
 	assert(battle_view.get_node("Hud/BattleActionPanel/Margin/Content/SkillQueueGrid").get_child_count() == 8)
 	assert(battle_view.get_node_or_null("OverlayHost/BattlePetDetailPanel") != null)
 
@@ -417,6 +451,13 @@ func _run() -> void:
 	assert(game_session != null)
 	assert(not battle_view.has_method("get_game_session"))
 	assert(String(Dictionary(game_session.call("current_snapshot")).get("phase", "")) == "battle")
+	var reset_button := battle_view.get_node("MapControls/ResetButton") as TextureButton
+	var reset_cooldown_label := reset_button.get_node("ResetCooldownLabel") as Label
+	assert(int(reset_button.get_meta("charges")) == 1)
+	assert(not bool(reset_button.get_meta("cooling_down")))
+	assert(not bool(reset_button.get_meta("waiting_for_charge")))
+	assert(not reset_cooldown_label.visible)
+	assert(reset_cooldown_label.text == "")
 	assert(int(game_session.call("replay_step_index")) == 0)
 	var board_grid := battle_view.get_node("Board/CellHost") as Control
 	assert(board_grid.get_child_count() == 56)
@@ -429,36 +470,7 @@ func _run() -> void:
 	))
 	assert(not bool(empty_select_response.get("accepted", true)))
 	assert(int(game_session.call("replay_step_index")) == replay_step_before_empty_select)
-	var direction_drawer := battle_view.get_node("Hud/AttackDirectionDrawer") as Control
-	var first_direction_state := Dictionary(Array(direction_drawer.call("debug_display_directions"))[0])
-	var first_direction_unit_id := String(first_direction_state.get("unit_id", ""))
-	var first_direction_arrow := direction_drawer.get_node("Rows/Row1/Arrow1") as TextureRect
-	var wheel_down_event := InputEventMouseButton.new()
-	wheel_down_event.button_index = MOUSE_BUTTON_WHEEL_DOWN
-	wheel_down_event.pressed = true
-	wheel_down_event.factor = 1.0
-	first_direction_arrow.gui_input.emit(wheel_down_event)
-	await process_frame
-	await process_frame
-	var direction_snapshot := Dictionary(game_session.call("current_snapshot"))
-	assert(String(Dictionary(direction_snapshot.get("action_dirs", {})).get(
-		"%s:slot0" % first_direction_unit_id,
-		""
-	)) == "down")
-	assert(int(game_session.call("replay_step_index")) == 0)
-	first_direction_arrow.mouse_entered.emit()
-	await process_frame
-	assert(_visible_attack_highlight_count(board_grid) == 1)
-	var downward_preview_cell := _board_cell_at(board_grid, Vector2i(1, 6))
-	assert(downward_preview_cell != null)
-	assert(bool(downward_preview_cell.call("is_attack_highlight_blinking")))
-	var downward_highlight := downward_preview_cell.get_node("AttackHighlight") as Polygon2D
-	var direction_highlight_alpha_before := downward_highlight.modulate.a
-	await create_timer(0.18).timeout
-	assert(not is_equal_approx(direction_highlight_alpha_before, downward_highlight.modulate.a))
-	first_direction_arrow.mouse_exited.emit()
-	await process_frame
-	assert(_visible_attack_highlight_count(board_grid) == 0)
+	assert(battle_view.get_node_or_null("Hud/AttackDirectionDrawer") == null)
 	var current_board := Dictionary(Dictionary(game_session.call("current_snapshot")).get("board", {}))
 	var front_row_y := int(current_board.get("height", current_board.get("rows", 7))) - 1
 

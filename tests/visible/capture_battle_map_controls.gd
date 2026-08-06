@@ -30,7 +30,7 @@ func _run() -> void:
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	root.add_child(background)
 	_prefab = PREFAB.instantiate() as Control
-	_prefab.position = Vector2(1621.0, 295.0)
+	_prefab.position = Vector2.ZERO
 	root.add_child(_prefab)
 	_prefab.auto_arrange_requested.connect(_increment.bind("auto_arrange"))
 	_prefab.reset_requested.connect(_increment.bind("reset"))
@@ -74,6 +74,7 @@ func _run() -> void:
 		"bag"
 	)
 	await _capture_shortcut_hint_toggle()
+	await _capture_tooltip_hover()
 
 	var manifest_path := OUTPUT_DIR.path_join("operations.json")
 	var file := FileAccess.open(manifest_path, FileAccess.WRITE)
@@ -138,6 +139,23 @@ func _capture_shortcut_hint_toggle() -> void:
 		"name": "08_shortcut_hints_round_trip",
 		"before": "08_shortcut_hints_before.png",
 		"after": "08_shortcut_hints_after.png",
+	})
+
+
+func _capture_tooltip_hover() -> void:
+	var button := _prefab.get_node("AutoArrangeButton") as TextureButton
+	var hover_position := button.get_global_rect().get_center()
+	Input.warp_mouse(Vector2i(hover_position))
+	var motion := InputEventMouseMotion.new()
+	motion.position = hover_position
+	motion.global_position = hover_position
+	root.push_input(motion, true)
+	await create_timer(1.15).timeout
+	await process_frame
+	await _capture("09_auto_arrange_tooltip.png")
+	_operations.append({
+		"name": "09_auto_arrange_tooltip_after_one_second",
+		"after": "09_auto_arrange_tooltip.png",
 	})
 
 

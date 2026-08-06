@@ -26,7 +26,7 @@ art/prefabs/
 - `pet.tscn`：三选一、队伍、背包和战斗共同使用的宠物视觉与交互根。
 - `pet_detail.tscn`：三选一和战斗共同使用的正式宠物详情、遮罩、确认操作和卡面；不包含调试节点，也不创建 Session。
 - `sprite_info_card.tscn`：由宠物详情实例化的内部卡片组件，可在独立美术调试 Scene 中直接检查。
-- `attack_direction_drawer.tscn`：由正式战斗 Scene 实例化的内部 HUD 组件，保留四行方向、收起按钮和固定显示尺寸。
+- `attack_direction_drawer.tscn`：已从正式战斗 HUD 移除的历史内部组件，文件暂时保留供独立检查。
 - `three_choice_card.tscn`：三选一页面的路线卡模板，保留可编辑的卡面、悬停表现与点击区域。
 - `bazaar_info_panel.tscn`：商店条目的信息浮层组件。
 - `game_cursor.tscn`：应用装配层复用的鼠标指针表现组件。
@@ -35,7 +35,7 @@ art/prefabs/
 
 战斗单位四角数值按美术参考固定为：左上生命、右上“单次受到伤害上限”、左下攻击、右下当前护盾。例如上限为 8 时，10 点攻击最终最多造成 8 点伤害，6 点攻击仍造成 6 点；正式战斗事件会先扣护盾，再扣生命。四枚图标随棋盘透视统一缩放，后排较小、前排较大；所有纵深的角标都收在本格内部并保留边缘间距，避免遮挡相邻单位的角标。数值文字同步缩放并始终在各自图标内水平、垂直居中。Mock 只读取公开 Snapshot 中的上限、护盾及 `shieldDamage` / `hpDamage` 结果，不在表现层重新计算规则；Snapshot 没有提供伤害上限时，右上灰锁不显示。
 
-宠物攻击、受击、移动、死亡、跨格投射物和伤害数字属于 `pet.tscn`；地面元素标记与命中特效属于 `terrain.tscn`。攻击方向抽屉属于独立内部 HUD prefab；`SpriteInfoCard` 数据调试只存在于独立的 `sprite_info_card_debug_scene.tscn`，不混入正式宠物详情 prefab。
+宠物攻击、受击、移动、死亡、跨格投射物和伤害数字属于 `pet.tscn`；地面元素标记与命中特效属于 `terrain.tscn`。攻击方向抽屉 prefab 不再接入正式 HUD；`SpriteInfoCard` 数据调试只存在于独立的 `sprite_info_card_debug_scene.tscn`，不混入正式宠物详情 prefab。
 
 对应脚本统一放在 `res://core_ui/scripts/`，图片统一放在 `res://art/images/`。额外 prefab 必须同时拥有可独立验收的美术表现和根节点表现脚本；纯布局容器、槽位、锚点或点击区域保留在所属 Scene 中，不为复用几行结构单独建 prefab。
 

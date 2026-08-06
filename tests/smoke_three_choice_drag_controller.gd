@@ -86,8 +86,18 @@ func _run() -> void:
 	_expect(String(bag_command.get("unitId", "")) == "unit_party" and String(bag_command.get("target_type", "")) == "bag", "storage plan uses stable unit identity and authored bag target")
 	var self_plan := controller.plan_release(_center(party))
 	_expect(StringName(self_plan.get("kind")) == DragControllerScript.PLAN_NONE, "same-slot storage release is a no-op")
+	var sell_plan := controller.plan_sell()
+	_expect(StringName(sell_plan.get("kind")) == DragControllerScript.PLAN_SUBMIT, "active storage item can be sold by keyboard shortcut")
+	_expect(Dictionary(sell_plan.get("command", {})) == {
+		"type": "DROP_ITEM_ON_TARGET",
+		"unitId": "unit_party",
+		"target_type": "sell",
+		"target_index": -1,
+	}, "keyboard sale uses the same semantic sell command as the authored drop target")
 	controller.clear()
 	_expect(party_button.texture_normal == texture and not _sell_visible, "storage cleanup restores source and hides sell target")
+	var hovered_sell_plan := controller.plan_sell(DragControllerScript.SOURCE_BAG, 0)
+	_expect(String(Dictionary(hovered_sell_plan.get("command", {})).get("unitId", "")) == "unit_bag", "hovered storage item can be sold without starting a pointer drag")
 
 	_expect(controller.begin_shop(0), "shop inspection transaction begins")
 	var inspect_plan := controller.plan_release(_center(shop))

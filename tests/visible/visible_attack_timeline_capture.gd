@@ -17,8 +17,8 @@ func _run() -> void:
 	battle.call("render_snapshot", Dictionary(MockSession.new({"start_phase": "battle"}).call("current_snapshot")))
 	await process_frame
 	await process_frame
-	var toggle_button := battle.get_node("Hud/AttackTimelineLayer/AttackTimelineToggleButton") as Button
-	toggle_button.pressed.emit()
+	var attack_order_button := battle.get_node("MapControls/AttackOrderButton") as TextureButton
+	attack_order_button.pressed.emit()
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var error := root.get_texture().get_image().save_png(ProjectSettings.globalize_path(OUTPUT_PATH))

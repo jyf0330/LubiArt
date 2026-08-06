@@ -84,7 +84,8 @@
           "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_006.png",
           "res://art/images/shared/pets/animations/rock_claw/preview_v1/idle/frame_007.png"
         ],
-        "durations_ms": [520, 320, 940, 100, 260, 100, 520]
+        "durations_ms": [520, 320, 940, 100, 260, 100, 520],
+        "render_scale": 1.56
       },
       "attack": {
         "frames": [
@@ -99,6 +100,7 @@
           "res://art/images/shared/pets/animations/rock_claw/preview_v3/attack/frame_009.png"
         ],
         "durations_ms": [280, 120, 180, 320, 90, 190, 160, 140, 320],
+        "render_scale": 1.56,
         "release_frame": 6
       }
     }

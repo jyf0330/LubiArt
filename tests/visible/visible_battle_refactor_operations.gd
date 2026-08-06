@@ -36,16 +36,17 @@ func _run() -> void:
 	await _settle(8)
 	await _stabilize()
 
-	var difficulty_button := _battle.get_node_or_null("Hud/PositionDifficultyButton") as Button
+	var difficulty_button := _battle.get_node_or_null(
+		"Hud/BattleActionPanel/Margin/Content/PositionDifficultyButton"
+	) as Button
 	difficulty_button.set_pressed_no_signal(true)
 	difficulty_button.emit_signal("toggled", true)
 	await _settle(2)
 	await _capture("operation_01_difficulty_easy.png")
 
-	var drawer := _battle.get_node_or_null("Hud/AttackDirectionDrawer") as Control
-	var collapse_button := drawer.get_node_or_null("CollapseButton") as TextureButton if drawer != null else null
+	var collapse_button := _battle.get_node_or_null("Hud/DebugDrawerToggleButton") as Button
 	if collapse_button == null:
-		_fail("direction drawer collapse button is unavailable")
+		_fail("debug drawer collapse button is unavailable")
 		return
 	collapse_button.pressed.emit()
 	await create_timer(0.2).timeout

@@ -4,6 +4,8 @@ signal start_game_requested(continue_existing: bool)
 signal settings_requested
 signal back_requested
 signal abandon_confirmed
+signal button_shortcut_hints_visibility_changed(hints_visible: bool)
+signal shortcut_bindings_changed(bindings: Dictionary)
 
 const ABANDON_GAME_DIALOG := preload("res://art/prefabs/menu/dialogs/abandon_game_dialog.tscn")
 
@@ -20,6 +22,10 @@ func _ready() -> void:
 	start_game_button.button_pressed.connect(_on_start_game_pressed)
 	back_button.button_pressed.connect(_on_action_button_pressed)
 	settings_button.button_pressed.connect(_on_action_button_pressed)
+	settings_overlay.button_shortcut_hints_toggled.connect(
+		_on_button_shortcut_hints_toggled
+	)
+	settings_overlay.shortcut_bindings_changed.connect(_on_shortcut_bindings_changed)
 	_apply_active_game_state()
 
 
@@ -27,6 +33,20 @@ func set_has_active_game(has_active_game: bool) -> void:
 	_has_active_game = has_active_game
 	if is_node_ready():
 		_apply_active_game_state()
+
+
+func set_button_shortcut_hints_visible(hints_visible: bool) -> void:
+	settings_overlay.call("set_button_shortcut_hints_visible", hints_visible)
+
+
+func are_button_shortcut_hints_visible() -> bool:
+	return bool(settings_overlay.call("are_button_shortcut_hints_visible"))
+
+
+func is_capturing_shortcut() -> bool:
+	return settings_overlay.visible \
+			and settings_overlay.has_method("is_capturing_shortcut") \
+			and bool(settings_overlay.call("is_capturing_shortcut"))
 
 
 func _apply_active_game_state() -> void:
@@ -56,6 +76,14 @@ func _on_action_button_pressed(action: ActionButton.ActionType) -> void:
 		ActionButton.ActionType.SETTINGS:
 			settings_requested.emit()
 			settings_overlay.open()
+
+
+func _on_button_shortcut_hints_toggled(hints_visible: bool) -> void:
+	button_shortcut_hints_visibility_changed.emit(hints_visible)
+
+
+func _on_shortcut_bindings_changed(bindings: Dictionary) -> void:
+	shortcut_bindings_changed.emit(bindings.duplicate(true))
 
 
 func _open_abandon_game_dialog() -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bmtxoau6qqky"]
+[gd_scene load_steps=16 format=3 uid="uid://bmtxoau6qqky"]
 
 [ext_resource type="StyleBox" uid="uid://6djmp2esmdln" path="res://art/themes/menu/hover_button.tres" id="1_hover"]
 [ext_resource type="StyleBox" uid="uid://bpbh2w3xu1u4k" path="res://art/themes/menu/normal_button.tres" id="2_normal"]
@@ -11,11 +11,81 @@
 [ext_resource type="Script" path="res://core_ui/scripts/menu/scenes/menu_settings.gd" id="10_controller"]
 [ext_resource type="Script" path="res://core_ui/scripts/menu/components/action_button.gd" id="11_action_button"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_checkbox"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_track"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.22, 0.12, 0.035, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.76, 0.51, 0.08, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_fill"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(1, 0.43, 0.06, 1)
+border_width_top = 2
+border_width_bottom = 2
+border_color = Color(1, 0.72, 0.12, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_option_popup"]
+content_margin_left = 12.0
+content_margin_top = 10.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+bg_color = Color(0.015, 0.035, 0.13, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.76, 0.51, 0.08, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_option_popup_hover"]
+bg_color = Color(0.16, 0.1, 0.035, 0.96)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="Theme" id="Theme_start_settings"]
 Button/font_sizes/font_size = 32
 Button/styles/hover = ExtResource("1_hover")
 Button/styles/normal = ExtResource("2_normal")
 Button/styles/pressed = ExtResource("3_pressed")
+CheckBox/colors/font_color = Color(1, 0.62, 0.2, 1)
+CheckBox/colors/font_hover_color = Color(1, 0.79, 0.38, 1)
+CheckBox/colors/font_hover_pressed_color = Color(1, 0.79, 0.38, 1)
+CheckBox/colors/font_pressed_color = Color(1, 0.62, 0.2, 1)
+CheckBox/styles/hover = SubResource("StyleBoxEmpty_checkbox")
+CheckBox/styles/hover_pressed = SubResource("StyleBoxEmpty_checkbox")
+CheckBox/styles/normal = SubResource("StyleBoxEmpty_checkbox")
+CheckBox/styles/pressed = SubResource("StyleBoxEmpty_checkbox")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_fill")
+HSlider/styles/slider = SubResource("StyleBoxFlat_slider_track")
+PopupMenu/colors/font_color = Color(1, 0.86, 0.66, 1)
+PopupMenu/colors/font_hover_color = Color(1, 0.79, 0.38, 1)
+PopupMenu/colors/font_outline_color = Color(0.08, 0.02, 0.01, 0.9)
+PopupMenu/font_sizes/font_size = 32
+PopupMenu/constants/outline_size = 2
+PopupMenu/constants/v_separation = 10
+PopupMenu/styles/hover = SubResource("StyleBoxFlat_option_popup_hover")
+PopupMenu/styles/panel = SubResource("StyleBoxFlat_option_popup")
 
 [node name="StartSceneSettings" type="Control" unique_id=37328338]
 custom_minimum_size = Vector2(1920, 1080)
@@ -200,7 +270,7 @@ theme_override_styles/panel = ExtResource("6_inner")
 [node name="Option04" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/LeftButtonArea/Buttons"]
 custom_minimum_size = Vector2(474, 95)
 layout_mode = 2
-text = "案件绑定"
+text = "按键绑定"
 
 [node name="InnerBorder" type="Panel" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/LeftButtonArea/Buttons/Option04"]
 layout_mode = 1
@@ -261,7 +331,7 @@ theme_override_colors/font_color = Color(1, 0.18, 0.05, 1)
 theme_override_styles/normal = ExtResource("7_resign")
 theme_override_styles/hover = ExtResource("8_resign_hover")
 theme_override_styles/pressed = ExtResource("7_resign")
-text = "退至桌面"
+text = "退出桌面"
 
 [node name="InnerBorder" type="Panel" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/LeftButtonArea/Buttons/Option07"]
 layout_mode = 1
@@ -276,3 +346,834 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("9_resign_inner")
+
+[node name="ContentArea" type="Control" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual"]
+layout_mode = 0
+offset_left = 735.0
+offset_top = 82.0
+offset_right = 1760.0
+offset_bottom = 988.0
+
+[node name="ContentTint" type="ColorRect" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.035, 0.13, 0)
+
+[node name="ContentScroll" type="ScrollContainer" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea"]
+layout_mode = 0
+offset_left = 26.0
+offset_top = -22.0
+offset_right = 1002.0
+offset_bottom = 842.0
+horizontal_scroll_mode = 0
+
+[node name="ContentStack" type="VBoxContainer" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll"]
+custom_minimum_size = Vector2(942, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 22
+
+[node name="AudioSection" type="Control" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack"]
+custom_minimum_size = Vector2(942, 560)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 920.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(1, 0.73, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.03, 0.01, 0.9)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 54
+text = "音频"
+
+[node name="MasterVolumeLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 102.0
+offset_right = 260.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "主音量"
+
+[node name="MasterVolumeSlider" type="HSlider" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 268.0
+offset_top = 104.0
+offset_right = 916.0
+offset_bottom = 146.0
+mouse_default_cursor_shape = 2
+value = 80.0
+
+[node name="MusicVolumeLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 198.0
+offset_right = 260.0
+offset_bottom = 244.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "音乐"
+
+[node name="MusicVolumeSlider" type="HSlider" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 268.0
+offset_top = 200.0
+offset_right = 916.0
+offset_bottom = 242.0
+mouse_default_cursor_shape = 2
+value = 75.0
+
+[node name="SoundVolumeLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 294.0
+offset_right = 260.0
+offset_bottom = 340.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "声音"
+
+[node name="SoundVolumeSlider" type="HSlider" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 268.0
+offset_top = 296.0
+offset_right = 916.0
+offset_bottom = 338.0
+mouse_default_cursor_shape = 2
+value = 80.0
+
+[node name="VoiceVolumeLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 390.0
+offset_right = 260.0
+offset_bottom = 436.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "语音"
+
+[node name="VoiceVolumeSlider" type="HSlider" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 268.0
+offset_top = 392.0
+offset_right = 916.0
+offset_bottom = 434.0
+mouse_default_cursor_shape = 2
+value = 80.0
+
+[node name="Divider" type="ColorRect" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AudioSection"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 528.0
+offset_right = 920.0
+offset_bottom = 531.0
+mouse_filter = 2
+color = Color(0.65, 0.48, 0.18, 0.72)
+
+[node name="GraphicsSection" type="Control" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack"]
+custom_minimum_size = Vector2(942, 660)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 920.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(1, 0.73, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.03, 0.01, 0.9)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 54
+text = "画面"
+
+[node name="ResolutionLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 104.0
+offset_right = 332.0
+offset_bottom = 158.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "分辨率"
+
+[node name="ResolutionOption" type="OptionButton" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 350.0
+offset_top = 88.0
+offset_right = 920.0
+offset_bottom = 160.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+item_count = 4
+selected = 0
+popup/item_0/text = "1920 × 1080"
+popup/item_0/id = 0
+popup/item_1/text = "1600 × 900"
+popup/item_1/id = 1
+popup/item_2/text = "1366 × 768"
+popup/item_2/id = 2
+popup/item_3/text = "1280 × 720"
+popup/item_3/id = 3
+
+[node name="FrameRateLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 198.0
+offset_right = 332.0
+offset_bottom = 252.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "帧率"
+
+[node name="FrameRateOption" type="OptionButton" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 350.0
+offset_top = 182.0
+offset_right = 920.0
+offset_bottom = 254.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+item_count = 4
+selected = 1
+popup/item_0/text = "30 FPS"
+popup/item_0/id = 0
+popup/item_1/text = "60 FPS"
+popup/item_1/id = 1
+popup/item_2/text = "120 FPS"
+popup/item_2/id = 2
+popup/item_3/text = "无限制"
+popup/item_3/id = 3
+
+[node name="WindowModeCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 290.0
+offset_right = 920.0
+offset_bottom = 348.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+text = "窗口模式"
+
+[node name="VsyncCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 366.0
+offset_right = 920.0
+offset_bottom = 424.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+text = "启用垂直同步"
+
+[node name="SkipIntroCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 442.0
+offset_right = 920.0
+offset_bottom = 500.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "跳过开场动画"
+
+[node name="Divider" type="ColorRect" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GraphicsSection"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 628.0
+offset_right = 920.0
+offset_bottom = 631.0
+mouse_filter = 2
+color = Color(0.65, 0.48, 0.18, 0.72)
+
+[node name="GameplaySection" type="Control" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack"]
+custom_minimum_size = Vector2(942, 720)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 920.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(1, 0.73, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.03, 0.01, 0.9)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 54
+text = "游玩内容"
+
+[node name="LanguageLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 104.0
+offset_right = 300.0
+offset_bottom = 158.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "语言"
+
+[node name="LanguageOption" type="OptionButton" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 164.0
+offset_right = 920.0
+offset_bottom = 236.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+item_count = 3
+selected = 0
+popup/item_0/text = "简体中文"
+popup/item_0/id = 0
+popup/item_1/text = "繁體中文"
+popup/item_1/id = 1
+popup/item_2/text = "English"
+popup/item_2/id = 2
+
+[node name="KeywordGlossaryCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 266.0
+offset_right = 920.0
+offset_bottom = 324.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "显示关键词图例"
+
+[node name="TerrainLegendCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 334.0
+offset_right = 920.0
+offset_bottom = 392.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "显示地形栏位图例"
+
+[node name="QuickFirstBattleCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 402.0
+offset_right = 920.0
+offset_bottom = 460.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "快进首场战斗"
+
+[node name="HideOpponentNameCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 470.0
+offset_right = 920.0
+offset_bottom = 528.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "隐藏对手名字"
+
+[node name="ShortcutHintsCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 538.0
+offset_right = 920.0
+offset_bottom = 596.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "显示按钮快捷键提示"
+
+[node name="Divider" type="ColorRect" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/GameplaySection"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 688.0
+offset_right = 920.0
+offset_bottom = 691.0
+mouse_filter = 2
+color = Color(0.65, 0.48, 0.18, 0.72)
+
+[node name="KeybindsSection" type="Control" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack"]
+custom_minimum_size = Vector2(942, 880)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 920.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(1, 0.73, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.03, 0.01, 0.9)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 54
+text = "按键绑定"
+
+[node name="AutoArrangeLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 276.0
+offset_right = 550.0
+offset_bottom = 334.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "自动布阵"
+
+[node name="AutoArrangeKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 260.0
+offset_right = 830.0
+offset_bottom = 338.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "A"
+
+[node name="AutoArrangeResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 260.0
+offset_right = 920.0
+offset_bottom = 338.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="ResetArrangeLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 358.0
+offset_right = 550.0
+offset_bottom = 416.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "重置布阵"
+
+[node name="ResetArrangeKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 342.0
+offset_right = 830.0
+offset_bottom = 420.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "R"
+
+[node name="ResetArrangeResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 342.0
+offset_right = 920.0
+offset_bottom = 420.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="SettingsLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 112.0
+offset_right = 550.0
+offset_bottom = 170.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "进入设置"
+
+[node name="SettingsKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 96.0
+offset_right = 830.0
+offset_bottom = 174.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "ESC"
+
+[node name="SettingsResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 96.0
+offset_right = 920.0
+offset_bottom = 174.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="SaveLoadLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 194.0
+offset_right = 550.0
+offset_bottom = 252.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "打开存档菜单"
+
+[node name="SaveLoadKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 178.0
+offset_right = 830.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "H"
+
+[node name="SaveLoadResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 178.0
+offset_right = 920.0
+offset_bottom = 256.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="BattleSpeedLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 440.0
+offset_right = 550.0
+offset_bottom = 498.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "切换战斗速度"
+
+[node name="BattleSpeedKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 424.0
+offset_right = 830.0
+offset_bottom = 502.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "D"
+
+[node name="BattleSpeedResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 424.0
+offset_right = 920.0
+offset_bottom = 502.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="AttackOrderLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 522.0
+offset_right = 550.0
+offset_bottom = 580.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "查看攻击顺序"
+
+[node name="AttackOrderKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 506.0
+offset_right = 830.0
+offset_bottom = 584.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "TAB"
+
+[node name="AttackOrderResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 506.0
+offset_right = 920.0
+offset_bottom = 584.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="BattleBagLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 604.0
+offset_right = 550.0
+offset_bottom = 662.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "打开战斗背包"
+
+[node name="BattleBagKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 588.0
+offset_right = 830.0
+offset_bottom = 666.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "B"
+
+[node name="BattleBagResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 588.0
+offset_right = 920.0
+offset_bottom = 666.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="AllOutLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 686.0
+offset_right = 550.0
+offset_bottom = 744.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "全军出击"
+
+[node name="AllOutKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 670.0
+offset_right = 830.0
+offset_bottom = 748.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "SPACE"
+
+[node name="AllOutResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 670.0
+offset_right = 920.0
+offset_bottom = 748.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="SellItemLabel" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 768.0
+offset_right = 550.0
+offset_bottom = 826.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+text = "出售物品"
+
+[node name="SellItemKeyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 570.0
+offset_top = 752.0
+offset_right = 830.0
+offset_bottom = 830.0
+theme_override_colors/font_color = Color(1, 0.86, 0.66, 1)
+theme_override_font_sizes/font_size = 32
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "E"
+
+[node name="SellItemResetButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+visible = false
+layout_mode = 0
+offset_left = 842.0
+offset_top = 752.0
+offset_right = 920.0
+offset_bottom = 830.0
+tooltip_text = "恢复默认设置"
+theme_override_colors/font_color = Color(0.87, 0.94, 0.76, 1)
+theme_override_font_sizes/font_size = 38
+focus_mode = 0
+mouse_default_cursor_shape = 2
+text = "↶"
+
+[node name="Divider" type="ColorRect" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/KeybindsSection"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 850.0
+offset_right = 920.0
+offset_bottom = 853.0
+mouse_filter = 2
+color = Color(0.65, 0.48, 0.18, 0.72)
+
+[node name="AccessibilitySection" type="Control" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack"]
+custom_minimum_size = Vector2(942, 350)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AccessibilitySection"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 920.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(1, 0.73, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.03, 0.01, 0.9)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 54
+text = "易用性"
+
+[node name="DisableScreenShakeCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AccessibilitySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 112.0
+offset_right = 920.0
+offset_bottom = 170.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "禁用屏幕抖动"
+
+[node name="DisableEncounterAnimationCheck" type="CheckBox" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AccessibilitySection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 186.0
+offset_right = 920.0
+offset_bottom = 244.0
+theme_override_colors/font_color = Color(1, 0.62, 0.2, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+button_pressed = true
+text = "禁用遭遇动画"
+
+[node name="Divider" type="ColorRect" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/AccessibilitySection"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 318.0
+offset_right = 920.0
+offset_bottom = 321.0
+mouse_filter = 2
+color = Color(0.65, 0.48, 0.18, 0.72)
+
+[node name="SupportSection" type="Control" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack"]
+custom_minimum_size = Vector2(942, 500)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/SupportSection"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 920.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(1, 0.73, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.03, 0.01, 0.9)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 54
+text = "客服"
+
+[node name="ContactSupportButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/SupportSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 106.0
+offset_right = 920.0
+offset_bottom = 190.0
+theme_override_colors/font_color = Color(0.8, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+text = "联系客服"
+
+[node name="TermsButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/SupportSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 220.0
+offset_right = 920.0
+offset_bottom = 304.0
+theme_override_colors/font_color = Color(0.8, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+text = "查看服务条款"
+
+[node name="PrivacyButton" type="Button" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea/ContentScroll/ContentStack/SupportSection"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 334.0
+offset_right = 920.0
+offset_bottom = 418.0
+theme_override_colors/font_color = Color(0.8, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 32
+mouse_default_cursor_shape = 2
+text = "查看隐私政策"
+
+[node name="AutoSaveHint" type="Label" parent="CompleteStartSceneSettingsPrefab/01_StartSceneSettingsVisual/ContentArea"]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 852.0
+offset_right = 1002.0
+offset_bottom = 900.0
+theme_override_colors/font_color = Color(1, 0.56, 0.12, 1)
+theme_override_colors/font_shadow_color = Color(0.12, 0.02, 0.01, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 32
+text = "更改将自动保存。"
+horizontal_alignment = 1

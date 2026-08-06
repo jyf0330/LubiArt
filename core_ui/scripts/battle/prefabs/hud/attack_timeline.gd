@@ -6,12 +6,14 @@ extends Control
 signal command_requested(command: Dictionary)
 signal order_changed(entry_ids: Array[String])
 signal release_preview(entry_id: String, order: int)
+signal close_requested
 
 const MARKER_WIDTH := 170.0
 const MARKER_Y := 4.0
 const MIN_MARKER_X := 32.0
 
 @onready var marker_layer: Control = $TimelineArea/MarkerLayer
+@onready var backdrop: ColorRect = $Backdrop
 @onready var playback_cursor: Control = $TimelineArea/PlaybackCursor
 @onready var play_button: Button = $PlayButton
 @onready var reset_button: Button = $ResetButton
@@ -25,6 +27,7 @@ var _playing := false
 
 
 func _ready() -> void:
+	backdrop.gui_input.connect(_on_backdrop_gui_input)
 	_markers.assign(marker_layer.get_children().filter(func(child: Node) -> bool:
 		return child.name.begins_with("Marker")
 	))
@@ -37,6 +40,16 @@ func _ready() -> void:
 		pet_frame.mouse_exited.connect(_on_marker_mouse_exited.bind(marker))
 	visibility_changed.connect(_on_visibility_changed)
 	_reset_positions(false)
+
+
+func _on_backdrop_gui_input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton:
+		return
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+		return
+	backdrop.accept_event()
+	close_requested.emit()
 
 
 func _exit_tree() -> void:

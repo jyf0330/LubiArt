@@ -12,13 +12,13 @@ const EXPECTED_MAP_IDS := [
 	"lowland_morning",
 ]
 const EXPECTED_BUTTON_RECTS := {
-	"AutoArrangeButton": Rect2(220.0, 0.0, 66.0, 62.0),
-	"ResetButton": Rect2(221.0, 82.0, 66.0, 62.0),
-	"SpeedButton": Rect2(221.0, 164.0, 65.0, 62.0),
-	"SettingsButton": Rect2(222.0, 246.0, 65.0, 62.0),
-	"AttackOrderButton": Rect2(222.0, 328.0, 65.0, 62.0),
-	"BagButton": Rect2(221.0, 410.0, 66.0, 62.0),
-	"AllOutButton": Rect2(14.0, 688.0, 272.0, 64.0),
+	"AutoArrangeButton": Rect2(1772.0, 915.0, 66.0, 62.0),
+	"ResetButton": Rect2(1841.0, 915.0, 66.0, 62.0),
+	"SpeedButton": Rect2(90.0, 985.0, 65.0, 62.0),
+	"SettingsButton": Rect2(20.0, 985.0, 65.0, 62.0),
+	"AttackOrderButton": Rect2(1704.0, 915.0, 65.0, 62.0),
+	"BagButton": Rect2(1635.0, 915.0, 66.0, 62.0),
+	"AllOutButton": Rect2(1635.0, 983.0, 272.0, 64.0),
 }
 const EXPECTED_SHORTCUTS := {
 	"A": "AutoArrangeButton",
@@ -29,10 +29,20 @@ const EXPECTED_SHORTCUTS := {
 	"B": "BagButton",
 	"Space": "AllOutButton",
 }
+const EXPECTED_TOOLTIPS := {
+	"AutoArrangeButton": "自动布阵：快速安排我方精灵站位。（快捷键 A）",
+	"ResetButton": "重置布阵：恢复我方精灵到本场战斗入场状态。（快捷键 R）",
+	"SpeedButton": "切换战斗速度：在 1 倍与 2 倍播放速度之间切换。（快捷键 D）",
+	"SettingsButton": "设置：打开或关闭设置菜单。（快捷键 ESC）",
+	"AttackOrderButton": "攻击顺序：查看或收起本回合的攻击顺序。（快捷键 TAB）",
+	"BagButton": "战斗背包：打开战斗中的背包。（快捷键 B）",
+	"AllOutButton": "全军出击：确认当前布阵并开始本回合行动。（快捷键 空格）",
+}
 
 var _attack_order_count := 0
 var _bag_count := 0
 var _reset_count := 0
+var _blocked_shortcut_count := 0
 
 
 func _initialize() -> void:
@@ -44,10 +54,14 @@ func _run() -> void:
 	root.add_child(prefab)
 	await process_frame
 	assert(prefab.scene_file_path == "res://art/prefabs/battle/hud/battle_map_controls.tscn")
-	assert(prefab.custom_minimum_size == Vector2(287.0, 752.0))
-	assert(prefab.size == Vector2(287.0, 752.0))
+	assert(prefab.custom_minimum_size == Vector2(1920.0, 1080.0))
+	assert(prefab.size == Vector2(1920.0, 1080.0))
 	assert(Array(prefab.call("get_map_ids")) == EXPECTED_MAP_IDS)
 	assert(prefab.call("get_keyboard_shortcuts") == EXPECTED_SHORTCUTS)
+	assert(is_equal_approx(
+		float(ProjectSettings.get_setting("gui/timers/tooltip_delay_sec")),
+		1.0
+	))
 	assert(prefab.get_node_or_null("MapBackground") == null)
 	for index in range(EXPECTED_MAP_IDS.size()):
 		assert(bool(prefab.call("set_map_by_index", index)))
@@ -60,9 +74,78 @@ func _run() -> void:
 		assert(button != null)
 		assert(Rect2(button.position, button.size) == EXPECTED_BUTTON_RECTS[node_name])
 		assert(button.texture_normal != null)
+		assert(button.tooltip_text == EXPECTED_TOOLTIPS[node_name])
+	var ordered_buttons := [
+		prefab.get_node("BagButton") as TextureButton,
+		prefab.get_node("AttackOrderButton") as TextureButton,
+		prefab.get_node("AutoArrangeButton") as TextureButton,
+		prefab.get_node("ResetButton") as TextureButton,
+	]
+	var all_out_rect := (prefab.get_node("AllOutButton") as TextureButton).get_rect()
+	assert(ordered_buttons.front().position.x == all_out_rect.position.x)
+	assert(ordered_buttons.back().position.x + ordered_buttons.back().size.x == all_out_rect.end.x)
+	for index in range(1, ordered_buttons.size()):
+		assert(ordered_buttons[index].position.y == ordered_buttons.front().position.y)
+		assert(ordered_buttons[index].position.x - ordered_buttons[index - 1].get_rect().end.x == 3.0)
+	var reset_button := prefab.get_node("ResetButton") as TextureButton
+	var reset_cooldown_label := reset_button.get_node("ResetCooldownLabel") as Label
+	prefab.call("set_reset_charge_state", 1, 4)
+	assert(not reset_cooldown_label.visible)
+	assert(reset_cooldown_label.text == "")
+	assert(reset_button.self_modulate == Color.WHITE)
+	assert(not bool(reset_button.get_meta("cooling_down")))
+	assert(not bool(reset_button.get_meta("waiting_for_charge")))
+	prefab.call("set_reset_charge_state", 3, 2)
+	assert(reset_cooldown_label.visible)
+	assert(reset_cooldown_label.text == "×3")
+	assert(reset_cooldown_label.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT)
+	assert(reset_cooldown_label.vertical_alignment == VERTICAL_ALIGNMENT_BOTTOM)
+	assert(int(reset_button.get_meta("charges")) == 3)
+	for remaining in [5, 4, 3, 2, 1]:
+		prefab.call("set_reset_charge_state", 0, remaining)
+		assert(reset_cooldown_label.visible)
+		assert(reset_cooldown_label.text == str(remaining))
+		assert(reset_cooldown_label.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER)
+		assert(reset_cooldown_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER)
+		assert(bool(reset_button.get_meta("waiting_for_charge")))
+		assert(not bool(reset_button.get_meta("cooling_down")))
+	prefab.call("set_reset_charge_state", 1, 0)
+	assert(not reset_cooldown_label.visible)
+	assert(reset_cooldown_label.text == "")
+	assert(reset_button.self_modulate == Color.WHITE)
+	var all_out_button := prefab.get_node("AllOutButton") as TextureButton
+	var all_out_highlight_material := all_out_button.material as ShaderMaterial
+	assert(all_out_highlight_material != null)
+	assert(is_equal_approx(
+		float(all_out_highlight_material.get_shader_parameter("sweep_progress")),
+		-1.0
+	))
+	prefab.call("_play_all_out_idle_prompt")
+	var all_out_highlight_tween := prefab.get("_all_out_highlight_tween") as Tween
+	assert(all_out_highlight_tween != null)
+	all_out_highlight_tween.custom_step(0.41)
+	var highlight_progress := float(
+		all_out_highlight_material.get_shader_parameter("sweep_progress")
+	)
+	assert(highlight_progress > 0.0 and highlight_progress < 1.0)
+	all_out_highlight_tween.custom_step(1.0)
+	assert(prefab.get("_all_out_highlight_tween") == null)
+	prefab.set("_next_all_out_prompt_msec", Time.get_ticks_msec() - 1)
+	prefab.call("_process", 0.0)
+	var repeated_highlight_tween := prefab.get("_all_out_highlight_tween") as Tween
+	assert(repeated_highlight_tween != null)
+	var activity_event := InputEventKey.new()
+	activity_event.keycode = KEY_A
+	activity_event.pressed = false
+	prefab.call("_input", activity_event)
+	assert(is_equal_approx(
+		float(all_out_highlight_material.get_shader_parameter("sweep_progress")),
+		-1.0
+	))
+	assert(not bool(prefab.get("_all_out_idle_prompt_played")))
 	var hints := prefab.get_node("ShortcutHints") as TextureRect
 	assert(hints != null)
-	assert(Rect2(hints.position, hints.size) == Rect2(0.0, 34.0, 259.0, 716.0))
+	assert(Rect2(hints.position, hints.size) == Rect2(0.0, 948.0, 1920.0, 99.0))
 	assert(hints.texture != null)
 	assert(bool(prefab.call("are_shortcut_hints_visible")))
 	assert(not bool(prefab.call("toggle_shortcut_hints")))
@@ -80,7 +163,12 @@ func _run() -> void:
 			assert(button.scale.is_equal_approx(Vector2(0.92, 0.92)))
 		prefab.call("_on_button_up", button)
 		var release_tween := (prefab.get("_button_tweens") as Dictionary).get(button) as Tween
-		release_tween.custom_step(0.12)
+		if node_name == "ResetButton":
+			release_tween.custom_step(0.05)
+			assert(button.scale.is_equal_approx(Vector2(0.92, 0.92)))
+			release_tween.custom_step(0.15)
+		else:
+			release_tween.custom_step(0.12)
 		assert(button.scale.is_equal_approx(Vector2.ONE))
 	prefab.attack_order_requested.connect(_on_attack_order_requested)
 	prefab.bag_requested.connect(_on_bag_requested)
@@ -101,9 +189,47 @@ func _run() -> void:
 	physical_r_up.pressed = false
 	prefab._unhandled_key_input(physical_r_up)
 	var reset_release_tween := (prefab.get("_button_tweens") as Dictionary).get(prefab.get_node("ResetButton")) as Tween
-	reset_release_tween.custom_step(0.12)
+	reset_release_tween.custom_step(0.20)
 	assert((prefab.get_node("ResetButton") as TextureButton).scale.is_equal_approx(Vector2.ONE))
 	assert(_reset_count == 1)
+	prefab.shortcut_blocked.connect(_on_shortcut_blocked)
+	reset_button.disabled = true
+	var disabled_r_down := InputEventKey.new()
+	disabled_r_down.keycode = KEY_R
+	disabled_r_down.pressed = true
+	prefab._unhandled_key_input(disabled_r_down)
+	assert(reset_button.scale.is_equal_approx(Vector2(0.92, 0.92)))
+	assert(_blocked_shortcut_count == 1)
+	var disabled_r_up := InputEventKey.new()
+	disabled_r_up.keycode = KEY_R
+	disabled_r_up.pressed = false
+	prefab._unhandled_key_input(disabled_r_up)
+	var disabled_reset_release_tween := (
+		(prefab.get("_button_tweens") as Dictionary).get(reset_button) as Tween
+	)
+	disabled_reset_release_tween.custom_step(0.20)
+	assert(reset_button.scale.is_equal_approx(Vector2.ONE))
+	assert(_reset_count == 1)
+	reset_button.disabled = false
+	for shortcut_name in EXPECTED_SHORTCUTS:
+		var shortcut_keycode := OS.find_keycode_from_string(shortcut_name)
+		var shortcut_button := prefab.get_node(EXPECTED_SHORTCUTS[shortcut_name]) as TextureButton
+		var shortcut_down := InputEventKey.new()
+		shortcut_down.keycode = shortcut_keycode
+		shortcut_down.pressed = true
+		prefab._unhandled_key_input(shortcut_down)
+		assert(shortcut_button.scale.is_equal_approx(Vector2(0.92, 0.92)))
+		var shortcut_up := InputEventKey.new()
+		shortcut_up.keycode = shortcut_keycode
+		shortcut_up.pressed = false
+		prefab._unhandled_key_input(shortcut_up)
+		var shortcut_release_tween := (
+			(prefab.get("_button_tweens") as Dictionary).get(shortcut_button) as Tween
+		)
+		shortcut_release_tween.custom_step(0.05)
+		assert(shortcut_button.scale.is_equal_approx(Vector2(0.92, 0.92)))
+		shortcut_release_tween.custom_step(0.15)
+		assert(shortcut_button.scale.is_equal_approx(Vector2.ONE))
 	var speed_button := prefab.get_node("SpeedButton") as TextureButton
 	prefab.call("set_speed_active", true)
 	assert(speed_button.button_pressed)
@@ -128,3 +254,7 @@ func _on_bag_requested() -> void:
 
 func _on_reset_requested() -> void:
 	_reset_count += 1
+
+
+func _on_shortcut_blocked(_shortcut: String, _button_name: String) -> void:
+	_blocked_shortcut_count += 1

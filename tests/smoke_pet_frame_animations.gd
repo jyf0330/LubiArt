@@ -13,6 +13,7 @@ const CASES := [
 	{
 		"source": "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png",
 		"counts": {"idle": 7, "attack": 9},
+		"render_scale": Vector2(1.56, 1.56),
 	},
 ]
 
@@ -51,12 +52,19 @@ func _run() -> void:
 		if not String(sprite.texture.resource_path).contains("/animations/"):
 			_fail("idle frames did not start for %s" % source_path)
 			return
+		var expected_render_scale := Vector2(test_case.get("render_scale", Vector2.ONE))
+		if not sprite.scale.is_equal_approx(expected_render_scale):
+			_fail("%s idle render scale mismatch: %s" % [source_path, sprite.scale])
+			return
 		animation.play_sprite_attack(Vector2.RIGHT)
 		await process_frame
 		await process_frame
 		snapshot = animation.get_frame_animation_snapshot()
 		if String(snapshot.get("active_action", "")) != "attack":
 			_fail("attack frames did not start for %s" % source_path)
+			return
+		if not sprite.scale.is_equal_approx(expected_render_scale):
+			_fail("%s attack render scale mismatch: %s" % [source_path, sprite.scale])
 			return
 		animation.reset()
 		sprite.queue_free()

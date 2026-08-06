@@ -10,44 +10,91 @@
 [ext_resource type="Texture2D" uid="uid://c5687u7mexuwj" path="res://art/images/battle/map_controls/buttons/all_out_normal.png" id="9_all_out"]
 [ext_resource type="Texture2D" uid="uid://ducqyo7pbonu6" path="res://art/images/battle/map_controls/shortcut_hints.png" id="10_shortcut_hints"]
 
+[sub_resource type="Shader" id="Shader_all_out_idle_highlight"]
+code = "shader_type canvas_item;
+
+uniform float sweep_progress : hint_range(-1.0, 1.0) = -1.0;
+uniform float band_width : hint_range(0.01, 0.5) = 0.10;
+uniform vec4 highlight_color : source_color = vec4(1.0, 0.96, 0.72, 0.52);
+
+void fragment() {
+	vec4 source = texture(TEXTURE, UV) * COLOR;
+	float sweep_axis = UV.x + (UV.y - 0.5) * 0.18;
+	float center = mix(-band_width, 1.0 + band_width, max(sweep_progress, 0.0));
+	float distance_to_band = abs(sweep_axis - center);
+	float band = 1.0 - smoothstep(band_width * 0.30, band_width * 0.50, distance_to_band);
+	band *= step(0.0, sweep_progress) * source.a;
+	source.rgb = mix(source.rgb, vec3(1.0), band * highlight_color.a);
+	source.rgb += highlight_color.rgb * band * 0.08;
+	COLOR = vec4(min(source.rgb, vec3(1.0)), source.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_all_out_idle_highlight"]
+resource_local_to_scene = true
+shader = SubResource("Shader_all_out_idle_highlight")
+shader_parameter/sweep_progress = -1.0
+shader_parameter/band_width = 0.1
+shader_parameter/highlight_color = Color(1, 0.96, 0.72, 0.52)
+
 [node name="BattleMapControls" type="Control" unique_id=1018758249]
-editor_description = "Fixed 287x752 battle control component derived from the confirmed 1920x1080 PSD button group. Map layers are intentionally excluded."
-custom_minimum_size = Vector2(287, 752)
+editor_description = "Full-canvas battle control overlay derived from the confirmed 1920x1080 PSD button group. Map layers are intentionally excluded."
+custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 287.0
-offset_bottom = 752.0
+offset_right = 1920.0
+offset_bottom = 1080.0
 mouse_filter = 2
 script = ExtResource("1_script")
 
 [node name="AutoArrangeButton" type="TextureButton" parent="." unique_id=859655289]
 layout_mode = 0
-offset_left = 220.0
-offset_right = 286.0
-offset_bottom = 62.0
+offset_left = 1772.0
+offset_top = 915.0
+offset_right = 1838.0
+offset_bottom = 977.0
 pivot_offset = Vector2(33, 31)
+tooltip_text = "自动布阵：快速安排我方精灵站位。（快捷键 A）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("3_auto")
 
 [node name="ResetButton" type="TextureButton" parent="." unique_id=908798259]
 layout_mode = 0
-offset_left = 221.0
-offset_top = 82.0
-offset_right = 287.0
-offset_bottom = 144.0
+offset_left = 1841.0
+offset_top = 915.0
+offset_right = 1907.0
+offset_bottom = 977.0
 pivot_offset = Vector2(33, 31)
+tooltip_text = "重置布阵：恢复我方精灵到本场战斗入场状态。（快捷键 R）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("4_reset")
 
+[node name="ResetCooldownLabel" type="Label" parent="ResetButton" unique_id=11622889]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.0901961, 0.0588235, 0.0392157, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 22
+text = "×2"
+horizontal_alignment = 2
+vertical_alignment = 2
+
 [node name="SpeedButton" type="TextureButton" parent="." unique_id=1238058765]
 layout_mode = 0
-offset_left = 221.0
-offset_top = 164.0
-offset_right = 286.0
-offset_bottom = 226.0
+offset_left = 90.0
+offset_top = 985.0
+offset_right = 155.0
+offset_bottom = 1047.0
 pivot_offset = Vector2(32.5, 31)
+tooltip_text = "切换战斗速度：在 1 倍与 2 倍播放速度之间切换。（快捷键 D）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 toggle_mode = true
@@ -56,53 +103,58 @@ metadata/speed_active = false
 
 [node name="SettingsButton" type="TextureButton" parent="." unique_id=677565926]
 layout_mode = 0
-offset_left = 222.0
-offset_top = 246.0
-offset_right = 287.0
-offset_bottom = 308.0
+offset_left = 20.0
+offset_top = 985.0
+offset_right = 85.0
+offset_bottom = 1047.0
 pivot_offset = Vector2(32.5, 31)
+tooltip_text = "设置：打开或关闭设置菜单。（快捷键 ESC）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("6_settings")
 
 [node name="AttackOrderButton" type="TextureButton" parent="." unique_id=1450587695]
 layout_mode = 0
-offset_left = 222.0
-offset_top = 328.0
-offset_right = 287.0
-offset_bottom = 390.0
+offset_left = 1704.0
+offset_top = 915.0
+offset_right = 1769.0
+offset_bottom = 977.0
 pivot_offset = Vector2(32.5, 31)
+tooltip_text = "攻击顺序：查看或收起本回合的攻击顺序。（快捷键 TAB）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("7_attack_order")
 
 [node name="BagButton" type="TextureButton" parent="." unique_id=609206066]
 layout_mode = 0
-offset_left = 221.0
-offset_top = 410.0
-offset_right = 287.0
-offset_bottom = 472.0
+offset_left = 1635.0
+offset_top = 915.0
+offset_right = 1701.0
+offset_bottom = 977.0
 pivot_offset = Vector2(33, 31)
+tooltip_text = "战斗背包：打开战斗中的背包。（快捷键 B）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("8_bag")
 
 [node name="AllOutButton" type="TextureButton" parent="." unique_id=1264624892]
+material = SubResource("ShaderMaterial_all_out_idle_highlight")
 layout_mode = 0
-offset_left = 14.0
-offset_top = 688.0
-offset_right = 286.0
-offset_bottom = 752.0
+offset_left = 1635.0
+offset_top = 983.0
+offset_right = 1907.0
+offset_bottom = 1047.0
 pivot_offset = Vector2(136, 32)
+tooltip_text = "全军出击：确认当前布阵并开始本回合行动。（快捷键 空格）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("9_all_out")
 
 [node name="ShortcutHints" type="TextureRect" parent="." unique_id=1171482936]
 layout_mode = 0
-offset_top = 34.0
-offset_right = 259.0
-offset_bottom = 750.0
+offset_top = 948.0
+offset_right = 1920.0
+offset_bottom = 1047.0
 mouse_filter = 2
 texture = ExtResource("10_shortcut_hints")
 expand_mode = 1
