@@ -1,0 +1,203 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/debug/debug_battle_setup_panel.gd" id="1_panel"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_panel"]
+bg_color = Color(0.035, 0.055, 0.075, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.29, 0.66, 0.64, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 18
+content_margin_left = 42.0
+content_margin_top = 32.0
+content_margin_right = 42.0
+content_margin_bottom = 32.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_start"]
+bg_color = Color(0.12, 0.55, 0.42, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="DebugBattleSetupPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_panel")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.008, 0.014, 0.024, 0.88)
+
+[node name="PanelMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 250.0
+offset_top = 82.0
+offset_right = -250.0
+offset_bottom = -82.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="PanelMargin"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_panel")
+
+[node name="VBox" type="VBoxContainer" parent="PanelMargin/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="PanelMargin/Panel/VBox"]
+layout_mode = 2
+text = "第一场战斗 · 8 宠配置"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.64, 0.96, 0.87, 1)
+theme_override_font_sizes/font_size = 34
+
+[node name="Subtitle" type="Label" parent="PanelMargin/Panel/VBox"]
+layout_mode = 2
+text = "面板只提交宠物 ID 与种子；属性、技能和战斗单位由正式内容包与 YsbzsState 解析。"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.7, 0.78, 0.82, 1)
+theme_override_font_sizes/font_size = 18
+
+[node name="SeedRow" type="HBoxContainer" parent="PanelMargin/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="SeedLabel" type="Label" parent="PanelMargin/Panel/VBox/SeedRow"]
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "固定种子"
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="SeedEdit" type="LineEdit" parent="PanelMargin/Panel/VBox/SeedRow"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ysbzs-debug-first-battle-v1"
+placeholder_text = "输入可复现种子"
+theme_override_font_sizes/font_size = 18
+
+[node name="Teams" type="HBoxContainer" parent="PanelMargin/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="PlayerTeam" type="VBoxContainer" parent="PanelMargin/Panel/VBox/Teams"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="PlayerTitle" type="Label" parent="PanelMargin/Panel/VBox/Teams/PlayerTeam"]
+layout_mode = 2
+text = "我方 4 宠"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.45, 0.83, 1, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="PlayerSlots" type="VBoxContainer" parent="PanelMargin/Panel/VBox/Teams/PlayerTeam"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PlayerPet1" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/PlayerTeam/PlayerSlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="PlayerPet2" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/PlayerTeam/PlayerSlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="PlayerPet3" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/PlayerTeam/PlayerSlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="PlayerPet4" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/PlayerTeam/PlayerSlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="EnemyTeam" type="VBoxContainer" parent="PanelMargin/Panel/VBox/Teams"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="EnemyTitle" type="Label" parent="PanelMargin/Panel/VBox/Teams/EnemyTeam"]
+layout_mode = 2
+text = "敌方 4 宠"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.55, 0.48, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="EnemySlots" type="VBoxContainer" parent="PanelMargin/Panel/VBox/Teams/EnemyTeam"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="EnemyPet1" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/EnemyTeam/EnemySlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="EnemyPet2" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/EnemyTeam/EnemySlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="EnemyPet3" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/EnemyTeam/EnemySlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="EnemyPet4" type="OptionButton" parent="PanelMargin/Panel/VBox/Teams/EnemyTeam/EnemySlots"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+
+[node name="StatusLabel" type="Label" parent="PanelMargin/Panel/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "配置错误"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+
+[node name="Actions" type="HBoxContainer" parent="PanelMargin/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="PresetButton" type="Button" parent="PanelMargin/Panel/VBox/Actions"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "载入推荐 8 宠"
+theme_override_font_sizes/font_size = 22
+
+[node name="StartButton" type="Button" parent="PanelMargin/Panel/VBox/Actions"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBox_start")
+text = "进入第一场战斗"

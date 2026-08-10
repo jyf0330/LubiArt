@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/debug/debug_battle_setup_panel_preview.gd" id="1_preview"]
+[ext_resource type="PackedScene" path="res://art/scenes/debug/debug_battle_setup_panel.tscn" id="2_panel"]
+
+[node name="DebugBattleSetupPanelPreview" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_preview")
+
+[node name="DebugBattleSetupPanel" parent="." instance=ExtResource("2_panel")]
+layout_mode = 1
