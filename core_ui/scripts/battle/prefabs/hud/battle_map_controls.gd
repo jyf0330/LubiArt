@@ -48,6 +48,7 @@ const SHORTCUT_MIN_PRESS_VISIBLE_SECONDS := 0.10
 const ALL_OUT_IDLE_PROMPT_DELAY_SECONDS := 3.0
 const ALL_OUT_HIGHLIGHT_DURATION_SECONDS := 1.15
 const ALL_OUT_HIGHLIGHT_PROGRESS := &"sweep_progress"
+const ROUND_REWIND_UNAVAILABLE_TOOLTIP := "回撤：当前没有可回撤的上一回合。（快捷键 B）"
 const SHORTCUT_BUTTON_ACTIONS := ShortcutCatalog.BATTLE_BUTTON_ACTIONS
 
 @export var speed_active := false:
@@ -77,6 +78,7 @@ var _all_out_highlight_tween: Tween = null
 
 func _ready() -> void:
 	_apply_speed_state()
+	bag_button.tooltip_text = ROUND_REWIND_UNAVAILABLE_TOOLTIP
 	if Engine.is_editor_hint():
 		return
 	_mark_player_activity()

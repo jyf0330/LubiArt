@@ -40,6 +40,7 @@ const TIMELINE_MODAL_BLOCKED_SHORTCUTS := [
 @onready var map_debug_button: Button = $Hud/BattleActionPanel/Margin/Content/MapDebugButton
 @onready var map_auto_arrange_button: TextureButton = $MapControls/AutoArrangeButton
 @onready var map_reset_button: TextureButton = $MapControls/ResetButton
+@onready var map_bag_button: TextureButton = $MapControls/BagButton
 @onready var map_all_out_button: TextureButton = $MapControls/AllOutButton
 
 var _assets: RefCounted = null
@@ -87,6 +88,7 @@ func _ready() -> void:
 		)
 	settings_menu.visibility_changed.connect(_on_settings_menu_visibility_changed)
 	_connect_map_controls()
+	_configure_round_rewind_action({})
 	set_button_shortcut_hints_visible(_button_shortcut_hints_visible)
 	map_debug_button.pressed.connect(_on_map_debug_button_pressed)
 
@@ -363,6 +365,17 @@ func _connect_map_controls() -> void:
 			map_controls.connect(signal_name, callback)
 
 
+func _configure_round_rewind_action(snapshot: Dictionary) -> void:
+	var phase_is_battle := String(snapshot.get("phase", "")) == "battle"
+	var rewind_state := Dictionary(snapshot.get("round_rewind", snapshot.get("roundRewind", {})))
+	var can_rewind := phase_is_battle and bool(rewind_state.get("canRewind", false))
+	map_bag_button.disabled = _battle_input_locked or not can_rewind
+	if can_rewind:
+		map_bag_button.tooltip_text = "回撤：恢复到第 %d 回合开始。（快捷键 B）" % int(rewind_state.get("targetRound", 0))
+	else:
+		map_bag_button.tooltip_text = "回撤：当前没有可回撤的上一回合。（快捷键 B）"
+
+
 func _sync_map_controls(snapshot: Dictionary) -> void:
 	if _assets != null and _assets.has_method("battle_background_key"):
 		var map_id := String(_assets.call("battle_background_key", snapshot))
@@ -393,6 +406,7 @@ func _update_map_control_availability(snapshot: Dictionary) -> void:
 			reset_charges,
 			rounds_until_next_charge
 		)
+	_configure_round_rewind_action(snapshot)
 
 
 func _on_map_settings_requested() -> void:
@@ -425,7 +439,14 @@ func _on_map_attack_order_requested() -> void:
 
 
 func _on_map_bag_requested() -> void:
-	GameLogScript.warning("战斗按键/B", "战斗背包尚未实装，本次操作没有改变战斗状态")
+	if _battle_input_locked or map_bag_button.disabled:
+		_on_map_shortcut_blocked("B", "BagButton")
+		return
+	var rewind_state := Dictionary(_last_snapshot.get("round_rewind", _last_snapshot.get("roundRewind", {})))
+	GameLogScript.info("战斗按键/B", "已请求回撤到上一回合开始", {
+		"目标回合": int(rewind_state.get("targetRound", 0)),
+	})
+	command_requested.emit({"type": "REWIND_TO_PREVIOUS_ROUND_START"})
 
 
 func _on_map_speed_toggled(active: bool) -> void:
@@ -483,6 +504,8 @@ func _on_map_shortcut_blocked(shortcut: String, button_name: String) -> void:
 			"距下次充能回合": rounds_until_next_charge,
 		})
 		return
+	elif button_name == "BagButton":
+		reason = "当前没有可回撤的上一回合"
 	GameLogScript.warning("战斗按键/%s" % shortcut, "按键未生效", {"原因": reason})
 
 
@@ -513,7 +536,7 @@ func _log_button_command_response(
 	snapshot: Dictionary
 ) -> void:
 	var command_type := String(command.get("type", "")).strip_edges().to_upper()
-	if command_type not in ["RESET_PETS", "SET_SKILL_CONTROL_ORDER", "RUN_COMBAT_ROUND"]:
+	if command_type not in ["RESET_PETS", "SET_SKILL_CONTROL_ORDER", "RUN_COMBAT_ROUND", "REWIND_TO_PREVIOUS_ROUND_START"]:
 		return
 	var result_value: Variant = response.get("result", {})
 	var result := Dictionary(result_value) if result_value is Dictionary else {}
@@ -523,6 +546,7 @@ func _log_button_command_response(
 		"RESET_PETS": "战斗按键/R",
 		"SET_SKILL_CONTROL_ORDER": "战斗按键/Tab",
 		"RUN_COMBAT_ROUND": "战斗按键/Space",
+		"REWIND_TO_PREVIOUS_ROUND_START": "战斗按键/B",
 	}.get(command_type, "战斗按键"))
 	var message := "操作已生效"
 	if mock_noop:
@@ -542,6 +566,8 @@ func _log_button_command_response(
 			reset_state.get("cooldownRemaining", 0)
 		))
 		context["当前可用"] = bool(reset_state.get("eligible", false))
+	elif command_type == "REWIND_TO_PREVIOUS_ROUND_START":
+		context["目标回合"] = int(result.get("targetRound", snapshot.get("battle_round", 0)))
 	if mock_noop or not accepted:
 		GameLogScript.warning(String(area), message, context)
 	else:

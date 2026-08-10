@@ -216,6 +216,8 @@ func _run() -> void:
 		and Rect2(map_attack_order_button.position, map_attack_order_button.size) == Rect2(1704.0, 915.0, 65.0, 62.0)
 		and map_bag_button != null
 		and Rect2(map_bag_button.position, map_bag_button.size) == Rect2(1635.0, 915.0, 66.0, 62.0)
+		and map_bag_button.disabled
+		and map_bag_button.tooltip_text == "回撤：当前没有可回撤的上一回合。（快捷键 B）"
 		and map_all_out_button != null
 		and Rect2(map_all_out_button.position, map_all_out_button.size) == Rect2(1635.0, 983.0, 272.0, 64.0)
 		and shortcut_hints != null

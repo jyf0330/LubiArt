@@ -36,7 +36,7 @@ const DISPLAY_BINDINGS := [
 	{"id": ACTION_RESET_ARRANGE, "node": "ResetArrange", "label": "重置布阵", "keycode": KEY_R},
 	{"id": ACTION_BATTLE_SPEED, "node": "BattleSpeed", "label": "切换战斗速度", "keycode": KEY_D},
 	{"id": ACTION_ATTACK_ORDER, "node": "AttackOrder", "label": "查看攻击顺序", "keycode": KEY_TAB},
-	{"id": ACTION_BATTLE_BAG, "node": "BattleBag", "label": "打开战斗背包", "keycode": KEY_B},
+	{"id": ACTION_BATTLE_BAG, "node": "BattleBag", "label": "回撤到上一回合开始", "keycode": KEY_B},
 	{"id": ACTION_ALL_OUT, "node": "AllOut", "label": "全军出击", "keycode": KEY_SPACE},
 	{"id": ACTION_SELL_ITEM, "node": "SellItem", "label": "出售物品", "keycode": SELL_ITEM_KEY},
 ]

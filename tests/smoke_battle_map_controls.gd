@@ -35,7 +35,7 @@ const EXPECTED_TOOLTIPS := {
 	"SpeedButton": "切换战斗速度：在 1 倍与 2 倍播放速度之间切换。（快捷键 D）",
 	"SettingsButton": "设置：打开或关闭设置菜单。（快捷键 ESC）",
 	"AttackOrderButton": "攻击顺序：查看或收起本回合的攻击顺序。（快捷键 TAB）",
-	"BagButton": "战斗背包：打开战斗中的背包。（快捷键 B）",
+	"BagButton": "回撤：当前没有可回撤的上一回合。（快捷键 B）",
 	"AllOutButton": "全军出击：确认当前布阵并开始本回合行动。（快捷键 空格）",
 }
 
