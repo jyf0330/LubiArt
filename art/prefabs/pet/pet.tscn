@@ -51,7 +51,7 @@ shader = SubResource("Shader_hit_flash")
 shader_parameter/flash_amount = 0.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_stats"]
-font_size = 15
+font_size = 20
 outline_size = 3
 outline_color = Color(0.03, 0.03, 0.04, 1)
 shadow_color = Color(0, 0, 0, 0.95)
