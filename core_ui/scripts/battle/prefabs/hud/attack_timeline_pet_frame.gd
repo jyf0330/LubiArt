@@ -4,13 +4,10 @@ extends TextureButton
 ## their independently editable authored geometry.
 
 const VISUAL_METRICS_PATH := "res://art/manifests/shared/pets/sheets/pet_battle_visual_metrics.json"
-
-const PET_TEXTURES := {
-	"pal_002": preload("res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png"),
-	"pal_011": preload("res://art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png"),
-	"pal_030": preload("res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png"),
-	"pal_028": preload("res://art/images/shared/pets/sheets/slices/pet_style_003_blue_electric_shell.png"),
-}
+const PET_IMAGE_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
+const PET_SHEET_SLICE_DIR := "res://art/images/shared/pets/sheets/slices"
+const PET_FALLBACK_TEXTURE := preload("res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png")
+const PetAssetResolverScript := preload("res://core_ui/scripts/shared/pet/pet_asset_resolver.gd")
 
 const ELEMENT_BACKGROUNDS := {
 	"无": preload("res://art/images/battle/hud/attack_timeline/pet_frame/backgrounds/creature_card_background_nature_inset_v2.png"),
@@ -40,6 +37,7 @@ const QUALITY_FRAMES := {
 @onready var frame: TextureRect = $Frame
 
 static var _visual_metrics: Dictionary = {}
+static var _pet_asset_resolver: RefCounted = null
 
 
 func _ready() -> void:
@@ -50,7 +48,7 @@ func configure(record: Dictionary) -> void:
 	var element := String(record.get("element", "无"))
 	var quality := String(record.get("quality", "青铜"))
 	var pet_id := String(record.get("pet_id", record.get("source_pet_id", record.get("id", ""))))
-	var pet_texture := PET_TEXTURES.get(pet_id) as Texture2D
+	var pet_texture := _pet_texture(record)
 	background.texture = ELEMENT_BACKGROUNDS.get(element, ELEMENT_BACKGROUNDS["无"]) as Texture2D
 	frame.texture = QUALITY_FRAMES.get(quality, QUALITY_FRAMES["青铜"]) as Texture2D
 	pet.texture = _normalized_pet_texture(pet_texture)
@@ -58,6 +56,15 @@ func configure(record: Dictionary) -> void:
 	tooltip_text = String(record.get("name", "精灵"))
 	set_meta("unit_id", String(record.get("id", pet_id)))
 	set_meta("pet_id", pet_id)
+
+
+func _pet_texture(record: Dictionary) -> Texture2D:
+	if _pet_asset_resolver == null:
+		_pet_asset_resolver = PetAssetResolverScript.new()
+		_pet_asset_resolver.call("configure", PET_SHEET_SLICE_DIR, PET_SHEET_SLICE_DIR)
+		_pet_asset_resolver.call("load_map", PET_IMAGE_MAP_PATH)
+	var texture := _pet_asset_resolver.call("texture_for", record) as Texture2D
+	return texture if texture != null else PET_FALLBACK_TEXTURE
 
 
 func set_drag_visual(active: bool) -> void:

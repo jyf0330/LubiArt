@@ -52,6 +52,8 @@ done
 expected_scenes=(
   "art/scenes/app/game.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
+  "art/scenes/debug/debug_battle_setup_panel.tscn"
+  "art/scenes/debug/debug_battle_setup_panel_preview.tscn"
   "art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn"
   "art/scenes/three_choice/three_choice_scene.tscn"
 )

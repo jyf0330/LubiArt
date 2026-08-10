@@ -34,6 +34,7 @@ const ROUTE_SLOT_HIGHLIGHT_PATHS := [
 const PET_IMAGE_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
 const PET_SHEET_SLICE_DIR := "res://art/images/shared/pets/sheets/slices"
 const PET_EXPLICIT_IMAGE_DIR := "res://art/images/shared/pets/sheets/slices"
+const PET_FALLBACK_IMAGE_PATH := "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png"
 const SHOP_CHARACTER_MAP_PATH := "res://art/manifests/route/shop/characters/shop_character_map.json"
 const REWARD_NODE_MAP_PATH := "res://art/manifests/route/rewards/reward_node_map.json"
 
@@ -94,6 +95,10 @@ func pet_texture(record: Dictionary) -> Texture2D:
 	if _pet_asset_resolver == null:
 		return null
 	return _pet_asset_resolver.call("texture_for", record) as Texture2D
+
+
+func fallback_pet_texture() -> Texture2D:
+	return _load_texture_if_exists(PET_FALLBACK_IMAGE_PATH)
 
 
 func record_missing_image(context: String, record: Dictionary) -> void:

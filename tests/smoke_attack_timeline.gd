@@ -40,6 +40,21 @@ func _run() -> void:
 	assert(timeline.get_node("TimelineArea/MarkerLayer/Marker1/PetFrame") != null)
 	assert((timeline.get_node("TimelineArea/MarkerLayer/Marker1/OrderBadge") as Label).position == Vector2(-6.0, -7.0))
 	var first_pet_frame := timeline.get_node("TimelineArea/MarkerLayer/Marker1/PetFrame") as TextureButton
+	for marker in timeline.get_node("TimelineArea/MarkerLayer").get_children():
+		if not marker.visible:
+			continue
+		var marker_pet := marker.get_node("PetFrame/Pet") as TextureRect
+		assert(marker_pet.visible)
+		assert(marker_pet.texture != null)
+	first_pet_frame.call("configure", {
+		"id": "formal_unmapped",
+		"pet_id": "pal_099",
+		"name": "待交付宠物",
+		"element": "地",
+		"quality": "青铜",
+	})
+	assert((first_pet_frame.get_node("Pet") as TextureRect).texture != null)
+	timeline.call("render_snapshot", snapshot)
 	var first_order_badge := timeline.get_node("TimelineArea/MarkerLayer/Marker1/OrderBadge") as Label
 	first_pet_frame.call("set_drag_visual", true)
 	assert(first_order_badge.z_index > first_pet_frame.z_index)

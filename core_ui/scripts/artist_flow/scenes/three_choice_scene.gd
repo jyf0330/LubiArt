@@ -1536,7 +1536,11 @@ func _route_slot_highlight_texture(index: int) -> Texture2D:
 	return _asset_registry.route_slot_highlight_texture(index)
 
 func _pet_texture(record: Dictionary) -> Texture2D:
-	return _asset_registry.pet_texture(record)
+	var texture := _asset_registry.pet_texture(record)
+	if texture != null:
+		return texture
+	_asset_registry.record_missing_image("pet_visual", record)
+	return _asset_registry.fallback_pet_texture()
 
 func _load_pet_image_map() -> void:
 	_asset_registry.reload()
