@@ -11,6 +11,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_detail")
+context_panel_position = Vector2(-140, 10)
+context_panel_scale = Vector2(1.24, 1.24)
 
 [node name="Dim" type="ColorRect" parent="." unique_id=1459037313]
 layout_mode = 1

@@ -21,6 +21,8 @@ var _assets: RefCounted = null
 var _preview: RefCounted = null
 
 var _hovered_grid := Vector2i(-1, -1)
+var _hover_detail_grid := Vector2i(-1, -1)
+var _pointer_viewport_position := Vector2(-1.0, -1.0)
 var _drag_unit_id := ""
 var _drag_origin := Vector2i(-1, -1)
 var _drag_preview: Control = null
@@ -62,8 +64,9 @@ func set_input_locked(locked: bool) -> void:
 	if locked:
 		_set_cursor_grabbing(false)
 		_set_cursor_pet_hover(false)
+		_set_hover_detail_grid(Vector2i(-1, -1))
 	else:
-		_refresh_cursor_hover_state()
+		_refresh_pointer_hover_state()
 
 
 func hovered_grid() -> Vector2i:
@@ -75,8 +78,10 @@ func process_drag() -> void:
 
 
 func handle_input(event: InputEvent) -> bool:
-	if event is InputEventMouseMotion and _drag_unit_id == "":
-		_refresh_cursor_hover_state()
+	if event is InputEventMouseMotion:
+		_pointer_viewport_position = (event as InputEventMouseMotion).position
+		if _drag_unit_id == "":
+			_refresh_pointer_hover_state()
 	if _input_locked:
 		return false
 	if event is InputEventMouseMotion and _drag_unit_id != "":
@@ -133,7 +138,7 @@ func on_cell_hovered(grid: Vector2i) -> void:
 		return
 	_hovered_grid = grid
 	_set_cell_hovered(grid, true)
-	_refresh_cursor_hover_state()
+	_refresh_pointer_hover_state()
 
 
 func on_cell_unhovered(grid: Vector2i) -> void:
@@ -142,12 +147,15 @@ func on_cell_unhovered(grid: Vector2i) -> void:
 		_hovered_grid = Vector2i(-1, -1)
 	if _drag_unit_id == "":
 		_set_cursor_pet_hover(false)
+		if _hover_detail_grid == grid:
+			_set_hover_detail_grid(Vector2i(-1, -1))
 
 
 func cancel_for_board_resize() -> void:
 	if _drag_unit_id != "":
 		_finish_unit_drag(Vector2i(-1, -1))
 	_hovered_grid = Vector2i(-1, -1)
+	_set_hover_detail_grid(Vector2i(-1, -1))
 	_drag_hover_grid = Vector2i(-1, -1)
 
 
@@ -187,6 +195,8 @@ func dispose() -> void:
 	_drag_unit_id = ""
 	_drag_origin = Vector2i(-1, -1)
 	_hovered_grid = Vector2i(-1, -1)
+	_hover_detail_grid = Vector2i(-1, -1)
+	_pointer_viewport_position = Vector2(-1.0, -1.0)
 	_drag_hover_grid = Vector2i(-1, -1)
 	_board = null
 	_board_grid = null
@@ -204,7 +214,7 @@ func _start_unit_drag(grid: Vector2i) -> void:
 	var unit := cell.call("get_unit_node") as Control
 	if unit == null or not unit.has_method("get_unit_id"):
 		return
-	cell_detail_requested.emit(Vector2i(-1, -1), "")
+	_set_hover_detail_grid(Vector2i(-1, -1))
 	_drag_unit_id = String(unit.call("get_unit_id"))
 	_set_cursor_pet_hover(false)
 	_set_cursor_grabbing(true)
@@ -493,13 +503,34 @@ func _cell_data_is_hero(data: Dictionary) -> bool:
 func _mouse_is_over_draggable_pet(cell: Control) -> bool:
 	if not _cell_has_draggable_player_unit(cell):
 		return false
+	return _mouse_is_over_unit_art(cell, _board.get_viewport().get_mouse_position())
+
+
+func _mouse_is_over_pet(cell: Control) -> bool:
+	if cell == null:
+		return false
+	var data := _cell_data_for_cell(cell)
+	var unit_id := String(data.get("unitId", data.get("unit_id", "")))
+	if unit_id == "" or _cell_data_is_hero(data):
+		return false
+	return _mouse_is_over_unit_art(cell, _pointer_viewport_position)
+
+
+func _mouse_is_over_unit_art(cell: Control, pointer_position: Vector2) -> bool:
 	var unit := cell.call("get_unit_node") as Control
 	if unit == null:
 		return false
-	var mouse_position := _board.get_viewport().get_mouse_position()
+	var mouse_position := pointer_position
+	if mouse_position.x < 0.0 or mouse_position.y < 0.0:
+		mouse_position = _board.get_viewport().get_mouse_position()
 	if unit.has_method("contains_art_point"):
 		return bool(unit.call("contains_art_point", mouse_position))
 	return unit.get_global_rect().has_point(mouse_position)
+
+
+func _refresh_pointer_hover_state() -> void:
+	_refresh_cursor_hover_state()
+	_refresh_hover_detail_state()
 
 
 func _refresh_cursor_hover_state() -> void:
@@ -507,6 +538,29 @@ func _refresh_cursor_hover_state() -> void:
 		_set_cursor_pet_hover(false)
 		return
 	_set_cursor_pet_hover(_mouse_is_over_draggable_pet(_cell_at(_hovered_grid)))
+
+
+func _refresh_hover_detail_state() -> void:
+	var next_grid := Vector2i(-1, -1)
+	if not _input_locked and _drag_unit_id == "" \
+			and _hovered_grid.x >= 0 and _hovered_grid.y >= 0 \
+			and _mouse_is_over_pet(_cell_at(_hovered_grid)):
+		next_grid = _hovered_grid
+	_set_hover_detail_grid(next_grid)
+
+
+func _set_hover_detail_grid(grid: Vector2i) -> void:
+	if _hover_detail_grid == grid:
+		return
+	_hover_detail_grid = grid
+	if grid.x < 0 or grid.y < 0:
+		cell_detail_requested.emit(Vector2i(-1, -1), "")
+		return
+	var data := _cell_data_at_grid(grid)
+	cell_detail_requested.emit(
+		grid,
+		String(data.get("unitId", data.get("unit_id", "")))
+	)
 
 
 func _refresh_cursor_hover_at(grid: Vector2i) -> void:

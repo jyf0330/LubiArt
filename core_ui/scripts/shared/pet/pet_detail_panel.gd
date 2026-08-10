@@ -4,8 +4,9 @@ signal confirm_requested(command: Dictionary)
 
 const MODAL_PANEL_POSITION := Vector2(1294.0, 100.0)
 const MODAL_PANEL_SCALE := Vector2.ONE
-const CONTEXT_PANEL_POSITION := Vector2(1460.0, 230.0)
-const CONTEXT_PANEL_SCALE := Vector2(0.62, 0.62)
+
+@export var context_panel_position := Vector2(-140.0, 10.0)
+@export var context_panel_scale := Vector2(1.24, 1.24)
 
 @onready var dim: ColorRect = $Dim
 @onready var panel: Control = $Panel
@@ -87,8 +88,8 @@ func _apply_modal_layout() -> void:
 
 func _apply_context_layout() -> void:
 	if panel != null:
-		panel.position = CONTEXT_PANEL_POSITION
-		panel.scale = CONTEXT_PANEL_SCALE
+		panel.position = context_panel_position
+		panel.scale = context_panel_scale
 
 
 func get_detail_snapshot() -> Dictionary:
