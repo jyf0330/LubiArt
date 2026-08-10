@@ -15,6 +15,7 @@ const StagePresenterScript := preload("res://core_ui/scripts/artist_flow/present
 const AssetRegistryScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd")
 const RoutePresenterScript := preload("res://core_ui/scripts/route/presenters/route_presenter.gd")
 const ShopPresenterScript := preload("res://core_ui/scripts/shop/presenters/shop_presenter.gd")
+const LegacyCodeShopViewScript := preload("res://core_ui/scripts/shop/views/legacy_code_shop_view.gd")
 const InventoryPresenterScript := preload("res://core_ui/scripts/inventory/presenters/inventory_presenter.gd")
 const PartyPresenterScript := preload("res://core_ui/scripts/party/presenters/party_presenter.gd")
 const SettlementPresenterScript := preload("res://core_ui/scripts/settlement/presenters/settlement_presenter.gd")
@@ -152,6 +153,7 @@ var _hovered_storage_index := -1
 var _battle_view: Control = null
 var _pet_detail_panel: Control = null
 var _bazaar_info_panel: Control = null
+var _legacy_code_shop_view: Control = null
 @onready var _item_slot_hover_highlight: TextureRect = $ItemSlotHoverHighlight
 var _route_presenter := RoutePresenterScript.new()
 var _shop_presenter := ShopPresenterScript.new()
@@ -171,6 +173,7 @@ func _ready() -> void:
 	_configure_drag_controller()
 	_ensure_pet_detail_panel()
 	_ensure_bazaar_info_panel()
+	_ensure_legacy_code_shop_view()
 	_developer_toolbar.configure(
 		self,
 		Callable(self, "_request_session_operation"),
@@ -497,6 +500,9 @@ func _configure_current_focus_ring() -> void:
 	_focus_coordinator.refresh(_current_view)
 
 func _grab_focus_for_current_view() -> void:
+	if _current_view == VIEW_SHOP and _legacy_code_shop_view != null and _legacy_code_shop_view.visible:
+		_legacy_code_shop_view.call("grab_initial_focus")
+		return
 	_focus_coordinator.grab_if_current_focus_hidden(_current_view)
 
 func _restore_button_tint(button: BaseButton) -> void:
@@ -515,6 +521,7 @@ func _render_content_from_state(snap: Dictionary) -> StringName:
 	match String(snap.get("phase", "route")):
 		"shop":
 			_render_shop(snap)
+			_render_legacy_code_shop(snap)
 			target_view = VIEW_SHOP
 		"reward":
 			_render_reward(snap)
@@ -1015,6 +1022,7 @@ func _show_view(view: StringName) -> void:
 	_close_pet_detail()
 	_current_view = view
 	_stage_presenter.show_immediate(view)
+	_set_legacy_code_shop_visible(view == VIEW_SHOP)
 	_set_persistent_hud_visible(view != VIEW_BATTLE)
 	_set_bag_button_open(view == VIEW_BAG)
 	_set_run_tools_visible(true)
@@ -1035,6 +1043,7 @@ func _show_initial_view() -> void:
 	var target_view := _target_view_from_state()
 	await _stage_presenter.show_initial(target_view)
 	_current_view = target_view
+	_set_legacy_code_shop_visible(target_view == VIEW_SHOP)
 	_ensure_persistent_hud_visible()
 	_set_bag_button_open(target_view == VIEW_BAG)
 	_set_run_tools_visible(true)
@@ -1049,8 +1058,11 @@ func _transition_to_view(target_view: StringName) -> void:
 		return
 	_is_transitioning = true
 	_set_game_cursor_loading(&"view_transition", true)
+	if target_view == VIEW_SHOP:
+		_set_legacy_code_shop_visible(true)
 	await _stage_presenter.switch_view(_current_view, target_view)
 	_current_view = target_view
+	_set_legacy_code_shop_visible(target_view == VIEW_SHOP)
 	_ensure_persistent_hud_visible()
 	_set_bag_button_open(target_view == VIEW_BAG)
 	_set_run_tools_visible(true)
@@ -1174,6 +1186,38 @@ func _ensure_bazaar_info_panel() -> void:
 		return
 	if _bazaar_info_panel.has_signal("command_requested"):
 		_bazaar_info_panel.connect("command_requested", Callable(self, "_on_bazaar_info_command_requested"))
+
+func _ensure_legacy_code_shop_view() -> void:
+	if _legacy_code_shop_view != null:
+		return
+	_legacy_code_shop_view = LegacyCodeShopViewScript.new() as Control
+	_legacy_code_shop_view.name = "LegacyCodeShopView"
+	_legacy_code_shop_view.z_index = 80
+	add_child(_legacy_code_shop_view)
+	_legacy_code_shop_view.call("configure", Callable(self, "_pet_texture"))
+	_legacy_code_shop_view.connect("command_requested", Callable(self, "_on_legacy_code_shop_command_requested"))
+
+func _render_legacy_code_shop(snap: Dictionary) -> void:
+	_ensure_legacy_code_shop_view()
+	if _legacy_code_shop_view != null:
+		_legacy_code_shop_view.call("render_snapshot", snap)
+
+func _set_legacy_code_shop_visible(is_visible: bool) -> void:
+	_ensure_legacy_code_shop_view()
+	if _legacy_code_shop_view == null:
+		return
+	_legacy_code_shop_view.visible = is_visible
+	if is_visible:
+		call_deferred("_grab_focus_for_current_view")
+
+func _on_legacy_code_shop_command_requested(command: Dictionary) -> void:
+	if _is_transitioning or _current_view != VIEW_SHOP or command.is_empty():
+		return
+	_close_pet_context_detail()
+	if not await _submit_core_command(command):
+		return
+	var target_view := _render_content_from_state(_take_core_command_snapshot())
+	await _transition_to_view(target_view)
 
 func _apply_runtime_ui_mode() -> void:
 	var scene_root := self
@@ -1367,6 +1411,9 @@ func _show_bazaar_feedback(message: String, success: bool) -> void:
 	_ensure_bazaar_info_panel()
 	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("show_command_feedback"):
 		_bazaar_info_panel.call("show_command_feedback", message, success)
+	_ensure_legacy_code_shop_view()
+	if _legacy_code_shop_view != null and _legacy_code_shop_view.has_method("show_command_feedback"):
+		_legacy_code_shop_view.call("show_command_feedback", message, success)
 
 func _take_core_command_snapshot() -> Dictionary:
 	var snapshot := _last_command_snapshot
