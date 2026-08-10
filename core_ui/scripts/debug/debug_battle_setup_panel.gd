@@ -94,6 +94,7 @@ func enter_battle_mode() -> void:
 	$Backdrop.visible = false
 	$PanelMargin.visible = false
 	reopen_button.visible = true
+	reopen_button.grab_focus()
 
 
 func _request_start() -> void:
