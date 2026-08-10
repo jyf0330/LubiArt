@@ -201,3 +201,13 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBox_start")
 text = "进入第一场战斗"
+
+[node name="ReopenButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 244.0
+offset_bottom = 78.0
+text = "重配第一场 8 宠"
+theme_override_font_sizes/font_size = 18

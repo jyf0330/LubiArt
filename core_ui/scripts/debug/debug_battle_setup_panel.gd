@@ -1,6 +1,7 @@
 extends Control
 
 signal start_requested(seed: String, player_pet_ids: Array, enemy_pet_ids: Array)
+signal reopen_requested
 
 const TEAM_SIZE := 4
 
@@ -20,6 +21,7 @@ const TEAM_SIZE := 4
 @onready var status_label: Label = $PanelMargin/Panel/VBox/StatusLabel
 @onready var preset_button: Button = $PanelMargin/Panel/VBox/Actions/PresetButton
 @onready var start_button: Button = $PanelMargin/Panel/VBox/Actions/StartButton
+@onready var reopen_button: Button = $ReopenButton
 
 var _catalog_rows: Array = []
 var _default_player_pet_ids: Array = []
@@ -29,6 +31,7 @@ var _default_enemy_pet_ids: Array = []
 func _ready() -> void:
 	preset_button.pressed.connect(apply_recommended_preset)
 	start_button.pressed.connect(_request_start)
+	reopen_button.pressed.connect(func(): reopen_requested.emit())
 	set_error("")
 
 
@@ -81,7 +84,16 @@ func set_error(message: String) -> void:
 
 func show_configuration() -> void:
 	visible = true
+	$Backdrop.visible = true
+	$PanelMargin.visible = true
+	reopen_button.visible = false
 	start_button.grab_focus()
+
+
+func enter_battle_mode() -> void:
+	$Backdrop.visible = false
+	$PanelMargin.visible = false
+	reopen_button.visible = true
 
 
 func _request_start() -> void:
