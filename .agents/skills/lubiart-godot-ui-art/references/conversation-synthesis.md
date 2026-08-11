@@ -402,11 +402,20 @@ Godot 会缓存 manifest 和脚本；大量残留测试进程会占用内存、�
 - 证据：修改前 `%TEMP%/lubi_attack_timeline_play_button_before.png`，修改后 `output/attack_timeline_integrated_1920x1080.png`。
 - 状态：本次按钮精简完成；全量工程门禁保留既存阻塞。
 
+### 2026-08-11 — 用户提供森林空地地图试放
+
+- 用户意图：把用户提供的像素风森林空地图片放入当前战斗界面，先看真实运行效果。
+- 工程变更：将原始 `1672×941` 不透明 PNG 以最近邻归一化为项目地图契约要求的 `1920×1080`，保存为 `art/images/battle/map_controls/maps/forest_clearing_trial.png`；更新战斗 Scene 默认背景、战斗资源 manifest 及地图控件中 `grassland_morning` 的试放纹理映射。未新增、删除、改名、移动或重新挂载 Scene / prefab 节点，棋盘与单位几何未改。
+- 验证：新资源尺寸、Godot 导入、manifest JSON 与地图控件 smoke 通过；真实 Vulkan Godot 1920×1080 入口完成难度、抽屉、格子悬停、宠物详情和拖拽预览五个状态，均成功保存并目视检查。背景、棋盘、单位和 HUD 均可见，像素边缘在局部 `4×` 最近邻检查下保持连续。
+- 可见结论：整体风格与现有像素单位协调，中央战斗区更干净；左下角固定主角站位与背景小石头发生明显重叠，正式采用前应由用户确认保留，或另行授权清除/移动该背景石头。当前仅为试放，不构成正式地图版本批准。
+- 既存阻塞：结构 smoke 仍被旧最小层级断言阻挡；`verify_ui_mirror.sh` 仍被既存未批准动画文件阻挡；README 全量 Mock smoke 仍因既存资源/属性断言失败且不退出。五组前后像素比较按旧“必须零差异”门禁会因本次有意换背景而报告非零差异。
+- 新标准：无。状态：试放完成；正式视觉验收等待用户确认，项目全量门禁保持 `BLOCKED`。
+
 ### 2026-08-11 — 汇总工作区并安全提交推送
 
 - 用户意图：汇总当前尚未提交的累计修改，然后提交并推送当前分支；本轮将“休息内容”按上下文理解为“剩余/修改内容”。
 - 交付边界：主提交纳入战斗 UI、Scene/prefab、展示脚本、Mock 适配、测试与工具、项目专属 Skill，以及白名单已批准的 `10` 套待机动画共 `156` 帧；没有把约 `781 MB` 的 `output/` 候选与 QA、`.codex_work/` 备份、Godot 临时文件、两个 zip 或未批准的火山帝江、角翼龙、`video_7832` 正式目录动画及其运行时引用推送。所有排除内容继续保留在本地，未删除。
 - Git 结果：主提交 `f2beac57`（`feat: consolidate battle UI mock delivery`）已推送至 `origin/codex/battle-ui-work-20260806`；该提交包含 `2295` 个文件、`24001` 行新增和 `41327` 行删除。本轮没有新增图片或动画版本批准，也没有新增、删除、改名、移动或重新挂载 Scene/prefab 节点。
 - 验证：从暂存快照隔离还原后，动画准入检查通过（`10` animations / `156` frames），`verify_ui_mirror.sh` 通过，Python 工具编译检查与 `git diff --cached --check` 通过；干净 Godot 资源导入退出码为 `0`，拖拽时序、回合提示、攻击时间轴及 SpriteInfoCard 独立 smoke 均通过。
-- 既存阻塞：README 的 `smoke_mock_battle_project.gd` 在 `30s` 内仍不退出；`smoke_battle_art_scene.gd` 仍因当前 `64` 格结构与旧最小层级断言不一致失败。当前工作区还保留未批准动画候选与未提交的运行时尝试，因此完整项目验收仍为 `BLOCKED`，但本轮经过筛选的 Git 交付已完成。
+- 既存阻塞：README 的 `smoke_mock_battle_project.gd` 在 `30s` 内仍不退出；`smoke_battle_art_scene.gd` 仍因当前 `64` 格结构与旧最小层级断言不一致失败。当前工作区还保留未批准动画候选、未提交的运行时尝试、本地主动更新的 `forest_clearing_trial` 战斗背景接入、重新生成的 PSD import 空行和截图，因此完整项目验收仍为 `BLOCKED`，但本轮经过筛选的 Git 交付已完成；这些在主提交后出现或刻意排除的内容均未混入本轮提交。
 - 新标准：无；本轮仅执行既有正式动画准入、独立项目验证和对话闭环规则。
