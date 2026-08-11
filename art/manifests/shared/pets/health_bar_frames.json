@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source_texture": "res://art/images/shared/pets/battle_complete/health_bar_frames.png",
+  "source_canvas": [128, 128],
+  "source_display_scale": 2,
+  "battle_display_scale": 3,
+  "atlas_canvas": [64, 24],
+  "battle_cell_size": [120, 120],
+  "rendered_frame_canvas": [192, 72],
+  "sizing_basis": "inner_health_slot_only",
+  "tier_decorations_affect_slot_size": false,
+  "inner_health_slot": {
+    "source_rect_within_atlas": [24, 10, 32, 3],
+    "source_scaled_size": [96, 9],
+    "display_size": [96, 11],
+    "bottom_seam_overlap": 2
+  },
+  "tiers": {
+    "bronze": {
+      "display_name": "青铜",
+      "region": [16, 18, 64, 24]
+    },
+    "silver": {
+      "display_name": "白银",
+      "region": [16, 35, 64, 24]
+    },
+    "gold": {
+      "display_name": "黄金",
+      "region": [16, 54, 64, 24]
+    },
+    "diamond": {
+      "display_name": "钻石",
+      "region": [16, 73, 64, 24]
+    }
+  },
+  "godot_target": "res://art/prefabs/pet/pet.tscn::CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/Icon"
+}

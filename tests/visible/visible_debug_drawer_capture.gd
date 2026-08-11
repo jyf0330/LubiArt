@@ -29,19 +29,23 @@ func _run() -> void:
 	var panel := battle.get_node("Hud/BattleActionPanel") as Control
 	var toggle := battle.get_node("Hud/DebugDrawerToggleButton") as Button
 	assert(panel.get_node_or_null("Margin/Content/MapDebugButton") != null)
+	assert(panel.get_node_or_null("Margin/Content/HealthBarTierButton") != null)
 	assert(panel.get_node_or_null("Margin/Content/PositionDifficultyButton") != null)
 	assert(battle.get_node_or_null("ShortcutHintDebugButton") == null)
-	await _capture(output_dir.path_join("debug_drawer_expanded_1920x1080.png"))
-	toggle.pressed.emit()
-	await create_timer(0.25).timeout
-	await process_frame
 	assert(bool(hud.call("debug_is_action_panel_collapsed")))
 	assert(panel.position == Vector2(-462.0, 150.0))
 	assert(toggle.position == Vector2(0.0, 174.0))
 	await _capture(output_dir.path_join("debug_drawer_collapsed_1920x1080.png"))
 	toggle.pressed.emit()
 	await create_timer(0.25).timeout
+	await process_frame
 	assert(not bool(hud.call("debug_is_action_panel_collapsed")))
+	assert(panel.position == Vector2(18.0, 150.0))
+	assert(toggle.position == Vector2(480.0, 174.0))
+	await _capture(output_dir.path_join("debug_drawer_expanded_1920x1080.png"))
+	toggle.pressed.emit()
+	await create_timer(0.25).timeout
+	assert(bool(hud.call("debug_is_action_panel_collapsed")))
 	print("VISIBLE_DEBUG_DRAWER_PASS")
 	battle.queue_free()
 	quit(0)

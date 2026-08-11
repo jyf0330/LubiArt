@@ -3,9 +3,6 @@ class_name PetHitReaction
 
 const STEP_DURATION := 0.06
 const EFFECT_DISPLAY_SIZE := Vector2(145.0, 290.0)
-const OFFSETS: Array[float] = [0.0, 2.0, 8.0, 11.0, 7.0, 2.0, -2.0, 1.0]
-const SCALE_X: Array[float] = [1.0, 0.94, 0.86, 0.90, 0.96, 1.02, 1.01, 1.0]
-const SCALE_Y: Array[float] = [1.0, 1.04, 1.09, 1.06, 1.02, 0.98, 0.99, 1.0]
 const FLASH: Array[float] = [0.0, 1.0, 0.72, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 @export var sprite_path := NodePath("../CreatureArt")
@@ -18,10 +15,7 @@ const FLASH: Array[float] = [0.0, 1.0, 0.72, 0.0, 0.0, 0.0, 0.0, 0.0]
 var _run_serial := 0
 var _playing := false
 var _frame_index := -1
-var _base_position := Vector2.ZERO
-var _base_scale := Vector2.ONE
-var _base_pivot := Vector2.ZERO
-var _reaction_direction := Vector2.RIGHT
+var _contact_direction := Vector2.RIGHT
 
 
 func _ready() -> void:
@@ -35,14 +29,10 @@ func play(direction: Vector2 = Vector2.RIGHT, visible_sprite_rect: Rect2 = Rect2
 	if _sprite == null or _effect == null or frames.size() < 6:
 		return
 	_playing = true
-	_base_position = _sprite.position
-	_base_scale = _sprite.scale
-	_base_pivot = _sprite.pivot_offset
-	_reaction_direction = direction.normalized() if direction.length_squared() > 0.001 else Vector2.RIGHT
+	_contact_direction = direction.normalized() if direction.length_squared() > 0.001 else Vector2.RIGHT
 	var body_rect := visible_sprite_rect
 	if body_rect.size.x <= 0.0 or body_rect.size.y <= 0.0:
 		body_rect = Rect2(_sprite.position, _sprite.size)
-	_sprite.pivot_offset = body_rect.get_center() - _sprite.position
 	_layout_effect_at_contact(body_rect)
 	var serial := _run_serial
 	_play_sequence(serial)
@@ -50,10 +40,6 @@ func play(direction: Vector2 = Vector2.RIGHT, visible_sprite_rect: Rect2 = Rect2
 
 func reset() -> void:
 	_run_serial += 1
-	if _playing and _sprite != null:
-		_sprite.position = _base_position
-		_sprite.scale = _base_scale
-		_sprite.pivot_offset = _base_pivot
 	_playing = false
 	_frame_index = -1
 	_set_flash(0.0)
@@ -67,14 +53,12 @@ func snapshot() -> Dictionary:
 		"frame_index": _frame_index,
 		"effect_visible": _effect != null and _effect.visible,
 		"effect_size": _effect.size if _effect != null else Vector2.ZERO,
-		"sprite_offset": (_sprite.position - _base_position) if _playing and _sprite != null else Vector2.ZERO,
-		"sprite_scale": _sprite.scale if _sprite != null else Vector2.ONE,
 		"flash_amount": _flash_amount(),
 	}
 
 
 func _play_sequence(serial: int) -> void:
-	for index in range(OFFSETS.size()):
+	for index in range(FLASH.size()):
 		if serial != _run_serial or not is_inside_tree():
 			return
 		_apply_step(index)
@@ -86,8 +70,6 @@ func _play_sequence(serial: int) -> void:
 
 func _apply_step(index: int) -> void:
 	_frame_index = index
-	_sprite.position = _base_position + _reaction_direction * OFFSETS[index]
-	_sprite.scale = Vector2(_base_scale.x * SCALE_X[index], _base_scale.y * SCALE_Y[index])
 	_set_flash(FLASH[index])
 	if index < frames.size() and index < 6:
 		_effect.texture = frames[index]
@@ -99,8 +81,8 @@ func _apply_step(index: int) -> void:
 func _layout_effect_at_contact(body_rect: Rect2) -> void:
 	var body_center := body_rect.get_center()
 	var contact_offset := Vector2(
-		_reaction_direction.x * body_rect.size.x * 0.44,
-		_reaction_direction.y * body_rect.size.y * 0.44
+		_contact_direction.x * body_rect.size.x * 0.44,
+		_contact_direction.y * body_rect.size.y * 0.44
 	)
 	var contact_point := body_center - contact_offset
 	_effect.size = EFFECT_DISPLAY_SIZE

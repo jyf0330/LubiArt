@@ -52,14 +52,15 @@
     "player_pet_catalog": "res://data/ysbzs_singleplayer_data.json"
   },
   "background": {
-    "battle": "res://art/images/battle/map_controls/maps/grassland_morning.png",
+    "battle": "res://art/images/battle/map_controls/maps/forest_clearing_trial.png",
     "maps": {
-      "grassland_morning": "res://art/images/battle/map_controls/maps/grassland_morning.png",
+      "forest_clearing_trial": "res://art/images/battle/map_controls/maps/forest_clearing_trial.png",
+      "grassland_morning": "res://art/images/battle/map_controls/maps/forest_clearing_trial.png",
       "grassland_evening": "res://art/images/battle/map_controls/maps/grassland_evening.png",
       "pond_morning": "res://art/images/battle/map_controls/maps/pond_morning.png",
       "pond_evening": "res://art/images/battle/map_controls/maps/pond_evening.png",
-      "wasteland_morning": "res://art/images/battle/maps/wasteland_morning.png",
-      "wasteland_evening": "res://art/images/battle/maps/wasteland_evening.png",
+      "wasteland_morning": "res://art/images/battle/map_controls/maps/wasteland_morning.png",
+      "wasteland_evening": "res://art/images/battle/map_controls/maps/wasteland_evening.png",
       "mountain_morning": "res://art/images/battle/map_controls/maps/mountain_morning.png",
       "mountain_evening": "res://art/images/battle/map_controls/maps/mountain_evening.png",
       "lowland_morning": "res://art/images/battle/map_controls/maps/lowland_morning.png",

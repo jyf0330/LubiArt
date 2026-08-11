@@ -17,23 +17,23 @@ func _run() -> void:
 	pet.size = Vector2(171.0, 168.0)
 	await process_frame
 	var stats := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
+	var health := stats.get_node("Health") as Control
 	var incoming_damage_preview := pet.get_node(
-		"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"
+		"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"
 	) as Control
 	assert(not stats.z_as_relative)
 	assert(stats.z_index == 203)
-	assert(not incoming_damage_preview.z_as_relative)
-	assert(incoming_damage_preview.z_index == 202)
-	assert(stats.z_index > incoming_damage_preview.z_index)
-	var health := stats.get_node("Health") as Control
+	assert(incoming_damage_preview.get_parent() == health)
+	assert(incoming_damage_preview.z_as_relative)
+	assert(incoming_damage_preview.z_index == 0)
 	var shield := stats.get_node("Shield") as Control
 	var attack := stats.get_node("Attack") as Control
 	var damage_cap := stats.get_node("DamageCap") as Control
 	var groups: Array[Control] = [health, attack, shield, damage_cap]
 	var authored_sizes := [
+		Vector2(96.0, 11.0),
 		Vector2(88.0, 24.0),
-		Vector2(88.0, 24.0),
-		Vector2(88.0, 24.0),
+		Vector2(96.0, 11.0),
 		Vector2(88.0, 24.0),
 	]
 	var authored_label_rects: Array[Rect2] = []
@@ -41,7 +41,7 @@ func _run() -> void:
 		_assert_vector_close(groups[index].size, authored_sizes[index])
 		var icon := groups[index].get_node("Icon") as Control
 		var label := groups[index].get_node("Value_Text") as Label
-		assert(not icon.visible)
+		assert(icon.visible == (index == 0))
 		authored_label_rects.append(Rect2(label.position, label.size))
 	pet.call("set_unit_data", {
 		"unitId": "stat_layout_test",
@@ -66,7 +66,7 @@ func _run() -> void:
 		assert(groups[index].scale == Vector2.ONE)
 		var icon := groups[index].get_node("Icon") as Control
 		var label := groups[index].get_node("Value_Text") as Label
-		assert(not icon.visible)
+		assert(icon.visible == (index == 0))
 		assert(Rect2(label.position, label.size).is_equal_approx(authored_label_rects[index]))
 	var labels := [
 		health.get_node("Value_Text") as Label,
@@ -82,11 +82,12 @@ func _run() -> void:
 	assert(labels[1].self_modulate.is_equal_approx(Color("ffffff")))
 	assert(labels[2].self_modulate.is_equal_approx(Color("ffffff")))
 	assert(labels[3].self_modulate.is_equal_approx(Color("ffffff")))
-	for index in range(labels.size()):
-		var label := labels[index] as Label
-		assert(label.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT)
+	assert(labels[0].horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER)
+	for index in range(1, labels.size()):
+		assert(labels[index].horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT)
+	for label in labels:
 		assert(label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER)
-	_assert_rows_in_right_column(groups, front_corners)
+	_assert_health_bar_tracks_sprite_top(pet, health, front_corners)
 	# Rebinding data triggers the pet's normal layout pass; the right-side column
 	# must survive it without accumulating offsets or falling back to sprite bounds.
 	pet.call("set_unit_data", {
@@ -97,7 +98,7 @@ func _run() -> void:
 		"damageCap": 15,
 	}, "player", null)
 	await process_frame
-	_assert_rows_in_right_column(groups, front_corners)
+	_assert_health_bar_tracks_sprite_top(pet, health, front_corners)
 
 	# Exercise a narrower, trapezoidal back row as well as the front-row rectangle.
 	pet.size = Vector2(135.0, 110.0)
@@ -115,22 +116,25 @@ func _run() -> void:
 		_assert_vector_close(groups[index].scale, Vector2.ONE * back_row_scale)
 		var icon := groups[index].get_node("Icon") as Control
 		var label := groups[index].get_node("Value_Text") as Label
-		assert(not icon.visible)
+		assert(icon.visible == (index == 0))
 		assert(Rect2(label.position, label.size).is_equal_approx(authored_label_rects[index]))
-	_assert_rows_in_right_column(groups, back_corners)
+	_assert_health_bar_tracks_sprite_top(pet, health, back_corners)
 	assert(stats.visible)
+	assert(health.visible)
+	assert(not attack.visible)
+	assert(shield.visible)
+	assert(not damage_cap.visible)
+	assert(health is ProgressBar)
+	assert(is_equal_approx((health as ProgressBar).value, 16.0))
+	assert(is_equal_approx((health as ProgressBar).max_value, 16.0))
 	pet.call("set_dragging", true)
 	assert(not pet.visible)
 	assert(stats.visible)
 	pet.call("set_dragging", false)
 	assert(pet.visible)
 	assert(stats.visible)
-	await create_timer(1.05).timeout
-	assert(stats.visible)
 	pet.name = "BattleUnitDragPreview"
 	pet.call("set_dragging", false)
-	assert(stats.visible)
-	await create_timer(1.05).timeout
 	assert(stats.visible)
 
 	print("PET_STAT_LAYOUT_SMOKE_PASS")
@@ -139,6 +143,30 @@ func _run() -> void:
 
 func _assert_vector_close(actual: Vector2, expected: Vector2) -> void:
 	assert(actual.is_equal_approx(expected), "%s != %s" % [actual, expected])
+
+
+func _assert_health_bar_tracks_sprite_top(
+	pet: Control,
+	health: Control,
+	corners: PackedVector2Array
+) -> void:
+	var bounds := Rect2(health.position, health.size * health.scale)
+	var center_y := bounds.get_center().y
+	var left_x := _edge_x_at_y(corners[0], corners[3], center_y)
+	var right_x := _edge_x_at_y(corners[1], corners[2], center_y)
+	assert(
+		absf(bounds.get_center().x - (left_x + right_x) * 0.5) <= 0.5,
+		"health center %s != cell center %s" % [
+			bounds.get_center().x,
+			(left_x + right_x) * 0.5,
+		]
+	)
+	var sprite_top := float(pet.call("get_battle_sprite_actual_top_y"))
+	var health_bottom := health.position.y + health.size.y * health.scale.y
+	assert(is_equal_approx(
+		sprite_top - health_bottom,
+		14.0 * health.scale.y
+	))
 
 
 func _assert_rows_in_right_column(

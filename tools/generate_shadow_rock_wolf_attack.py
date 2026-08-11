@@ -6,11 +6,11 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png"
 OUT = ROOT / "output"
-FRAME_DIR = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/preview_v11/attack"
-STRIP_PATH = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/shadow_rock_wolf_attack_preview_v11.png"
+FRAME_DIR = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/preview_v11/attack"
+STRIP_PATH = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/shadow_rock_wolf_attack_preview_v11.png"
 GIF_PATH = OUT / "shadow_rock_wolf_frame_attack_preview_v11.gif"
-UP_HEAD_SOURCE = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/sources/shadow_rock_wolf_up_head_v1.png"
-CLOSED_FRAME_SOURCE = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/sources/shadow_rock_wolf_closed_neutral_v1.png"
+UP_HEAD_SOURCE = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/sources/shadow_rock_wolf_up_head_v1.png"
+CLOSED_FRAME_SOURCE = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/sources/shadow_rock_wolf_closed_neutral_v1.png"
 
 
 def stepped_resize(image: Image.Image, width: int, height: int) -> Image.Image:

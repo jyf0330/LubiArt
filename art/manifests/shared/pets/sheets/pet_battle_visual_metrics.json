@@ -1,37 +1,185 @@
 {
-  "version": 2,
-  "description": "Battle-only visible bounds and footlines for the eight confirmed sprites. Bounds ignore faint transparent fringe so each creature occupies its intended area inside a grid cell.",
+  "version": 7,
+  "description": "Battle-only visible bounds, footlines, and authored horizontal facing for confirmed and standalone approved sprites. Directional sprites declare left or right; front-facing sprites declare neutral. Runtime faction facing is derived from this metadata instead of per-unit flip overrides.",
   "by_texture_path": {
+    "res://art/images/shared/pets/battle_complete/creature_art_gold.png": {
+      "authored_horizontal_facing": "right",
+      "footline_bottom_inset": 15
+    },
     "res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png": {
-      "used_rect": [158, 132, 709, 704],
+      "authored_horizontal_facing": "left",
+      "used_rect": [
+        158,
+        132,
+        709,
+        704
+      ],
       "footline_bottom_inset": 15
     },
     "res://art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png": {
-      "used_rect": [79, 122, 878, 730],
+      "authored_horizontal_facing": "left",
+      "used_rect": [
+        79,
+        122,
+        878,
+        730
+      ],
       "footline_bottom_inset": 15
     },
     "res://art/images/shared/pets/sheets/slices/pet_style_003_blue_electric_shell.png": {
-      "used_rect": [5, 18, 166, 144],
+      "authored_horizontal_facing": "right",
+      "used_rect": [
+        5,
+        18,
+        166,
+        144
+      ],
       "footline_bottom_inset": 15
     },
     "res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png": {
-      "used_rect": [2, 15, 175, 150],
+      "authored_horizontal_facing": "right",
+      "used_rect": [
+        2,
+        15,
+        175,
+        150
+      ],
       "footline_bottom_inset": 15
     },
     "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png": {
-      "used_rect": [6, 26, 171, 134],
+      "authored_horizontal_facing": "right",
+      "used_rect": [
+        6,
+        26,
+        171,
+        134
+      ],
       "footline_bottom_inset": 15
     },
     "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png": {
-      "used_rect": [5, 0, 170, 180],
+      "authored_horizontal_facing": "neutral",
+      "used_rect": [
+        5,
+        0,
+        170,
+        180
+      ],
       "footline_bottom_inset": 15
     },
     "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png": {
-      "used_rect": [1, 0, 1000, 677],
+      "authored_horizontal_facing": "neutral",
+      "used_rect": [
+        1,
+        0,
+        1000,
+        677
+      ],
       "footline_bottom_inset": 15
     },
     "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png": {
-      "used_rect": [102, 37, 820, 949],
+      "authored_horizontal_facing": "left",
+      "used_rect": [
+        102,
+        37,
+        820,
+        949
+      ],
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/shared/pets/sheets/slices/pet_style_014_horned_wing_dragon.png": {
+      "authored_horizontal_facing": "left",
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/shared/pets/animations/spr_009_azure_thunder_owl/anim_001_idle/frames/frame_001.png": {
+      "authored_horizontal_facing": "right",
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/shared/pets/animations/spr_012_azure_wind_feather/anim_001_idle/frames/frame_001.png": {
+      "authored_horizontal_facing": "right",
+      "used_rect": [
+        10,
+        9,
+        108,
+        112
+      ],
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/shared/pets/animations/spr_057_frost_fox/anim_001_idle/frames/frame_001.png": {
+      "authored_horizontal_facing": "left",
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/shared/pets/sheets/slices/pet_style_901_aqua_crystal_frog.png": {
+      "authored_horizontal_facing": "neutral",
+      "used_rect": [
+        11,
+        25,
+        138,
+        123
+      ],
+      "footline_bottom_inset": 12
+    },
+    "res://art/images/shared/pets/sheets/slices/pet_style_999_crystal_shell.png": {
+      "authored_horizontal_facing": "left",
+      "used_rect": [
+        23,
+        25,
+        84,
+        92
+      ],
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/shared/pets/animations/spr_010_void_octopus/anim_001_idle/frames/frame_001.png": {
+      "authored_horizontal_facing": "neutral",
+      "used_rect": [
+        16,
+        23,
+        128,
+        114
+      ],
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/battle/runtime/hero_images/hero_wukong.png": {
+      "authored_horizontal_facing": "left",
+      "used_rect": [
+        6,
+        4,
+        123,
+        168
+      ],
+      "display_scale": 1.15,
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/battle/runtime/hero_images/hero_tang_monk.png": {
+      "authored_horizontal_facing": "neutral",
+      "used_rect": [
+        103,
+        125,
+        970,
+        1082
+      ],
+      "display_scale": 1.15,
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/battle/runtime/hero_images/hero_rabbit.png": {
+      "authored_horizontal_facing": "left",
+      "used_rect": [
+        71,
+        53,
+        922,
+        1320
+      ],
+      "display_scale": 1.15,
+      "footline_bottom_inset": 15
+    },
+    "res://art/images/battle/runtime/hero_images/hero_spider.png": {
+      "authored_horizontal_facing": "right",
+      "used_rect": [
+        20,
+        14,
+        110,
+        118
+      ],
+      "display_scale": 1.15,
       "footline_bottom_inset": 15
     }
   }

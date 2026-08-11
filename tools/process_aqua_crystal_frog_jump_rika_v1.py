@@ -9,7 +9,7 @@ from PIL import Image, ImageSequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/aqua_crystal_frog"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/aqua_crystal_frog"
 IMAGE_ROOT = ANIMATION_ROOT / "jump_v1"
 RAW_SHEET_PATH = IMAGE_ROOT / "raw/output_001.png"
 FRAME_DIR = IMAGE_ROOT / "frames"
@@ -19,7 +19,7 @@ GIF_PATH = ROOT / "output/aqua_crystal_frog_jump_preview_v1.gif"
 SLOW_GIF_PATH = ROOT / "output/aqua_crystal_frog_jump_preview_slow_v1.gif"
 QA_REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/aqua_crystal_frog/jump_v1/qa_report.json"
+    / "output/sprite_animation_candidates/_manifests/aqua_crystal_frog/jump_v1/qa_report.json"
 )
 
 FRAME_SIZE = (128, 128)

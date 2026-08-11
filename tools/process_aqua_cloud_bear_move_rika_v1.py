@@ -9,7 +9,7 @@ from PIL import Image, ImageSequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/aqua_cloud_bear"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/aqua_cloud_bear"
 IMAGE_ROOT = ANIMATION_ROOT / "preview_v1"
 RAW_SHEET_PATH = IMAGE_ROOT / "raw/output_001.png"
 FRAME_DIR = IMAGE_ROOT / "move"
@@ -19,7 +19,7 @@ GIF_PATH = ANIMATION_ROOT / "aqua_cloud_bear_move_preview_v1.gif"
 SLOW_GIF_PATH = ANIMATION_ROOT / "aqua_cloud_bear_move_preview_slow_v1.gif"
 QA_REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/aqua_cloud_bear/preview_v1/qa_report.json"
+    / "output/sprite_animation_candidates/_manifests/aqua_cloud_bear/preview_v1/qa_report.json"
 )
 
 FRAME_SIZE = (128, 128)

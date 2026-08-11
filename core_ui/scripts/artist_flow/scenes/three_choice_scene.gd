@@ -343,6 +343,13 @@ func render_battle_command_response(command: Dictionary, response: Dictionary) -
 			and String(after_snapshot.get("phase", "")) != "battle":
 		_render_battle_view(after_snapshot)
 		await _await_battle_trace_sequence()
+	# Commands that remain in battle only need the active battle presentation.
+	# Re-rendering the hidden route HUD, roster and bazaar content here adds work
+	# directly to pointer-down/up without changing anything the player can see.
+	if String(after_snapshot.get("phase", "")) == "battle" and _battle_view != null:
+		_render_battle_view(after_snapshot)
+		await _transition_to_view(VIEW_BATTLE)
+		return
 	var target_view := _render_content_from_state(after_snapshot)
 	await _transition_to_view(target_view)
 

@@ -49,9 +49,9 @@ script = ExtResource("1_script")
 
 [node name="AutoArrangeButton" type="TextureButton" parent="." unique_id=859655289]
 layout_mode = 0
-offset_left = 1772.0
+offset_left = 1841.0
 offset_top = 915.0
-offset_right = 1838.0
+offset_right = 1907.0
 offset_bottom = 977.0
 pivot_offset = Vector2(33, 31)
 tooltip_text = "自动布阵：快速安排我方精灵站位。（快捷键 A）"
@@ -61,9 +61,9 @@ texture_normal = ExtResource("3_auto")
 
 [node name="ResetButton" type="TextureButton" parent="." unique_id=908798259]
 layout_mode = 0
-offset_left = 1841.0
+offset_left = 1704.0
 offset_top = 915.0
-offset_right = 1907.0
+offset_right = 1770.0
 offset_bottom = 977.0
 pivot_offset = Vector2(33, 31)
 tooltip_text = "重置布阵：恢复我方精灵到本场战斗入场状态。（快捷键 R）"
@@ -115,9 +115,9 @@ texture_normal = ExtResource("6_settings")
 
 [node name="AttackOrderButton" type="TextureButton" parent="." unique_id=1450587695]
 layout_mode = 0
-offset_left = 1704.0
+offset_left = 1772.0
 offset_top = 915.0
-offset_right = 1769.0
+offset_right = 1837.0
 offset_bottom = 977.0
 pivot_offset = Vector2(32.5, 31)
 tooltip_text = "攻击顺序：查看或收起本回合的攻击顺序。（快捷键 TAB）"
@@ -126,6 +126,7 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("7_attack_order")
 
 [node name="BagButton" type="TextureButton" parent="." unique_id=609206066]
+visible = false
 layout_mode = 0
 offset_left = 1635.0
 offset_top = 915.0

@@ -170,11 +170,11 @@ color = Color(0, 0, 0, 0.58)
 [node name="Accent" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = 48.0
-offset_top = 34.0
+offset_top = 24.0
 offset_right = 56.0
-offset_bottom = 128.0
+offset_bottom = 118.0
 mouse_filter = 2
-color = Color(0.22, 0.72, 1, 1)
+color = Color(0.86, 0.58, 0.22, 1)
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 0
@@ -192,7 +192,7 @@ offset_left = 80.0
 offset_top = 91.0
 offset_right = 980.0
 offset_bottom = 126.0
-theme_override_colors/font_color = Color(0.53, 0.68, 0.82, 1)
+theme_override_colors/font_color = Color(0.95, 0.82, 0.6, 1)
 theme_override_font_sizes/font_size = 22
 text = "拖动精灵改变位置 · 从左到右决定技能释放顺序"
 
@@ -283,7 +283,7 @@ offset_left = 35.0
 offset_top = 260.0
 offset_right = 185.0
 offset_bottom = 294.0
-theme_override_colors/font_color = Color(0.48, 0.67, 0.84, 1)
+theme_override_colors/font_color = Color(0.95, 0.82, 0.6, 1)
 theme_override_font_sizes/font_size = 20
 text = "战斗开始"
 
@@ -293,7 +293,7 @@ offset_left = 1255.0
 offset_top = 260.0
 offset_right = 1405.0
 offset_bottom = 294.0
-theme_override_colors/font_color = Color(0.48, 0.67, 0.84, 1)
+theme_override_colors/font_color = Color(0.95, 0.82, 0.6, 1)
 theme_override_font_sizes/font_size = 20
 text = "回合结束"
 horizontal_alignment = 2
@@ -846,7 +846,7 @@ offset_left = 118.0
 offset_top = 493.0
 offset_right = 1522.0
 offset_bottom = 540.0
-theme_override_colors/font_color = Color(0.67, 0.82, 0.94, 1)
+theme_override_colors/font_color = Color(0.95, 0.82, 0.6, 1)
 theme_override_font_sizes/font_size = 23
 text = "释放顺序"
 horizontal_alignment = 1
@@ -874,9 +874,9 @@ vertical_alignment = 1
 
 [node name="ResetButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 530.0
+offset_left = 690.0
 offset_top = 660.0
-offset_right = 790.0
+offset_right = 950.0
 offset_bottom = 726.0
 focus_mode = 0
 mouse_default_cursor_shape = 2
@@ -891,6 +891,7 @@ theme_override_styles/disabled = SubResource("Style_disabled")
 text = "重置位置"
 
 [node name="PlayButton" type="Button" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 830.0
 offset_top = 660.0

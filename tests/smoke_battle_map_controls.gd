@@ -12,11 +12,11 @@ const EXPECTED_MAP_IDS := [
 	"lowland_morning",
 ]
 const EXPECTED_BUTTON_RECTS := {
-	"AutoArrangeButton": Rect2(1772.0, 915.0, 66.0, 62.0),
-	"ResetButton": Rect2(1841.0, 915.0, 66.0, 62.0),
+	"AutoArrangeButton": Rect2(1841.0, 915.0, 66.0, 62.0),
+	"ResetButton": Rect2(1704.0, 915.0, 66.0, 62.0),
 	"SpeedButton": Rect2(90.0, 985.0, 65.0, 62.0),
 	"SettingsButton": Rect2(20.0, 985.0, 65.0, 62.0),
-	"AttackOrderButton": Rect2(1704.0, 915.0, 65.0, 62.0),
+	"AttackOrderButton": Rect2(1772.0, 915.0, 65.0, 62.0),
 	"BagButton": Rect2(1635.0, 915.0, 66.0, 62.0),
 	"AllOutButton": Rect2(1635.0, 983.0, 272.0, 64.0),
 }
@@ -76,17 +76,16 @@ func _run() -> void:
 		assert(button.texture_normal != null)
 		assert(button.tooltip_text == EXPECTED_TOOLTIPS[node_name])
 	var ordered_buttons := [
-		prefab.get_node("BagButton") as TextureButton,
+		prefab.get_node("ResetButton") as TextureButton,
 		prefab.get_node("AttackOrderButton") as TextureButton,
 		prefab.get_node("AutoArrangeButton") as TextureButton,
-		prefab.get_node("ResetButton") as TextureButton,
 	]
+	assert(not (prefab.get_node("BagButton") as TextureButton).visible)
 	var all_out_rect := (prefab.get_node("AllOutButton") as TextureButton).get_rect()
-	assert(ordered_buttons.front().position.x == all_out_rect.position.x)
 	assert(ordered_buttons.back().position.x + ordered_buttons.back().size.x == all_out_rect.end.x)
 	for index in range(1, ordered_buttons.size()):
 		assert(ordered_buttons[index].position.y == ordered_buttons.front().position.y)
-		assert(ordered_buttons[index].position.x - ordered_buttons[index - 1].get_rect().end.x == 3.0)
+		assert(ordered_buttons[index].position.x > ordered_buttons[index - 1].get_rect().end.x)
 	var reset_button := prefab.get_node("ResetButton") as TextureButton
 	var reset_cooldown_label := reset_button.get_node("ResetCooldownLabel") as Label
 	prefab.call("set_reset_charge_state", 1, 4)

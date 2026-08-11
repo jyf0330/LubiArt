@@ -1,0 +1,20 @@
+{
+  "sprite_id": "SPR_901",
+  "sprite_name": "Aqua Crystal Frog",
+  "identity_anchor": {
+    "file_name": "ig_094da0bbf624d45d016a6af4305390819bb7ee87ebc74f1d06_0006_ig_0a7946da60577bc1016a6ac516f79c81949d37f933d1caad4d.png",
+    "sha256": "5eddc168e5b1237418e4afa1c8da4f23ea32a733bf6d45884e82d1615ff459ed"
+  },
+  "cross_action": {
+    "idle_shared_scale": 1.078125,
+    "move_shared_scale": 1.3663366336633664,
+    "idle_visible_height_mean": 121.9375,
+    "move_visible_height_mean": 123.125
+  },
+  "actions": {
+    "idle": "PASS",
+    "move": "PASS"
+  },
+  "runtime_evidence": "res://output/qa/aqua_crystal_frog/battle_runtime/battle_runtime_overview.png",
+  "status": "PASS"
+}

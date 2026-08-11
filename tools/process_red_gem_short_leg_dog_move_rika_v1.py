@@ -12,7 +12,7 @@ from PIL import Image, ImageSequence
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_PROCESSOR = Path.home() / ".codex/skills/generate2dsprite/scripts/generate2dsprite.py"
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/red_gem_short_leg_dog"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/red_gem_short_leg_dog"
 VERSION_ROOT = ANIMATION_ROOT / "move_v1"
 RAW_SHEET_PATH = VERSION_ROOT / "raw/output_001.png"
 PROMPT_PATH = VERSION_ROOT / "source/prompt-used.txt"
@@ -24,8 +24,8 @@ OVERVIEW_PATH = VERSION_ROOT / "red_gem_short_leg_dog_move_overview_v1.png"
 ZOOM_OVERVIEW_PATH = ROOT / "output/red_gem_short_leg_dog_move_frames_4x_v1.png"
 GIF_PATH = ROOT / "output/red_gem_short_leg_dog_move_preview_v1.gif"
 SLOW_GIF_PATH = ROOT / "output/red_gem_short_leg_dog_move_preview_slow_v1.gif"
-SUBMISSION_PATH = ROOT / "art/manifests/shared/pets/animations/red_gem_short_leg_dog/move_v1/submission.json"
-QA_REPORT_PATH = ROOT / "art/manifests/shared/pets/animations/red_gem_short_leg_dog/move_v1/qa_report.json"
+SUBMISSION_PATH = ROOT / "output/sprite_animation_candidates/_manifests/red_gem_short_leg_dog/move_v1/submission.json"
+QA_REPORT_PATH = ROOT / "output/sprite_animation_candidates/_manifests/red_gem_short_leg_dog/move_v1/qa_report.json"
 
 FRAME_SIZE = (128, 128)
 GRID_SIZE = (4, 4)

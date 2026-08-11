@@ -70,6 +70,10 @@ func _run() -> void:
 	_battle.call("render_snapshot", _snapshot)
 	await _settle(4)
 	await _stabilize()
+	var detail_summary := Dictionary(_probe.call("detail_summary"))
+	if not bool(detail_summary.get("visible", false)):
+		_fail("pet detail hover did not produce a visible panel")
+		return
 	await _capture("operation_04_pet_detail_open.png")
 
 	_probe.call("clear_detail")
@@ -121,6 +125,10 @@ func _cell_host() -> Control:
 
 
 func _stabilize() -> void:
+	var map_controls := _battle.get_node_or_null("MapControls")
+	if map_controls != null:
+		map_controls.call("_mark_player_activity")
+		map_controls.call("_hide_all_out_highlight")
 	var vfx_host := _battle.get_node_or_null("Board/VfxHost")
 	if vfx_host != null:
 		var round_feedback := vfx_host.get_node_or_null("RoundFeedback")

@@ -4,7 +4,7 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/rock_claw"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/rock_claw"
 NEUTRAL_PATH = ANIMATION_ROOT / "sources/rock_claw_neutral_v1.png"
 SHEET_PATH = ANIMATION_ROOT / "sources/rock_claw_attack_sheet_transparent_v3.png"
 FRAME_DIR = ANIMATION_ROOT / "preview_v3/attack"

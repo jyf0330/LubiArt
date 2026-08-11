@@ -13,9 +13,9 @@ if spec is None or spec.loader is None:
 base = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(base)
 
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/rockling"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/rockling"
 VERSION_ROOT = ANIMATION_ROOT / "move_v1"
-QA_REPORT_PATH = ROOT / "art/manifests/shared/pets/animations/rockling/move_v1/qa_report.json"
+QA_REPORT_PATH = ROOT / "output/sprite_animation_candidates/_manifests/rockling/move_v1/qa_report.json"
 
 
 def configure_base() -> None:
@@ -31,7 +31,7 @@ def configure_base() -> None:
     base.ZOOM_OVERVIEW_PATH = ROOT / "output/rockling_move_frames_4x_v1.png"
     base.GIF_PATH = ROOT / "output/rockling_move_preview_v1.gif"
     base.SLOW_GIF_PATH = ROOT / "output/rockling_move_preview_slow_v1.gif"
-    base.SUBMISSION_PATH = ROOT / "art/manifests/shared/pets/animations/rockling/move_v1/submission.json"
+    base.SUBMISSION_PATH = ROOT / "output/sprite_animation_candidates/_manifests/rockling/move_v1/submission.json"
     base.QA_REPORT_PATH = QA_REPORT_PATH
 
 

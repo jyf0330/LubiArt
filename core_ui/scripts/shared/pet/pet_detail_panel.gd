@@ -2,11 +2,11 @@ extends Control
 
 signal confirm_requested(command: Dictionary)
 
-const MODAL_PANEL_POSITION := Vector2(1294.0, 100.0)
 const MODAL_PANEL_SCALE := Vector2.ONE
-
-@export var context_panel_position := Vector2(-140.0, 10.0)
-@export var context_panel_scale := Vector2(1.24, 1.24)
+const CONTEXT_PANEL_SCALE := Vector2.ONE
+const PANEL_SIZE := Vector2(360.0, 460.0)
+const VIEWPORT_MARGIN := 16.0
+const POINTER_OFFSET := Vector2(24.0, 20.0)
 
 @onready var dim: ColorRect = $Dim
 @onready var panel: Control = $Panel
@@ -22,7 +22,7 @@ var _mouse_filters_by_id := {}
 
 func _ready() -> void:
 	visible = false
-	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if close_button != null:
 		close_button.pressed.connect(close)
 	if confirm_button != null:
@@ -35,7 +35,7 @@ func show_detail(record: Dictionary, texture: Texture2D = null, confirm_command:
 	_is_context_detail = false
 	_restore_mouse_filters(self)
 	_apply_modal_layout()
-	dim.visible = true
+	dim.visible = false
 	_confirm_command = confirm_command.duplicate(true)
 	if info_card.has_method("set_info"):
 		_detail_snapshot = Dictionary(info_card.call("set_info", record, texture))
@@ -64,7 +64,7 @@ func close() -> void:
 	visible = false
 	_confirm_command = {}
 	_is_context_detail = false
-	dim.visible = true
+	dim.visible = false
 	_restore_mouse_filters(self)
 	if close_button != null:
 		close_button.visible = true
@@ -82,14 +82,25 @@ func is_context_detail() -> bool:
 
 func _apply_modal_layout() -> void:
 	if panel != null:
-		panel.position = MODAL_PANEL_POSITION
 		panel.scale = MODAL_PANEL_SCALE
+		var viewport_size := get_viewport_rect().size
+		panel.position = (viewport_size - PANEL_SIZE) * 0.5
 
 
 func _apply_context_layout() -> void:
 	if panel != null:
-		panel.position = context_panel_position
-		panel.scale = context_panel_scale
+		panel.scale = CONTEXT_PANEL_SCALE
+		var viewport_size := get_viewport_rect().size
+		var pointer := get_viewport().get_mouse_position()
+		var desired := pointer + POINTER_OFFSET
+		if desired.x + PANEL_SIZE.x > viewport_size.x - VIEWPORT_MARGIN:
+			desired.x = pointer.x - PANEL_SIZE.x - POINTER_OFFSET.x
+		if desired.y + PANEL_SIZE.y > viewport_size.y - VIEWPORT_MARGIN:
+			desired.y = pointer.y - PANEL_SIZE.y - POINTER_OFFSET.y
+		panel.position = Vector2(
+			clampf(desired.x, VIEWPORT_MARGIN, maxf(VIEWPORT_MARGIN, viewport_size.x - PANEL_SIZE.x - VIEWPORT_MARGIN)),
+			clampf(desired.y, VIEWPORT_MARGIN, maxf(VIEWPORT_MARGIN, viewport_size.y - PANEL_SIZE.y - VIEWPORT_MARGIN))
+		)
 
 
 func get_detail_snapshot() -> Dictionary:

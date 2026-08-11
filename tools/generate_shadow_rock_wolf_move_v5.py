@@ -4,10 +4,10 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TURNED_HEAD_SOURCE = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/sources/shadow_rock_wolf_walk_head_transparent_v1.png"
-V2_FRAME_DIR = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/preview_v2/move"
-FRAME_DIR = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/preview_v5/move"
-STRIP_PATH = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/shadow_rock_wolf_move_preview_v5.png"
+TURNED_HEAD_SOURCE = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/sources/shadow_rock_wolf_walk_head_transparent_v1.png"
+V2_FRAME_DIR = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/preview_v2/move"
+FRAME_DIR = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/preview_v5/move"
+STRIP_PATH = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/shadow_rock_wolf_move_preview_v5.png"
 GIF_PATH = ROOT / "output/shadow_rock_wolf_frame_move_preview_v5.gif"
 
 FRAME_SIZE = (200, 200)

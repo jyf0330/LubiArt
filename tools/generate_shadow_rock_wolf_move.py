@@ -4,9 +4,9 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SHEET_SOURCE = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/sources/shadow_rock_wolf_walk_sheet_transparent_v2.png"
-FRAME_DIR = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/preview_v2/move"
-STRIP_PATH = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf/shadow_rock_wolf_move_preview_v2.png"
+SHEET_SOURCE = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/sources/shadow_rock_wolf_walk_sheet_transparent_v2.png"
+FRAME_DIR = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/preview_v2/move"
+STRIP_PATH = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf/shadow_rock_wolf_move_preview_v2.png"
 GIF_PATH = ROOT / "output/shadow_rock_wolf_frame_move_preview_v2.gif"
 
 FRAME_SIZE = (200, 200)

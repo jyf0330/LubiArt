@@ -11,6 +11,7 @@ signal close_requested
 const MARKER_WIDTH := 170.0
 const MARKER_Y := 4.0
 const MIN_MARKER_X := 32.0
+const DRAG_MARKER_Z_INDEX := 100
 
 @onready var marker_layer: Control = $TimelineArea/MarkerLayer
 @onready var backdrop: ColorRect = $Backdrop
@@ -24,6 +25,7 @@ var _markers: Array[Control] = []
 var _dragging_marker: Control = null
 var _drag_offset_x := 0.0
 var _playing := false
+var _marker_position_ratios: Dictionary = {}
 
 
 func _ready() -> void:
@@ -49,6 +51,8 @@ func _on_backdrop_gui_input(event: InputEvent) -> void:
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
 		return
 	backdrop.accept_event()
+	if get_global_rect().has_point(mouse_event.global_position):
+		return
 	close_requested.emit()
 
 
@@ -90,6 +94,7 @@ func _input(event: InputEvent) -> void:
 
 
 func render_snapshot(snapshot: Dictionary) -> void:
+	_remember_marker_positions()
 	var units_by_id := {}
 	for unit_value in Array(snapshot.get("units", [])):
 		var unit := Dictionary(unit_value)
@@ -125,7 +130,7 @@ func render_snapshot(snapshot: Dictionary) -> void:
 		var pet_frame := marker.get_node("PetFrame") as TextureButton
 		if pet_frame.has_method("configure"):
 			pet_frame.call("configure", unit)
-	_reset_positions(false)
+	_restore_or_initialize_positions()
 	play_button.disabled = _visible_markers().is_empty()
 	reset_button.disabled = _visible_markers().is_empty()
 
@@ -147,7 +152,7 @@ func _on_marker_gui_input(event: InputEvent, marker: Control) -> void:
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
 			_dragging_marker = marker
 			_drag_offset_x = marker.get_local_mouse_position().x
-			marker.move_to_front()
+			_sync_marker_stack_order(_sorted_markers())
 			_set_cursor_grabbing(true)
 			(marker.get_node("PetFrame") as TextureButton).call("set_drag_visual", true)
 			_animate_marker_scale(marker, Vector2(1.06, 1.06), 0.08)
@@ -162,8 +167,9 @@ func _finish_drag(emit_change: bool = true) -> void:
 	_set_cursor_grabbing(false)
 	(marker.get_node("PetFrame") as TextureButton).call("set_drag_visual", false)
 	_animate_marker_scale(marker, Vector2.ONE, 0.10)
+	_remember_marker_positions()
 	_update_order_badges()
-	status_label.text = "顺序已更新 · 点击“开始演示”查看释放节奏"
+	status_label.text = "顺序已更新 · 可继续拖动调整"
 	if emit_change:
 		_emit_order_intent()
 
@@ -209,9 +215,45 @@ func _reset_positions(update_status: bool = true) -> void:
 		marker.scale = Vector2.ONE
 		marker.modulate = Color.WHITE
 	playback_cursor.visible = false
+	_remember_marker_positions()
 	if update_status:
 		status_label.text = "拖动任意精灵到时间轴上的位置"
 	_update_order_badges()
+
+
+func _restore_or_initialize_positions() -> void:
+	var max_x := _max_marker_x()
+	var visible_markers := _visible_markers()
+	for index in range(visible_markers.size()):
+		var marker := visible_markers[index]
+		var entry_id := String(marker.get_meta("entry_id", ""))
+		var default_ratio := (
+			float(index) / float(visible_markers.size() - 1)
+			if visible_markers.size() > 1
+			else 0.5
+		)
+		var ratio := clampf(float(_marker_position_ratios.get(entry_id, default_ratio)), 0.0, 1.0)
+		marker.position = Vector2(lerpf(MIN_MARKER_X, max_x, ratio), MARKER_Y)
+		marker.scale = Vector2.ONE
+		marker.modulate = Color.WHITE
+	playback_cursor.visible = false
+	_remember_marker_positions()
+	_update_order_badges()
+
+
+func _remember_marker_positions() -> void:
+	var max_x := _max_marker_x()
+	var travel := maxf(0.0, max_x - MIN_MARKER_X)
+	for marker in _visible_markers():
+		var entry_id := String(marker.get_meta("entry_id", ""))
+		if entry_id.is_empty():
+			continue
+		var ratio := 0.0 if is_zero_approx(travel) else (marker.position.x - MIN_MARKER_X) / travel
+		_marker_position_ratios[entry_id] = clampf(ratio, 0.0, 1.0)
+
+
+func _max_marker_x() -> float:
+	return maxf(MIN_MARKER_X, marker_layer.size.x - MARKER_WIDTH)
 
 
 func _visible_markers() -> Array[Control]:
@@ -234,12 +276,20 @@ func _sorted_markers() -> Array[Control]:
 
 func _update_order_badges() -> void:
 	var ordered := _sorted_markers()
+	_sync_marker_stack_order(ordered)
 	var names: Array[String] = []
 	for index in range(ordered.size()):
 		var marker := ordered[index]
 		(marker.get_node("OrderBadge") as Label).text = str(index + 1)
 		names.append(_marker_name(marker))
 	order_label.text = "释放顺序　" + "  →  ".join(names) if not names.is_empty() else "暂无可用精灵"
+
+
+func _sync_marker_stack_order(ordered: Array[Control]) -> void:
+	for index in range(ordered.size()):
+		ordered[index].z_index = index
+	if _dragging_marker != null and is_instance_valid(_dragging_marker):
+		_dragging_marker.z_index = DRAG_MARKER_Z_INDEX
 
 
 func _play_sequence() -> void:
@@ -306,9 +356,19 @@ func debug_set_marker_position(entry_or_unit_id: String, normalized_position: fl
 			continue
 		var max_x := maxf(0.0, marker_layer.size.x - MARKER_WIDTH)
 		marker.position.x = lerpf(MIN_MARKER_X, max_x, clampf(normalized_position, 0.0, 1.0))
+		_remember_marker_positions()
 		_update_order_badges()
 		return true
 	return false
+
+
+func debug_marker_position(entry_id: String) -> float:
+	for marker in _markers:
+		if String(marker.get_meta("entry_id", "")) != entry_id:
+			continue
+		var travel := maxf(0.0, _max_marker_x() - MIN_MARKER_X)
+		return 0.0 if is_zero_approx(travel) else (marker.position.x - MIN_MARKER_X) / travel
+	return -1.0
 
 
 func debug_order_ids() -> Array[String]:

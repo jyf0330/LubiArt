@@ -460,7 +460,10 @@ func _run() -> void:
 	assert(reset_cooldown_label.text == "")
 	assert(int(game_session.call("replay_step_index")) == 0)
 	var board_grid := battle_view.get_node("Board/CellHost") as Control
-	assert(board_grid.get_child_count() == 56)
+	assert(board_grid.get_child_count() == 64)
+	var runtime_board_summary := Dictionary(battle_probe.call("board_summary"))
+	assert(int(runtime_board_summary.get("width", 0)) == 8)
+	assert(int(runtime_board_summary.get("height", 0)) == 8)
 	assert(main_instance.call("get_active_view") == main_instance)
 	assert(main_instance.call("get_active_feature_view") == battle_view)
 	var replay_step_before_empty_select := int(game_session.call("replay_step_index"))
@@ -509,7 +512,7 @@ func _run() -> void:
 		_assert_cell_stat_column(cell, pet_view)
 		if grid.y == front_row_y:
 			front_row_pet_count += 1
-			assert(health_group.size.is_equal_approx(Vector2(88.0, 24.0)))
+			assert(health_group.size.is_equal_approx(Vector2(64.0, 6.0)))
 			assert(health_group.scale == Vector2.ONE)
 		else:
 			back_row_pet_count += 1
@@ -591,11 +594,12 @@ func _run() -> void:
 	drag_origin.cell_selected.emit(detail_grid.x, detail_grid.y)
 	await process_frame
 	await process_frame
+	assert(not bool(battle_probe.detail_summary().get("visible", true)))
+	assert(battle_probe.hover_pet(detail_grid, true))
+	await process_frame
+	await process_frame
 	assert((battle_view.get_node("OverlayHost/BattlePetDetailPanel") as Control).visible)
-	var cancel_event := InputEventKey.new()
-	cancel_event.keycode = KEY_ESCAPE
-	cancel_event.pressed = true
-	battle_view.get_viewport().push_input(cancel_event, true)
+	assert(battle_probe.hover_pet(detail_grid, false))
 	await process_frame
 	assert(not bool(battle_probe.detail_summary().get("visible", true)))
 
@@ -605,10 +609,18 @@ func _run() -> void:
 	var occupied_grid := occupied_target.call("get_grid_position") as Vector2i
 	var occupied_unit_id := _cell_unit_id(occupied_target)
 	assert(bool(battle_probe.start_drag(drag_origin_grid, drag_target_grid).get("started", false)))
+	var dragged_unit := drag_origin.call("get_unit_node") as Control
+	var battle_drag_preview := battle_view.get_node("Board/UnitHost/BattleUnitDragPreview") as Control
+	assert(dragged_unit != null)
+	assert(battle_drag_preview != null)
+	assert(battle_drag_preview.custom_minimum_size == Vector2.ZERO)
+	assert(battle_drag_preview.size.is_equal_approx(dragged_unit.size))
 	assert(StringName(game_cursor.call("debug_state")) == &"grabbing")
 	await battle_probe.update_drag(drag_target_grid, Dictionary(game_session.call("current_snapshot")))
 	assert(_visible_attack_highlight_count(board_grid) > 0)
-	var move_command := battle_probe.finish_drag(drag_target_grid)
+	battle_probe.finish_drag(drag_target_grid)
+	await process_frame
+	var move_command := Dictionary(battle_probe.drag_summary().get("command", {}))
 	assert(String(move_command.get("type", "")) == "MOVE_HERO")
 	assert(String(move_command.get("unitId", "")) == dragged_unit_id)
 	assert(StringName(game_cursor.call("debug_state")) == &"pointer")
@@ -715,14 +727,16 @@ func _assert_presentation_patterns_load() -> void:
 func _assert_new_unit_assets() -> void:
 	var assets := BattleAssetRegistry.new()
 	assert(assets.all_declared_runtime_assets_exist())
-	assert(assets.pet_image_by_id.size() == 8)
+	assert(assets.pet_image_by_id.size() == 9)
 	var cases := [
 		[{"unitId": "player_hero", "unitName": "孙悟空"}, "hero_leader", "hero_wukong.png"],
 		[{"unitId": "hero_tang_monk", "unitName": "唐僧"}, "hero_leader", "hero_tang_monk.png"],
 		[{"unitId": "hero_rabbit", "unitName": "玉兔"}, "hero_leader", "hero_rabbit.png"],
 		[{"unitId": "enemy_hero", "unitName": "蜘蛛精"}, "boss", "hero_spider.png"],
 		[{"pet_id": "pal_002"}, "player", "pet_style_001_gold_mascot.png"],
+		[{"pet_id": "pal_030"}, "player", "pet_style_999_crystal_shell.png"],
 		[{"source_pet_id": "pal_042"}, "enemy", "pet_style_008_volcanic_dijiang.png"],
+		[{"source_pet_id": "pal_006"}, "enemy", "spr_057_frost_fox/anim_001_idle/frames/frame_001.png"],
 	]
 	for test_case in cases:
 		var result := Dictionary(assets.texture_for_unit(test_case[0], test_case[1]))
@@ -790,7 +804,7 @@ func _assert_damage_preview_cycle() -> void:
 	pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20)
 	var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
 	var health_value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/Value_Text") as Label
-	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview") as Control
+	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview") as Control
 	var badge_value := badge.get_node("Value") as Label
 	var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
 	assert(bool(preview.get("active", false)))
@@ -804,9 +818,9 @@ func _assert_damage_preview_cycle() -> void:
 	assert(stats_root.visible)
 	assert(health_value.text == "HP:20")
 	assert(badge.visible)
-	assert(badge_value.text == "15")
+	assert(badge_value.text == "")
 	pet.call("_on_damage_preview_timeout")
-	await create_timer(1.25).timeout
+	await create_timer(1.4).timeout
 	assert(String(Dictionary(pet.call("get_damage_preview_snapshot")).get("state", "")) == "visible")
 	assert(is_zero_approx(float(Dictionary(pet.call(
 		"get_damage_preview_snapshot"
@@ -834,8 +848,8 @@ func _assert_incoming_damage_badge() -> void:
 		"atk": 5,
 	}, "player", null)
 	pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20, true)
-	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview") as Control
-	var value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview/Value") as Label
+	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview") as Control
+	var value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Value") as Label
 	var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
 	var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
 	assert(bool(preview.get("active", false)))
@@ -843,12 +857,14 @@ func _assert_incoming_damage_badge() -> void:
 	assert(int(preview.get("displayed_damage", -1)) == 15)
 	assert(int(preview.get("displayed_hp", -1)) == 20)
 	assert(badge.visible)
-	assert(value.text == "15")
+	assert(value.text == "")
 	assert(value.self_modulate == Color.WHITE)
 	assert(stats_root.visible)
-	assert(is_equal_approx(badge.position.x, pet.size.x - badge.size.x * 0.75))
-	assert(is_equal_approx(badge.position.y + badge.size.y, 4.0))
-	assert(badge.position.y < 0.0)
+	var health := stats_root.get_node("Health") as ProgressBar
+	assert(badge.get_parent() == health)
+	assert(is_zero_approx(badge.position.y))
+	assert(badge.position.x >= 0.0)
+	assert(badge.position.x + badge.size.x <= health.size.x + 0.01)
 	pet.call("stop_damage_preview")
 	assert(not badge.visible)
 	assert(value.text == "")
@@ -905,6 +921,7 @@ func _assert_prefab_effect_ownership() -> void:
 	await process_frame
 	assert(pet.get_node_or_null("CompleteBattleCreaturePrefab/03_AttackActions/element_projectile/LandingTileVariants") == null)
 	assert(terrain.get_node_or_null("GroundElementEffects/LandingTileVariants") == null)
+	assert((terrain.get_node("GroundElementEffects") as Control).visible)
 	var tile_art := terrain.get_node_or_null("GroundElementEffects/LandingTileArt") as TextureRect
 	assert(tile_art != null)
 	assert(tile_art.size == terrain.size)
@@ -920,7 +937,16 @@ func _assert_prefab_effect_ownership() -> void:
 		assert(tile_art.texture == load(String(expected_tile_paths[element_id])))
 	terrain.call("set_cell_data", {"elements": {"草": 2}}, null)
 	assert(terrain.call("get_active_element_tile_variant") == "wind")
+	terrain.call("set_cell_data", {"unitId": "occupied_unit", "elements": {"fire": 2}}, null)
+	assert(terrain.call("get_active_element_tile_variant") == "")
+	terrain.call("show_element_tile", "fire")
+	assert(terrain.call("get_active_element_tile_variant") == "")
+	assert(terrain.call("play_element_impact", "fire", true) == null)
+	terrain.call("set_cell_data", {"elements": {"fire": 2}}, null)
+	assert(terrain.call("get_active_element_tile_variant") == "fire")
+	terrain.call("set_cell_data", {"elements": {}}, null)
 	assert(terrain.has_method("play_element_impact"))
+	assert((terrain.get_node("GroundElementEffects/ImpactLayer") as Control).visible)
 	var impact := terrain.call("play_element_impact", "fire", false) as TextureRect
 	assert(impact != null)
 	assert(impact.get_parent().name == "ImpactLayer")
@@ -1122,39 +1148,21 @@ func _assert_cell_stat_column(cell: Control, pet: Control) -> void:
 	var corners: PackedVector2Array = cell.get("polygon")
 	assert(corners.size() == 4)
 	var stats := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
-	var health := stats.get_node("Health") as Control
+	var health := stats.get_node("Health") as ProgressBar
 	var shield := stats.get_node("Shield") as Control
 	var attack := stats.get_node("Attack") as Control
 	var damage_cap := stats.get_node("DamageCap") as Control
-	var groups: Array[Control] = [health, attack, shield, damage_cap]
-	var previous_bottom := -INF
-	var aligned_right := -INF
-	for group in groups:
-		var icon := group.get_node("Icon") as Control
-		var label := group.get_node("Value_Text") as Control
-		assert(not icon.visible)
-		var row_bounds := Rect2(group.position, group.size * group.scale)
-		assert(row_bounds.position.y > previous_bottom)
-		var row_center_y := row_bounds.get_center().y
-		var left_at_center := _stat_edge_x_at_y(corners[0], corners[3], row_center_y)
-		var right_at_center := _stat_edge_x_at_y(corners[1], corners[2], row_center_y)
-		assert(row_bounds.get_center().x > (left_at_center + right_at_center) * 0.5)
-		if is_inf(aligned_right):
-			aligned_right = row_bounds.end.x
-		else:
-			assert(is_equal_approx(row_bounds.end.x, aligned_right))
-		assert(is_zero_approx(group.rotation))
-		assert(is_zero_approx(label.rotation))
-		previous_bottom = row_bounds.end.y
-	var column_top := groups[0].position.y
-	assert(is_equal_approx(column_top, minf(corners[0].y, corners[1].y)))
-	var last_group := groups[groups.size() - 1]
-	var column_bottom := last_group.position.y + last_group.size.y * last_group.scale.y
-	var shared_right_edge := minf(
-		_stat_edge_x_at_y(corners[1], corners[2], column_top),
-		_stat_edge_x_at_y(corners[1], corners[2], column_bottom)
-	)
-	assert(is_equal_approx(shared_right_edge - aligned_right, 4.0 * groups[0].scale.x))
+	assert(stats.visible)
+	assert(health.visible)
+	assert(not attack.visible)
+	assert(not shield.visible)
+	assert(not damage_cap.visible)
+	var bounds := Rect2(health.position, health.size * health.scale)
+	var center_y := bounds.get_center().y
+	var left_at_center := _stat_edge_x_at_y(corners[0], corners[3], center_y)
+	var right_at_center := _stat_edge_x_at_y(corners[1], corners[2], center_y)
+	assert(is_equal_approx(bounds.get_center().x, (left_at_center + right_at_center) * 0.5))
+	assert(health.max_value >= health.value)
 
 
 func _stat_edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> float:

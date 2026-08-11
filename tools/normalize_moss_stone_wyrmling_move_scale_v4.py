@@ -11,15 +11,15 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_QA = ROOT / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v3/qa_report.json"
-VERSION_ROOT = ROOT / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v4"
+SOURCE_QA = ROOT / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v3/qa_report.json"
+VERSION_ROOT = ROOT / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v4"
 FRAME_DIR = VERSION_ROOT / "frames"
 SHEET_PATH = VERSION_ROOT / "moss_stone_wyrmling_move_sheet_v4.png"
 OVERVIEW_PATH = VERSION_ROOT / "moss_stone_wyrmling_move_overview_v4.png"
 ZOOM_OVERVIEW_PATH = ROOT / "output/moss_stone_wyrmling_move_frames_4x_v4.png"
 GIF_PATH = ROOT / "output/moss_stone_wyrmling_move_preview_v4.gif"
 SLOW_GIF_PATH = ROOT / "output/moss_stone_wyrmling_move_preview_slow_v4.gif"
-QA_PATH = ROOT / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v4/qa_report.json"
+QA_PATH = ROOT / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v4/qa_report.json"
 
 BASE_PROCESSOR = ROOT / "tools/process_moss_stone_wyrmling_move_rika_v3.py"
 spec = importlib.util.spec_from_file_location("move_v3_processor", BASE_PROCESSOR)

@@ -1,0 +1,390 @@
+{
+  "sprite_id": "SPR_002",
+  "sprite_name": "Gold Shell",
+  "animation_id": "ANIM_SPR_002_IDLE_001",
+  "animation_name": "Gold Shell Idle 001",
+  "source": {
+    "file_name": "jimeng-2026-08-07-3905-静态相机，全身远景拍摄，固定透视，镜头零推拉零缩放，角色居中且仅占画面高度约20....mp4",
+    "sha256": "56329bf4935d0d84dfabd5b928af0a0ffddafd447210468b3f8d48e4ffa1fe27",
+    "frame_count": 121,
+    "fps": 24.119601328903656,
+    "duration_seconds": 5.016666666666667,
+    "size": [
+      640,
+      640
+    ]
+  },
+  "loop_selection": {
+    "start_frame_zero_based": 32,
+    "period_frames": 65,
+    "closure_reference_frame_zero_based": 97,
+    "selected_source_frames_zero_based": [
+      32,
+      36,
+      40,
+      44,
+      48,
+      52,
+      56,
+      60,
+      65,
+      69,
+      73,
+      77,
+      81,
+      85,
+      89,
+      93
+    ],
+    "selected_source_frames_one_based": [
+      33,
+      37,
+      41,
+      45,
+      49,
+      53,
+      57,
+      61,
+      66,
+      70,
+      74,
+      78,
+      82,
+      86,
+      90,
+      94
+    ]
+  },
+  "output_frame_count": 16,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_duration_ms": 170,
+  "loop_duration_ms": 2720,
+  "slow_preview_duration_ms": 340,
+  "background_cleanup": {
+    "method": "largest_connected_nonwhite_silhouette_with_filled_interior_and_locked_footline",
+    "distance_threshold": 180.0,
+    "alpha_values_per_frame": [
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        0,
+        255
+      ]
+    ],
+    "opaque_edge_pixel_counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "all_canvas_edges_transparent": true
+  },
+  "alpha_bboxes": [
+    [
+      9,
+      15,
+      120,
+      106
+    ],
+    [
+      10,
+      15,
+      120,
+      106
+    ],
+    [
+      10,
+      15,
+      120,
+      106
+    ],
+    [
+      10,
+      16,
+      120,
+      106
+    ],
+    [
+      10,
+      16,
+      120,
+      106
+    ],
+    [
+      10,
+      16,
+      120,
+      106
+    ],
+    [
+      10,
+      17,
+      120,
+      106
+    ],
+    [
+      10,
+      17,
+      120,
+      106
+    ],
+    [
+      10,
+      17,
+      120,
+      106
+    ],
+    [
+      10,
+      16,
+      120,
+      106
+    ],
+    [
+      10,
+      16,
+      120,
+      106
+    ],
+    [
+      10,
+      15,
+      120,
+      106
+    ],
+    [
+      10,
+      15,
+      120,
+      106
+    ],
+    [
+      10,
+      15,
+      120,
+      106
+    ],
+    [
+      9,
+      15,
+      120,
+      106
+    ],
+    [
+      9,
+      15,
+      120,
+      106
+    ]
+  ],
+  "anchor_summary": {
+    "bottom_min": 106,
+    "bottom_max": 106,
+    "center_x_min": 64.5,
+    "center_x_max": 65.0
+  },
+  "motion_continuity": {
+    "composited_mean_absolute_step_differences": [
+      4.43377685546875,
+      5.55322265625,
+      5.143229007720947,
+      5.378031253814697,
+      4.297139644622803,
+      2.9500324726104736,
+      1.7586669921875,
+      1.7434896230697632,
+      3.7379558086395264,
+      5.27093505859375,
+      5.517618656158447,
+      4.961771488189697,
+      4.244547367095947,
+      2.7898356914520264,
+      1.2663980722427368,
+      1.2048135995864868
+    ],
+    "mean": 3.765716515481472,
+    "median": 4.270843505859375,
+    "max": 5.55322265625,
+    "wrap_step": 1.2048135995864868,
+    "wrap_to_median_ratio": 0.28210202456108385
+  },
+  "gif_verification": {
+    "decoded_frame_count": 16,
+    "durations_ms": [
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170,
+      170
+    ],
+    "duration_matches": true,
+    "all_frames_exact_visible_rgba_match": true,
+    "per_frame_exact_visible_rgba_match": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "slow_gif_verification": {
+    "decoded_frame_count": 16,
+    "durations_ms": [
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340,
+      340
+    ],
+    "duration_matches": true,
+    "all_frames_exact_visible_rgba_match": true,
+    "per_frame_exact_visible_rgba_match": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "outputs": {
+    "overview": "anim_spr_002_idle_001_overview.png",
+    "sheet": "anim_spr_002_idle_001_sheet.png",
+    "gif": "anim_spr_002_idle_001.gif",
+    "slow_gif": "anim_spr_002_idle_001_slow.gif",
+    "frames": [
+      "frames/frame_001.png",
+      "frames/frame_002.png",
+      "frames/frame_003.png",
+      "frames/frame_004.png",
+      "frames/frame_005.png",
+      "frames/frame_006.png",
+      "frames/frame_007.png",
+      "frames/frame_008.png",
+      "frames/frame_009.png",
+      "frames/frame_010.png",
+      "frames/frame_011.png",
+      "frames/frame_012.png",
+      "frames/frame_013.png",
+      "frames/frame_014.png",
+      "frames/frame_015.png",
+      "frames/frame_016.png"
+    ]
+  }
+}

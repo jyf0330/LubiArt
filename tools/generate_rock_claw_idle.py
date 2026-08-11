@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PATH = (
     ROOT / "art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png"
 )
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/rock_claw"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/rock_claw"
 SOURCE_OUTPUT = ANIMATION_ROOT / "sources/rock_claw_neutral_v1.png"
 CLOSED_SOURCE_PATH = ANIMATION_ROOT / "sources/rock_claw_closed_user_v1.png"
 FRAME_DIR = ANIMATION_ROOT / "preview_v1/idle"

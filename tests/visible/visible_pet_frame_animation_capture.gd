@@ -4,15 +4,11 @@ const PetScene := preload("res://art/prefabs/pet/pet.tscn")
 const CAPTURE_PATH := "pet_frame_animation_runtime"
 const PETS := [
 	{
-		"name": "earth_slime",
-		"texture": "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png",
+		"name": "SPR_002",
+		"texture": "res://art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png",
 	},
 	{
-		"name": "shadow_rock_wolf",
-		"texture": "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png",
-	},
-	{
-		"name": "rock_claw",
+		"name": "SPR_007",
 		"texture": "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png",
 	},
 ]
@@ -34,7 +30,7 @@ func _run() -> void:
 	var pets: Array[Control] = []
 	for index in range(PETS.size()):
 		var pet := PetScene.instantiate() as Control
-		pet.position = Vector2(110.0 + index * 390.0, 190.0)
+		pet.position = Vector2(500.0 + index * 390.0, 190.0)
 		pet.size = Vector2(280.0, 280.0)
 		stage.add_child(pet)
 		var texture_resource := load(String(PETS[index]["texture"])) as Texture2D
@@ -48,12 +44,6 @@ func _run() -> void:
 		if not await _capture(output_dir.path_join("idle_%02d.png" % (sample + 1))):
 			return
 		await create_timer(0.36).timeout
-	for pet in pets:
-		pet.call("play_attack_action", "projectile", "earth")
-	for sample in range(7):
-		if not await _capture(output_dir.path_join("attack_%02d.png" % (sample + 1))):
-			return
-		await create_timer(0.28).timeout
 	print("VISIBLE_PET_FRAME_ANIMATIONS_PASS output=%s" % output_dir)
 	quit(0)
 

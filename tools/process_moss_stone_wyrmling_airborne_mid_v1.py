@@ -10,9 +10,9 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION_ROOT = ROOT / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2"
+VERSION_ROOT = ROOT / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v2"
 SOURCE_DIR = VERSION_ROOT / "source"
-MANIFEST_DIR = ROOT / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v2"
+MANIFEST_DIR = ROOT / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v2"
 RAW_PATH = SOURCE_DIR / "moss_stone_wyrmling_airborne_mid_chroma_raw_v1.png"
 TRANSPARENT_HD_PATH = SOURCE_DIR / "moss_stone_wyrmling_airborne_mid_transparent_hd_v1.png"
 MIDFRAME_PATH = SOURCE_DIR / "moss_stone_wyrmling_airborne_mid_128_v1.png"

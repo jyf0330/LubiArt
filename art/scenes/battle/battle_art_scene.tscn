@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://c0am8pxw3phnn"]
 
-[ext_resource type="Texture2D" uid="uid://26148s3ugiso" path="res://art/images/battle/map_controls/maps/grassland_morning.png" id="1_bg"]
+[ext_resource type="Texture2D" uid="uid://c0gr02r6cf0x1" path="res://art/images/battle/map_controls/maps/forest_clearing_trial.png" id="1_bg"]
 [ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/scenes/battle_scene.gd" id="2_script"]
 [ext_resource type="Script" uid="uid://u854nu5t7opc" path="res://core_ui/scripts/battle/controllers/battle_vfx_controller.gd" id="3_vfx"]
 [ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_hud.tscn" id="4_hud"]
@@ -42,22 +42,22 @@ stretch_mode = 6
 
 [node name="CellHost" type="Control" parent="Board" unique_id=2015484735]
 editor_description = "战斗格子容器。由 Board 根据公共 Snapshot 创建并管理当前存在的可交互格子。"
-custom_minimum_size = Vector2(1232, 962)
+custom_minimum_size = Vector2(960, 960)
 anchors_preset = 0
-offset_left = 345.0
-offset_top = 89.0
-offset_right = 1577.0
-offset_bottom = 1051.0
+offset_left = 480.0
+offset_top = 90.0
+offset_right = 1440.0
+offset_bottom = 1050.0
 mouse_filter = 1
 
 [node name="UnitHost" type="Control" parent="Board" unique_id=120416614]
 editor_description = "战斗单位容器。由 Board 挂载并管理我方与敌方宠物的可见实例、选择和拖拽表现。"
-custom_minimum_size = Vector2(1232, 962)
+custom_minimum_size = Vector2(960, 960)
 anchors_preset = 0
-offset_left = 345.0
-offset_top = 89.0
-offset_right = 1577.0
-offset_bottom = 1051.0
+offset_left = 480.0
+offset_top = 90.0
+offset_right = 1440.0
+offset_bottom = 1050.0
 mouse_filter = 2
 
 [node name="VfxHost" type="Control" parent="Board" unique_id=1130448495]
@@ -83,6 +83,7 @@ offset_bottom = 1080.0
 editor_description = "战斗 HUD。集中显示行动控制、技能顺序与攻击时间线，并把操作请求交给战斗页面根。"
 
 [node name="OverlayHost" type="Control" parent="." unique_id=680115176]
+z_index = 300
 editor_description = "按需挂载当前宠物或地形详情。"
 layout_mode = 1
 anchors_preset = 15

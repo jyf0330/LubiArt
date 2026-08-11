@@ -11,20 +11,20 @@ from process_moss_stone_wyrmling_airborne_mid_v1 import fit_to_canvas, remove_ch
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_DIR = ROOT / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source"
+SOURCE_DIR = ROOT / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v2/source"
 BEFORE_RAW_PATH = SOURCE_DIR / "moss_stone_wyrmling_airborne_mid_before_raw_user_v1.png"
 BEFORE_128_PATH = SOURCE_DIR / "moss_stone_wyrmling_airborne_mid_before_128_v1.png"
 AFTER_128_PATH = SOURCE_DIR / "moss_stone_wyrmling_airborne_mid_after_user_v1.png"
 FIRST_FRAME_PATH = (
     ROOT
-    / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v1/frames/frame_001.png"
+    / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v1/frames/frame_001.png"
 )
 OUTPUT_PATH = SOURCE_DIR / "moss_stone_wyrmling_start_head_exact_128_v2.png"
 PREVIEW_PATH = ROOT / "output/moss_stone_wyrmling_start_head_exact_4x_v2.png"
 COMPARISON_PATH = ROOT / "output/moss_stone_wyrmling_headtop_exact_comparison_4x_v2.png"
 REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v2"
+    / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v2"
     / "headtop_exact_transfer_qa_v2.json"
 )
 

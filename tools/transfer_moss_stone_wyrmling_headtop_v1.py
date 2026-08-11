@@ -11,23 +11,23 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PATH = (
     ROOT
-    / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source"
+    / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v2/source"
     / "moss_stone_wyrmling_airborne_mid_user_edit_v1.png"
 )
 FIRST_FRAME_PATH = (
     ROOT
-    / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v1/frames/frame_001.png"
+    / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v1/frames/frame_001.png"
 )
 OUTPUT_PATH = (
     ROOT
-    / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v2/source"
+    / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v2/source"
     / "moss_stone_wyrmling_start_headmatched_128_v1.png"
 )
 PREVIEW_PATH = ROOT / "output/moss_stone_wyrmling_start_headmatched_4x_v1.png"
 COMPARISON_PATH = ROOT / "output/moss_stone_wyrmling_headtop_comparison_4x_v1.png"
 REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v2"
+    / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v2"
     / "headtop_transfer_qa_v1.json"
 )
 

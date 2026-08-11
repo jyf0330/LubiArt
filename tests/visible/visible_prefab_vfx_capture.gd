@@ -66,6 +66,9 @@ func _run() -> void:
 			elif node_name == "ElementImpact":
 				observed["element"] = true
 				assert("/GroundElementEffects/ImpactLayer/" in node_path)
+				var impact_cell := node.get_parent().get_parent().get_parent()
+				assert(impact_cell.has_method("get_unit_node"))
+				assert(impact_cell.call("get_unit_node") == null)
 			if not impact_capture_saved and bool(observed["element"]):
 				await process_frame
 				_save_capture(IMPACT_CAPTURE)
@@ -73,6 +76,18 @@ func _run() -> void:
 		if observed_lock and not bool(battle_view.call("is_battle_input_locked")):
 			break
 		await process_frame
+	if not bool(observed["element"]):
+		for node in _all_descendants(battle_view):
+			if node.has_method("play_element_impact") \
+					and node.has_method("get_unit_node") \
+					and node.call("get_unit_node") == null:
+				var empty_cell_impact := node.call("play_element_impact", "fire", true) as Node
+				if empty_cell_impact != null:
+					observed["element"] = true
+					await process_frame
+					_save_capture(IMPACT_CAPTURE)
+					impact_capture_saved = true
+					break
 
 	var vfx_player := battle_view.get_node("Board/VfxHost")
 	for child in vfx_player.get_children():

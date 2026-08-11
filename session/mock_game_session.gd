@@ -7,6 +7,7 @@ class_name MockGameSession
 signal snapshot_changed(snapshot: Dictionary, event: Dictionary)
 
 const CAPTURE_PATH := "res://data/mock_battle_snapshot.json"
+const BoardDimensionsScript := preload("res://core/battle/board_dimensions.gd")
 const DEFAULT_SKILLS := [
 	{"id": "skill_vanguard", "name": "先锋击"},
 	{"id": "skill_flank", "name": "侧翼击"},
@@ -29,6 +30,7 @@ var _captured_target_preview_templates: Dictionary = {}
 var _captured_incoming_preview_template: Dictionary = {}
 var _incoming_projection_unit_ids: Dictionary = {}
 var _projected_incoming_previews: Dictionary = {}
+var _legacy_insertion_row_templates: Dictionary = {}
 var _start_phase := START_PHASE_ROUTE
 
 
@@ -125,6 +127,7 @@ func persistence_slot_count() -> int:
 
 
 func reset(emit_change: bool = true) -> void:
+	_legacy_insertion_row_templates = {}
 	var file := FileAccess.open(CAPTURE_PATH, FileAccess.READ)
 	if file == null:
 		push_error("Cannot open production battle capture: %s" % CAPTURE_PATH)
@@ -148,6 +151,13 @@ func reset(emit_change: bool = true) -> void:
 		capture.get("presentation_bootstrap_snapshot", {})
 	).duplicate(true)
 	_battle_bootstrap_snapshot = Dictionary(capture.get("initial_snapshot", {})).duplicate(true)
+	_legacy_insertion_row_templates = _capture_legacy_insertion_row_templates(
+		_battle_bootstrap_snapshot
+	)
+	_presentation_bootstrap_snapshot = _adapt_legacy_board_snapshot(
+		_presentation_bootstrap_snapshot
+	)
+	_battle_bootstrap_snapshot = _adapt_legacy_board_snapshot(_battle_bootstrap_snapshot)
 	if _start_phase == START_PHASE_BATTLE or _presentation_bootstrap_snapshot.is_empty():
 		_snapshot = _battle_bootstrap_snapshot.duplicate(true)
 	else:
@@ -563,11 +573,198 @@ func _apply_snapshot_delta(delta: Dictionary) -> void:
 	for key_value in Dictionary(delta.get("set", {})).keys():
 		var key := String(key_value)
 		_snapshot[key] = Dictionary(delta.get("set", {}))[key_value]
-	_snapshot = _snapshot.duplicate(true)
+	_snapshot = _adapt_legacy_board_snapshot(_snapshot)
 	_ensure_captured_target_preview_projection()
 	_ensure_tracked_incoming_preview_projection()
 	_ensure_action_block_ranges_projection()
 	_ensure_skill_control_projection()
+
+
+func _adapt_legacy_board_snapshot(snapshot: Dictionary) -> Dictionary:
+	var adapted := snapshot.duplicate(true)
+	var board := Dictionary(adapted.get("board", {}))
+	var legacy_dimensions := BoardDimensionsScript.legacy_defaults() as Vector2i
+	var current_dimensions := BoardDimensionsScript.defaults() as Vector2i
+	if int(board.get("width", board.get("columns", 0))) != legacy_dimensions.x \
+			or int(board.get("height", board.get("rows", 0))) != legacy_dimensions.y \
+			or current_dimensions != Vector2i(8, 8):
+		return adapted
+	var insertion_row := int((legacy_dimensions.y + 1) / 2)
+	var expanded_board := _expand_legacy_board(board, insertion_row, current_dimensions)
+	if expanded_board.is_empty():
+		return adapted
+	adapted["board"] = expanded_board
+	for key in ["board_width", "boardWidth"]:
+		if adapted.has(key):
+			adapted[key] = current_dimensions.x
+	for key in ["board_height", "boardHeight"]:
+		if adapted.has(key):
+			adapted[key] = current_dimensions.y
+	if adapted.has("units"):
+		adapted["units"] = _shift_coordinate_array(
+			Array(adapted.get("units", [])),
+			insertion_row
+		)
+	_adapt_action_preview_coordinates(adapted, insertion_row)
+	for key in ["selected", "selected_cell", "selectedCell"]:
+		if adapted.get(key, null) is Dictionary:
+			adapted[key] = _shift_coordinate_record(Dictionary(adapted[key]), insertion_row)
+	var view_model := Dictionary(adapted.get("viewModel", {})).duplicate(true)
+	if not view_model.is_empty():
+		if view_model.get("board", null) is Dictionary:
+			view_model["board"] = _expand_legacy_board(
+				Dictionary(view_model["board"]),
+				insertion_row,
+				current_dimensions
+			)
+		if view_model.has("units"):
+			view_model["units"] = _shift_coordinate_array(
+				Array(view_model.get("units", [])),
+				insertion_row
+			)
+		_adapt_action_preview_coordinates(view_model, insertion_row)
+		adapted["viewModel"] = view_model
+	return adapted
+
+
+func _expand_legacy_board(
+	board: Dictionary,
+	insertion_row: int,
+	current_dimensions: Vector2i
+) -> Dictionary:
+	var source_cells := Array(board.get("cells", []))
+	var legacy_dimensions := BoardDimensionsScript.legacy_defaults() as Vector2i
+	if source_cells.size() != legacy_dimensions.x * legacy_dimensions.y:
+		return {}
+	var blank_row_templates := _legacy_insertion_row_templates.duplicate(true)
+	if blank_row_templates.size() != current_dimensions.x:
+		return {}
+	var expanded_cells: Array = []
+	for cell_value in source_cells:
+		var cell := Dictionary(cell_value).duplicate(true)
+		var x := int(cell.get("x", cell.get("c", -1)))
+		var y := int(cell.get("y", cell.get("r", -1)))
+		if y >= insertion_row:
+			y += 1
+		_set_cell_coordinates(cell, x, y)
+		_shift_cell_preview_coordinates(cell, insertion_row)
+		expanded_cells.append(cell)
+	for x in range(current_dimensions.x):
+		var blank := Dictionary(blank_row_templates[x]).duplicate(true)
+		_set_cell_coordinates(blank, x, insertion_row)
+		_shift_cell_preview_coordinates(blank, insertion_row)
+		expanded_cells.append(blank)
+	expanded_cells.sort_custom(func(left, right):
+		var left_cell := Dictionary(left)
+		var right_cell := Dictionary(right)
+		var left_y := int(left_cell.get("y", left_cell.get("r", -1)))
+		var right_y := int(right_cell.get("y", right_cell.get("r", -1)))
+		if left_y == right_y:
+			return int(left_cell.get("x", left_cell.get("c", -1))) \
+				< int(right_cell.get("x", right_cell.get("c", -1)))
+		return left_y < right_y
+	)
+	var expanded := board.duplicate(true)
+	expanded["width"] = current_dimensions.x
+	expanded["height"] = current_dimensions.y
+	expanded["columns"] = current_dimensions.x
+	expanded["rows"] = current_dimensions.y
+	expanded["cellCount"] = current_dimensions.x * current_dimensions.y
+	expanded["cell_count"] = current_dimensions.x * current_dimensions.y
+	expanded["label"] = "%dx%d" % [current_dimensions.x, current_dimensions.y]
+	var dimensions := Dictionary(expanded.get("dimensions", {})).duplicate(true)
+	dimensions["width"] = current_dimensions.x
+	dimensions["height"] = current_dimensions.y
+	expanded["dimensions"] = dimensions
+	if expanded.get("size", null) is Dictionary:
+		var size_value := Dictionary(expanded["size"]).duplicate(true)
+		size_value["width"] = current_dimensions.x
+		size_value["height"] = current_dimensions.y
+		expanded["size"] = size_value
+	expanded["cells"] = expanded_cells
+	return expanded
+
+
+func _capture_legacy_insertion_row_templates(snapshot: Dictionary) -> Dictionary:
+	var board := Dictionary(snapshot.get("board", {}))
+	var legacy_dimensions := BoardDimensionsScript.legacy_defaults() as Vector2i
+	if int(board.get("width", board.get("columns", 0))) != legacy_dimensions.x \
+			or int(board.get("height", board.get("rows", 0))) != legacy_dimensions.y:
+		return {}
+	var insertion_row := int((legacy_dimensions.y + 1) / 2)
+	var templates := {}
+	for cell_value in Array(board.get("cells", [])):
+		var cell := Dictionary(cell_value)
+		var x := int(cell.get("x", cell.get("c", -1)))
+		var y := int(cell.get("y", cell.get("r", -1)))
+		var unit_id := String(cell.get("unitId", cell.get("unit_id", "")))
+		if x >= 0 and x < legacy_dimensions.x \
+				and y == insertion_row - 1 and unit_id == "":
+			templates[x] = cell.duplicate(true)
+	return templates
+
+
+func _set_cell_coordinates(cell: Dictionary, x: int, y: int) -> void:
+	cell["x"] = x
+	cell["y"] = y
+	cell["c"] = x
+	cell["r"] = y
+	cell["key"] = "%d,%d" % [x, y]
+
+
+func _shift_coordinate_array(values: Array, insertion_row: int) -> Array:
+	var shifted: Array = []
+	for value in values:
+		if value is Dictionary:
+			shifted.append(_shift_coordinate_record(Dictionary(value), insertion_row))
+		else:
+			shifted.append(value)
+	return shifted
+
+
+func _shift_coordinate_record(record: Dictionary, insertion_row: int) -> Dictionary:
+	var shifted := record.duplicate(true)
+	var has_y := shifted.has("y") or shifted.has("r")
+	if not has_y:
+		return shifted
+	var y := int(shifted.get("y", shifted.get("r", -1)))
+	if y < insertion_row:
+		return shifted
+	y += 1
+	if shifted.has("y"):
+		shifted["y"] = y
+	if shifted.has("r"):
+		shifted["r"] = y
+	return shifted
+
+
+func _shift_cell_preview_coordinates(cell: Dictionary, insertion_row: int) -> void:
+	for key in ["action_preview_data", "actionPreviewData", "preview"]:
+		if cell.get(key, null) is Dictionary:
+			cell[key] = _shift_coordinate_record(Dictionary(cell[key]), insertion_row)
+	if cell.has("previews"):
+		cell["previews"] = _shift_coordinate_array(Array(cell.get("previews", [])), insertion_row)
+
+
+func _adapt_action_preview_coordinates(container: Dictionary, insertion_row: int) -> void:
+	for key in ["action_preview_by_unit", "actionPreviewByUnit"]:
+		var previews := Dictionary(container.get(key, {})).duplicate(true)
+		if previews.is_empty():
+			continue
+		for unit_id_value in previews.keys():
+			var preview := Dictionary(previews[unit_id_value]).duplicate(true)
+			if preview.get("origin", null) is Dictionary:
+				preview["origin"] = _shift_coordinate_record(
+					Dictionary(preview["origin"]),
+					insertion_row
+				)
+			if preview.has("cells"):
+				preview["cells"] = _shift_coordinate_array(
+					Array(preview.get("cells", [])),
+					insertion_row
+				)
+			previews[unit_id_value] = preview
+		container[key] = previews
 
 
 func _ensure_action_block_ranges_projection() -> void:

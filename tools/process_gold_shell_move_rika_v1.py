@@ -8,7 +8,7 @@ from PIL import Image, ImageSequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/gold_shell"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/gold_shell"
 IMAGE_ROOT = ANIMATION_ROOT / "preview_v1"
 RAW_SHEET_PATH = IMAGE_ROOT / "raw/output_001.png"
 FRAME_DIR = IMAGE_ROOT / "move"
@@ -17,7 +17,7 @@ ZOOM_SHEET_PATH = ROOT / "output/gold_shell_move_frames_4x_v1.png"
 GIF_PATH = ROOT / "output/gold_shell_frame_move_preview_v1.gif"
 SLOW_GIF_PATH = ROOT / "output/gold_shell_frame_move_preview_slow_v1.gif"
 QA_REPORT_PATH = (
-    ROOT / "art/manifests/shared/pets/animations/gold_shell/preview_v1/qa_report.json"
+    ROOT / "output/sprite_animation_candidates/_manifests/gold_shell/preview_v1/qa_report.json"
 )
 
 FRAME_SIZE = (128, 128)

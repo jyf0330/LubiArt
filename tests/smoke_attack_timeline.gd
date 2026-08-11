@@ -56,6 +56,9 @@ func _run() -> void:
 	assert((first_pet_frame.get_node("Pet") as TextureRect).texture != null)
 	timeline.call("render_snapshot", snapshot)
 	var first_order_badge := timeline.get_node("TimelineArea/MarkerLayer/Marker1/OrderBadge") as Label
+	var first_marker := timeline.get_node("TimelineArea/MarkerLayer/Marker1") as Control
+	var second_marker := timeline.get_node("TimelineArea/MarkerLayer/Marker2") as Control
+	var second_order_badge := timeline.get_node("TimelineArea/MarkerLayer/Marker2/OrderBadge") as Label
 	first_pet_frame.call("set_drag_visual", true)
 	assert(first_order_badge.z_index > first_pet_frame.z_index)
 	assert(first_pet_frame.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND)
@@ -63,11 +66,13 @@ func _run() -> void:
 	var drag_press := InputEventMouseButton.new()
 	drag_press.button_index = MOUSE_BUTTON_LEFT
 	drag_press.pressed = true
-	timeline.call("_on_marker_gui_input", drag_press, timeline.get_node("TimelineArea/MarkerLayer/Marker1"))
+	timeline.call("_on_marker_gui_input", drag_press, first_marker)
 	assert(StringName(game_cursor.call("debug_state")) == &"grabbing")
+	assert(first_marker.z_index + first_pet_frame.z_index > second_marker.z_index + second_order_badge.z_index)
 	timeline.visible = false
 	assert(StringName(game_cursor.call("debug_state")) == &"pointer")
 	timeline.visible = true
+	assert(first_marker.z_index < second_marker.z_index)
 	var track_shadow := timeline.get_node("TimelineArea/TrackShadow") as Panel
 	var first_name_label := timeline.get_node("TimelineArea/MarkerLayer/Marker1/NameLabel") as Label
 	assert(first_name_label.position.y > track_shadow.position.y + track_shadow.size.y)
@@ -84,6 +89,26 @@ func _run() -> void:
 	var reordered := Array(timeline.call("debug_order_ids"))
 	assert(reordered.size() == expected_entry_ids.size())
 	assert(is_equal_approx((timeline.get_node("TimelineArea/MarkerLayer/Marker1") as Control).position.x, 1270.0))
+	assert(first_marker.z_index > second_marker.z_index)
+	assert(is_equal_approx(float(timeline.call("debug_marker_position", expected_entry_ids[0])), 1.0))
+	timeline.call("render_snapshot", snapshot)
+	await process_frame
+	assert(is_equal_approx(float(timeline.call("debug_marker_position", expected_entry_ids[0])), 1.0))
+	assert(Array(timeline.call("debug_order_ids")) == reordered)
+	var entries_by_id := {}
+	for entry_value in Array(snapshot.get("skillControlBar", [])):
+		var entry := Dictionary(entry_value)
+		entries_by_id[String(entry.get("entryId", ""))] = entry
+	var confirmed_control_bar: Array[Dictionary] = []
+	for entry_id in reordered:
+		confirmed_control_bar.append(Dictionary(entries_by_id[entry_id]).duplicate(true))
+	var confirmed_snapshot := snapshot.duplicate(true)
+	confirmed_snapshot["skillControlBar"] = confirmed_control_bar
+	confirmed_snapshot["skill_control_bar"] = confirmed_control_bar.duplicate(true)
+	timeline.call("render_snapshot", confirmed_snapshot)
+	await process_frame
+	assert(is_equal_approx(float(timeline.call("debug_marker_position", expected_entry_ids[0])), 1.0))
+	assert(Array(timeline.call("debug_order_ids")) == reordered)
 	var commands: Array[Dictionary] = []
 	timeline.command_requested.connect(func(command: Dictionary) -> void:
 		commands.append(command.duplicate(true))

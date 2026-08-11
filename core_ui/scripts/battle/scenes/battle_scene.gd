@@ -55,6 +55,7 @@ var _debug_map_index := -1
 var _combat_speed_enabled := false
 var _all_out_trace_active := false
 var _button_shortcut_hints_visible := true
+var _announced_round := 0
 
 
 func _ready() -> void:
@@ -63,6 +64,11 @@ func _ready() -> void:
 	overlay.call("configure", _assets)
 	_connect_command_source(board)
 	_connect_command_source(hud)
+	if hud.has_signal("health_bar_tier_requested"):
+		hud.connect(
+			"health_bar_tier_requested",
+			Callable(self, "_on_health_bar_tier_requested")
+		)
 	if board.has_signal("cell_detail_requested"):
 		board.connect("cell_detail_requested", Callable(self, "_on_cell_detail_requested"))
 	if vfx_host.has_method("configure"):
@@ -112,6 +118,11 @@ func set_button_shortcut_hints_visible(hints_visible: bool) -> void:
 		map_controls.call("set_shortcut_hints_visible", hints_visible)
 	if settings_menu != null and settings_menu.has_method("set_button_shortcut_hints_visible"):
 		settings_menu.call("set_button_shortcut_hints_visible", hints_visible)
+
+
+func _on_health_bar_tier_requested(tier: String) -> void:
+	if board != null and board.has_method("set_all_health_bar_tiers"):
+		board.call("set_all_health_bar_tiers", tier)
 
 
 func are_button_shortcut_hints_visible() -> bool:
@@ -206,6 +217,9 @@ func _connect_vfx_signal(signal_name: StringName, method_name: StringName) -> vo
 func _on_command_requested(command: Dictionary) -> void:
 	if _battle_input_locked or command.is_empty():
 		return
+	if String(command.get("type", "")).strip_edges().to_upper() == "RUN_COMBAT_ROUND" \
+			and board != null and board.has_method("clear_transient_state"):
+		board.call("clear_transient_state")
 	command_requested.emit(command.duplicate(true))
 
 
@@ -278,6 +292,18 @@ func _commit_presentation_snapshot(
 	overlay.call("render_snapshot", snapshot)
 	_sync_map_controls(snapshot)
 	_presented_snapshot = snapshot.duplicate(true)
+	_announce_round_if_needed(snapshot)
+
+
+func _announce_round_if_needed(snapshot: Dictionary) -> void:
+	if String(snapshot.get("phase", "")) != "battle":
+		return
+	var round_number := int(snapshot.get("battle_round", snapshot.get("battleRound", 0)))
+	if round_number <= 0 or round_number == _announced_round:
+		return
+	_announced_round = round_number
+	if vfx_host != null and vfx_host.has_method("play_round_banner"):
+		vfx_host.call("play_round_banner", round_number, "player")
 
 
 func _refresh_pending_enemy_move_final_cells(final_cells: Array) -> void:

@@ -32,10 +32,9 @@ const PROJECTILE_TEXTURES := {
 	"earth": preload("res://art/images/shared/pets/battle_complete/projectile_earth.png"),
 	"wind": preload("res://art/images/shared/pets/battle_complete/projectile_wind.png"),
 }
-const EARTH_SLIME_TEXTURE_PATH := "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png"
 const FRAME_ANIMATION_MANIFEST_PATH := "res://art/manifests/shared/pets/animations/pet_frame_animation_manifest.json"
-const EARTH_SLIME_IDLE_SQUASH := Vector2(1.035, 0.960)
-const EARTH_SLIME_IDLE_STRETCH := Vector2(0.985, 1.020)
+const DEFAULT_AUTHORED_HORIZONTAL_FACING := 1.0
+const DIRECTION_EPSILON := 0.001
 static var _frame_profiles_loaded := false
 static var _frame_profiles_by_texture_path: Dictionary = {}
 var _view: Control = null
@@ -43,8 +42,6 @@ var _base_position := Vector2.ZERO
 var _shake_tween: Tween = null
 var _move_tween: Tween = null
 var _attack_tween: Tween = null
-var _idle_tween: Tween = null
-var _sprite_action_tween: Tween = null
 var _idle_sprite: TextureRect = null
 var _idle_base_scale := Vector2.ONE
 var _idle_base_pivot := Vector2.ZERO
@@ -58,7 +55,12 @@ var _frame_playback_token := 0
 var _frame_action: StringName = &""
 var _frame_index := -1
 var _frame_render_scale := Vector2.ONE
+var _frame_footline_y_ratio := 1.0
+var _authored_horizontal_facing := DEFAULT_AUTHORED_HORIZONTAL_FACING
+var _horizontal_facing := DEFAULT_AUTHORED_HORIZONTAL_FACING
+var _horizontal_facing_locked := false
 var _animation_texture_path := ""
+var _use_transform_idle := false
 var _attack_release_delay := 0.0
 var _bite_frames: Array[TextureRect] = []
 var _projectile: TextureRect = null
@@ -102,7 +104,12 @@ func play_sprite_idle(
 	sprite: TextureRect,
 	texture_resource: Texture2D,
 	visible_foot_pivot: Vector2 = Vector2(-1.0, -1.0),
-	animation_texture_path: String = ""
+	animation_texture_path: String = "",
+	allow_frame_profile: bool = true,
+	use_transform_idle: bool = false,
+	horizontal_facing: float = DEFAULT_AUTHORED_HORIZONTAL_FACING,
+	lock_horizontal_facing: bool = false,
+	authored_horizontal_facing: float = DEFAULT_AUTHORED_HORIZONTAL_FACING
 ) -> void:
 	_stop_sprite_idle()
 	if sprite == null or texture_resource == null:
@@ -110,7 +117,19 @@ func play_sprite_idle(
 	_idle_sprite = sprite
 	_base_sprite_texture = texture_resource
 	_animation_texture_path = animation_texture_path if animation_texture_path != "" else texture_resource.resource_path
-	_frame_profile = _frame_profile_for_texture_path(_animation_texture_path)
+	_frame_profile = (
+		_frame_profile_for_texture_path(_animation_texture_path)
+		if allow_frame_profile
+		else {}
+	)
+	_use_transform_idle = use_transform_idle
+	_authored_horizontal_facing = (
+		0.0
+		if is_zero_approx(authored_horizontal_facing)
+		else (1.0 if authored_horizontal_facing > 0.0 else -1.0)
+	)
+	_horizontal_facing = 1.0 if horizontal_facing > 0.0 else -1.0
+	_horizontal_facing_locked = lock_horizontal_facing
 	_idle_base_scale = sprite.scale
 	_idle_base_pivot = sprite.pivot_offset
 	_idle_base_position = sprite.position
@@ -120,188 +139,99 @@ func play_sprite_idle(
 			and sprite.size.x > 0.0 and sprite.size.y > 0.0:
 		_idle_pivot_ratio = visible_foot_pivot / sprite.size
 	refresh_idle_pivot()
+	_apply_sprite_facing()
 	_start_sprite_idle_loop()
 
 
 func _start_sprite_idle_loop() -> void:
 	if _idle_sprite == null:
 		return
-	if _play_frame_action(&"idle", true):
+	# Idle playback is opt-in through the reviewed frame-animation manifest.
+	# A specifically opted-in authored still may use a foot-anchored transform
+	# idle when its available frame delivery belongs to a different identity.
+	if not _play_frame_action(&"idle", true) and _use_transform_idle:
+		_start_transform_idle_loop()
+
+
+func _start_transform_idle_loop() -> void:
+	if _idle_sprite == null:
 		return
-	if _animation_texture_path != EARTH_SLIME_TEXTURE_PATH:
-		return
-	var sprite := _idle_sprite
-	_idle_tween = sprite.create_tween().set_loops()
-	_idle_tween.tween_interval(0.55)
-	_idle_tween.tween_property(
-		sprite,
+	_stop_frame_tween()
+	_frame_action = &"idle"
+	_frame_index = -1
+	var facing_scale := _idle_base_scale * Vector2(_facing_mirror_x(), 1.0)
+	_frame_tween = _idle_sprite.create_tween().set_loops()
+	_frame_tween.tween_property(
+		_idle_sprite,
 		"scale",
-		_idle_base_scale * EARTH_SLIME_IDLE_SQUASH,
-		0.22
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	_idle_tween.tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale * EARTH_SLIME_IDLE_STRETCH,
-		0.18
-	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_idle_tween.tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale * Vector2(1.005, 0.995),
-		0.16
+		facing_scale * Vector2(1.012, 0.985),
+		0.48
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_idle_tween.tween_property(sprite, "scale", _idle_base_scale, 0.30).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_idle_tween.tween_interval(0.70)
+	_frame_tween.tween_property(
+		_idle_sprite,
+		"scale",
+		facing_scale * Vector2(0.992, 1.012),
+		0.48
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_frame_tween.tween_property(
+		_idle_sprite,
+		"scale",
+		facing_scale,
+		0.24
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
-func play_sprite_attack(direction: Vector2, duration: float = 0.42) -> void:
+func play_sprite_attack(direction: Vector2, _duration: float = 0.42) -> void:
 	if not _begin_sprite_action():
 		return
+	_update_horizontal_facing(direction)
 	_attack_release_delay = 0.0
 	if _play_frame_action(&"attack", false):
 		_attack_release_delay = _frame_action_release_delay(&"attack")
 		return
-	var sprite := _idle_sprite
-	var direction_sign := -1.0 if direction.x < 0.0 else 1.0
-	var safe_duration := maxf(duration, 0.18)
-	var charge_duration := safe_duration * 0.34
-	var release_duration := safe_duration * 0.20
-	var recover_duration := safe_duration - charge_duration - release_duration
-	_sprite_action_tween = sprite.create_tween()
-	_sprite_action_tween.tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale * Vector2(1.06, 0.94),
-		charge_duration
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"rotation",
-		_idle_base_rotation - direction_sign * 0.025,
-		charge_duration
-	)
-	_sprite_action_tween.tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale * Vector2(1.02, 0.98),
-		release_duration
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"rotation",
-		_idle_base_rotation - direction_sign * 0.045,
-		release_duration
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"position:x",
-		_idle_base_position.x - direction_sign * 5.0,
-		release_duration
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale,
-		recover_duration
-	).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"rotation",
-		_idle_base_rotation,
-		recover_duration
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"position:x",
-		_idle_base_position.x,
-		recover_duration
-	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.finished.connect(_finish_sprite_action.bind(sprite))
+	_start_sprite_idle_loop()
 
 
-func play_sprite_move(direction: Vector2, duration: float = 0.36) -> void:
+func play_sprite_move(direction: Vector2, _duration: float = 0.36) -> void:
+	if _idle_sprite == null:
+		return
+	_update_horizontal_facing(direction)
+	# Positional movement keeps the reviewed idle loop playing. There is no
+	# separate sprite movement action in the artist mock.
+	if _frame_action == &"idle":
+		return
 	if not _begin_sprite_action():
 		return
-	if _play_frame_action(&"move", false):
-		return
-	var sprite := _idle_sprite
-	var direction_sign := -1.0 if direction.x < 0.0 else 1.0
-	var safe_duration := maxf(duration, 0.18)
-	var lift_duration := safe_duration * 0.38
-	var land_duration := safe_duration * 0.27
-	var settle_duration := safe_duration - lift_duration - land_duration
-	var hop_height := clampf(sprite.size.y * 0.055, 4.0, 9.0)
-	_sprite_action_tween = sprite.create_tween()
-	_sprite_action_tween.tween_property(
-		sprite,
-		"position:y",
-		_idle_base_position.y - hop_height,
-		lift_duration
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale * Vector2(0.96, 1.06),
-		lift_duration
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"rotation",
-		_idle_base_rotation + direction_sign * 0.035,
-		lift_duration
-	)
-	_sprite_action_tween.tween_property(
-		sprite,
-		"position:y",
-		_idle_base_position.y,
-		land_duration
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale * Vector2(1.08, 0.92),
-		land_duration
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	_sprite_action_tween.tween_property(
-		sprite,
-		"scale",
-		_idle_base_scale,
-		settle_duration
-	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_sprite_action_tween.parallel().tween_property(
-		sprite,
-		"rotation",
-		_idle_base_rotation,
-		settle_duration
-	)
-	_sprite_action_tween.finished.connect(_finish_sprite_action.bind(sprite))
+	_start_sprite_idle_loop()
 
 
 func _begin_sprite_action() -> bool:
 	if _idle_sprite == null:
 		return false
 	_stop_frame_tween()
-	if _idle_tween != null and _idle_tween.is_valid():
-		_idle_tween.kill()
-	_idle_tween = null
-	if _sprite_action_tween != null and _sprite_action_tween.is_valid():
-		_sprite_action_tween.kill()
-	_sprite_action_tween = null
 	_restore_sprite_pose()
 	_restore_sprite_texture()
 	refresh_idle_pivot()
 	return true
 
 
-func _finish_sprite_action(sprite: TextureRect) -> void:
-	if sprite != _idle_sprite:
+func _update_horizontal_facing(direction: Vector2) -> void:
+	if _horizontal_facing_locked or absf(direction.x) <= DIRECTION_EPSILON:
 		return
-	_sprite_action_tween = null
-	_restore_sprite_pose()
-	_restore_sprite_texture()
-	refresh_idle_pivot()
-	_start_sprite_idle_loop()
+	_horizontal_facing = signf(direction.x)
+	_apply_sprite_facing(_frame_render_scale)
+
+
+func _apply_sprite_facing(render_scale: Vector2 = Vector2.ONE) -> void:
+	if _idle_sprite == null:
+		return
+	_idle_sprite.scale = _idle_base_scale * render_scale * Vector2(_facing_mirror_x(), 1.0)
+
+
+func _facing_mirror_x() -> float:
+	if is_zero_approx(_authored_horizontal_facing):
+		return 1.0
+	return 1.0 if _horizontal_facing == _authored_horizontal_facing else -1.0
 
 
 func _play_frame_action(action: StringName, loop: bool) -> bool:
@@ -335,6 +265,11 @@ func _play_frame_action(action: StringName, loop: bool) -> bool:
 	else:
 		var uniform_render_scale := maxf(float(render_scale_value), 0.01)
 		_frame_render_scale = Vector2.ONE * uniform_render_scale
+	_frame_footline_y_ratio = clampf(
+		float(definition.get("frame_footline_y_ratio", 1.0)),
+		0.0,
+		1.0
+	)
 	_frame_tween = _idle_sprite.create_tween()
 	if loop:
 		_frame_tween.set_loops()
@@ -353,7 +288,27 @@ func _apply_animation_frame(playback_token: int, index: int, texture_resource: T
 		return
 	_frame_index = index
 	_idle_sprite.texture = texture_resource
-	_idle_sprite.scale = _idle_base_scale * _frame_render_scale
+	_apply_sprite_facing(_frame_render_scale)
+	_idle_sprite.position = _idle_base_position + Vector2(
+		0.0,
+		_frame_footline_offset_y(texture_resource)
+	)
+
+
+func _frame_footline_offset_y(texture_resource: Texture2D) -> float:
+	if _idle_sprite == null or texture_resource == null:
+		return 0.0
+	var texture_size := texture_resource.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return 0.0
+	var fitted_scale := minf(
+		_idle_sprite.size.x / texture_size.x,
+		_idle_sprite.size.y / texture_size.y
+	)
+	var fitted_height := texture_size.y * fitted_scale
+	var fitted_top := (_idle_sprite.size.y - fitted_height) * 0.5
+	var frame_footline_y := fitted_top + fitted_height * _frame_footline_y_ratio
+	return (_idle_sprite.pivot_offset.y - frame_footline_y) * _frame_render_scale.y
 
 
 func _finish_frame_action(playback_token: int) -> void:
@@ -376,6 +331,7 @@ func _stop_frame_tween() -> void:
 	_frame_action = &""
 	_frame_index = -1
 	_frame_render_scale = Vector2.ONE
+	_frame_footline_y_ratio = 1.0
 
 
 func _restore_sprite_texture() -> void:
@@ -430,7 +386,17 @@ static func _ensure_frame_profiles_loaded() -> void:
 	if not (parsed is Dictionary):
 		push_warning("Could not parse pet frame animation manifest")
 		return
-	_frame_profiles_by_texture_path = Dictionary(parsed).get("by_texture_path", {})
+	var manifest := Dictionary(parsed)
+	_frame_profiles_by_texture_path = Dictionary(manifest.get("by_texture_path", {})).duplicate(true)
+	for alias_path_value in Dictionary(manifest.get("aliases", {})).keys():
+		var alias_path := String(alias_path_value)
+		var source_path := String(Dictionary(manifest.get("aliases", {}))[alias_path_value])
+		if alias_path == "" or not _frame_profiles_by_texture_path.has(source_path):
+			push_warning("Invalid pet frame animation alias: %s -> %s" % [alias_path, source_path])
+			continue
+		_frame_profiles_by_texture_path[alias_path] = Dictionary(
+			_frame_profiles_by_texture_path[source_path]
+		).duplicate(true)
 
 
 func get_frame_animation_snapshot() -> Dictionary:
@@ -444,13 +410,17 @@ func get_frame_animation_snapshot() -> Dictionary:
 		"active_action": String(_frame_action),
 		"frame_index": _frame_index,
 		"render_scale": _frame_render_scale,
+		"authored_horizontal_facing": int(_authored_horizontal_facing),
+		"horizontal_facing": int(_horizontal_facing),
+		"horizontal_facing_locked": _horizontal_facing_locked,
+		"uses_transform_idle": _use_transform_idle and _frame_profile.is_empty(),
 	}
 
 
 func _restore_sprite_pose() -> void:
 	if _idle_sprite == null:
 		return
-	_idle_sprite.scale = _idle_base_scale
+	_apply_sprite_facing()
 	_idle_sprite.pivot_offset = _idle_base_pivot
 	_idle_sprite.position = _idle_base_position
 	_idle_sprite.rotation = _idle_base_rotation
@@ -463,20 +433,22 @@ func refresh_idle_pivot() -> void:
 
 func _stop_sprite_idle() -> void:
 	_stop_frame_tween()
-	if _idle_tween != null and _idle_tween.is_valid():
-		_idle_tween.kill()
-	_idle_tween = null
-	if _sprite_action_tween != null and _sprite_action_tween.is_valid():
-		_sprite_action_tween.kill()
-	_sprite_action_tween = null
 	if _idle_sprite != null:
+		_horizontal_facing = _authored_horizontal_facing \
+			if not is_zero_approx(_authored_horizontal_facing) \
+			else DEFAULT_AUTHORED_HORIZONTAL_FACING
 		_restore_sprite_pose()
 		_restore_sprite_texture()
 	_idle_sprite = null
 	_base_sprite_texture = null
 	_frame_profile = {}
+	_use_transform_idle = false
 	_animation_texture_path = ""
 	_frame_render_scale = Vector2.ONE
+	_frame_footline_y_ratio = 1.0
+	_authored_horizontal_facing = DEFAULT_AUTHORED_HORIZONTAL_FACING
+	_horizontal_facing = DEFAULT_AUTHORED_HORIZONTAL_FACING
+	_horizontal_facing_locked = false
 	_attack_release_delay = 0.0
 	_idle_base_scale = Vector2.ONE
 	_idle_base_pivot = Vector2.ZERO

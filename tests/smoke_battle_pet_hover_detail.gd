@@ -119,15 +119,17 @@ func _assert_context_layout(battle: Control) -> bool:
 	var detail := battle.get_node("OverlayHost/BattlePetDetailPanel") as Control
 	var panel := detail.get_node("Panel") as Control
 	var card := detail.get_node("Panel/SpriteInfoCard") as Control
-	if not panel.scale.is_equal_approx(Vector2(1.24, 1.24)):
-		_fail("Hover detail scale must be exactly double the old 0.62 scale, got %s." % panel.scale)
+	if not panel.scale.is_equal_approx(Vector2.ONE):
+		_fail("Hover detail must use the confirmed PSD scale, got %s." % panel.scale)
 		return false
 	var rect := card.get_global_rect()
-	if rect.position.x < 0.0 or rect.position.x > 40.0 or rect.position.y < 0.0 or rect.position.y > 40.0:
-		_fail("Hover detail card must sit in the top-left area, got rect %s." % rect)
+	var viewport_size := battle.get_viewport_rect().size
+	if rect.position.x < 16.0 or rect.position.y < 16.0 \
+			or rect.end.x > viewport_size.x - 16.0 or rect.end.y > viewport_size.y - 16.0:
+		_fail("Hover detail card must remain inside the viewport margin, got rect %s." % rect)
 		return false
-	if rect.size.x < 580.0 or rect.size.y < 650.0:
-		_fail("Hover detail card should render at the doubled context size, got rect %s." % rect)
+	if not rect.size.is_equal_approx(Vector2(360.0, 460.0)):
+		_fail("Hover detail card must match the confirmed 360x460 PSD geometry, got rect %s." % rect)
 		return false
 	return true
 

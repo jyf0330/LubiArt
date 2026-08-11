@@ -16,7 +16,7 @@ SKILL_PROCESSOR = (
     Path.home()
     / ".codex/skills/generate2dsprite/scripts/generate2dsprite.py"
 )
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/azure_wind_feather"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/azure_wind_feather"
 VERSION_ROOT = ANIMATION_ROOT / "move_v1"
 RAW_SHEET_PATH = VERSION_ROOT / "raw/output_001.png"
 PROMPT_PATH = VERSION_ROOT / "source/prompt-used.txt"
@@ -30,11 +30,11 @@ GIF_PATH = ROOT / "output/azure_wind_feather_move_preview_v1.gif"
 SLOW_GIF_PATH = ROOT / "output/azure_wind_feather_move_preview_slow_v1.gif"
 QA_REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/azure_wind_feather/move_v1/qa_report.json"
+    / "output/sprite_animation_candidates/_manifests/azure_wind_feather/move_v1/qa_report.json"
 )
 PIPELINE_META_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/azure_wind_feather/move_v1/pipeline-meta.json"
+    / "output/sprite_animation_candidates/_manifests/azure_wind_feather/move_v1/pipeline-meta.json"
 )
 
 FRAME_SIZE = (128, 128)
@@ -279,7 +279,7 @@ def main() -> None:
         "version": 1,
         "service": "Rika AI",
         "generation_id": json.loads(
-            (ROOT / "art/manifests/shared/pets/animations/azure_wind_feather/move_v1/submission.json").read_text(
+            (ROOT / "output/sprite_animation_candidates/_manifests/azure_wind_feather/move_v1/submission.json").read_text(
                 encoding="utf-8"
             )
         )["gen_id"],

@@ -106,10 +106,10 @@ func required_asset_manifest_available() -> bool:
 
 
 func primary_buttons_enabled() -> bool:
-	if _hud == null:
+	if _scene == null:
 		return false
-	var auto_button := _hud.get_node_or_null("BattlePrimaryActions/AutoArrangeButton") as BaseButton
-	var begin_button := _hud.get_node_or_null("BattlePrimaryActions/BeginTurnButton") as BaseButton
+	var auto_button := _scene.get_node_or_null("MapControls/AutoArrangeButton") as BaseButton
+	var begin_button := _scene.get_node_or_null("MapControls/AllOutButton") as BaseButton
 	return auto_button != null and begin_button != null \
 		and not auto_button.disabled and not begin_button.disabled
 
@@ -129,7 +129,7 @@ func open_first_pet_detail() -> Dictionary:
 	for cell in _visible_cells():
 		var data := _cell_data(cell)
 		var unit_id := String(data.get("unitId", data.get("unit_id", "")))
-		if unit_id == "":
+		if unit_id == "" or _is_hero(data):
 			continue
 		var grid := cell.call("get_grid_position") as Vector2i
 		var row := {
@@ -140,14 +140,13 @@ func open_first_pet_detail() -> Dictionary:
 		}
 		if fallback.is_empty():
 			fallback = row
-		if String(data.get("side", data.get("unitSide", ""))) in ["player", "ally", "hero", "hero_leader", "player_leader"]:
-			cell.emit_signal("cell_selected", grid.x, grid.y)
+		if String(data.get("side", data.get("unitSide", ""))) in ["player", "ally"] and not _is_hero(data):
+			hover_pet(grid, true)
 			return row
 	if not fallback.is_empty():
 		var grid_value := Dictionary(fallback["grid"])
 		var grid := Vector2i(int(grid_value["x"]), int(grid_value["y"]))
-		var cell := cell_at(grid)
-		cell.emit_signal("cell_selected", grid.x, grid.y)
+		hover_pet(grid, true)
 		return fallback
 	return {"opened": false}
 
@@ -349,16 +348,49 @@ func hover_cell(grid: Vector2i, hovered: bool) -> bool:
 	return true
 
 
+func hover_pet(grid: Vector2i, hovered: bool) -> bool:
+	var cell := cell_at(grid)
+	if cell == null or not cell.has_method("get_unit_node"):
+		return false
+	var unit := cell.call("get_unit_node") as Control
+	if unit == null:
+		return false
+	if not hovered:
+		cell.emit_signal("cell_unhovered", grid.x, grid.y)
+		return true
+	var art_point := _solid_art_point(unit)
+	Input.warp_mouse(Vector2i(art_point))
+	cell.emit_signal("cell_hovered", grid.x, grid.y)
+	var motion := InputEventMouseMotion.new()
+	motion.position = art_point
+	motion.global_position = art_point
+	_scene.get_viewport().push_input(motion, true)
+	return true
+
+
+func _solid_art_point(unit: Control) -> Vector2:
+	var rect := unit.get_global_rect()
+	for row in range(1, 8):
+		for column in range(1, 8):
+			var point := rect.position + Vector2(
+				rect.size.x * float(column) / 8.0,
+				rect.size.y * float(row) / 8.0
+			)
+			if not unit.has_method("contains_art_point") or bool(unit.call("contains_art_point", point)):
+				return point
+	return rect.get_center()
+
+
 func press_hud_command(command_type: StringName) -> Dictionary:
 	_last_command = {}
-	if _hud == null:
+	if _scene == null:
 		return {}
 	var button: BaseButton = null
 	match String(command_type):
 		"AUTO_POSITION_HEROES":
-			button = _hud.get_node_or_null("BattlePrimaryActions/AutoArrangeButton") as BaseButton
+			button = _scene.get_node_or_null("MapControls/AutoArrangeButton") as BaseButton
 		"RUN_COMBAT_ROUND":
-			button = _hud.get_node_or_null("BattlePrimaryActions/BeginTurnButton") as BaseButton
+			button = _scene.get_node_or_null("MapControls/AllOutButton") as BaseButton
 		"END_PLAYER_TURN":
 			button = _hud.get_node_or_null("BattleActionPanel/Margin/Content/EndTurnButton") as BaseButton
 		"RUN_MONSTER_TURN":

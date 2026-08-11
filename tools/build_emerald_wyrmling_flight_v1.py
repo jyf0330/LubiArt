@@ -10,7 +10,7 @@ from PIL import Image, ImageChops
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE_ROOT = (
     ROOT
-    / "art/images/shared/pets/animations/emerald_wyrmling/preview_v1"
+    / "output/sprite_animation_candidates/emerald_wyrmling/preview_v1"
 )
 SOURCE_FRAME_DIR = IMAGE_ROOT / "source_frames"
 FRAME_DIR = IMAGE_ROOT / "flight"
@@ -20,7 +20,7 @@ GIF_PATH = IMAGE_ROOT / "emerald_wyrmling_flight_preview_v1.gif"
 SLOW_GIF_PATH = IMAGE_ROOT / "emerald_wyrmling_flight_slow_check_v1.gif"
 REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/emerald_wyrmling/preview_v1/qa_report.json"
+    / "output/sprite_animation_candidates/_manifests/emerald_wyrmling/preview_v1/qa_report.json"
 )
 
 FRAME_COUNT = 6

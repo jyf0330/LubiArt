@@ -4,7 +4,7 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/shadow_rock_wolf"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/shadow_rock_wolf"
 SHEET_PATH = ANIMATION_ROOT / "sources/shadow_rock_wolf_walk_sheet_transparent_v7.png"
 FRAME_DIR = ANIMATION_ROOT / "preview_v7/move"
 STRIP_PATH = ANIMATION_ROOT / "shadow_rock_wolf_move_preview_v7.png"

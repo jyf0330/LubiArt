@@ -1,6 +1,7 @@
 extends SceneTree
 
 const PET_DETAIL_SCENE := preload("res://art/prefabs/pet/pet_detail.tscn")
+const BATTLE_BACKGROUND := preload("res://art/images/battle/map_controls/maps/grassland_morning.png")
 const CAPTURE_PATH := "res://output/pet_detail_visible.png"
 
 
@@ -10,12 +11,18 @@ func _initialize() -> void:
 
 func _run() -> void:
 	root.size = Vector2i(1920, 1080)
+	var background := TextureRect.new()
+	background.texture = BATTLE_BACKGROUND
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.size = Vector2(1920.0, 1080.0)
+	root.add_child(background)
 	var detail := PET_DETAIL_SCENE.instantiate() as Control
 	root.add_child(detail)
 	await process_frame
-	detail.call("show_detail", {
-		"name": "宠物名字",
-		"element": "水",
+	Input.warp_mouse(Vector2i(900, 520))
+	detail.call("show_context_detail", {
+		"name": "李元芳二",
+		"element": "暗",
 		"quality": "水晶",
 		"hp": 24,
 		"max_hp": 24,
@@ -34,7 +41,6 @@ func _run() -> void:
 		},
 	})
 	await process_frame
-	await RenderingServer.frame_post_draw
 	var image := root.get_texture().get_image()
 	var error := image.save_png(ProjectSettings.globalize_path(CAPTURE_PATH))
 	if error != OK:
