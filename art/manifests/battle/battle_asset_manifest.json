@@ -52,9 +52,10 @@
     "player_pet_catalog": "res://data/ysbzs_singleplayer_data.json"
   },
   "background": {
-    "battle": "res://art/images/battle/map_controls/maps/grassland_morning.png",
+    "battle": "res://art/images/battle/map_controls/maps/forest_clearing_trial.png",
     "maps": {
-      "grassland_morning": "res://art/images/battle/map_controls/maps/grassland_morning.png",
+      "forest_clearing_trial": "res://art/images/battle/map_controls/maps/forest_clearing_trial.png",
+      "grassland_morning": "res://art/images/battle/map_controls/maps/forest_clearing_trial.png",
       "grassland_evening": "res://art/images/battle/map_controls/maps/grassland_evening.png",
       "pond_morning": "res://art/images/battle/map_controls/maps/pond_morning.png",
       "pond_evening": "res://art/images/battle/map_controls/maps/pond_evening.png",

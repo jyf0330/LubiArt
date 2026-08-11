@@ -417,5 +417,5 @@ Godot 会缓存 manifest 和脚本；大量残留测试进程会占用内存、�
 - 交付边界：主提交纳入战斗 UI、Scene/prefab、展示脚本、Mock 适配、测试与工具、项目专属 Skill，以及白名单已批准的 `10` 套待机动画共 `156` 帧；没有把约 `781 MB` 的 `output/` 候选与 QA、`.codex_work/` 备份、Godot 临时文件、两个 zip 或未批准的火山帝江、角翼龙、`video_7832` 正式目录动画及其运行时引用推送。所有排除内容继续保留在本地，未删除。
 - Git 结果：主提交 `f2beac57`（`feat: consolidate battle UI mock delivery`）已推送至 `origin/codex/battle-ui-work-20260806`；该提交包含 `2295` 个文件、`24001` 行新增和 `41327` 行删除。本轮没有新增图片或动画版本批准，也没有新增、删除、改名、移动或重新挂载 Scene/prefab 节点。
 - 验证：从暂存快照隔离还原后，动画准入检查通过（`10` animations / `156` frames），`verify_ui_mirror.sh` 通过，Python 工具编译检查与 `git diff --cached --check` 通过；干净 Godot 资源导入退出码为 `0`，拖拽时序、回合提示、攻击时间轴及 SpriteInfoCard 独立 smoke 均通过。
-- 既存阻塞：README 的 `smoke_mock_battle_project.gd` 在 `30s` 内仍不退出；`smoke_battle_art_scene.gd` 仍因当前 `64` 格结构与旧最小层级断言不一致失败。当前工作区还保留未批准动画候选、未提交的运行时尝试、本地主动更新的 `forest_clearing_trial` 战斗背景接入、重新生成的 PSD import 空行和截图，因此完整项目验收仍为 `BLOCKED`，但本轮经过筛选的 Git 交付已完成；这些在主提交后出现或刻意排除的内容均未混入本轮提交。
+- 既存阻塞：README 的 `smoke_mock_battle_project.gd` 在 `30s` 内仍不退出；`smoke_battle_art_scene.gd` 仍因当前 `64` 格结构与旧最小层级断言不一致失败。当前工作区还保留未批准动画候选、未提交的运行时尝试、重新生成的 PSD import 空行和截图，因此完整项目验收仍为 `BLOCKED`，但本轮经过筛选的 Git 交付已完成；主提交后完成的 `forest_clearing_trial` 战斗背景试放已另行验证并随本轮补充提交。
 - 新标准：无；本轮仅执行既有正式动画准入、独立项目验证和对话闭环规则。

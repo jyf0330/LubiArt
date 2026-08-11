@@ -26,7 +26,7 @@ const MAP_IDS := [
 const MAP_TEXTURES := [
 	preload("res://art/images/battle/map_controls/maps/lowland_evening.png"),
 	preload("res://art/images/battle/map_controls/maps/grassland_evening.png"),
-	preload("res://art/images/battle/map_controls/maps/grassland_morning.png"),
+	preload("res://art/images/battle/map_controls/maps/forest_clearing_trial.png"),
 	preload("res://art/images/battle/map_controls/maps/pond_evening.png"),
 	preload("res://art/images/battle/map_controls/maps/pond_morning.png"),
 	preload("res://art/images/battle/map_controls/maps/mountain_evening.png"),
