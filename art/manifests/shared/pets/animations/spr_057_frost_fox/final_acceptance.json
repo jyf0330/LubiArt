@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "reviewed_on": "2026-08-10",
+  "sprite_id": "SPR_057",
+  "runtime_pet_id": "pal_057",
+  "runtime_name": "吹雪狐",
+  "identity_anchor": {
+    "file_name": "13.png",
+    "sha256": "d7d866c9e392ca8043432daddffa7262bb4af989d81f2158ab4f62a37fe7dfd5",
+    "size": [1024, 1024]
+  },
+  "actions": {
+    "idle": {
+      "source_file": "i.png",
+      "source_sha256": "dce64888b02f46fd905f043f041ce7afd7c20ed25261c08d9c854c3ad5c4a7c6",
+      "source_grid": [3, 4],
+      "frame_count": 12,
+      "frame_size": [128, 128],
+      "frame_duration_ms": 150,
+      "loop_duration_ms": 1800
+    }
+  },
+  "asset_checks": {
+    "identity_structure_and_use": "PASS",
+    "action_readability_and_set_consistency": "PASS",
+    "minimum_actual_size_readability": "PASS",
+    "light_dark_and_battle_background_edges": "PASS",
+    "true_transparency_and_single_subject": "PASS",
+    "canvas_margins_and_feet_anchor": "PASS",
+    "slow_and_final_speed_motion": "PASS",
+    "gif_png_rgba_equivalence": "PASS",
+    "godot_import_and_manifest_mapping": "PASS",
+    "battle_size_position_layering_and_shadow": "PASS"
+  },
+  "evidence": {
+    "processor_idle": "output/sprite_animation_intake/spr_057_frost_fox/anim_001_idle/processor_qc/pipeline-meta.json",
+    "idle_qa": "output/sprite_animation_intake/spr_057_frost_fox/anim_001_idle/qa_report.json",
+    "battle_contact_sheet": "output/qa/frost_fox/battle_runtime/contact_sheet.png"
+  },
+  "godot_verification": [
+    "SMOKE_PET_FRAME_ANIMATIONS_PASS idle_only=12",
+    "SMOKE_BATTLE_AUTO_ARRANGE_MOVEMENT_PASS",
+    "PET_GROUNDING_SMOKE_PASS sprites=9",
+    "VISIBLE_FROST_FOX_BATTLE_PASS"
+  ]
+}

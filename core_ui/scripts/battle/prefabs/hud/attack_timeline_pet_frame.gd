@@ -8,7 +8,7 @@ const VISUAL_METRICS_PATH := "res://art/manifests/shared/pets/sheets/pet_battle_
 const PET_TEXTURES := {
 	"pal_002": preload("res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png"),
 	"pal_011": preload("res://art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png"),
-	"pal_030": preload("res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png"),
+	"pal_030": preload("res://art/images/shared/pets/sheets/slices/pet_style_999_crystal_shell.png"),
 	"pal_028": preload("res://art/images/shared/pets/sheets/slices/pet_style_003_blue_electric_shell.png"),
 }
 

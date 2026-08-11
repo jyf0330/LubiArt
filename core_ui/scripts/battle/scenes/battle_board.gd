@@ -40,6 +40,7 @@ var _preview_coordinator := BattleBoardPreviewCoordinatorScript.new()
 var _drag_interaction := BattleBoardDragInteractionScript.new()
 var _unit_nodes_by_id := {}
 var _unit_pool: Array[Control] = []
+var _health_bar_tier_override := ""
 
 
 func _ready() -> void:
@@ -65,6 +66,14 @@ func set_input_locked(locked: bool) -> void:
 
 func show_direction_preview(unit_id: String, direction: String) -> void:
 	_preview_coordinator.call("show_direction_preview", unit_id, direction)
+
+
+func set_all_health_bar_tiers(tier: String) -> void:
+	_health_bar_tier_override = tier
+	for unit_value in _unit_nodes_by_id.values():
+		var unit := unit_value as Control
+		if unit != null and is_instance_valid(unit) and unit.has_method("set_health_bar_tier"):
+			unit.call("set_health_bar_tier", tier)
 
 
 func apply_enemy_move_final_cell(unit_id: String, cell: Dictionary) -> void:
@@ -243,6 +252,8 @@ func _sync_cell_unit(
 			unit.call("reconcile_unit_data", cell_data, side, _assets)
 		elif unit.has_method("set_unit_data"):
 			unit.call("set_unit_data", cell_data, side, _assets)
+	if _health_bar_tier_override != "" and unit.has_method("set_health_bar_tier"):
+		unit.call("set_health_bar_tier", _health_bar_tier_override)
 	if unit.has_method("get_missing_mapping"):
 		var missing := Dictionary(unit.call("get_missing_mapping"))
 		if not missing.is_empty():
@@ -510,7 +521,9 @@ func _apply_local_unit_drop(unit_id: String, origin: Vector2i, target: Vector2i)
 	origin_cell.call("set_cell_data", emptied_origin, _assets)
 	target_cell.call("set_cell_data", moved_data, _assets)
 	_sync_cell_unit(origin_cell, emptied_origin, true)
-	_sync_cell_unit(target_cell, moved_data, true)
+	# A move changes only board placement. Keep the existing unit presentation
+	# and animation alive instead of rebinding all textures and frame resources.
+	_sync_cell_unit(target_cell, moved_data, true, true)
 	_render_cell_trace_effects(origin_cell, emptied_origin)
 	_render_cell_trace_effects(target_cell, moved_data)
 	_collect_cell_missing_mappings(target_cell)

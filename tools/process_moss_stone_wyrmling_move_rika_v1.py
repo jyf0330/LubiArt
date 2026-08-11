@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL_PROCESSOR = (
     Path.home() / ".codex/skills/generate2dsprite/scripts/generate2dsprite.py"
 )
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/moss_stone_wyrmling"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/moss_stone_wyrmling"
 VERSION_ROOT = ANIMATION_ROOT / "move_v1"
 RAW_SHEET_PATH = VERSION_ROOT / "raw/output_001.png"
 PROMPT_PATH = VERSION_ROOT / "source/prompt-used.txt"
@@ -28,11 +28,11 @@ GIF_PATH = ROOT / "output/moss_stone_wyrmling_move_preview_v1.gif"
 SLOW_GIF_PATH = ROOT / "output/moss_stone_wyrmling_move_preview_slow_v1.gif"
 QA_REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v1/qa_report.json"
+    / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v1/qa_report.json"
 )
 PIPELINE_META_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v1/pipeline-meta.json"
+    / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v1/pipeline-meta.json"
 )
 
 FRAME_SIZE = (128, 128)
@@ -295,7 +295,7 @@ def main() -> None:
     submission = json.loads(
         (
             ROOT
-            / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v1/submission.json"
+            / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v1/submission.json"
         ).read_text(encoding="utf-8")
     )
     report = {
@@ -305,7 +305,7 @@ def main() -> None:
         "actual_credit_change": json.loads(
             (
                 ROOT
-                / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v1/job.json"
+                / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v1/job.json"
             ).read_text(encoding="utf-8")
         )["actual_credit_change"],
         "source_sheet": RAW_SHEET_PATH.relative_to(ROOT).as_posix(),

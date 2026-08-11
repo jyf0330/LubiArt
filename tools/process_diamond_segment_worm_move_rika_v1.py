@@ -14,11 +14,11 @@ processor = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
 spec.loader.exec_module(processor)
 
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/diamond_segment_worm"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/diamond_segment_worm"
 IMAGE_ROOT = ANIMATION_ROOT / "move_v1"
 QA_REPORT_PATH = (
     ROOT
-    / "art/manifests/shared/pets/animations/diamond_segment_worm/move_v1/qa_report.json"
+    / "output/sprite_animation_candidates/_manifests/diamond_segment_worm/move_v1/qa_report.json"
 )
 LOOP_FRAME_DIR = IMAGE_ROOT / "move_loop"
 LOOP_SOURCE_INDICES = list(range(1, 17)) + list(range(15, 1, -1))

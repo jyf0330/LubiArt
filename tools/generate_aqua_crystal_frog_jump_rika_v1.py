@@ -16,12 +16,12 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE_ROOT = (
-    ROOT / "art/images/shared/pets/animations/aqua_crystal_frog/jump_v1"
+    ROOT / "output/sprite_animation_candidates/aqua_crystal_frog/jump_v1"
 )
 SOURCE_DIR = IMAGE_ROOT / "source"
 RAW_DIR = IMAGE_ROOT / "raw"
 MANIFEST_DIR = (
-    ROOT / "art/manifests/shared/pets/animations/aqua_crystal_frog/jump_v1"
+    ROOT / "output/sprite_animation_candidates/_manifests/aqua_crystal_frog/jump_v1"
 )
 SOURCE_PATH = SOURCE_DIR / "aqua_crystal_frog_original_v1.png"
 TRANSPARENT_INPUT_PATH = SOURCE_DIR / "aqua_crystal_frog_transparent_128_v1.png"

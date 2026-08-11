@@ -1,0 +1,382 @@
+{
+  "asset_id": "SPR_999",
+  "asset_name": "crystal_shell",
+  "animation_id": "ANIM_SPR_999_IDLE_001",
+  "action": "idle",
+  "source": "user_supplied_4x4_sheet",
+  "identity_anchor": "user_supplied_transparent_reference",
+  "frame_count": 16,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_duration_ms": 240,
+  "loop_duration_ms": 3840,
+  "alpha_values": [
+    0,
+    255
+  ],
+  "alpha_bboxes": [
+    [
+      23,
+      25,
+      107,
+      117
+    ],
+    [
+      23,
+      26,
+      107,
+      117
+    ],
+    [
+      23,
+      27,
+      107,
+      117
+    ],
+    [
+      23,
+      26,
+      107,
+      117
+    ],
+    [
+      23,
+      25,
+      107,
+      117
+    ],
+    [
+      23,
+      25,
+      107,
+      117
+    ],
+    [
+      23,
+      25,
+      107,
+      116
+    ],
+    [
+      23,
+      26,
+      107,
+      117
+    ],
+    [
+      23,
+      26,
+      107,
+      117
+    ],
+    [
+      23,
+      25,
+      107,
+      117
+    ],
+    [
+      23,
+      25,
+      107,
+      116
+    ],
+    [
+      23,
+      25,
+      107,
+      117
+    ],
+    [
+      23,
+      25,
+      107,
+      117
+    ],
+    [
+      23,
+      26,
+      107,
+      117
+    ],
+    [
+      23,
+      26,
+      107,
+      117
+    ],
+    [
+      23,
+      25,
+      107,
+      117
+    ]
+  ],
+  "safe_margins_ltrb": [
+    [
+      23,
+      25,
+      21,
+      11
+    ],
+    [
+      23,
+      26,
+      21,
+      11
+    ],
+    [
+      23,
+      27,
+      21,
+      11
+    ],
+    [
+      23,
+      26,
+      21,
+      11
+    ],
+    [
+      23,
+      25,
+      21,
+      11
+    ],
+    [
+      23,
+      25,
+      21,
+      11
+    ],
+    [
+      23,
+      25,
+      21,
+      12
+    ],
+    [
+      23,
+      26,
+      21,
+      11
+    ],
+    [
+      23,
+      26,
+      21,
+      11
+    ],
+    [
+      23,
+      25,
+      21,
+      11
+    ],
+    [
+      23,
+      25,
+      21,
+      12
+    ],
+    [
+      23,
+      25,
+      21,
+      11
+    ],
+    [
+      23,
+      25,
+      21,
+      11
+    ],
+    [
+      23,
+      26,
+      21,
+      11
+    ],
+    [
+      23,
+      26,
+      21,
+      11
+    ],
+    [
+      23,
+      25,
+      21,
+      11
+    ]
+  ],
+  "minimum_safe_margin_pixels": 11,
+  "anchor_summary": {
+    "center_x_min": 65.0,
+    "center_x_max": 65.0,
+    "bottom_min": 116,
+    "bottom_max": 117
+  },
+  "component_areas": [
+    [
+      5210
+    ],
+    [
+      5161
+    ],
+    [
+      5116
+    ],
+    [
+      5139
+    ],
+    [
+      5214
+    ],
+    [
+      5199
+    ],
+    [
+      5109
+    ],
+    [
+      5111
+    ],
+    [
+      5154
+    ],
+    [
+      5202
+    ],
+    [
+      5115
+    ],
+    [
+      5214
+    ],
+    [
+      5205
+    ],
+    [
+      5131
+    ],
+    [
+      5154
+    ],
+    [
+      5143
+    ]
+  ],
+  "component_note": "Each delivery frame contains one connected subject region after removing isolated processor resampling specks smaller than eight pixels.",
+  "gif_verification": {
+    "decoded_frame_count": 16,
+    "durations_ms": [
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240,
+      240
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "frame_count_matches": true,
+    "duration_matches": true,
+    "all_frames_exact_rgba_match": true
+  },
+  "slow_gif_verification": {
+    "decoded_frame_count": 16,
+    "durations_ms": [
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300
+    ],
+    "disposal_methods": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "frame_count_matches": true,
+    "duration_matches": true,
+    "all_frames_exact_rgba_match": true
+  },
+  "outputs": {
+    "frames": [
+      "frames\\frame_001.png",
+      "frames\\frame_002.png",
+      "frames\\frame_003.png",
+      "frames\\frame_004.png",
+      "frames\\frame_005.png",
+      "frames\\frame_006.png",
+      "frames\\frame_007.png",
+      "frames\\frame_008.png",
+      "frames\\frame_009.png",
+      "frames\\frame_010.png",
+      "frames\\frame_011.png",
+      "frames\\frame_012.png",
+      "frames\\frame_013.png",
+      "frames\\frame_014.png",
+      "frames\\frame_015.png",
+      "frames\\frame_016.png"
+    ],
+    "gif": "anim_spr_999_idle_001.gif",
+    "slow_gif": "anim_spr_999_idle_001_slow.gif",
+    "overview": "anim_spr_999_idle_001_overview.png",
+    "sheet": "anim_spr_999_idle_001_sheet.png",
+    "edge_check": "anim_spr_999_idle_001_edge_check.png"
+  }
+}

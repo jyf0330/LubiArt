@@ -41,7 +41,7 @@ func _run() -> void:
 
 	assert(bool(panel.call("debug_select_element", 6)))
 	await process_frame
-	assert((card.get_node("ElementArt") as TextureRect).texture.resource_path.get_file() == "element_fire.png")
+	assert((card.get_node("ElementArt") as TextureRect).texture.resource_path.get_file() == "element_dark_visible.png")
 
 	var quality_ids := ["bronze", "silver", "gold", "crystal"]
 	var quality_names := ["青铜", "白银", "黄金", "水晶"]
@@ -55,9 +55,9 @@ func _run() -> void:
 		var base_art := card.get_node("BaseArt") as TextureRect
 		var attack_art := card.get_node("AttackFormatPlate") as TextureRect
 		var stat_art := card.get_node("StatSlotArt") as TextureRect
-		assert(base_art.texture.resource_path.get_file() == "panel_base_%s.png" % quality_id)
-		assert(attack_art.texture.resource_path.get_file() == "attack_grid_%s.png" % quality_id)
-		assert(stat_art.texture.resource_path.get_file() == "stat_slots_%s.png" % quality_id)
+		assert(base_art.texture.resource_path.get_file() == "panel_base.png")
+		assert(attack_art.texture.resource_path.get_file() == "attack_grid.png")
+		assert(stat_art.texture.resource_path.get_file() == "stat_icons_static.png")
 		assert(String(base_art.get_meta("quality_tier")) == quality_id)
 		assert(String(attack_art.get_meta("quality_tier")) == quality_id)
 		assert(String(stat_art.get_meta("quality_tier")) == quality_id)

@@ -49,10 +49,6 @@ func _run() -> void:
 	var hud := art_scene.get_node_or_null("Hud") as Control
 	var attack_timeline_layer := art_scene.get_node_or_null("Hud/AttackTimelineLayer") as CanvasLayer
 	var attack_timeline := art_scene.get_node_or_null("Hud/AttackTimelineLayer/AttackTimeline") as Control
-	var primary_actions := art_scene.get_node_or_null("Hud/BattlePrimaryActions") as Control
-	var primary_actions_shadow := art_scene.get_node_or_null("Hud/BattlePrimaryActions/Shadow") as TextureRect
-	var auto_arrange_button := art_scene.get_node_or_null("Hud/BattlePrimaryActions/AutoArrangeButton") as TextureButton
-	var begin_turn_button := art_scene.get_node_or_null("Hud/BattlePrimaryActions/BeginTurnButton") as TextureButton
 	var action_panel := art_scene.get_node_or_null("Hud/BattleActionPanel") as Control
 	var position_difficulty_button := art_scene.get_node_or_null(
 		"Hud/BattleActionPanel/Margin/Content/PositionDifficultyButton"
@@ -62,8 +58,9 @@ func _run() -> void:
 	) as Button
 	var cell_detail := art_scene.get_node_or_null("OverlayHost") as Control
 	var settings_menu := art_scene.get_node_or_null("OverlayHost/SettingsMenu") as Control
-	var bottom_left_cell := board_grid.get_child(48) as Control if board_grid != null else null
-	var bottom_right_cell := board_grid.get_child(55) as Control if board_grid != null else null
+	var top_left_cell := board_grid.get_child(0) as Control if board_grid != null else null
+	var bottom_left_cell := board_grid.get_child(56) as Control if board_grid != null else null
+	var bottom_right_cell := board_grid.get_child(63) as Control if board_grid != null else null
 	var bottom_left_center := bottom_left_cell.position + bottom_left_cell.size * 0.5 if bottom_left_cell != null else Vector2.ZERO
 	var bottom_right_center := bottom_right_cell.position + bottom_right_cell.size * 0.5 if bottom_right_cell != null else Vector2.ZERO
 	var attack_timeline_button_works := false
@@ -95,11 +92,7 @@ func _run() -> void:
 				, []).size() == 8
 		)
 	if hud != null and action_panel != null and debug_drawer_toggle_button != null:
-		var expanded_panel_position := action_panel.position
-		var expanded_toggle_position := debug_drawer_toggle_button.position
-		debug_drawer_toggle_button.pressed.emit()
-		await create_timer(0.25).timeout
-		var collapsed_works := (
+		var starts_collapsed := (
 			bool(hud.call("debug_is_action_panel_collapsed"))
 			and action_panel.position == Vector2(-462.0, 150.0)
 			and debug_drawer_toggle_button.position == Vector2(0.0, 174.0)
@@ -107,12 +100,21 @@ func _run() -> void:
 		)
 		debug_drawer_toggle_button.pressed.emit()
 		await create_timer(0.25).timeout
-		debug_drawer_works = (
-			collapsed_works
-			and not bool(hud.call("debug_is_action_panel_collapsed"))
-			and action_panel.position == expanded_panel_position
-			and debug_drawer_toggle_button.position == expanded_toggle_position
+		var expanded_works := (
+			not bool(hud.call("debug_is_action_panel_collapsed"))
+			and action_panel.position == Vector2(18.0, 150.0)
+			and debug_drawer_toggle_button.position == Vector2(480.0, 174.0)
 			and debug_drawer_toggle_button.text == "‹"
+		)
+		debug_drawer_toggle_button.pressed.emit()
+		await create_timer(0.25).timeout
+		debug_drawer_works = (
+			starts_collapsed
+			and expanded_works
+			and bool(hud.call("debug_is_action_panel_collapsed"))
+			and action_panel.position == Vector2(-462.0, 150.0)
+			and debug_drawer_toggle_button.position == Vector2(0.0, 174.0)
+			and debug_drawer_toggle_button.text == "›"
 		)
 	if hud != null and attack_timeline != null and map_controls != null and map_attack_order_button != null:
 		var starts_closed := not attack_timeline.visible and not bool(hud.call("debug_is_attack_timeline_open"))
@@ -164,8 +166,11 @@ func _run() -> void:
 		and background_variants_match
 		and debug_map_cycle_works
 		and board_grid != null
-		and board_grid.get_child_count() == 56
+		and board_grid.size == Vector2(960.0, 960.0)
+		and board_grid.get_child_count() == 64
 		and unit_host != null
+		and unit_host.position == board_grid.position
+		and unit_host.size == board_grid.size
 		and unit_host.get_child_count() == occupied_cell_count
 		and unit_host.get_child_count() < board_grid.get_child_count()
 		and vfx_host != null
@@ -181,16 +186,23 @@ func _run() -> void:
 		and board.get_child_count() == 4
 		and bottom_left_cell != null
 		and bottom_left_cell.visible
-		and bottom_left_cell.call("get_grid_position") == Vector2i(0, 6)
+		and bottom_left_cell.call("get_grid_position") == Vector2i(0, 7)
 		and bottom_left_cell.call("contains_board_point", bottom_left_center)
 		and bottom_left_cell.get_node_or_null("PrefabAnchor") == null
-		and is_equal_approx(bottom_left_cell.position.y + bottom_left_cell.size.y, 959.0)
+		and is_equal_approx(bottom_left_cell.position.y + bottom_left_cell.size.y, board_grid.size.y)
+		and not bool(bottom_left_cell.call("uses_perspective_geometry"))
+		and top_left_cell != null
+		and is_equal_approx(top_left_cell.size.x, top_left_cell.size.y)
+		and top_left_cell.size == Vector2(120.0, 120.0)
+		and top_left_cell.size == bottom_left_cell.size
 		and bottom_right_cell != null
 		and bottom_right_cell.visible
-		and bottom_right_cell.call("get_grid_position") == Vector2i(7, 6)
+		and bottom_right_cell.call("get_grid_position") == Vector2i(7, 7)
 		and bottom_right_cell.call("contains_board_point", bottom_right_center)
+		and bottom_right_cell.size == bottom_left_cell.size
 		and art_scene.get_node_or_null("Hud/TopInfoBar") == null
 		and cell_detail != null
+		and cell_detail.z_index == 300
 		and settings_menu != null
 		and art_scene.get_node_or_null("Board/VfxHost") != null
 		and art_scene.get_node_or_null("Hud/BattleActionPanel") != null
@@ -205,40 +217,24 @@ func _run() -> void:
 		and map_debug_button.get_parent() == action_panel.get_node("Margin/Content")
 		and map_debug_button.custom_minimum_size.y == 42.0
 		and map_auto_button != null
-		and Rect2(map_auto_button.position, map_auto_button.size) == Rect2(1772.0, 915.0, 66.0, 62.0)
+		and Rect2(map_auto_button.position, map_auto_button.size) == Rect2(1841.0, 915.0, 66.0, 62.0)
 		and map_reset_button != null
-		and Rect2(map_reset_button.position, map_reset_button.size) == Rect2(1841.0, 915.0, 66.0, 62.0)
+		and Rect2(map_reset_button.position, map_reset_button.size) == Rect2(1704.0, 915.0, 66.0, 62.0)
 		and map_speed_button != null
 		and Rect2(map_speed_button.position, map_speed_button.size) == Rect2(90.0, 985.0, 65.0, 62.0)
 		and map_settings_button != null
 		and Rect2(map_settings_button.position, map_settings_button.size) == Rect2(20.0, 985.0, 65.0, 62.0)
 		and map_attack_order_button != null
-		and Rect2(map_attack_order_button.position, map_attack_order_button.size) == Rect2(1704.0, 915.0, 65.0, 62.0)
+		and Rect2(map_attack_order_button.position, map_attack_order_button.size) == Rect2(1772.0, 915.0, 65.0, 62.0)
 		and map_bag_button != null
 		and Rect2(map_bag_button.position, map_bag_button.size) == Rect2(1635.0, 915.0, 66.0, 62.0)
+		and not map_bag_button.visible
 		and map_all_out_button != null
 		and Rect2(map_all_out_button.position, map_all_out_button.size) == Rect2(1635.0, 983.0, 272.0, 64.0)
 		and shortcut_hints != null
 		and Rect2(shortcut_hints.position, shortcut_hints.size) == Rect2(0.0, 948.0, 1920.0, 99.0)
 		and art_scene.get_node_or_null("ShortcutHintDebugButton") == null
-		and primary_actions != null
-		and not primary_actions.visible
-		and primary_actions.anchor_left == 1.0
-		and primary_actions.anchor_top == 1.0
-		and primary_actions.size == Vector2(365.0, 415.0)
-		and primary_actions_shadow != null
-		and primary_actions_shadow.size == Vector2(365.0, 415.0)
-		and primary_actions_shadow.texture != null
-		and auto_arrange_button != null
-		and auto_arrange_button.position == Vector2(25.0, 21.0)
-		and auto_arrange_button.size == Vector2(149.0, 133.0)
-		and auto_arrange_button.texture_normal != null
-		and auto_arrange_button.texture_pressed != null
-		and begin_turn_button != null
-		and begin_turn_button.position == Vector2(25.0, 21.0)
-		and begin_turn_button.size == Vector2(321.0, 379.0)
-		and begin_turn_button.texture_normal != null
-		and begin_turn_button.texture_pressed != null
+		and art_scene.get_node_or_null("Hud/BattlePrimaryActions") == null
 		and art_scene.get_node_or_null("Hud/AttackDirectionDrawer") == null
 		and art_scene.get_node_or_null("Board/AutoArrangeButton") == null
 		and art_scene.get_node_or_null("Board/BeginTurnButton") == null
@@ -251,6 +247,11 @@ func _run() -> void:
 			"occupied_cells": occupied_cell_count,
 			"board_children": board.get_child_count() if board != null else -1,
 			"grid_children": board_grid.get_child_count() if board_grid != null else -1,
+			"grid_position": board_grid.position if board_grid != null else Vector2.ZERO,
+			"grid_size": board_grid.size if board_grid != null else Vector2.ZERO,
+			"top_left_cell_size": top_left_cell.size if top_left_cell != null else Vector2.ZERO,
+			"unit_host_position": unit_host.position if unit_host != null else Vector2.ZERO,
+			"unit_host_size": unit_host.size if unit_host != null else Vector2.ZERO,
 			"unit_children": unit_host.get_child_count() if unit_host != null else -1,
 			"timeline_markers": int(attack_timeline.call("debug_marker_count")) if attack_timeline != null else -1,
 			"timeline_button_works": attack_timeline_button_works,

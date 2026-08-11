@@ -17,10 +17,10 @@ if spec is None or spec.loader is None:
 rika = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rika)
 
-IMAGE_ROOT = ROOT / "art/images/shared/pets/animations/xufeng_tina/flight_v1"
+IMAGE_ROOT = ROOT / "output/sprite_animation_candidates/xufeng_tina/flight_v1"
 SOURCE_DIR = IMAGE_ROOT / "source"
 RAW_DIR = IMAGE_ROOT / "raw"
-MANIFEST_DIR = ROOT / "art/manifests/shared/pets/animations/xufeng_tina/flight_v1"
+MANIFEST_DIR = ROOT / "output/sprite_animation_candidates/_manifests/xufeng_tina/flight_v1"
 
 SOURCE_PATH = SOURCE_DIR / "xufeng_tina_source_v1.png"
 TRANSPARENT_INPUT_PATH = SOURCE_DIR / "xufeng_tina_transparent_128_v1.png"

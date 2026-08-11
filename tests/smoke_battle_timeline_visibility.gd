@@ -54,6 +54,13 @@ func _run() -> void:
 		await _press_key(battle.get_viewport(), blocked_key)
 	assert(emitted_shortcuts.is_empty())
 	assert(timeline.visible)
+	var inside_blank_press := InputEventMouseButton.new()
+	inside_blank_press.button_index = MOUSE_BUTTON_LEFT
+	inside_blank_press.position = Vector2(timeline.size.x * 0.5, 520.0)
+	inside_blank_press.global_position = timeline.global_position + inside_blank_press.position
+	inside_blank_press.pressed = true
+	backdrop.gui_input.emit(inside_blank_press)
+	assert(timeline.visible)
 	await _click(battle.get_viewport(), Vector2(50.0, 50.0))
 	assert(not timeline.visible)
 	attack_order_button.pressed.emit()

@@ -27,6 +27,9 @@ func _run() -> void:
 	var shadow := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Shadow") as Control
 	var stats := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
 	var sprite_origin := sprite.position
+	var sprite_scale_origin := sprite.scale
+	var sprite_pivot_origin := sprite.pivot_offset
+	var pet_origin := pet.position
 	var shadow_origin := shadow.position
 	var stats_origin := stats.position
 	pet.call("play_damage_feedback", {
@@ -36,7 +39,7 @@ func _run() -> void:
 		"shieldFrom": 0,
 		"shieldTo": 0,
 		"hpTo": 15,
-	}, Vector2.RIGHT)
+	}, Vector2(1.0, -1.0))
 
 	var first := Dictionary(reaction.call("snapshot"))
 	assert(bool(first.get("active", false)))
@@ -47,8 +50,10 @@ func _run() -> void:
 	await create_timer(0.075, true, false, true).timeout
 	var impact := Dictionary(reaction.call("snapshot"))
 	assert(int(impact.get("frame_index", -1)) >= 1)
-	assert(Vector2(impact.get("sprite_offset", Vector2.ZERO)).x > 0.0)
-	assert(Vector2(impact.get("sprite_scale", Vector2.ONE)).x < 1.0)
+	assert(sprite.position.is_equal_approx(sprite_origin))
+	assert(sprite.scale.is_equal_approx(sprite_scale_origin))
+	assert(sprite.pivot_offset.is_equal_approx(sprite_pivot_origin))
+	assert(pet.position.is_equal_approx(pet_origin))
 	assert(shadow.position == shadow_origin)
 	assert(stats.position == stats_origin)
 	await create_timer(0.5, true, false, true).timeout
@@ -56,7 +61,7 @@ func _run() -> void:
 	assert(not bool(restored.get("active", true)))
 	assert(not bool(restored.get("effect_visible", true)))
 	assert(sprite.position.is_equal_approx(sprite_origin))
-	assert(sprite.scale.is_equal_approx(Vector2.ONE))
+	assert(sprite.scale.is_equal_approx(sprite_scale_origin))
 
 	pet.call("set_unit_data", {
 		"unitId": "shielded_hit_test",
@@ -79,6 +84,10 @@ func _run() -> void:
 	assert(int(shield_first.get("frame_index", -1)) == 0)
 	assert(bool(shield_first.get("effect_visible", false)))
 	assert(Vector2(shield_first.get("effect_size", Vector2.ZERO)) == Vector2(180.0, 180.0))
+	await create_timer(0.075, true, false, true).timeout
+	assert(pet.position.is_equal_approx(pet_origin))
+	assert(sprite.position.is_equal_approx(sprite_origin))
+	assert(sprite.scale.is_equal_approx(sprite_scale_origin))
 	await create_timer(0.45, true, false, true).timeout
 	var shield_restored := Dictionary(shield_effect.call("snapshot"))
 	assert(not bool(shield_restored.get("active", true)))

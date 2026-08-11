@@ -17,7 +17,7 @@ if spec is None or spec.loader is None:
 processor = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(processor)
 
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/long_whiskered_marten"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/long_whiskered_marten"
 VERSION_ROOT = ANIMATION_ROOT / "move_v1"
 
 processor.ANIMATION_ROOT = ANIMATION_ROOT
@@ -35,10 +35,10 @@ processor.ZOOM_OVERVIEW_PATH = ROOT / "output/long_whiskered_marten_move_frames_
 processor.GIF_PATH = ROOT / "output/long_whiskered_marten_move_preview_v1.gif"
 processor.SLOW_GIF_PATH = ROOT / "output/long_whiskered_marten_move_preview_slow_v1.gif"
 processor.SUBMISSION_PATH = (
-    ROOT / "art/manifests/shared/pets/animations/long_whiskered_marten/move_v1/submission.json"
+    ROOT / "output/sprite_animation_candidates/_manifests/long_whiskered_marten/move_v1/submission.json"
 )
 processor.QA_REPORT_PATH = (
-    ROOT / "art/manifests/shared/pets/animations/long_whiskered_marten/move_v1/qa_report.json"
+    ROOT / "output/sprite_animation_candidates/_manifests/long_whiskered_marten/move_v1/qa_report.json"
 )
 
 _extract_exact_frames = processor.extract_exact_frames

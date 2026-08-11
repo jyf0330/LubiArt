@@ -15,10 +15,10 @@ if spec is None or spec.loader is None:
 v1 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(v1)
 
-IMAGE_ROOT = ROOT / "art/images/shared/pets/animations/tide_crow/move_v2"
+IMAGE_ROOT = ROOT / "output/sprite_animation_candidates/tide_crow/move_v2"
 SOURCE_DIR = IMAGE_ROOT / "source"
 RAW_DIR = IMAGE_ROOT / "raw"
-MANIFEST_DIR = ROOT / "art/manifests/shared/pets/animations/tide_crow/move_v2"
+MANIFEST_DIR = ROOT / "output/sprite_animation_candidates/_manifests/tide_crow/move_v2"
 SOURCE_PATH = SOURCE_DIR / "tide_crow_source_v1.png"
 TRANSPARENT_INPUT_PATH = SOURCE_DIR / "tide_crow_transparent_128_v2.png"
 RIKA_INPUT_PATH = SOURCE_DIR / "tide_crow_rika_start_128_v2.png"

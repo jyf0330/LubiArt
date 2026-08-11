@@ -9,8 +9,8 @@ from PIL import Image, ImageChops, ImageSequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION_ROOT = ROOT / "art/images/shared/pets/animations/moss_stone_wyrmling/move_v3"
-MANIFEST_ROOT = ROOT / "art/manifests/shared/pets/animations/moss_stone_wyrmling/move_v3"
+VERSION_ROOT = ROOT / "output/sprite_animation_candidates/moss_stone_wyrmling/move_v3"
+MANIFEST_ROOT = ROOT / "output/sprite_animation_candidates/_manifests/moss_stone_wyrmling/move_v3"
 RAW_SHEET = VERSION_ROOT / "raw/output_001.png"
 GROUND_SOURCE = VERSION_ROOT / "source/moss_stone_wyrmling_grounded_keyframe_128_v1.png"
 AIR_SOURCE = VERSION_ROOT / "source/moss_stone_wyrmling_airborne_keyframe_128_v1.png"

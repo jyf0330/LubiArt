@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "status": "integrated_and_verified",
+  "component": "component_pet_info_hover",
+  "source": {
+    "originalFileName": "信息栏2.psd",
+    "derivedGodotPsd": "res://art/images/shared/pets/info_panel/source_psd/component_pet_info_hover_godot_v1.psd",
+    "originalModified": false,
+    "discardedHiddenSourceLeafCount": 17,
+    "hiddenSourcePolicy": "IGNORE_AND_REMOVE"
+  },
+  "canvas": {
+    "componentWidth": 360,
+    "componentHeight": 460,
+    "baselineViewportWidth": 1920,
+    "baselineViewportHeight": 1080
+  },
+  "previews": {
+    "artOnly": "res://art/images/shared/pets/info_panel/source_psd/component_pet_info_hover_godot_v1_preview.png",
+    "dynamicLayoutProposal": "res://art/images/shared/pets/info_panel/source_psd/component_pet_info_hover_godot_v1_dynamic_layout_preview.png",
+    "viewportPlacementProposal": "res://art/images/shared/pets/info_panel/source_psd/component_pet_info_hover_godot_v1_1920x1080_preview.png"
+  },
+  "layerMappings": [
+    {
+      "sourceLayer": "merge_panel_base",
+      "classification": "MERGE_TEXTURE",
+      "export": "panel_base.png",
+      "target": "SpriteInfoCard/BaseArt",
+      "rect": {"x": 0, "y": 1, "width": 360, "height": 459}
+    },
+    {
+      "sourceLayer": "merge_stat_icons_static",
+      "classification": "MERGE_TEXTURE",
+      "export": "stat_icons_static.png",
+      "target": "SpriteInfoCard/StatSlotArt",
+      "rect": {"x": 26, "y": 377, "width": 259, "height": 72}
+    },
+    {
+      "sourceLayer": "attack_format_art/merge_attack_grid",
+      "classification": "MERGE_TEXTURE",
+      "export": "attack_grid.png",
+      "target": "SpriteInfoCard/AttackFormatPlate",
+      "rect": {"x": 28, "y": 105, "width": 303, "height": 98}
+    },
+    {
+      "sourceLayer": "attack_format_art/state_attack_target_marker",
+      "classification": "STATE_RESOURCE",
+      "export": "attack_target_marker.png",
+      "target": "SpriteInfoCard/AttackFormatPlate/AttackOverlay runtime leaf",
+      "rect": {"x": 202, "y": 139, "width": 42, "height": 31}
+    },
+    {
+      "sourceLayer": "attack_format_art/slot_attack_target_repeat",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "attack target placement reference",
+      "rect": {"x": 245, "y": 139, "width": 42, "height": 31}
+    },
+    {
+      "sourceLayer": "attack_format_art/slot_attack_origin",
+      "classification": "STATE_RESOURCE",
+      "export": "attack_origin_marker.png",
+      "target": "SpriteInfoCard/AttackFormatPlate/AttackOverlay origin portrait leaf",
+      "rect": {"x": 162, "y": 137, "width": 34, "height": 34},
+      "note": "Exported as the fallback origin marker; runtime portrait data may replace it."
+    },
+    {
+      "sourceLayer": "txt_pet_name",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "SpriteInfoCard/PetName",
+      "rect": {"x": 109, "y": 24, "width": 140, "height": 45}
+    },
+    {
+      "sourceLayer": "state_element_icon/state_element_icon_current/state_element_dark",
+      "classification": "STATE_RESOURCE",
+      "export": "element_dark_visible.png",
+      "target": "SpriteInfoCard/ElementArt",
+      "rect": {"x": 286, "y": 18, "width": 44, "height": 56},
+      "note": "All hidden element variants were discarded by user direction. The visible crescent is retained as fixed decoration."
+    },
+    {
+      "sourceLayer": "state_trait_lock_silver",
+      "classification": "STATE_RESOURCE",
+      "export": "trait_lock_silver.png",
+      "target": "SpriteInfoCard/TraitLockSilver",
+      "rect": {"x": 99, "y": 305, "width": 50, "height": 50}
+    },
+    {
+      "sourceLayer": "state_trait_lock_gold",
+      "classification": "STATE_RESOURCE",
+      "export": "trait_lock_gold.png",
+      "target": "SpriteInfoCard/TraitLockGold",
+      "rect": {"x": 155, "y": 305, "width": 50, "height": 50}
+    },
+    {
+      "sourceLayer": "state_trait_lock_crystal",
+      "classification": "STATE_RESOURCE",
+      "export": "trait_lock_crystal.png",
+      "target": "SpriteInfoCard/TraitLockCrystal",
+      "rect": {"x": 211, "y": 305, "width": 50, "height": 50}
+    },
+    {
+      "sourceLayer": "dynamic_field_guides_do_not_export/txt_hp_value",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "SpriteInfoCard/StatsUI/HpValue",
+      "rect": {"x": 58, "y": 377, "width": 51, "height": 31}
+    },
+    {
+      "sourceLayer": "dynamic_field_guides_do_not_export/txt_ap_value",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "SpriteInfoCard/StatsUI/ApValue",
+      "rect": {"x": 58, "y": 411, "width": 51, "height": 38}
+    },
+    {
+      "sourceLayer": "dynamic_field_guides_do_not_export/txt_attack_value",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "SpriteInfoCard/StatsUI/AttackValue",
+      "rect": {"x": 174, "y": 377, "width": 51, "height": 33}
+    },
+    {
+      "sourceLayer": "dynamic_field_guides_do_not_export/txt_defense_value",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "SpriteInfoCard/StatsUI/DefenseValue",
+      "rect": {"x": 174, "y": 413, "width": 51, "height": 36}
+    },
+    {
+      "sourceLayer": "dynamic_field_guides_do_not_export/txt_regen_value",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "SpriteInfoCard/StatsUI/RegenValue",
+      "rect": {"x": 289, "y": 377, "width": 51, "height": 31}
+    },
+    {
+      "sourceLayer": "dynamic_field_guides_do_not_export/txt_shield_value",
+      "classification": "DYNAMIC_FIELD",
+      "export": null,
+      "target": "SpriteInfoCard/StatsUI/ShieldValue",
+      "rect": {"x": 289, "y": 411, "width": 51, "height": 38}
+    }
+  ],
+  "proposedRuntimeBehavior": {
+    "show": "pointer enters the visible pet art, not merely its board cell",
+    "hide": "pointer leaves the visible pet art or drag begins",
+    "placement": "24 px from the pointer, clamped inside the 1920x1080 viewport",
+    "backdrop": "no fullscreen dim layer",
+    "data": "existing public Snapshot fields only",
+    "nodeStructureChange": false,
+    "reuseExistingPrefab": "res://art/prefabs/pet/sprite_info_card.tscn"
+  },
+  "resolvedDecisions": [
+    "The six numeric fields use the confirmed dynamic layout rectangles.",
+    "The visible crescent is fixed decoration.",
+    "Unlocked trait icon behavior is retained while the three lock textures use the PSD art.",
+    "The existing prefab node structure is reused without adding, deleting, renaming, moving, or reparenting nodes.",
+    "All hidden source art layers are discarded."
+  ],
+  "verification": {
+    "godotImport": "pass",
+    "prefabContract": "pass",
+    "hoverInteraction": "pass",
+    "visibleBattleCapture": "res://output/pet_hover_integration_v1/operation_04_pet_detail_open.png",
+    "dragDismissCapture": "res://output/pet_hover_integration_v1/operation_05_pet_drag_preview.png"
+  }
+}

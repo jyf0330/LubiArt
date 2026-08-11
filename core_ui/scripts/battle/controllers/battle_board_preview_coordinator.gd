@@ -19,6 +19,7 @@ var _drag_damage_preview_unit_ids: Array[String] = []
 var _direction_hover_highlight_keys: Array[String] = []
 var _selected_action_range_keys: Array[String] = []
 var _enemy_damage_preview_sync_epoch_msec := -1
+var _preserve_settled_enemy_damage_previews := false
 
 
 func configure(board: Control, presenter: RefCounted) -> void:
@@ -34,7 +35,7 @@ func render_snapshot(snapshot: Dictionary) -> void:
 	_last_snapshot = snapshot.duplicate(true)
 	_clear_all_cell_highlights()
 	_apply_selected_action_block_ranges()
-	sync_enemy_damage_previews()
+	sync_enemy_damage_previews(_preserve_settled_enemy_damage_previews)
 
 
 func show_direction_preview(unit_id: String, direction: String) -> void:
@@ -49,6 +50,7 @@ func begin_drag(unit_id: String, origin: Vector2i, preview: Control) -> void:
 	_drag_origin = origin
 	_drag_preview = preview
 	_drag_preview_target = Vector2i(-1, -1)
+	_preserve_settled_enemy_damage_previews = false
 	_stop_enemy_damage_previews()
 
 
@@ -58,6 +60,7 @@ func update_drag(target: Vector2i, force: bool = false) -> void:
 
 func finish_drag(release_damage_previews: bool = false) -> void:
 	if release_damage_previews:
+		_preserve_settled_enemy_damage_previews = true
 		_release_drag_damage_previews()
 	_clear_drag_attack_preview(not release_damage_previews)
 	_drag_unit_id = ""
@@ -67,6 +70,7 @@ func finish_drag(release_damage_previews: bool = false) -> void:
 
 
 func clear_transient_state() -> void:
+	_preserve_settled_enemy_damage_previews = false
 	finish_drag(false)
 	_clear_direction_hover_preview()
 	_stop_enemy_damage_previews()
@@ -103,8 +107,12 @@ func sync_enemy_damage_previews(preserve_active_enemy_previews: bool = false) ->
 		if unit == null or not unit.has_method("start_damage_preview"):
 			continue
 		var cell_data := _cell_data_for_cell(cell)
-		var preview := _incoming_player_damage_preview(cell_data) \
-			if _cell_data_is_friendly(cell_data) else _enemy_damage_preview(cell_data)
+		# placement_damage_by_unit is an aggregate target preview keyed by unit ID.
+		# It may contain either friendly or enemy targets, so always prefer it
+		# before falling back to the selected actor's per-target preview.
+		var preview := _incoming_player_damage_preview(cell_data)
+		if not _damage_preview_is_complete(preview) and not _cell_data_is_friendly(cell_data):
+			preview = _enemy_damage_preview(cell_data)
 		if not _damage_preview_is_complete(preview):
 			if preserve_active_enemy_previews and not _cell_data_is_friendly(cell_data) \
 					and unit.has_method("get_damage_preview_snapshot") \
@@ -114,11 +122,12 @@ func sync_enemy_damage_previews(preserve_active_enemy_previews: bool = false) ->
 				continue
 			unit.call("stop_damage_preview")
 			continue
-		var current_hp := int(cell_data.get("hp", 0))
-		var projected_hp := _preview_int(preview, ["predictedHpTo", "predicted_hp_to", "hpTo", "hp_to"])
-		var current_shield := int(cell_data.get("shield", 0))
-		var projected_shield := _preview_int(preview, ["predictedShieldTo", "predicted_shield_to", "shieldTo", "shield_to"])
-		var predicted_damage := _preview_int(preview, ["predictedDamage", "predicted_damage", "totalDamage", "total_damage", "damage", "threat"])
+		var resolved := _resolved_damage_preview_values(cell_data, preview)
+		var current_hp := int(resolved.get("current_hp", 0))
+		var projected_hp := int(resolved.get("projected_hp", current_hp))
+		var current_shield := int(resolved.get("current_shield", 0))
+		var projected_shield := int(resolved.get("projected_shield", current_shield))
+		var predicted_damage := int(resolved.get("predicted_damage", 0))
 		active_preview_count += 1
 		unit.call(
 			"start_damage_preview",
@@ -230,16 +239,17 @@ func _refresh_drag_incoming_damage_preview(target: Vector2i) -> void:
 		if _drag_preview.has_method("stop_damage_preview"):
 			_drag_preview.call("stop_damage_preview")
 		return
-	var current_hp := int(cell_data.get("hp", 0))
-	var current_shield := int(cell_data.get("shield", 0))
+	var resolved := _resolved_damage_preview_values(cell_data, preview)
+	var current_hp := int(resolved.get("current_hp", 0))
+	var current_shield := int(resolved.get("current_shield", 0))
 	_drag_preview.call(
 		"start_damage_preview",
 		current_hp,
-		_preview_int(preview, ["predictedHpTo", "predicted_hp_to", "hpTo", "hp_to"]),
+		int(resolved.get("projected_hp", current_hp)),
 		-1,
-		_preview_int(preview, ["predictedDamage", "predicted_damage", "totalDamage", "total_damage", "damage", "threat"]),
+		int(resolved.get("predicted_damage", 0)),
 		current_shield,
-		_preview_int(preview, ["predictedShieldTo", "predicted_shield_to", "shieldTo", "shield_to"]),
+		int(resolved.get("projected_shield", current_shield)),
 		int(cell_data.get("max_hp", cell_data.get("maxHp", current_hp))),
 		true
 	)
@@ -353,8 +363,8 @@ func _clear_drag_damage_previews() -> void:
 func _release_drag_damage_previews() -> void:
 	for unit_id in _drag_damage_preview_unit_ids:
 		var unit := _rendered_unit_node(unit_id)
-		if unit != null and unit.has_method("release_damage_preview"):
-			unit.call("release_damage_preview", 1.0)
+		if unit != null and unit.has_method("pin_damage_preview"):
+			unit.call("pin_damage_preview")
 	_drag_damage_preview_unit_ids.clear()
 
 
@@ -496,6 +506,51 @@ func _preview_int(preview: Dictionary, keys: Array) -> int:
 		if preview.has(key):
 			return int(preview[key])
 	return 0
+
+
+func _resolved_damage_preview_values(cell_data: Dictionary, preview: Dictionary) -> Dictionary:
+	var current_hp := maxi(0, int(cell_data.get("hp", 0)))
+	var current_shield := maxi(0, int(cell_data.get("shield", 0)))
+	var projected_hp := clampi(
+		_preview_int(preview, ["predictedHpTo", "predicted_hp_to", "hpTo", "hp_to"]),
+		0,
+		current_hp
+	)
+	var projected_shield := clampi(
+		_preview_int(preview, ["predictedShieldTo", "predicted_shield_to", "shieldTo", "shield_to"]),
+		0,
+		current_shield
+	)
+	var predicted_damage := maxi(0, _preview_int(
+		preview,
+		["predictedDamage", "predicted_damage", "totalDamage", "total_damage", "damage", "threat"]
+	))
+	var visible_loss := current_hp + current_shield - projected_hp - projected_shield
+	# Some captured preview records contain a valid public damage result but stale
+	# hpTo/shieldTo values equal to the current stats. Recover only that missing
+	# presentation delta from the captured damage components; this does not
+	# calculate combat damage or change the Snapshot.
+	if predicted_damage > 0 and visible_loss <= 0:
+		var shield_damage := maxi(0, _preview_int(
+			preview,
+			["predictedShieldDamage", "predicted_shield_damage", "shieldDamage", "shield_damage"]
+		))
+		var hp_damage := maxi(0, _preview_int(
+			preview,
+			["predictedHpDamage", "predicted_hp_damage", "hpDamage", "hp_damage"]
+		))
+		if shield_damage + hp_damage <= 0:
+			shield_damage = mini(current_shield, predicted_damage)
+			hp_damage = maxi(0, predicted_damage - shield_damage)
+		projected_shield = maxi(0, current_shield - shield_damage)
+		projected_hp = maxi(0, current_hp - hp_damage)
+	return {
+		"current_hp": current_hp,
+		"projected_hp": projected_hp,
+		"current_shield": current_shield,
+		"projected_shield": projected_shield,
+		"predicted_damage": predicted_damage,
+	}
 
 
 func _presentation_cells() -> Array:

@@ -11,6 +11,14 @@ const CASES := [
 	{"path": "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png"},
 	{"path": "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png"},
 	{"path": "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png"},
+	{"path": "res://art/images/shared/pets/animations/spr_057_frost_fox/anim_001_idle/frames/frame_001.png"},
+]
+
+const HERO_CASES := [
+	{"path": "res://art/images/battle/runtime/hero_images/hero_wukong.png"},
+	{"path": "res://art/images/battle/runtime/hero_images/hero_tang_monk.png"},
+	{"path": "res://art/images/battle/runtime/hero_images/hero_rabbit.png"},
+	{"path": "res://art/images/battle/runtime/hero_images/hero_spider.png"},
 ]
 
 
@@ -51,5 +59,31 @@ func _run() -> void:
 		assert(int(pet.call("get_battle_removed_bottom_pixels")) == 0)
 		pet.queue_free()
 		await process_frame
-	print("PET_GROUNDING_SMOKE_PASS sprites=%d" % CASES.size())
+	for test_case in HERO_CASES:
+		var hero := BattleUnitScene.instantiate() as Control
+		hero.size = Vector2(150.0, 132.0)
+		host.add_child(hero)
+		await process_frame
+		hero.call("set_unit_data", {"unitId": "hero_grounding_test", "hp": 10, "atk": 2}, "hero_leader", null)
+		var hero_art := hero.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/CreatureArt") as TextureRect
+		hero_art.texture = load(String(test_case["path"])) as Texture2D
+		hero.call("_layout_children")
+		await process_frame
+		hero.call("_layout_children")
+		var hero_visible_rect := Rect2(hero.call("get_battle_sprite_visible_rect"))
+		var hero_footline_y := hero.size.y - float(hero.call("get_battle_footline_bottom_inset"))
+		assert(is_equal_approx(hero_visible_rect.end.y, hero_footline_y))
+		assert(hero_visible_rect.size.y > hero.size.y * 1.14)
+		assert(
+			absf(hero_visible_rect.get_center().x - hero.size.x * 0.5) <= 0.01,
+			"hero visual center drifted: %s rect=%s" % [test_case["path"], hero_visible_rect]
+		)
+		assert(
+			hero_visible_rect.position.x >= -hero.size.x * 0.08
+				and hero_visible_rect.end.x <= hero.size.x * 1.08,
+			"hero horizontal overhang exceeded 8%%: %s rect=%s" % [test_case["path"], hero_visible_rect]
+		)
+		hero.queue_free()
+		await process_frame
+	print("PET_GROUNDING_SMOKE_PASS sprites=%d heroes=%d" % [CASES.size(), HERO_CASES.size()])
 	quit(0)

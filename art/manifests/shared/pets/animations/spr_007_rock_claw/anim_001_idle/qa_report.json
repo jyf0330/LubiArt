@@ -1,0 +1,204 @@
+{
+  "sprite_id": "SPR_007",
+  "sprite_name": "Rock Claw",
+  "animation_id": "ANIM_SPR_007_IDLE_001",
+  "animation_name": "Rock Claw Idle 001",
+  "source_overview": "overview_121_frames_dark.png",
+  "source_grid": {
+    "columns": 11,
+    "rows": 11,
+    "frame_count": 121
+  },
+  "selected_source_frames_1_based": [
+    1,
+    9,
+    16,
+    24,
+    31,
+    39,
+    46,
+    54,
+    61,
+    69,
+    77,
+    84,
+    92,
+    99,
+    107,
+    114
+  ],
+  "output_frame_count": 16,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_duration_ms": 150,
+  "loop_duration_ms": 2400,
+  "alpha_bboxes": [
+    [
+      2,
+      29,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      29,
+      126,
+      109
+    ],
+    [
+      2,
+      29,
+      126,
+      109
+    ],
+    [
+      2,
+      29,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ],
+    [
+      2,
+      28,
+      126,
+      109
+    ]
+  ],
+  "anchor_summary": {
+    "bottom_min": 109,
+    "bottom_max": 109,
+    "center_x_min": 64.0,
+    "center_x_max": 64.0
+  },
+  "gif_verification": {
+    "decoded_frame_count": 16,
+    "durations_ms": [
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150
+    ],
+    "all_frames_exact_rgba_match": true,
+    "per_frame_exact_rgba_match": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "max_channel_difference": 0
+  },
+  "outputs": {
+    "overview": "anim_spr_007_idle_001_overview.png",
+    "gif": "anim_spr_007_idle_001.gif",
+    "frames": [
+      "frames/frame_001.png",
+      "frames/frame_002.png",
+      "frames/frame_003.png",
+      "frames/frame_004.png",
+      "frames/frame_005.png",
+      "frames/frame_006.png",
+      "frames/frame_007.png",
+      "frames/frame_008.png",
+      "frames/frame_009.png",
+      "frames/frame_010.png",
+      "frames/frame_011.png",
+      "frames/frame_012.png",
+      "frames/frame_013.png",
+      "frames/frame_014.png",
+      "frames/frame_015.png",
+      "frames/frame_016.png"
+    ]
+  }
+}

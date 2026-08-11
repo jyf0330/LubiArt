@@ -12,7 +12,7 @@ if spec is None or spec.loader is None:
 processor = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(processor)
 
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/tide_crow"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/tide_crow"
 VERSION_ROOT = ANIMATION_ROOT / "move_v2"
 
 processor.ANIMATION_ROOT = ANIMATION_ROOT
@@ -28,12 +28,12 @@ processor.ZOOM_OVERVIEW_PATH = ROOT / "output/tide_crow_move_frames_4x_v2.png"
 processor.GIF_PATH = ROOT / "output/tide_crow_move_preview_v2.gif"
 processor.SLOW_GIF_PATH = ROOT / "output/tide_crow_move_preview_slow_v2.gif"
 processor.QA_REPORT_PATH = (
-    ROOT / "art/manifests/shared/pets/animations/tide_crow/move_v2/qa_report.json"
+    ROOT / "output/sprite_animation_candidates/_manifests/tide_crow/move_v2/qa_report.json"
 )
 processor.SUBMISSION_PATH = (
-    ROOT / "art/manifests/shared/pets/animations/tide_crow/move_v2/submission.json"
+    ROOT / "output/sprite_animation_candidates/_manifests/tide_crow/move_v2/submission.json"
 )
-processor.JOB_PATH = ROOT / "art/manifests/shared/pets/animations/tide_crow/move_v2/job.json"
+processor.JOB_PATH = ROOT / "output/sprite_animation_candidates/_manifests/tide_crow/move_v2/job.json"
 
 
 if __name__ == "__main__":

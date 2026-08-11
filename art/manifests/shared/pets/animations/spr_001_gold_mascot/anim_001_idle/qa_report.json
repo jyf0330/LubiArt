@@ -1,0 +1,239 @@
+{
+  "version": 1,
+  "asset_id": "ANIM_SPR_001_IDLE_001",
+  "asset_name": "Mischief Cat Idle 001",
+  "source": "user_supplied_rika_sheet",
+  "source_file_name": "rika_660b791a.png",
+  "source_sha256": "cee72f5ef87c073de5bee1e4168929e7e9a6831966b3eceaa18a0fddd29410ce",
+  "sheet": {
+    "rows": 4,
+    "cols": 4,
+    "size": [
+      512,
+      512
+    ]
+  },
+  "frame_count": 16,
+  "frame_size": [
+    128,
+    128
+  ],
+  "frame_duration_ms": 120,
+  "alpha_values": [
+    0,
+    255
+  ],
+  "alpha_bounding_boxes": [
+    [
+      10,
+      6,
+      118,
+      121
+    ],
+    [
+      10,
+      7,
+      118,
+      121
+    ],
+    [
+      10,
+      8,
+      118,
+      121
+    ],
+    [
+      9,
+      8,
+      118,
+      121
+    ],
+    [
+      7,
+      6,
+      118,
+      121
+    ],
+    [
+      7,
+      6,
+      118,
+      121
+    ],
+    [
+      9,
+      8,
+      118,
+      121
+    ],
+    [
+      10,
+      7,
+      118,
+      121
+    ],
+    [
+      10,
+      6,
+      118,
+      121
+    ],
+    [
+      10,
+      6,
+      118,
+      121
+    ],
+    [
+      10,
+      8,
+      118,
+      121
+    ],
+    [
+      9,
+      7,
+      118,
+      121
+    ],
+    [
+      8,
+      6,
+      118,
+      121
+    ],
+    [
+      8,
+      8,
+      118,
+      121
+    ],
+    [
+      9,
+      8,
+      118,
+      121
+    ],
+    [
+      10,
+      6,
+      118,
+      121
+    ]
+  ],
+  "body_center_x_range": [
+    62.5,
+    64.0
+  ],
+  "footline_bottom_range": [
+    121,
+    121
+  ],
+  "edge_touch_frames": [],
+  "palette_color_count_including_transparency": 101,
+  "gif": {
+    "path": "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/anim_spr_001_idle_001.gif",
+    "durations_ms": [
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120,
+      120
+    ],
+    "disposal": 2,
+    "decoded_pixel_and_alpha_match": true
+  },
+  "slow_gif": {
+    "path": "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/anim_spr_001_idle_001_slow.gif",
+    "durations_ms": [
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360,
+      360
+    ],
+    "disposal": 2,
+    "decoded_pixel_and_alpha_match": true
+  },
+  "delivery_frames": [
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_001.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_002.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_003.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_004.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_005.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_006.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_007.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_008.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_009.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_010.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_011.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_012.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_013.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_014.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_015.png",
+    "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/frames/frame_016.png"
+  ],
+  "delivery_sheet": "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/anim_spr_001_idle_001_sheet.png",
+  "delivery_overview": "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle/anim_spr_001_idle_001_overview.png",
+  "qa_overview_4x": "output/sprite_animation_intake/spr_001_gold_mascot/anim_001_idle_mischief_cat/anim_spr_001_idle_001_overview_4x.png",
+  "qa_edge_check": "output/sprite_animation_intake/spr_001_gold_mascot/anim_001_idle_mischief_cat/anim_spr_001_idle_001_edge_check.png",
+  "skill_processor": {
+    "pipeline_meta": "output/sprite_animation_intake/spr_001_gold_mascot/anim_001_idle_mischief_cat/processor_qc/pipeline-meta.json",
+    "empty_frames": [],
+    "source_edge_touch_frames": [],
+    "output_edge_touch_frames": [],
+    "paste_clamped_frames": [],
+    "qc_summary": {
+      "frame_count": 16,
+      "valid_frame_count": 16,
+      "empty_count": 0,
+      "edge_touch_count": 0,
+      "paste_clamped_count": 0,
+      "body_scale_mean": 0.6322150306043518,
+      "output_subject_height_mean": 110.6875,
+      "body_scale_cv": 0.004749486831726184,
+      "anchor_x_std": 0.0,
+      "anchor_y_std": 0.0,
+      "anchor_y_mean": 0.9333333333333333
+    }
+  },
+  "runtime_captures": [
+    "output/visible_gold_mascot_idle_battle/idle_battle_01.png",
+    "output/visible_gold_mascot_idle_battle/idle_battle_02.png",
+    "output/visible_gold_mascot_idle_battle/idle_battle_03.png",
+    "output/visible_gold_mascot_idle_battle/idle_battle_04.png"
+  ],
+  "runtime_contact_sheet": "output/visible_gold_mascot_idle_battle/idle_battle_contact_2x.png",
+  "runtime_crop_4x": "output/visible_gold_mascot_idle_battle/idle_battle_01_cat_crop_4x.png",
+  "technical_qa_status": "PASS",
+  "visual_qa_status": "PASS",
+  "visual_qa_notes": [
+    "All 16 frames preserve the same Mischief Cat identity, pose family, palette and hard pixel outline.",
+    "Transparent edges are clean on light, dark and patterned backgrounds with no green fringe or detached noise.",
+    "At 1920x1080 in the real battle scene, the sprite scale is coordinated with the occupied board cell and the reference unit.",
+    "The visual center remains inside the intended cell and the authored ground shadow stays attached directly beneath the front paws.",
+    "No frame obscures board controls or leaves the expected unit presentation area."
+  ]
+}

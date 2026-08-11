@@ -4,15 +4,15 @@ extends Control
 ## emits semantic command requests; Game remains the only Session owner.
 
 signal command_requested(command: Dictionary)
+signal health_bar_tier_requested(tier: String)
 
 const BattleHudControllerScript := preload("res://core_ui/scripts/battle/controllers/battle_hud_controller.gd")
 const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
 const GameLogScript := preload("res://core/logging/game_log.gd")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 
-@onready var auto_arrange_button: TextureButton = $BattlePrimaryActions/AutoArrangeButton
 @onready var position_difficulty_button: Button = $BattleActionPanel/Margin/Content/PositionDifficultyButton
-@onready var begin_turn_button: TextureButton = $BattlePrimaryActions/BeginTurnButton
+@onready var health_bar_tier_button: Button = $BattleActionPanel/Margin/Content/HealthBarTierButton
 @onready var action_panel: Control = $BattleActionPanel
 @onready var debug_drawer_toggle_button: Button = $DebugDrawerToggleButton
 @onready var attack_timeline_layer: CanvasLayer = $AttackTimelineLayer
@@ -23,6 +23,8 @@ const DEBUG_DRAWER_COLLAPSED_PANEL_POSITION := Vector2(-462.0, 150.0)
 const DEBUG_DRAWER_EXPANDED_TOGGLE_POSITION := Vector2(480.0, 174.0)
 const DEBUG_DRAWER_COLLAPSED_TOGGLE_POSITION := Vector2(0.0, 174.0)
 const DEBUG_DRAWER_TWEEN_DURATION := 0.18
+const HEALTH_BAR_TIER_IDS := ["bronze", "silver", "gold", "diamond"]
+const HEALTH_BAR_TIER_LABELS := ["青铜", "白银", "黄金", "钻石"]
 
 var _snapshot: Dictionary = {}
 var _input_locked := false
@@ -31,18 +33,18 @@ var _auto_position_feedback_visible := false
 var _pending_state_version := -1
 var _pending_command_log_size := -1
 var _position_feedback_serial := 0
-var _debug_drawer_collapsed := false
+var _debug_drawer_collapsed := true
 var _debug_drawer_tween: Tween = null
 var _attack_timeline_obscured := false
+var _health_bar_tier_index := 0
 var _hud_controller: RefCounted = BattleHudControllerScript.new()
 var _command_builder: RefCounted = BattleCommandBuilderScript.new()
 
 
 func _ready() -> void:
 	RuntimeUiPolicy.install()
-	auto_arrange_button.pressed.connect(_on_auto_arrange_pressed)
 	position_difficulty_button.toggled.connect(_on_position_difficulty_toggled)
-	begin_turn_button.pressed.connect(_on_begin_turn_pressed)
+	health_bar_tier_button.pressed.connect(_on_health_bar_tier_button_pressed)
 	debug_drawer_toggle_button.pressed.connect(_on_debug_drawer_toggle_pressed)
 	if action_panel.has_signal("command_requested"):
 		action_panel.connect("command_requested", Callable(self, "_on_child_command_requested"))
@@ -54,6 +56,7 @@ func _ready() -> void:
 	visibility_changed.connect(_sync_attack_timeline_layer_visibility)
 	_sync_attack_timeline_layer_visibility()
 	_apply_position_difficulty_label("normal")
+	_refresh_health_bar_tier_button()
 	_refresh_debug_drawer_toggle()
 	_apply_command_availability()
 
@@ -136,9 +139,6 @@ func _on_auto_arrange_pressed() -> void:
 	_pending_command_log_size = _snapshot_command_log(_snapshot).size()
 	_position_feedback_serial += 1
 	position_difficulty_button.text = RuntimeUiPolicy.text("UI_POSITION_CALCULATING")
-	auto_arrange_button.modulate = Color("#fff0ad")
-	var pulse := create_tween()
-	pulse.tween_property(auto_arrange_button, "modulate", Color.WHITE, 0.35)
 	_apply_command_availability()
 	GameLogScript.info("表现/自动布置", "玩家点击自动布置，界面进入计算状态", {
 		"难度": String(_snapshot.get("difficulty", "normal")),
@@ -255,6 +255,23 @@ func _on_debug_drawer_toggle_pressed() -> void:
 	_set_debug_drawer_collapsed(not _debug_drawer_collapsed)
 
 
+func _on_health_bar_tier_button_pressed() -> void:
+	_health_bar_tier_index = (_health_bar_tier_index + 1) % HEALTH_BAR_TIER_IDS.size()
+	_refresh_health_bar_tier_button()
+	health_bar_tier_requested.emit(String(HEALTH_BAR_TIER_IDS[_health_bar_tier_index]))
+
+
+func _refresh_health_bar_tier_button() -> void:
+	if health_bar_tier_button == null:
+		return
+	health_bar_tier_button.text = "调试血条：%s" % String(
+		HEALTH_BAR_TIER_LABELS[_health_bar_tier_index]
+	)
+	health_bar_tier_button.tooltip_text = "点击切换全部单位血条到下一等级：%s" % String(
+		HEALTH_BAR_TIER_LABELS[(_health_bar_tier_index + 1) % HEALTH_BAR_TIER_LABELS.size()]
+	)
+
+
 func _set_debug_drawer_collapsed(collapsed: bool, animate: bool = true) -> void:
 	_debug_drawer_collapsed = collapsed
 	if _debug_drawer_tween != null and _debug_drawer_tween.is_valid():
@@ -333,13 +350,14 @@ func _apply_command_availability() -> void:
 	if not is_node_ready():
 		return
 	var phase_is_battle := _phase_is_battle()
-	auto_arrange_button.disabled = (
-		_input_locked or _auto_position_feedback_pending or not phase_is_battle
-	)
 	position_difficulty_button.disabled = (
 		_input_locked or _auto_position_feedback_pending or not phase_is_battle
 	)
-	begin_turn_button.disabled = _input_locked or not phase_is_battle
+	health_bar_tier_button.disabled = not phase_is_battle
+
+
+func debug_health_bar_tier() -> String:
+	return String(HEALTH_BAR_TIER_IDS[_health_bar_tier_index])
 
 
 func _snapshot_state_version(snapshot: Dictionary) -> int:

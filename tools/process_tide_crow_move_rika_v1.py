@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL_PROCESSOR = (
     Path.home() / ".codex/skills/generate2dsprite/scripts/generate2dsprite.py"
 )
-ANIMATION_ROOT = ROOT / "art/images/shared/pets/animations/tide_crow"
+ANIMATION_ROOT = ROOT / "output/sprite_animation_candidates/tide_crow"
 VERSION_ROOT = ANIMATION_ROOT / "move_v1"
 RAW_SHEET_PATH = VERSION_ROOT / "raw/output_001.png"
 PROMPT_PATH = VERSION_ROOT / "source/prompt-used.txt"
@@ -29,12 +29,12 @@ ZOOM_OVERVIEW_PATH = ROOT / "output/tide_crow_move_frames_4x_v1.png"
 GIF_PATH = ROOT / "output/tide_crow_move_preview_v1.gif"
 SLOW_GIF_PATH = ROOT / "output/tide_crow_move_preview_slow_v1.gif"
 QA_REPORT_PATH = (
-    ROOT / "art/manifests/shared/pets/animations/tide_crow/move_v1/qa_report.json"
+    ROOT / "output/sprite_animation_candidates/_manifests/tide_crow/move_v1/qa_report.json"
 )
 SUBMISSION_PATH = (
-    ROOT / "art/manifests/shared/pets/animations/tide_crow/move_v1/submission.json"
+    ROOT / "output/sprite_animation_candidates/_manifests/tide_crow/move_v1/submission.json"
 )
-JOB_PATH = ROOT / "art/manifests/shared/pets/animations/tide_crow/move_v1/job.json"
+JOB_PATH = ROOT / "output/sprite_animation_candidates/_manifests/tide_crow/move_v1/job.json"
 
 FRAME_SIZE = (128, 128)
 GRID_SIZE = (4, 4)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "LubiArt Godot UI Art"
+  short_description: "LubiArt 全任务知识闭环、美术接入与 Godot 验收"
+  default_prompt: "使用 $lubiart-godot-ui-art：开场读取项目标准和历史汇总，按最新确认完成本次任务，并在最终答复前把本轮结论回写到 Skill。"

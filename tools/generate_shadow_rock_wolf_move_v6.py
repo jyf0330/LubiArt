@@ -6,15 +6,15 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = (
     ROOT
-    / "art/images/shared/pets/animations/shadow_rock_wolf/preview_v2/move"
+    / "output/sprite_animation_candidates/shadow_rock_wolf/preview_v2/move"
 )
 OUTPUT_DIR = (
     ROOT
-    / "art/images/shared/pets/animations/shadow_rock_wolf/preview_v6/move"
+    / "output/sprite_animation_candidates/shadow_rock_wolf/preview_v6/move"
 )
 STRIP_PATH = (
     ROOT
-    / "art/images/shared/pets/animations/shadow_rock_wolf/"
+    / "output/sprite_animation_candidates/shadow_rock_wolf/"
     "shadow_rock_wolf_move_preview_v6.png"
 )
 GIF_PATH = ROOT / "output/shadow_rock_wolf_frame_move_preview_v6.gif"

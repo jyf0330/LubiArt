@@ -18,10 +18,10 @@ if spec is None or spec.loader is None:
 parent = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(parent)
 
-PARENT_ROOT = ROOT / "art/images/shared/pets/animations/xufeng_tina/flight_v1"
-PARENT_MANIFEST_ROOT = ROOT / "art/manifests/shared/pets/animations/xufeng_tina/flight_v1"
-VERSION_ROOT = ROOT / "art/images/shared/pets/animations/xufeng_tina/flight_v2"
-MANIFEST_ROOT = ROOT / "art/manifests/shared/pets/animations/xufeng_tina/flight_v2"
+PARENT_ROOT = ROOT / "output/sprite_animation_candidates/xufeng_tina/flight_v1"
+PARENT_MANIFEST_ROOT = ROOT / "output/sprite_animation_candidates/_manifests/xufeng_tina/flight_v1"
+VERSION_ROOT = ROOT / "output/sprite_animation_candidates/xufeng_tina/flight_v2"
+MANIFEST_ROOT = ROOT / "output/sprite_animation_candidates/_manifests/xufeng_tina/flight_v2"
 SOURCE_DIR = VERSION_ROOT / "source"
 FRAME_DIR = VERSION_ROOT / "frames"
 ZOOM_FRAME_DIR = VERSION_ROOT / "frames_4x"

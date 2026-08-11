@@ -15,6 +15,8 @@ mirror_directories=(
 required_files=(
   "project.godot"
   "docs/SCENE_ROUTING_STANDARD.md"
+  "art/manifests/shared/pets/animations/approved_sprite_animation_manifest.json"
+  "tools/check_approved_sprite_animations.py"
   "art/scenes/app/game.tscn"
   "art/scenes/three_choice/three_choice_scene.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
@@ -157,6 +159,8 @@ if find "$MOCK_ROOT/core_ui" -type f ! -path "$MOCK_ROOT/core_ui/scripts/*" ! -n
   printf '%s\n' "UI implementation files must be placed under core_ui/scripts." >&2
   exit 1
 fi
+
+python "$MOCK_ROOT/tools/check_approved_sprite_animations.py"
 
 printf '%s\n' "MOCK_UI_STANDALONE_STRUCTURE_PASS"
 

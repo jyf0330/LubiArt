@@ -41,24 +41,38 @@ func _run() -> void:
 		_fail("manual drag preview was unavailable")
 		return
 	var held_badge := held_preview.get_node(
-		"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"
+		"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"
 	) as Control
 	var held_value := held_badge.get_node("Value") as Label
-	if not held_badge.visible or held_value.text == "":
-		_fail("incoming-damage badge was not visible over the manual drag target")
+	var held_state := Dictionary(held_preview.call("get_damage_preview_snapshot"))
+	if not held_badge.visible or not bool(held_state.get("embedded_in_health_bar", false)) \
+			or held_value.text != "":
+		_fail("embedded incoming-damage bar was not visible over the manual drag target")
 		return
 	probe.finish_drag(target_grid)
-	await create_timer(0.25).timeout
+	await create_timer(1.4).timeout
 	preview_pet = _pet_by_unit_id(battle_view, preview_unit_id)
 	if preview_pet == null:
 		_fail("manually placed player pet was unavailable")
 		return
 	var badge := preview_pet.get_node(
-		"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"
+		"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"
 	) as Control
 	var value := badge.get_node("Value") as Label
-	if not badge.visible or value.text == "":
-		_fail("incoming-damage badge was not visible")
+	var preview_state := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
+	if not badge.visible or not bool(preview_state.get("embedded_in_health_bar", false)) \
+			or value.text != "":
+		_fail("embedded incoming-damage bar was not visible")
+		return
+	var stats := preview_pet.get_node(
+		"CompleteBattleCreaturePrefab/01_UnitVisual/Stats"
+	) as Control
+	var health := stats.get_node("Health") as ProgressBar
+	var attack := stats.get_node("Attack") as Control
+	var shield := stats.get_node("Shield") as Control
+	var damage_cap := stats.get_node("DamageCap") as Control
+	if not stats.visible or not health.visible or attack.visible or shield.visible or damage_cap.visible:
+		_fail("health bar visibility did not remain isolated from the retired stat rows")
 		return
 	await RenderingServer.frame_post_draw
 	var capture_path := OS.get_environment("TEMP").path_join(CAPTURE)
@@ -66,7 +80,10 @@ func _run() -> void:
 	if error != OK:
 		_fail("could not save capture (error %d)" % error)
 		return
-	print("VISIBLE_MANUAL_DRAG_INCOMING_DAMAGE_BADGE_PASS capture=%s value=%s" % [capture_path, value.text])
+	print("VISIBLE_MANUAL_DRAG_INCOMING_DAMAGE_BAR_PASS capture=%s damage=%d" % [
+		capture_path,
+		int(preview_state.get("predicted_damage", 0)),
+	])
 	quit(0)
 
 

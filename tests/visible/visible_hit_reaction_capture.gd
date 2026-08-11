@@ -43,7 +43,7 @@ func _run() -> void:
 		"shieldFrom": 0,
 		"shieldTo": 0,
 		"hpTo": current_hp - 1,
-	}, Vector2.RIGHT)
+	}, Vector2(1.0, -1.0))
 
 	var output_dir := ProjectSettings.globalize_path("res://output/hit_reaction_godot_frames")
 	DirAccess.make_dir_recursive_absolute(output_dir)

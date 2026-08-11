@@ -1,0 +1,475 @@
+{
+  "sprite_id": "SPR_901",
+  "sprite_name": "Aqua Crystal Frog",
+  "animation_id": "ANIM_SPR_901_IDLE_001",
+  "animation_name": "Aqua Crystal Frog Idle 001",
+  "action": "idle",
+  "usage": "battle and collection breathing idle loop",
+  "source": {
+    "file_name": "i.png",
+    "sha256": "4d55c71c4c9a52b570271edafcab58d9d40215ba21d707685523db4938e5cbdf",
+    "sheet_size": [
+      512,
+      512
+    ],
+    "grid": [
+      4,
+      4
+    ],
+    "cell_size": [
+      128,
+      128
+    ]
+  },
+  "processing": {
+    "creative_changes": "none",
+    "frame_order": "row-major, top-left to bottom-right",
+    "background": "magenta removal for idle; source transparency preserved for move",
+    "component_policy": "largest connected body only",
+    "resize": "nearest-neighbor shared action scale",
+    "shared_scale": 1.078125,
+    "output_cell_size": [
+      160,
+      160
+    ],
+    "palette": "one shared <=255-color palette across both actions",
+    "alpha": "binary 0/255",
+    "processor_qc": "output/sprite_animation_intake/spr_901_aqua_crystal_frog/anim_001_idle/processor_qc/pipeline-meta.json"
+  },
+  "delivery": {
+    "frame_count": 16,
+    "duration_ms": 180,
+    "loop_duration_ms": 2880,
+    "slow_duration_ms": 420,
+    "alpha_values": [
+      0,
+      255
+    ],
+    "visible_color_count": 110,
+    "alpha_bboxes": [
+      [
+        11,
+        25,
+        149,
+        148
+      ],
+      [
+        11,
+        26,
+        149,
+        148
+      ],
+      [
+        11,
+        28,
+        149,
+        148
+      ],
+      [
+        11,
+        26,
+        149,
+        148
+      ],
+      [
+        11,
+        25,
+        149,
+        148
+      ],
+      [
+        11,
+        25,
+        149,
+        148
+      ],
+      [
+        11,
+        27,
+        149,
+        148
+      ],
+      [
+        11,
+        27,
+        149,
+        148
+      ],
+      [
+        11,
+        25,
+        149,
+        148
+      ],
+      [
+        11,
+        25,
+        149,
+        148
+      ],
+      [
+        11,
+        27,
+        149,
+        148
+      ],
+      [
+        11,
+        25,
+        149,
+        148
+      ],
+      [
+        11,
+        25,
+        149,
+        148
+      ],
+      [
+        11,
+        27,
+        149,
+        148
+      ],
+      [
+        11,
+        28,
+        149,
+        148
+      ],
+      [
+        11,
+        26,
+        149,
+        148
+      ]
+    ],
+    "safe_margins_ltrb": [
+      [
+        11,
+        25,
+        11,
+        12
+      ],
+      [
+        11,
+        26,
+        11,
+        12
+      ],
+      [
+        11,
+        28,
+        11,
+        12
+      ],
+      [
+        11,
+        26,
+        11,
+        12
+      ],
+      [
+        11,
+        25,
+        11,
+        12
+      ],
+      [
+        11,
+        25,
+        11,
+        12
+      ],
+      [
+        11,
+        27,
+        11,
+        12
+      ],
+      [
+        11,
+        27,
+        11,
+        12
+      ],
+      [
+        11,
+        25,
+        11,
+        12
+      ],
+      [
+        11,
+        25,
+        11,
+        12
+      ],
+      [
+        11,
+        27,
+        11,
+        12
+      ],
+      [
+        11,
+        25,
+        11,
+        12
+      ],
+      [
+        11,
+        25,
+        11,
+        12
+      ],
+      [
+        11,
+        27,
+        11,
+        12
+      ],
+      [
+        11,
+        28,
+        11,
+        12
+      ],
+      [
+        11,
+        26,
+        11,
+        12
+      ]
+    ],
+    "minimum_safe_margin_px": 11,
+    "component_counts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "source_component_areas": [
+      [
+        11010
+      ],
+      [
+        10945
+      ],
+      [
+        10781
+      ],
+      [
+        10946
+      ],
+      [
+        11010
+      ],
+      [
+        11012
+      ],
+      [
+        10827
+      ],
+      [
+        10882
+      ],
+      [
+        11008
+      ],
+      [
+        10999
+      ],
+      [
+        10889
+      ],
+      [
+        11004
+      ],
+      [
+        11005
+      ],
+      [
+        10875
+      ],
+      [
+        10810
+      ],
+      [
+        10940
+      ]
+    ],
+    "frame_footline_y_ratio": 0.925
+  },
+  "gif_qc": {
+    "final": {
+      "frame_count": 16,
+      "durations_ms": [
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180
+      ],
+      "disposal_methods": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "all_durations_match": true,
+      "all_disposal_is_2": true,
+      "per_frame_alpha_and_visible_rgb_match": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "all_alpha_and_visible_rgb_match": true
+    },
+    "slow": {
+      "frame_count": 16,
+      "durations_ms": [
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420,
+        420
+      ],
+      "disposal_methods": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "all_durations_match": true,
+      "all_disposal_is_2": true,
+      "per_frame_alpha_and_visible_rgb_match": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "all_alpha_and_visible_rgb_match": true
+    }
+  },
+  "outputs": {
+    "frames": [
+      "frames/frame_001.png",
+      "frames/frame_002.png",
+      "frames/frame_003.png",
+      "frames/frame_004.png",
+      "frames/frame_005.png",
+      "frames/frame_006.png",
+      "frames/frame_007.png",
+      "frames/frame_008.png",
+      "frames/frame_009.png",
+      "frames/frame_010.png",
+      "frames/frame_011.png",
+      "frames/frame_012.png",
+      "frames/frame_013.png",
+      "frames/frame_014.png",
+      "frames/frame_015.png",
+      "frames/frame_016.png"
+    ],
+    "sheet": "anim_spr_901_idle_001_sheet.png",
+    "overview": "anim_spr_901_idle_001_overview.png",
+    "overview_4x": "anim_spr_901_idle_001_overview_4x.png",
+    "edge_check": "anim_spr_901_idle_001_edge_check.png",
+    "gif": "anim_spr_901_idle_001.gif",
+    "slow_gif": "anim_spr_901_idle_001_slow.gif"
+  },
+  "visual_review": {
+    "original_size_frames": "PASS: all 16 160x160 frames reviewed",
+    "nearest_neighbor_4x": "PASS: hard pixel edges and complete silhouettes",
+    "sequence_overview": "PASS: stable identity, scale, center, and bottom anchor",
+    "light_dark_complex_edges": "PASS: no white, black, or magenta fringe",
+    "slow_gif": "PASS: frame order and breathing loop are coherent",
+    "final_speed_gif": "PASS: 180ms per frame, 2880ms loop",
+    "real_godot_battle": "PASS: size, position, foot contact, shadow, layering, and HUD clearance",
+    "runtime_evidence": "res://output/qa/aqua_crystal_frog/battle_runtime/battle_runtime_overview.png"
+  },
+  "status": "PASS"
+}

@@ -18,11 +18,11 @@ spec.loader.exec_module(processor)
 
 VERSION_ROOT = (
     ROOT
-    / "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1"
+    / "output/sprite_animation_candidates/emerald_crystal_wyrmling/flight_move_v1"
 )
 MANIFEST_ROOT = (
     ROOT
-    / "art/manifests/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1"
+    / "output/sprite_animation_candidates/_manifests/emerald_crystal_wyrmling/flight_move_v1"
 )
 RAW_SHEET = VERSION_ROOT / "raw/output_001.png"
 START_SOURCE = VERSION_ROOT / "source/emerald_crystal_wyrmling_transparent_128_v1.png"

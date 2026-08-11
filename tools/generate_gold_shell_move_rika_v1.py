@@ -21,12 +21,12 @@ SOURCE_PATH = (
     ROOT / "art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png"
 )
 IMAGE_ROOT = (
-    ROOT / "art/images/shared/pets/animations/gold_shell/preview_v1"
+    ROOT / "output/sprite_animation_candidates/gold_shell/preview_v1"
 )
 SOURCE_DIR = IMAGE_ROOT / "source"
 RAW_DIR = IMAGE_ROOT / "raw"
 MANIFEST_DIR = (
-    ROOT / "art/manifests/shared/pets/animations/gold_shell/preview_v1"
+    ROOT / "output/sprite_animation_candidates/_manifests/gold_shell/preview_v1"
 )
 TRANSPARENT_SOURCE_PATH = SOURCE_DIR / "gold_shell_source_transparent_1024_v1.png"
 RIKA_INPUT_PATH = SOURCE_DIR / "gold_shell_rika_start_128_v1.png"

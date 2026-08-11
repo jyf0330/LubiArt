@@ -19,13 +19,13 @@ spec.loader.exec_module(rika)
 
 VERSION_ROOT = (
     ROOT
-    / "art/images/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1"
+    / "output/sprite_animation_candidates/emerald_crystal_wyrmling/flight_move_v1"
 )
 SOURCE_DIR = VERSION_ROOT / "source"
 RAW_DIR = VERSION_ROOT / "raw"
 MANIFEST_DIR = (
     ROOT
-    / "art/manifests/shared/pets/animations/emerald_crystal_wyrmling/flight_move_v1"
+    / "output/sprite_animation_candidates/_manifests/emerald_crystal_wyrmling/flight_move_v1"
 )
 SOURCE_PATH = SOURCE_DIR / "emerald_crystal_wyrmling_source_v1.png"
 TRANSPARENT_INPUT_PATH = SOURCE_DIR / "emerald_crystal_wyrmling_transparent_128_v1.png"

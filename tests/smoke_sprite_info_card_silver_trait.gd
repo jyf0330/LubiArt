@@ -2,7 +2,7 @@ extends SceneTree
 
 const PET_DETAIL_SCENE := preload("res://art/prefabs/pet/pet_detail.tscn")
 const EXPECTED_ART_SIZE := Vector2(48.0, 48.0)
-const EXPECTED_LOCK_SIZE := Vector2(55.0, 52.0)
+const EXPECTED_LOCK_SIZE := Vector2(50.0, 50.0)
 const EXPECTED_NAMES := ["自愈", "本命爆发", "护体", "连击倍增", "收尾暴击", "元素回响", "越战越勇", "壮体"]
 const EXPECTED_FILES := [
 	"trait_silver_self_heal.png",
@@ -46,6 +46,6 @@ func _run() -> void:
 	assert(lock_art.texture != null)
 	assert(lock_art.texture.get_size() == EXPECTED_LOCK_SIZE)
 	assert(lock_art.size == EXPECTED_LOCK_SIZE)
-	assert(lock_art.texture.resource_path.get_file() == "trait_lock_gold.png")
+	assert(lock_art.texture.resource_path.get_file() == "trait_lock_silver.png")
 	print("SPRITE_INFO_CARD_SILVER_TRAIT_SMOKE_PASS")
 	quit(0)

@@ -17,10 +17,10 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-IMAGE_ROOT = ROOT / "art/images/shared/pets/animations/wind_cat/move_v1"
+IMAGE_ROOT = ROOT / "output/sprite_animation_candidates/wind_cat/move_v1"
 SOURCE_DIR = IMAGE_ROOT / "source"
 RAW_DIR = IMAGE_ROOT / "raw"
-MANIFEST_DIR = ROOT / "art/manifests/shared/pets/animations/wind_cat/move_v1"
+MANIFEST_DIR = ROOT / "output/sprite_animation_candidates/_manifests/wind_cat/move_v1"
 
 MASTER_PATH = SOURCE_DIR / "wind_cat_forward_head_master_v1.png"
 TRANSPARENT_INPUT_PATH = SOURCE_DIR / "wind_cat_forward_head_transparent_128_v1.png"

@@ -6,6 +6,12 @@ const AUTHORED_CREATURE_TEXTURE := preload("res://art/images/shared/pets/battle_
 const BATTLE_FOOTLINE_BOTTOM_INSET := 15.0
 const BATTLE_SHADOW_CENTER_Y_OFFSET := -3.0
 const BATTLE_VISUAL_METRICS_PATH := "res://art/manifests/shared/pets/sheets/pet_battle_visual_metrics.json"
+const PLAYER_HORIZONTAL_FACING := 1.0
+const ENEMY_HORIZONTAL_FACING := -1.0
+const DEFAULT_AUTHORED_HORIZONTAL_FACING := 1.0
+const TRANSFORM_IDLE_TEXTURE_PATHS := {
+	"res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png": true,
+}
 const DAMAGE_PREVIEW_INITIAL_HOLD := 1.0
 const DAMAGE_PREVIEW_VISIBLE_HOLD := 1.0
 const DAMAGE_PREVIEW_HIDDEN_HOLD := 1.0
@@ -14,14 +20,19 @@ const HEALTH_PREFIX := "HP:"
 const SHIELD_PREFIX := "SHLD:"
 const DAMAGE_PREVIEW_COLOR := Color("ff5a4f")
 const DAMAGE_PREVIEW_HEALTH_SCALE := 1.45
+const DAMAGE_PREVIEW_LETHAL_DIM_ALPHA := 0.32
+const DAMAGE_PREVIEW_LETHAL_FLASH_HALF_DURATION := 0.24
 const STAT_COLUMN_GAP := 1.0
 const STAT_COLUMN_RIGHT_INSET := 4.0
+const HEALTH_BAR_HEAD_GAP := 14.0
 const DAMAGE_PREVIEW_BADGE_RIGHT_OVERHANG_RATIO := 0.25
 const DAMAGE_PREVIEW_BADGE_BOTTOM_INSET := 4.0
+const DAMAGE_HEALTH_BAR_DURATION := 0.32
 static var _texture_used_rect_cache: Dictionary = {}
 static var _battle_texture_cache: Dictionary = {}
 static var _battle_visual_metrics_by_path: Dictionary = {}
 static var _battle_visual_metrics_loaded := false
+static var _missing_authored_facing_paths: Dictionary = {}
 
 @onready var psd_root: Control = $CompleteBattleCreaturePrefab
 @onready var status_view: PetStatusView = $"CompleteBattleCreaturePrefab/01_UnitVisual"
@@ -32,25 +43,39 @@ static var _battle_visual_metrics_loaded := false
 @onready var enemy_marker_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/EnemyMarker_Optional"
 @onready var front_target_cell: Control = $"CompleteBattleCreaturePrefab/02_FrontTargetCell"
 @onready var attack_actions: Control = $"CompleteBattleCreaturePrefab/03_AttackActions"
-@onready var health_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health"
-@onready var shield_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield"
+@onready var health_group: ProgressBar = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health"
+@onready var health_frame_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/Icon"
+@onready var shield_group: ProgressBar = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield"
 @onready var attack_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack"
 @onready var damage_cap_group: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap"
 @onready var psd_health_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/Value_Text"
 @onready var psd_shield_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Shield/Value_Text"
 @onready var psd_attack_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Attack/Value_Text"
 @onready var psd_damage_cap_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap/Value_Text"
-@onready var incoming_damage_preview: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview"
-@onready var incoming_damage_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/IncomingDamagePreview/Value"
+@onready var incoming_damage_preview: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"
+@onready var incoming_damage_separator: ColorRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Background"
+@onready var incoming_damage_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Value"
 @onready var death_mark_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/DeathMark"
 @onready var animation: PetAnimation = $"CompleteBattleCreaturePrefab/03_AttackActions"
 @onready var hit_reaction: PetHitReaction = $"CompleteBattleCreaturePrefab/01_UnitVisual/HitReactionPlayer"
 @onready var shield_hit_effect: PetShieldHitEffect = $"CompleteBattleCreaturePrefab/01_UnitVisual/ShieldHitEffectPlayer"
 
+@export var ally_health_fill_style: StyleBoxFlat
+@export var enemy_health_fill_style: StyleBoxFlat
+@export var shield_fill_style: StyleBoxFlat
+@export var bronze_health_frame: Texture2D
+@export var silver_health_frame: Texture2D
+@export var gold_health_frame: Texture2D
+@export var diamond_health_frame: Texture2D
+
 var cell_data: Dictionary = {}
 var side := ""
 var _assets: RefCounted = null
 var _missing_mapping: Dictionary = {}
+var _health_bar_tier_override := ""
+var _health_bar_max_hp := 0
+var _health_bar_max_shield := 0
+var _health_bar_tween: Tween = null
 var _display_mode := &"battle"
 var _battle_sprite_visible_rect := Rect2()
 var _battle_removed_bottom_pixels := 0
@@ -61,7 +86,9 @@ var _authored_stat_layout: Dictionary = {}
 var _death_tween: Tween = null
 var _attack_translation_tween: Tween = null
 var _damage_preview_tween: Tween = null
+var _damage_preview_flash_tween: Tween = null
 var _damage_preview_active := false
+var _damage_preview_lethal := false
 var _damage_preview_current_hp := 0
 var _damage_preview_projected_hp := 0
 var _damage_preview_current_shield := -1
@@ -98,9 +125,21 @@ func _ready() -> void:
 	_layout_children()
 
 
+func _process(_delta: float) -> void:
+	if _display_mode == &"battle":
+		_position_health_bar_above_sprite()
+		if _damage_preview_active:
+			_layout_damage_preview_in_health_bar()
+
+
 func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> void:
 	reset_pet_view()
 	cell_data = data.duplicate(true)
+	_health_bar_max_hp = maxi(
+		maxi(0, int(cell_data.get("hp", 0))),
+		_max_hp(cell_data, 0)
+	)
+	_health_bar_max_shield = maxi(0, int(cell_data.get("shield", 0)))
 	side = unit_side
 	_assets = assets
 	_set_battle_presentation()
@@ -124,10 +163,16 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 		sprite_rect,
 		sprite_rect.texture,
 		visible_foot_pivot,
-		animation_texture_path
+		animation_texture_path,
+		not TRANSFORM_IDLE_TEXTURE_PATHS.has(animation_texture_path),
+		TRANSFORM_IDLE_TEXTURE_PATHS.has(animation_texture_path),
+		_battle_horizontal_facing(side),
+		true,
+		_authored_horizontal_facing(_display_texture_source)
 	)
-	enemy_marker_group.visible = side == "enemy" or side == "monster"
+	enemy_marker_group.visible = false
 	status_view.bind_battle_data(cell_data)
+	_refresh_battle_health_bar()
 	clear_dead_mark()
 
 
@@ -140,10 +185,41 @@ func reconcile_unit_data(data: Dictionary, unit_side: String, assets: RefCounted
 	# gameplay write. Keep the existing prefab and its animation lifecycle alive;
 	# only refresh data-driven labels and stable side markers.
 	cell_data = incoming
+	var incoming_hp := maxi(0, int(cell_data.get("hp", 0)))
+	var incoming_shield := maxi(0, int(cell_data.get("shield", 0)))
+	_health_bar_max_hp = maxi(incoming_hp, _max_hp(cell_data, incoming_hp)) \
+		if _has_max_hp(cell_data) else maxi(_health_bar_max_hp, incoming_hp)
+	_health_bar_max_shield = maxi(_health_bar_max_shield, incoming_shield)
 	side = unit_side
 	_assets = assets
 	status_view.bind_battle_data(cell_data)
-	enemy_marker_group.visible = side == "enemy" or side == "monster"
+	enemy_marker_group.visible = false
+	_refresh_battle_health_bar()
+
+
+func initialize_drag_preview_from(source: Control) -> void:
+	if source == null or not (source.get("cell_data") is Dictionary):
+		return
+	# A duplicated Node keeps the already-resolved child textures and geometry,
+	# but ordinary script state starts from defaults. Copy only stable presentation
+	# state so a drag clone can show the same health/facing without asset rebinding.
+	cell_data = Dictionary(source.get("cell_data")).duplicate(true)
+	side = String(source.get("side"))
+	_assets = source.get("_assets") as RefCounted
+	_missing_mapping = Dictionary(source.get("_missing_mapping")).duplicate(true)
+	_health_bar_tier_override = String(source.get("_health_bar_tier_override"))
+	_health_bar_max_hp = int(source.get("_health_bar_max_hp"))
+	_health_bar_max_shield = int(source.get("_health_bar_max_shield"))
+	_display_mode = StringName(source.get("_display_mode"))
+	_battle_sprite_visible_rect = source.get("_battle_sprite_visible_rect") as Rect2
+	_battle_removed_bottom_pixels = int(source.get("_battle_removed_bottom_pixels"))
+	_battle_footline_bottom_inset = float(source.get("_battle_footline_bottom_inset"))
+	_display_texture_source = sprite_rect.texture
+	status_view.bind_battle_data(cell_data)
+	enemy_marker_group.visible = false
+	_position_health_bar_above_sprite()
+	_refresh_battle_health_bar()
+	clear_dead_mark()
 
 
 func _requires_full_unit_rebind(data: Dictionary, unit_side: String, assets: RefCounted) -> bool:
@@ -156,6 +232,34 @@ func _requires_full_unit_rebind(data: Dictionary, unit_side: String, assets: Ref
 
 func _unit_id(data: Dictionary) -> String:
 	return String(data.get("unitId", data.get("unit_id", data.get("id", ""))))
+
+
+func _battle_horizontal_facing(unit_side: String) -> float:
+	return PLAYER_HORIZONTAL_FACING \
+		if unit_side in ["player", "ally", "hero", "hero_leader", "player_leader"] \
+		else ENEMY_HORIZONTAL_FACING
+
+
+func _authored_horizontal_facing(texture_resource: Texture2D) -> float:
+	if texture_resource == null:
+		return DEFAULT_AUTHORED_HORIZONTAL_FACING
+	var metrics := _battle_visual_metrics(texture_resource)
+	var authored_facing := String(metrics.get("authored_horizontal_facing", "")).strip_edges().to_lower()
+	match authored_facing:
+		"left":
+			return -1.0
+		"right":
+			return 1.0
+		"neutral", "front":
+			return 0.0
+	var path := texture_resource.resource_path
+	if path != "" and not _missing_authored_facing_paths.has(path):
+		_missing_authored_facing_paths[path] = true
+		push_warning(
+			"Battle sprite is missing authored_horizontal_facing metadata; " \
+			+ "using the project default 'right': %s" % path
+		)
+	return DEFAULT_AUTHORED_HORIZONTAL_FACING
 
 
 func _visual_source_key(data: Dictionary) -> String:
@@ -211,6 +315,7 @@ func clear_collection_data() -> void:
 
 
 func reset_pet_view() -> void:
+	_stop_health_bar_tween()
 	_stop_damage_preview_animation(false)
 	if hit_reaction != null:
 		hit_reaction.reset()
@@ -227,6 +332,9 @@ func reset_pet_view() -> void:
 	side = ""
 	_assets = null
 	_missing_mapping = {}
+	_health_bar_tier_override = ""
+	_health_bar_max_hp = 0
+	_health_bar_max_shield = 0
 	_display_mode = &"none"
 	_battle_sprite_visible_rect = Rect2()
 	_battle_removed_bottom_pixels = 0
@@ -257,6 +365,10 @@ func get_battle_sprite_visible_rect() -> Rect2:
 	return _battle_sprite_visible_rect
 
 
+func get_battle_sprite_actual_top_y() -> float:
+	return _battle_sprite_actual_top_y()
+
+
 func get_battle_footline_bottom_inset() -> float:
 	return _battle_footline_bottom_inset
 
@@ -273,10 +385,10 @@ func _set_battle_presentation() -> void:
 	shadow_rect.visible = true
 	shadow_rect.z_index = 0
 	sprite_rect.z_index = 1
-	stats_root.visible = true
+	_refresh_battle_health_bar()
 	front_target_cell.visible = false
 	attack_actions.visible = true
-	enemy_marker_group.visible = side == "enemy" or side == "monster"
+	enemy_marker_group.visible = false
 	status_view.set_mode(&"battle")
 
 
@@ -301,8 +413,13 @@ func get_dynamic_stat_snapshot() -> Dictionary:
 
 
 func update_hp(value: int) -> void:
+	_stop_health_bar_tween()
 	cell_data["hp"] = value
+	var safe_value := maxi(0, value)
+	_health_bar_max_hp = maxi(safe_value, _max_hp(cell_data, safe_value)) \
+		if _has_max_hp(cell_data) else maxi(_health_bar_max_hp, safe_value)
 	status_view.update_hp(value)
+	_refresh_battle_health_bar()
 	if _damage_preview_active:
 		_damage_preview_current_hp = maxi(0, value)
 		if _damage_preview_projected_hp >= _damage_preview_current_hp:
@@ -348,11 +465,10 @@ func start_damage_preview(
 		return
 	_stop_damage_preview_animation(false)
 	_damage_preview_uses_badge = incoming_damage_preview != null
-	if not _damage_preview_uses_badge:
-		_damage_preview_revealed_stats = stats_root != null and not stats_root.visible
-		_show_battle_stats()
-		_enter_damage_preview_presentation()
+	_damage_preview_revealed_stats = stats_root != null and not stats_root.visible
+	_refresh_battle_health_bar()
 	_damage_preview_active = true
+	_damage_preview_lethal = safe_current > 0 and safe_projected <= 0
 	_damage_preview_current_hp = safe_current
 	_damage_preview_projected_hp = safe_projected
 	_damage_preview_current_shield = safe_current_shield
@@ -410,6 +526,10 @@ func get_damage_preview_snapshot() -> Dictionary:
 		"current_shield": _damage_preview_current_shield,
 		"projected_shield": _damage_preview_projected_shield,
 		"predicted_damage": _damage_preview_damage,
+		"lethal": _damage_preview_lethal,
+		"embedded_in_health_bar": _damage_preview_uses_badge,
+		"lethal_flash_active": _damage_preview_flash_tween != null \
+			and _damage_preview_flash_tween.is_valid(),
 		"displayed_hp": _displayed_hp_value(),
 		"displayed_damage": _displayed_damage_value(),
 		"uses_badge": _damage_preview_uses_badge,
@@ -427,7 +547,7 @@ func get_damage_preview_snapshot() -> Dictionary:
 func _on_damage_preview_timeout() -> void:
 	if not _damage_preview_active or _damage_preview_pinned:
 		return
-	_fade_damage_preview(_damage_preview_state == &"hidden")
+	stop_damage_preview()
 
 
 func _fade_damage_preview(show: bool) -> void:
@@ -468,21 +588,26 @@ func _complete_damage_preview_fade(visible_value: bool, hold_duration: float) ->
 
 func _set_damage_preview_visible(visible_value: bool) -> void:
 	if _damage_preview_uses_badge and incoming_damage_preview != null:
-		incoming_damage_preview.visible = true
+		incoming_damage_preview.visible = visible_value
 		incoming_damage_preview.modulate.a = _damage_preview_badge_base_modulate.a \
 			if visible_value else 0.0
 	elif health_group != null:
 		health_group.modulate.a = _damage_preview_health_base_group_modulate.a if visible_value else 0.0
 	_damage_preview_state = &"visible" if visible_value else &"hidden"
+	_sync_lethal_damage_preview_flash()
 
 
 func _show_damage_preview_value() -> void:
 	if not _damage_preview_active:
 		return
+	if shield_group != null:
+		shield_group.visible = false
 	if _damage_preview_uses_badge:
 		if incoming_damage_value != null:
-			incoming_damage_value.text = str(_damage_preview_damage)
+			incoming_damage_value.text = ""
 			incoming_damage_value.self_modulate = Color.WHITE
+		_layout_damage_preview_in_health_bar()
+		_sync_lethal_damage_preview_flash()
 		return
 	if psd_health_value == null:
 		return
@@ -512,6 +637,7 @@ func _stop_damage_preview_animation(restore_current_hp: bool) -> void:
 	if _damage_preview_tween != null and _damage_preview_tween.is_valid():
 		_damage_preview_tween.kill()
 	_damage_preview_tween = null
+	_stop_lethal_damage_preview_flash()
 	if had_preview_animation and psd_health_value != null:
 		psd_health_value.modulate = _damage_preview_value_base_modulate
 		psd_health_value.self_modulate = _damage_preview_value_base_self_modulate
@@ -521,12 +647,14 @@ func _stop_damage_preview_animation(restore_current_hp: bool) -> void:
 	if incoming_damage_value != null:
 		incoming_damage_value.text = ""
 	_damage_preview_active = false
+	_damage_preview_lethal = false
 	_damage_preview_pinned = false
 	_damage_preview_state = &""
 	_damage_preview_sync_epoch_msec = -1
 	_leave_damage_preview_presentation()
-	if _damage_preview_revealed_stats and stats_root != null:
-		stats_root.visible = _display_mode == &"battle"
+	_layout_shield_bar_segment()
+	if not _damage_preview_uses_badge and stats_root != null:
+		_refresh_battle_health_bar()
 	_damage_preview_revealed_stats = false
 	_damage_preview_uses_badge = false
 	if restore_current_hp and psd_health_value != null:
@@ -550,10 +678,9 @@ func _enter_damage_preview_presentation() -> void:
 	health_group.position.x -= extra_width
 	health_group.scale *= DAMAGE_PREVIEW_HEALTH_SCALE
 	health_group.z_index = 12
+	_layout_shield_bar_segment()
 	if attack_group != null:
 		attack_group.visible = false
-	if shield_group != null:
-		shield_group.visible = false
 	if damage_cap_group != null:
 		damage_cap_group.visible = false
 
@@ -571,6 +698,7 @@ func _leave_damage_preview_presentation() -> void:
 		attack_group.visible = _damage_preview_attack_was_visible
 	if shield_group != null:
 		shield_group.visible = _damage_preview_shield_was_visible
+	_layout_shield_bar_segment()
 	if damage_cap_group != null:
 		damage_cap_group.visible = _damage_preview_cap_was_visible
 
@@ -585,14 +713,98 @@ func _displayed_hp_value() -> int:
 
 
 func _displayed_damage_value() -> int:
-	if incoming_damage_value == null or not incoming_damage_value.text.is_valid_int():
-		return -1
-	return int(incoming_damage_value.text)
+	return _damage_preview_damage if _damage_preview_active else -1
+
+
+func _layout_damage_preview_in_health_bar() -> void:
+	if not _damage_preview_active or not _damage_preview_uses_badge \
+			or incoming_damage_preview == null or health_group == null:
+		return
+	var safe_max_hp := maxi(1, _damage_preview_max_hp)
+	var current_shield := _damage_preview_current_shield \
+		if _damage_preview_current_shield >= 0 else maxi(0, int(cell_data.get("shield", 0)))
+	var projected_shield := _damage_preview_projected_shield \
+		if _damage_preview_projected_shield >= 0 else current_shield
+	var bar_capacity := maxi(
+		1,
+		safe_max_hp + maxi(_health_bar_max_shield, current_shield)
+	)
+	var current_effective := mini(
+		bar_capacity,
+		maxi(0, _damage_preview_current_hp) + current_shield
+	)
+	var projected_effective := mini(
+		current_effective,
+		maxi(0, _damage_preview_projected_hp) + projected_shield
+	)
+	var current_ratio := clampf(float(current_effective) / float(bar_capacity), 0.0, 1.0)
+	var projected_ratio := clampf(
+		float(projected_effective) / float(bar_capacity),
+		0.0,
+		current_ratio
+	)
+	var current_fill_width := health_group.size.x * current_ratio
+	var projected_fill_width := health_group.size.x * projected_ratio
+	var damage_fill_width := maxf(0.0, current_fill_width - projected_fill_width)
+	if damage_fill_width <= 0.0:
+		incoming_damage_preview.visible = false
+		return
+	var preview_height := health_group.size.y
+	incoming_damage_preview.position = Vector2(projected_fill_width, 0.0)
+	incoming_damage_preview.size = Vector2(
+		damage_fill_width,
+		preview_height
+	)
+	incoming_damage_preview.scale = Vector2.ONE
+	incoming_damage_preview.visible = _damage_preview_state != &"hidden"
+	if incoming_damage_separator != null:
+		incoming_damage_separator.position = Vector2.ZERO
+		incoming_damage_separator.size = Vector2(damage_fill_width, preview_height)
+	if incoming_damage_value != null:
+		incoming_damage_value.position = Vector2.ZERO
+		incoming_damage_value.size = Vector2(
+			damage_fill_width,
+			preview_height
+		)
+
+
+func _sync_lethal_damage_preview_flash() -> void:
+	if not _damage_preview_active or not _damage_preview_lethal \
+			or incoming_damage_value == null or not incoming_damage_preview.visible:
+		_stop_lethal_damage_preview_flash()
+		return
+	if _damage_preview_flash_tween != null and _damage_preview_flash_tween.is_valid():
+		return
+	incoming_damage_value.modulate.a = 1.0
+	_damage_preview_flash_tween = create_tween().set_loops()
+	_damage_preview_flash_tween.tween_property(
+		incoming_damage_value,
+		"modulate:a",
+		DAMAGE_PREVIEW_LETHAL_DIM_ALPHA,
+		DAMAGE_PREVIEW_LETHAL_FLASH_HALF_DURATION
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_damage_preview_flash_tween.tween_property(
+		incoming_damage_value,
+		"modulate:a",
+		1.0,
+		DAMAGE_PREVIEW_LETHAL_FLASH_HALF_DURATION
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func _stop_lethal_damage_preview_flash() -> void:
+	if _damage_preview_flash_tween != null and _damage_preview_flash_tween.is_valid():
+		_damage_preview_flash_tween.kill()
+	_damage_preview_flash_tween = null
+	if incoming_damage_value != null:
+		incoming_damage_value.modulate.a = 1.0
 
 
 func update_shield(value: int) -> void:
-	cell_data["shield"] = max(0, value)
+	var safe_value := maxi(0, value)
+	cell_data["shield"] = safe_value
+	_health_bar_max_shield = maxi(_health_bar_max_shield, safe_value)
 	status_view.update_shield(value)
+	_refresh_battle_health_bar()
 
 
 func set_selected(selected: bool) -> void:
@@ -633,15 +845,129 @@ func get_action_block_attack_range_snapshot() -> Dictionary:
 
 
 func set_dragging(is_dragging: bool) -> void:
-	_show_battle_stats()
+	_refresh_battle_health_bar()
 	visible = not is_dragging
 	modulate = Color(1.0, 1.0, 1.0, 0.62) if is_dragging else Color.WHITE
 	z_index = 40 if is_dragging else 0
 
 
-func _show_battle_stats() -> void:
-	if stats_root != null and _display_mode == &"battle":
-		stats_root.visible = true
+func set_battle_stats_pointer_hovered(_hovered: bool) -> void:
+	_refresh_battle_health_bar()
+
+
+func _hide_battle_stats() -> void:
+	if stats_root != null:
+		stats_root.visible = false
+
+
+func _refresh_battle_health_bar() -> void:
+	if stats_root == null or health_group == null:
+		return
+	var battle_visible := _display_mode == &"battle" and not cell_data.is_empty()
+	stats_root.visible = battle_visible
+	health_group.visible = battle_visible
+	psd_health_value.visible = false
+	psd_shield_value.visible = false
+	if health_frame_rect != null:
+		health_frame_rect.visible = battle_visible
+	if attack_group != null:
+		attack_group.visible = false
+	if shield_group != null:
+		shield_group.visible = false
+	if damage_cap_group != null:
+		damage_cap_group.visible = false
+	if not battle_visible:
+		return
+	var current_hp := maxi(0, int(cell_data.get("hp", 0)))
+	var current_shield := maxi(0, int(cell_data.get("shield", 0)))
+	_health_bar_max_shield = maxi(_health_bar_max_shield, current_shield)
+	_health_bar_max_hp = maxi(current_hp, _max_hp(cell_data, current_hp)) \
+		if _has_max_hp(cell_data) else maxi(_health_bar_max_hp, current_hp)
+	var max_hp := maxi(1, _health_bar_max_hp)
+	var bar_capacity := maxi(1, max_hp + _health_bar_max_shield)
+	health_group.min_value = 0.0
+	health_group.max_value = float(bar_capacity)
+	health_group.value = float(mini(current_hp, bar_capacity))
+	if shield_group != null:
+		shield_group.min_value = 0.0
+		shield_group.max_value = 1.0
+		shield_group.value = 1.0
+		if shield_fill_style != null:
+			shield_group.add_theme_stylebox_override("fill", shield_fill_style)
+		_layout_shield_bar_segment(current_hp, current_shield, bar_capacity)
+	var fill_style := ally_health_fill_style if _is_player_side(side) else enemy_health_fill_style
+	if fill_style != null:
+		health_group.add_theme_stylebox_override("fill", fill_style)
+	_apply_health_bar_frame(_effective_health_bar_tier())
+
+
+func set_health_bar_tier(tier: String) -> void:
+	_health_bar_tier_override = _normalize_health_bar_tier(tier)
+	_refresh_battle_health_bar()
+
+
+func clear_health_bar_tier_override() -> void:
+	_health_bar_tier_override = ""
+	_refresh_battle_health_bar()
+
+
+func get_health_bar_tier() -> String:
+	return _effective_health_bar_tier()
+
+
+func _effective_health_bar_tier() -> String:
+	if _health_bar_tier_override != "":
+		return _health_bar_tier_override
+	for key in ["rank", "quality", "rarity", "tier"]:
+		if cell_data.has(key):
+			return _normalize_health_bar_tier(String(cell_data.get(key, "")))
+	return "bronze"
+
+
+func _normalize_health_bar_tier(value: String) -> String:
+	var normalized := value.strip_edges().to_lower()
+	if normalized.contains("diamond") or normalized.contains("crystal") \
+			or value.contains("钻石") or value.contains("水晶"):
+		return "diamond"
+	if normalized.contains("gold") or value.contains("黄金"):
+		return "gold"
+	if normalized.contains("silver") or value.contains("白银"):
+		return "silver"
+	return "bronze"
+
+
+func _apply_health_bar_frame(tier: String) -> void:
+	if health_frame_rect == null:
+		return
+	match tier:
+		"silver":
+			health_frame_rect.texture = silver_health_frame
+		"gold":
+			health_frame_rect.texture = gold_health_frame
+		"diamond":
+			health_frame_rect.texture = diamond_health_frame
+		_:
+			health_frame_rect.texture = bronze_health_frame
+
+
+func _max_hp(data: Dictionary, fallback: int) -> int:
+	for key in ["max_hp", "maxHp", "hp_max", "hpMax"]:
+		if data.has(key):
+			return maxi(0, int(data.get(key, fallback)))
+	return maxi(0, fallback)
+
+
+func _has_max_hp(data: Dictionary) -> bool:
+	for key in ["max_hp", "maxHp", "hp_max", "hpMax"]:
+		if data.has(key):
+			return true
+	return false
+
+
+func _is_player_side(unit_side: String) -> bool:
+	return unit_side.strip_edges().to_lower() in [
+		"player", "ally", "hero", "hero_leader", "player_leader",
+	]
 
 
 func contains_art_point(viewport_point: Vector2, alpha_threshold: float = 0.08) -> bool:
@@ -734,10 +1060,44 @@ func play_damage_feedback(payload: Dictionary, reaction_direction: Vector2 = Vec
 		shield_hit_effect.play()
 	if shield_before <= 0 and hp_damage > 0 and hit_reaction != null:
 		hit_reaction.play(reaction_direction, _battle_sprite_visible_rect)
-	else:
-		play_shake()
-	update_hp(int(payload.get("hpTo", int(cell_data.get("hp", 0)))))
+	var hp_from := maxi(0, int(payload.get("hpFrom", cell_data.get("hp", 0))))
+	var hp_to := maxi(0, int(payload.get("hpTo", hp_from - hp_damage)))
 	update_shield(int(payload.get("shieldTo", int(cell_data.get("shield", 0)))))
+	_animate_health_bar_damage(hp_from, hp_to)
+
+
+func get_damage_feedback_duration() -> float:
+	return DAMAGE_HEALTH_BAR_DURATION
+
+
+func _animate_health_bar_damage(hp_from: int, hp_to: int) -> void:
+	_stop_health_bar_tween()
+	_health_bar_max_hp = maxi(hp_from, _max_hp(cell_data, hp_from)) \
+		if _has_max_hp(cell_data) else maxi(_health_bar_max_hp, hp_from)
+	cell_data["hp"] = hp_to
+	status_view.update_hp(hp_to)
+	_refresh_battle_health_bar()
+	if health_group == null or hp_from <= hp_to:
+		return
+	var safe_from := mini(hp_from, int(health_group.max_value))
+	var safe_to := mini(hp_to, int(health_group.max_value))
+	health_group.value = float(safe_from)
+	_health_bar_tween = create_tween()
+	_health_bar_tween.tween_property(
+		health_group,
+		"value",
+		float(safe_to),
+		DAMAGE_HEALTH_BAR_DURATION
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_health_bar_tween.finished.connect(func():
+		_health_bar_tween = null
+	)
+
+
+func _stop_health_bar_tween() -> void:
+	if _health_bar_tween != null and _health_bar_tween.is_valid():
+		_health_bar_tween.kill()
+	_health_bar_tween = null
 
 
 func play_attack_translation(
@@ -847,7 +1207,12 @@ func _layout_battle_sprite() -> void:
 	var used_rect := _texture_used_rect(texture_resource)
 	if used_rect.size.x <= 0.0 or used_rect.size.y <= 0.0:
 		used_rect = Rect2(Vector2.ZERO, texture_size)
-	var uniform_scale := minf(size.x / used_rect.size.x, size.y / used_rect.size.y)
+	var display_scale := clampf(
+		float(_battle_visual_metrics(texture_resource).get("display_scale", 1.0)),
+		0.5,
+		1.25
+	)
+	var uniform_scale := minf(size.x / used_rect.size.x, size.y / used_rect.size.y) * display_scale
 	var rendered_size := texture_size * uniform_scale
 	var visible_center_x := (used_rect.position.x + used_rect.size.x * 0.5) * uniform_scale
 	var visible_bottom_y := (used_rect.position.y + used_rect.size.y) * uniform_scale
@@ -1033,7 +1398,19 @@ func _layout_stats_from_prefab() -> void:
 		group.size = Vector2(authored.get("size", Vector2.ZERO))
 		group.scale = Vector2(authored.get("scale", Vector2.ONE)) * _battle_stat_layout_scale
 		group.rotation = 0.0
-		total_height += group.size.y * group.scale.y
+		if group != health_group and group != shield_group:
+			total_height += group.size.y * group.scale.y
+	if health_group != null:
+		var health_size := health_group.size * health_group.scale
+		var health_top := minf(corners[0].y, corners[1].y)
+		var health_center_y := health_top + health_size.y * 0.5
+		var top_left_x := _edge_x_at_y(corners[0], corners[3], health_center_y)
+		var top_right_x := _edge_x_at_y(corners[1], corners[2], health_center_y)
+		health_group.position = Vector2(
+			(top_left_x + top_right_x - health_size.x) * 0.5,
+			health_top
+		)
+		_position_health_bar_above_sprite()
 	total_height += STAT_COLUMN_GAP * _battle_stat_layout_scale * maxf(0.0, groups.size() - 1.0)
 	var top_y := minf(corners[0].y, corners[1].y)
 	var row_y := top_y
@@ -1045,6 +1422,8 @@ func _layout_stats_from_prefab() -> void:
 	for group in groups:
 		if group == null or not _authored_stat_layout.has(group.name):
 			continue
+		if group == health_group or group == shield_group:
+			continue
 		var scaled_size := group.size * group.scale
 		group.position = Vector2(
 			shared_right_edge - scaled_size.x - STAT_COLUMN_RIGHT_INSET * _battle_stat_layout_scale,
@@ -1053,6 +1432,88 @@ func _layout_stats_from_prefab() -> void:
 		row_y += scaled_size.y + STAT_COLUMN_GAP * _battle_stat_layout_scale
 
 
+func _battle_sprite_actual_top_y() -> float:
+	if sprite_rect == null or sprite_rect.texture == null:
+		return INF
+	var texture_size := sprite_rect.texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0 or sprite_rect.size.y <= 0.0:
+		return INF
+	# Use the same declared visible bounds that position the battle sprite. Some
+	# source textures contain faint pixels outside the authored creature bounds;
+	# those pixels must not push the health slot away from the visible body.
+	var used_rect := _texture_used_rect(sprite_rect.texture)
+	if used_rect.size.y <= 0.0:
+		return INF
+	var drawn_scale := minf(
+		sprite_rect.size.x / texture_size.x,
+		sprite_rect.size.y / texture_size.y
+	)
+	var drawn_size := texture_size * drawn_scale
+	var drawn_origin := (sprite_rect.size - drawn_size) * 0.5
+	var visible_rect := Rect2(
+		drawn_origin + used_rect.position * drawn_scale,
+		used_rect.size * drawn_scale
+	)
+	var sprite_transform := sprite_rect.get_transform()
+	var top_y := INF
+	for corner in [
+		visible_rect.position,
+		Vector2(visible_rect.end.x, visible_rect.position.y),
+		visible_rect.end,
+		Vector2(visible_rect.position.x, visible_rect.end.y),
+	]:
+		top_y = minf(top_y, (sprite_transform * corner).y)
+	return top_y
+
+
+func _position_health_bar_above_sprite() -> void:
+	if health_group == null:
+		return
+	var sprite_top := _battle_sprite_actual_top_y()
+	if not is_finite(sprite_top):
+		return
+	health_group.position.y = sprite_top \
+		- HEALTH_BAR_HEAD_GAP * _battle_stat_layout_scale \
+		- health_group.size.y * health_group.scale.y
+	_layout_shield_bar_segment()
+
+
+func _layout_shield_bar_segment(
+	current_hp: int = -1,
+	current_shield: int = -1,
+	bar_capacity: int = -1
+) -> void:
+	if health_group == null or shield_group == null:
+		return
+	var safe_hp := maxi(0, current_hp) \
+		if current_hp >= 0 else maxi(0, int(cell_data.get("hp", 0)))
+	var safe_shield := maxi(0, current_shield) \
+		if current_shield >= 0 else maxi(0, int(cell_data.get("shield", 0)))
+	var safe_capacity := maxi(1, bar_capacity) if bar_capacity > 0 else maxi(
+		1,
+		maxi(1, _health_bar_max_hp) + maxi(_health_bar_max_shield, safe_shield)
+	)
+	var hp_ratio := clampf(float(safe_hp) / float(safe_capacity), 0.0, 1.0)
+	var shield_ratio := clampf(
+		float(safe_shield) / float(safe_capacity),
+		0.0,
+		1.0 - hp_ratio
+	)
+	shield_group.position = health_group.position + Vector2(
+		health_group.size.x * hp_ratio,
+		0.0
+	)
+	shield_group.size = Vector2(
+		health_group.size.x * shield_ratio,
+		health_group.size.y
+	)
+	shield_group.scale = health_group.scale
+	shield_group.rotation = health_group.rotation
+	shield_group.visible = _display_mode == &"battle" \
+		and not cell_data.is_empty() \
+		and not _damage_preview_active \
+		and safe_shield > 0 \
+		and shield_group.size.x > 0.0
 func _edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> float:
 	if is_zero_approx(edge_end.y - edge_start.y):
 		return edge_start.x
