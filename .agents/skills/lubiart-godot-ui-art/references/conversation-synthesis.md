@@ -401,3 +401,12 @@ Godot 会缓存 manifest 和脚本；大量残留测试进程会占用内存、�
 - 验证：专项 `smoke_attack_timeline.gd` 通过；真实 Godot 1920×1080 战斗入口成功打开攻击顺序界面并生成整屏截图，目视确认下方只显示一个居中的重置按钮且没有残留演示按钮。全量 `verify_ui_mirror.sh` 仍被工作区既存未批准动画文件阻挡，与本轮按钮显隐无关。
 - 证据：修改前 `%TEMP%/lubi_attack_timeline_play_button_before.png`，修改后 `output/attack_timeline_integrated_1920x1080.png`。
 - 状态：本次按钮精简完成；全量工程门禁保留既存阻塞。
+
+### 2026-08-11 — 汇总工作区并安全提交推送
+
+- 用户意图：汇总当前尚未提交的累计修改，然后提交并推送当前分支；本轮将“休息内容”按上下文理解为“剩余/修改内容”。
+- 交付边界：主提交纳入战斗 UI、Scene/prefab、展示脚本、Mock 适配、测试与工具、项目专属 Skill，以及白名单已批准的 `10` 套待机动画共 `156` 帧；没有把约 `781 MB` 的 `output/` 候选与 QA、`.codex_work/` 备份、Godot 临时文件、两个 zip 或未批准的火山帝江、角翼龙、`video_7832` 正式目录动画及其运行时引用推送。所有排除内容继续保留在本地，未删除。
+- Git 结果：主提交 `f2beac57`（`feat: consolidate battle UI mock delivery`）已推送至 `origin/codex/battle-ui-work-20260806`；该提交包含 `2295` 个文件、`24001` 行新增和 `41327` 行删除。本轮没有新增图片或动画版本批准，也没有新增、删除、改名、移动或重新挂载 Scene/prefab 节点。
+- 验证：从暂存快照隔离还原后，动画准入检查通过（`10` animations / `156` frames），`verify_ui_mirror.sh` 通过，Python 工具编译检查与 `git diff --cached --check` 通过；干净 Godot 资源导入退出码为 `0`，拖拽时序、回合提示、攻击时间轴及 SpriteInfoCard 独立 smoke 均通过。
+- 既存阻塞：README 的 `smoke_mock_battle_project.gd` 在 `30s` 内仍不退出；`smoke_battle_art_scene.gd` 仍因当前 `64` 格结构与旧最小层级断言不一致失败。当前工作区还保留未批准动画候选与未提交的运行时尝试，因此完整项目验收仍为 `BLOCKED`，但本轮经过筛选的 Git 交付已完成。
+- 新标准：无；本轮仅执行既有正式动画准入、独立项目验证和对话闭环规则。
