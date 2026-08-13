@@ -685,5 +685,12 @@ Codex 工作树与用户长期打开的 checkout 可以拥有相同项目名、�
 - 用户意图：把当前本地工作提交并推送到 GitHub，保留临时和候选文件而不误纳入正式交付。
 - 范围与修整：主提交纳入三选新版正式 PSD/PNG、Scene/prefab、展示与拖拽脚本、manifest、路由规范、验收脚本、PSD 工具和与 `project.godot` 成套的 Godot AI 插件；未纳入 `.codex_tmp_psd_env/`、`.codex_tmp_psd_layers/`、`.DS_Store`、`output/imagegen/` 候选图及五个只多出尾空行的无关 `.import`。PSD 工具中的本机绝对路径已替换为从脚本位置推导仓库根，原始美术 PSD 由 `LUBI_THREE_CHOICE_SOURCE_PSD` 显式传入。
 - 验证：动画准入检查通过（`10` animations / `156` frames），`verify_ui_mirror.sh` 通过；route portrait pool、exit、responsibility、drag controller、pet detail boundary 与 SpriteInfoCard base/element/silver trait 八项 headless smoke 全部通过；暂存快照格式、manifest JSON、交付目录遗漏、本机路径与敏感字符串检查通过。Godot 仅重复输出非致命的 macOS 系统证书查询警告。
-- Git 状态：主提交 `5edbdaf`（`feat: deliver updated three-choice UI workflow`）已在 `codex/user-work-20260812` 本地创建，共 `358` 个文件。首次推送到 `origin/codex/user-work-20260812` 被安全审查拦下，因为该批次将向配置的 GitHub 远端发布约 `15 MB` 源 PSD、项目代码/素材/工具与约 `2.1 MB` Godot AI 插件；需要用户在知情后再明确确认该远端与完整范围。未尝试绕过审查。
-- 当前状态：本地主提交与验证完成，推送 `BLOCKED` 并等待用户的知情确认。无新项目标准、资源或动画版本批准；本轮未改变 Scene / prefab 节点拓扑。
+- Git 状态：主提交 `5edbdaf`（`feat: deliver updated three-choice UI workflow`）已在 `codex/user-work-20260812` 创建，共 `358` 个文件。首次推送曾因将发布约 `15 MB` 源 PSD、项目代码/素材/工具与约 `2.1 MB` Godot AI 插件而要求额外的知情确认；用户后续明确确认了完整范围、`https://github.com/jyf0330/LubiArt.git` 和目标分支。分支已正常推送为新远端分支并设置上游，未使用强推。
+- 当前状态：本地主提交、验证与完整分支推送均已完成。无新项目标准、资源或动画版本批准；本轮未改变 Scene / prefab 节点拓扑。
+
+### 2026-08-13 — 知情确认后推送完整分支
+
+- 用户确认：用户在得知交付包含约 `15 MB` 源 PSD、项目代码/素材/工具和约 `2.1 MB` Godot AI 插件后，明确授权将完整分支推送到 `https://github.com/jyf0330/LubiArt.git` 的 `codex/user-work-20260812`。
+- 推送结果：推送前再次 `fetch --prune`，确认远端尚无同名分支、`origin/main` 为当前分支历史祖先；随后以普通非强制推送创建 `origin/codex/user-work-20260812` 并成功设置上游。
+- 工作区边界：五个无关 `.import` 尾空行、`.DS_Store`、PSD 临时环境/拆层缓存和 `output/imagegen/` 候选图仍保留在本地且未推送；未清理或改写它们。
+- 当前状态：完整分支交付完成，无新标准、无新资源/动画批准，未修改 Scene / prefab 节点拓扑。
