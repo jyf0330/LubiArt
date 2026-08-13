@@ -42,6 +42,8 @@
 
 必须走完整 Command / Snapshot / Game / SceneRouter 链路。例如路线选择后进入战斗。
 
+三选路线阶段分成两个页面内步骤：路线卡点击只保存并高亮当前选择，不发送 Command；`MainBG/Containers/ExitButton` 始终保留 normal/hover 美术反馈，但只有已有选择时才作为“下一步”提交该卡对应的 `CHOOSE_ROUTE`。进入商店后，同一出口按钮改为提交 `EXIT_SHOP`。出口按钮与路线卡都不知道目标 `.tscn`，最终 Feature 仍只由 Game 根据返回的 Snapshot 决定。
+
 ### 同 Scene 面板切换
 
 由当前 Scene 根脚本直接切换已有节点显隐或播放动画。例如打开背包。它不经过 SceneRouter，也不伪造玩法阶段。

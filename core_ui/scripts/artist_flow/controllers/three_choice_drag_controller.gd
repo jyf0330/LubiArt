@@ -207,6 +207,12 @@ func candidate_button() -> TextureButton:
 	return buttons[_candidate_index] as TextureButton
 
 
+func candidate_texture() -> Texture2D:
+	if _hidden_texture != null:
+		return _hidden_texture
+	return _texture_for_candidate()
+
+
 func preview_size_for_candidate() -> Vector2:
 	var button := candidate_button()
 	if button == null:
@@ -325,7 +331,10 @@ func _slot_at_position(slots: Array, mouse_position: Vector2) -> int:
 
 
 func _point_inside(control: Control, point: Vector2) -> bool:
-	return control != null and control.is_visible_in_tree() and control.get_global_rect().has_point(point)
+	if control == null or not control.is_visible_in_tree():
+		return false
+	var local_point := control.get_global_transform_with_canvas().affine_inverse() * point
+	return Rect2(Vector2.ZERO, control.size).has_point(local_point)
 
 
 func _start_preview() -> void:

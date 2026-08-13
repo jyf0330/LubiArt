@@ -9,10 +9,12 @@ func cards(snapshot: Dictionary) -> Array:
 	for value in options(snapshot):
 		var option := Dictionary(value)
 		var kind := kind_for(option)
+		var command := choose_command(option)
+		command["kind"] = kind
 		result.append({
 			"record": option,
 			"kind": kind,
-			"command": choose_command(option),
+			"command": command,
 		})
 	return result
 

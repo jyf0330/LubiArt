@@ -52,6 +52,7 @@ func _run() -> void:
 	_expect(controller.candidate_source() == DragControllerScript.SOURCE_SHOP and controller.candidate_index() == 0, "controller owns the candidate identity")
 	_expect(controller.is_active() and controller.preview() != null, "controller owns one active preview")
 	_expect(shop_button.texture_normal == null, "begin hides the source image")
+	_expect(controller.candidate_texture() == texture, "controller retains the dragged texture while the authored source is hidden")
 	_expect(controller.preview().size == Vector2(110.0, 110.0), "preview captures the authored source size")
 	var pointer := Vector2(420.0, 300.0)
 	controller.update_preview(pointer)

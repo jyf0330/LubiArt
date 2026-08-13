@@ -3,10 +3,12 @@ extends Control
 signal confirm_requested(command: Dictionary)
 
 const MODAL_PANEL_SCALE := Vector2.ONE
-const CONTEXT_PANEL_SCALE := Vector2.ONE
 const PANEL_SIZE := Vector2(360.0, 460.0)
 const VIEWPORT_MARGIN := 16.0
 const POINTER_OFFSET := Vector2(24.0, 20.0)
+
+@export_group("Context Detail Layout")
+@export var context_follow_pointer := true
 
 @onready var dim: ColorRect = $Dim
 @onready var panel: Control = $Panel
@@ -18,11 +20,16 @@ var _detail_snapshot := {}
 var _confirm_command := {}
 var _is_context_detail := false
 var _mouse_filters_by_id := {}
+var _authored_context_panel_position := Vector2.ZERO
+var _authored_context_panel_scale := Vector2.ONE
 
 
 func _ready() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if panel != null:
+		_authored_context_panel_position = panel.position
+		_authored_context_panel_scale = panel.scale
 	if close_button != null:
 		close_button.pressed.connect(close)
 	if confirm_button != null:
@@ -89,7 +96,11 @@ func _apply_modal_layout() -> void:
 
 func _apply_context_layout() -> void:
 	if panel != null:
-		panel.scale = CONTEXT_PANEL_SCALE
+		if not context_follow_pointer:
+			panel.position = _authored_context_panel_position
+			panel.scale = _authored_context_panel_scale
+			return
+		panel.scale = MODAL_PANEL_SCALE
 		var viewport_size := get_viewport_rect().size
 		var pointer := get_viewport().get_mouse_position()
 		var desired := pointer + POINTER_OFFSET

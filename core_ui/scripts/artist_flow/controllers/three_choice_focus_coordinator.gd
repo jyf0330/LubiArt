@@ -14,6 +14,7 @@ var _party_buttons: Array = []
 var _bag_buttons: Array = []
 var _shop_back_button: BaseButton = null
 var _bag_button: BaseButton = null
+var _exit_button: BaseButton = null
 var _bazaar_info_panel: Control = null
 var _connections: Array[Dictionary] = []
 
@@ -26,7 +27,8 @@ func configure(
 		bag_buttons: Array,
 		shop_back_button: BaseButton,
 		bag_button: BaseButton,
-		bazaar_info_panel: Control
+		bazaar_info_panel: Control,
+		exit_button: BaseButton = null
 ) -> void:
 	dispose()
 	_host = host
@@ -36,6 +38,7 @@ func configure(
 	_bag_buttons = bag_buttons
 	_shop_back_button = shop_back_button
 	_bag_button = bag_button
+	_exit_button = exit_button
 	_bazaar_info_panel = bazaar_info_panel
 	for button in _all_focus_buttons():
 		button.focus_mode = Control.FOCUS_ALL
@@ -93,6 +96,7 @@ func dispose() -> void:
 	_bag_buttons.clear()
 	_shop_back_button = null
 	_bag_button = null
+	_exit_button = null
 	_bazaar_info_panel = null
 
 
@@ -111,6 +115,8 @@ func _focus_controls_for_view(view: StringName) -> Array[Control]:
 		candidates.append(_shop_back_button)
 	if view != VIEW_BATTLE:
 		candidates.append(_bag_button)
+	if view != VIEW_BATTLE and view != VIEW_BAG:
+		candidates.append(_exit_button)
 	var controls: Array[Control] = []
 	for value in candidates:
 		var control := value as Control
@@ -129,7 +135,7 @@ func _all_focus_buttons() -> Array[BaseButton]:
 			var button := value as BaseButton
 			if button != null:
 				buttons.append(button)
-	for button in [_shop_back_button, _bag_button]:
+	for button in [_shop_back_button, _bag_button, _exit_button]:
 		if button != null:
 			buttons.append(button)
 	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("focus_controls"):

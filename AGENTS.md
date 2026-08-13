@@ -137,7 +137,8 @@
 - `app/game.tscn` 的 `game_controller.gd` 是唯一 Session、Command、持久化和 Feature Scene 生命周期拥有者；`ThreeChoiceScene` 与 `BattleArtScene` 的根展示脚本只接收 Snapshot、绑定已有节点、播放表现并发送操作请求，不得自己创建、持有或直接调用 GameSession。
 - 普通图片、文本、容器、按钮和纯布局节点默认不挂脚本。只有子节点本身是可独立复用的 prefab，或者确实拥有独立状态、动画、输入处理或稳定公开接口时，才可作为例外挂脚本；普通点击信号由职责根节点的脚本统一连接和处理。
 - 脚本职责固定按 `页面根脚本 -> 职责组根脚本 -> prefab 根脚本 -> 普通图片/文本/按钮` 分层。前三层只在节点确实拥有独立状态、输入、动画、生命周期或稳定公开接口时挂脚本；最后一层默认不挂脚本，由最近的职责根统一配置、连接信号和播放表现。不得把同一职责拆散到多个普通子节点脚本，也不得让 prefab 根或职责组根取得页面路由、Session 或 Command 裁决权。
-- `ThreeChoiceScene` 是三选一界面唯一的页面级展示脚本，负责接收 Snapshot、切换路线/商店/背包展示状态、创建允许的数据驱动简单槽位、连接普通按钮并向 `game_controller.gd` 发送语义操作请求。`Background`、`StageHost`、`PartyGrid`、`BagButton`、`ItemHoverHighlight`、`OverlayHost`、`ItemBar`、`ItemGrid` 和 `BagMask` 等显示、布局、容器或普通按钮节点不挂脚本；`BagButton` 的点击由页面根统一连接。
+- `ThreeChoiceScene` 是三选一界面唯一的页面级展示脚本，负责接收 Snapshot、切换路线/商店/背包展示状态、创建允许的数据驱动简单槽位、连接普通按钮并向 `game_controller.gd` 发送语义操作请求。美术人员直接运行该 Scene 且没有应用 Session 时，允许页面根仅用已接入静态纹理显示不可提交、非权威的美术预览；不得在该模式创建 Session、构造玩法数据或发送 Command，挂入 `game.tscn` 后必须完全由 Session Snapshot 覆盖。`Background`、`StageHost`、`PartyGrid`、`BagButton`、`ItemHoverHighlight`、`OverlayHost`、`ItemBar`、`ItemGrid` 和 `BagMask` 等显示、布局、容器或普通按钮节点不挂脚本；`BagButton` 的点击由页面根统一连接。
+- 三选背包展开时，现有 `MainBG/Containers/Middle/BagOverlayMask` 只压暗背景、建筑和路线等非背包操作内容，不得覆盖现有 `MainBG/Containers/Bags` 中的背包箱子与队伍底座、`MainBG/Containers/Party` 中的精灵立绘，以及 `MainBG/Containers/Top/Hud` 中的金币数量框、图标和数量；相关绘制层级必须直接 authored 在 `three_choice_scene.tscn`。背包开关只使用现有 `MainBG/Containers/Bags/Bag_Button`，同一节点在点击后把 normal、pressed、hover、focused 全部切换到当前开/关状态纹理，不得叠加第二个开箱或关箱节点。`bag_open_full.png` 必须只由开箱状态导出，不得合成关箱层；箱盖左后方与背景的间隙必须保持真透明，并同时用正式 PNG 透明通道断言和真实 Godot 开箱截图验收，不得只检查节点数量或纹理文件名。背包 `4×2` 槽位横纵间距固定为 `31px`、`32px`；现有 `ItemSlotHoverHighlight` 固定为 `183×177`、相对槽位 `(-10,-14)`，运行时只负责把槽位 Canvas 坐标转换回 Scene 本地坐标并应用该 authored 偏移，八个槽位都必须在真实窗口逐格验收并与底图实测金框中心保持不超过 `2px` 的误差。
 - 三选一路线卡只有 `RouteCard` prefab 根挂脚本，负责卡片数据、悬停、选中动画和点击信号；其 `Portrait`、`KindIcon`、`StateFx`、`IncenseFx` 等普通图片不挂脚本，即使使用 Tween 也由 `RouteCard` 根脚本控制已有子节点。`PetDetail`、`BazaarDetail` 等详情 prefab 因拥有独立展示接口和开关状态，脚本挂在各自 prefab 根，并由页面根按需实例化或展示。
 - `BattleArtScene` 页面根只负责 Snapshot、语义操作请求、Trace 调度以及 `Board`、`Hud`、详情层等职责组之间的协调。格子池、单位池、棋盘尺寸、选择和拖拽归 `Board` 根脚本；Trace 特效的创建、播放和释放生命周期归 `VfxHost` 根脚本。将这些职责从页面根迁入已有 `Board` 或 `VfxHost` 是脚本职责调整，不构成新增节点的理由。
 - 战斗 HUD 由 `Hud` prefab 根提供统一对外接口；`TopInfoBar`、`ActionPanel`、`DirectionDrawer` 只有在分别拥有完整状态、信号、动画或公开方法时才在各自已有职责根挂脚本。`PrimaryActions`、`AutoArrangeButton`、`BeginTurnButton` 以及普通图片、Label、Grid、Host 不挂脚本，按钮点击由最近的职责根统一连接。
@@ -150,6 +151,7 @@
 ## Scene 路由约束
 
 - 跨 Scene 操作固定走 `已有 Button -> 当前 Scene 根脚本发送语义 Command -> GameSession 返回 Result/Snapshot -> Game 根据 Snapshot 选择 Feature -> SceneRouter 挂载到 FeatureHost -> 目标 Scene 渲染 -> presentation_settled -> Game 释放旧 Feature`。
+- 三选路线卡点击只在当前页面保存选中项并保持选中高亮，不立即提交；路线阶段由已确认的 `MainBG/Containers/ExitButton` 作为“下一步”提交所选 `CHOOSE_ROUTE`。未选择路线时出口仍保留 normal/hover 美术反馈，但点击不得提交。商店阶段同一出口按钮提交 `EXIT_SHOP`。两种语义都由 `ThreeChoiceScene` 页面根发送，不得由路线卡或出口按钮直接切换 Scene。
 - Button、普通子节点和美术 Scene 不得知道目标 `.tscn` 路径，不得直接 `change_scene*()`、操作 `FeatureHost`，也不得发送“加载某个页面”的路由请求。
 - `SceneRouter` 只实例化、挂载和释放；它不读取 Snapshot、不判断 phase、不执行 Command。Snapshot 到 Feature 的映射只写在 `game_controller.gd`。
 - 同一 Scene 内的背包、抽屉和遮罩显隐由当前 Scene 根脚本处理；当前 Scene 已拥有的详情 prefab 由根脚本传入展示数据。这两类操作不经过 SceneRouter，也不改变权威玩法阶段。
@@ -235,6 +237,7 @@
 
 ## 完成与验收
 
+- 任何可见验收、截图或“已在真实 Godot 中通过”的结论，开跑前必须先确认用户当前 Godot 进程实际打开的工程根目录，并与本轮修改所在 Git 工作树逐路径一致。可见采集必须显式传入预期工程根目录，并在证据目录保存包含实际 `project_root`、预期根目录、`project.godot` 和被测 Scene 的来源记录；缺少来源记录、两处路径不一致，或只验收了另一个同名 checkout / worktree 时一律 `BLOCKED`，不得把其截图和测试结果描述为用户当前工程已生效。
 - 每次美术/UI 修改必须至少覆盖 `5` 个不同且有意义的真实操作点；重复同一点击、无状态变化的空操作或只拍静态首屏不能凑数。每个操作都要在修改前保存一张 `before`，修改后在相同入口、Mock Snapshot、窗口/视口尺寸、1920×1080 基准、缩放、操作步骤和稳定帧保存对应 `after`，因此每轮至少保存 `5` 组、`10` 张截图。开工前漏截时，必须从修改前提交或可靠备份建立隔离项目补拍，不能把改后画面当成 `before`。
 - 每组使用 `python3 tools/qa/compare_screenshots.py <before> <after> --report <json>` 做像素级比较，并用 `python3 tools/qa/compare_operation_screenshots.py <manifest.json> --report <summary.json>` 汇总；只有至少 `5` 个不同操作的每组截图都尺寸一致且差异像素数为 `0` 才通过。少于 `5` 组、缺任一截图、采集条件不一致、缺报告或任一组存在像素差异，一律 `BLOCKED`，不得交付或提交“通过”。截图、操作清单和报告默认只作为本机证据，不加入 Git。
 - 每次改动后运行 `./tests/verify_ui_mirror.sh`，确认独立项目结构完整且文件类型没有串目录；默认检查不需要原项目。
