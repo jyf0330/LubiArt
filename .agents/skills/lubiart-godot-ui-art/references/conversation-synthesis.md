@@ -679,3 +679,11 @@ Codex 工作树与用户长期打开的 checkout 可以拥有相同项目名、�
 - A 明亮版：保持前轮四项几何与状态职责不变，改为暖奶油石面、蜂蜜木框、中亮蓝灰轮廓、青色节点、亮金选中和珊瑚朱红危险态，背景为浅蓝绿；候选路径为 `/Users/02r/.codex/generated_images/019ffa7f-0f21-7ef0-8166-3e68d21948ee/exec-7bc3e7d2-c848-4b86-b271-1feea744585c.png`。
 - B 深色版：保留深青黑、旧金、青绿和朱红体系，抬高最暗黑位以保留材质可读性；首次生成又出现内部九宫缝，已按单变量修为一个连续石面，最终候选路径为 `/Users/02r/.codex/generated_images/019ffa7f-0f21-7ef0-8166-3e68d21948ee/exec-94e41635-ad77-4a47-a235-c40d4e1252a5.png`。
 - 工程边界与状态：两张均为内置图像生成的预览候选，未拆分透明资产、未接入正式项目，未修改 Scene、prefab、manifest、节点或玩法数据。等待用户选择 A、B 或指定混合方向后再扩展完整素材整合图；无正式资源或动画版本批准。
+
+### 2026-08-13 — 本地工作提交与推送准备
+
+- 用户意图：把当前本地工作提交并推送到 GitHub，保留临时和候选文件而不误纳入正式交付。
+- 范围与修整：主提交纳入三选新版正式 PSD/PNG、Scene/prefab、展示与拖拽脚本、manifest、路由规范、验收脚本、PSD 工具和与 `project.godot` 成套的 Godot AI 插件；未纳入 `.codex_tmp_psd_env/`、`.codex_tmp_psd_layers/`、`.DS_Store`、`output/imagegen/` 候选图及五个只多出尾空行的无关 `.import`。PSD 工具中的本机绝对路径已替换为从脚本位置推导仓库根，原始美术 PSD 由 `LUBI_THREE_CHOICE_SOURCE_PSD` 显式传入。
+- 验证：动画准入检查通过（`10` animations / `156` frames），`verify_ui_mirror.sh` 通过；route portrait pool、exit、responsibility、drag controller、pet detail boundary 与 SpriteInfoCard base/element/silver trait 八项 headless smoke 全部通过；暂存快照格式、manifest JSON、交付目录遗漏、本机路径与敏感字符串检查通过。Godot 仅重复输出非致命的 macOS 系统证书查询警告。
+- Git 状态：主提交 `5edbdaf`（`feat: deliver updated three-choice UI workflow`）已在 `codex/user-work-20260812` 本地创建，共 `358` 个文件。首次推送到 `origin/codex/user-work-20260812` 被安全审查拦下，因为该批次将向配置的 GitHub 远端发布约 `15 MB` 源 PSD、项目代码/素材/工具与约 `2.1 MB` Godot AI 插件；需要用户在知情后再明确确认该远端与完整范围。未尝试绕过审查。
+- 当前状态：本地主提交与验证完成，推送 `BLOCKED` 并等待用户的知情确认。无新项目标准、资源或动画版本批准；本轮未改变 Scene / prefab 节点拓扑。
