@@ -2,6 +2,7 @@ extends SceneTree
 
 const BattleScene := preload("res://art/scenes/battle/battle_art_scene.tscn")
 const OUTPUT_PATH := "res://output/damage_preview_embedded_1920x1080.png"
+const SCALED_OUTPUT_PATH := "res://output/damage_preview_embedded_scaled_2_3_1920x1080.png"
 
 
 func _initialize() -> void:
@@ -39,11 +40,17 @@ func _run() -> void:
 	if not _verify_preview(lethal_enemy, true, false):
 		_fail("lethal enemy embedded damage preview is invalid")
 		return
-	if not _verify_fill_pixel_alignment(viewport_image, ally):
+	if not _verify_fill_pixel_alignment(viewport_image, ally, 9):
 		_fail("ally green and red fill pixels are not vertically aligned")
 		return
-	if not _verify_fill_pixel_alignment(viewport_image, enemy):
+	if not _verify_fill_bottom_sealed(viewport_image, ally):
+		_fail("ally health slot exposes a background row below the aligned fills")
+		return
+	if not _verify_fill_pixel_alignment(viewport_image, enemy, 9):
 		_fail("enemy orange and red fill pixels are not vertically aligned")
+		return
+	if not _verify_fill_bottom_sealed(viewport_image, enemy):
+		_fail("enemy health slot exposes a background row below the aligned fills")
 		return
 	var error := viewport_image.save_png(
 		ProjectSettings.globalize_path(OUTPUT_PATH)
@@ -51,7 +58,35 @@ func _run() -> void:
 	if error != OK:
 		_fail("could not save embedded damage preview capture")
 		return
-	print("VISIBLE_EMBEDDED_DAMAGE_PREVIEW_PASS capture=%s" % OUTPUT_PATH)
+
+	ally.scale = Vector2(2.0 / 3.0, 2.0 / 3.0)
+	enemy.scale = Vector2(2.0 / 3.0, 2.0 / 3.0)
+	for _frame in range(4):
+		await process_frame
+	await RenderingServer.frame_post_draw
+	var scaled_viewport_image := root.get_texture().get_image()
+	if not _verify_fill_pixel_alignment(scaled_viewport_image, ally, 6):
+		_fail("scaled ally green and red fill pixels are not vertically aligned")
+		return
+	if not _verify_fill_bottom_sealed(scaled_viewport_image, ally):
+		_fail("scaled ally health slot exposes a background row below the aligned fills")
+		return
+	if not _verify_fill_pixel_alignment(scaled_viewport_image, enemy, 6):
+		_fail("scaled enemy orange and red fill pixels are not vertically aligned")
+		return
+	if not _verify_fill_bottom_sealed(scaled_viewport_image, enemy):
+		_fail("scaled enemy health slot exposes a background row below the aligned fills")
+		return
+	error = scaled_viewport_image.save_png(
+		ProjectSettings.globalize_path(SCALED_OUTPUT_PATH)
+	)
+	if error != OK:
+		_fail("could not save fractional-scale embedded damage preview capture")
+		return
+	print("VISIBLE_EMBEDDED_DAMAGE_PREVIEW_PASS captures=%s,%s" % [
+		OUTPUT_PATH,
+		SCALED_OUTPUT_PATH,
+	])
 	quit(0)
 
 
@@ -61,7 +96,7 @@ func _verify_preview(unit: Control, lethal: bool, ally: bool) -> bool:
 	var health := stats.get_node("Health") as ProgressBar
 	var overlay := health.get_node("IncomingDamagePreview") as Control
 	var separator := overlay.get_node("Background") as ColorRect
-	var red_fill := overlay.get_node("Value") as Label
+	var red_fill := overlay.get_node("Value") as ProgressBar
 	var base_fill := health.get_theme_stylebox("fill") as StyleBoxFlat
 	if not stats.visible or not health.visible or not overlay.visible:
 		return false
@@ -74,13 +109,13 @@ func _verify_preview(unit: Control, lethal: bool, ally: bool) -> bool:
 		return false
 	if not is_zero_approx(overlay.position.y):
 		return false
-	if not is_equal_approx(overlay.size.y, health.size.y):
+	if not is_equal_approx(overlay.size.y, health.size.y + 1.0):
 		return false
 	if overlay.scale != Vector2.ONE:
 		return false
 	if not overlay.clip_contents:
 		return false
-	if red_fill.text != "" or red_fill.size.x <= 0.0:
+	if red_fill.show_percentage or red_fill.size.x <= 0.0:
 		return false
 	if lethal != bool(preview.get("lethal_flash_active", false)):
 		return false
@@ -105,13 +140,13 @@ func _verify_preview(unit: Control, lethal: bool, ally: bool) -> bool:
 	return base_fill.bg_color.r > base_fill.bg_color.g and base_fill.bg_color.g > 0.45
 
 
-func _verify_fill_pixel_alignment(image: Image, unit: Control) -> bool:
+func _verify_fill_pixel_alignment(image: Image, unit: Control, expected_row_count: int) -> bool:
 	var health := unit.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health") as ProgressBar
 	var overlay := health.get_node("IncomingDamagePreview") as Control
-	var red_fill := overlay.get_node("Value") as Label
+	var red_fill := overlay.get_node("Value") as ProgressBar
 	var separator := overlay.get_node("Background") as ColorRect
 	var base_style := health.get_theme_stylebox("fill") as StyleBoxFlat
-	var red_style := red_fill.get_theme_stylebox("normal") as StyleBoxFlat
+	var red_style := red_fill.get_theme_stylebox("fill") as StyleBoxFlat
 	if base_style == null or red_style == null:
 		return false
 	var scan_rect := health.get_global_rect().grow(2.0)
@@ -142,6 +177,7 @@ func _verify_fill_pixel_alignment(image: Image, unit: Control) -> bool:
 		])
 	return base_bounds.x >= 0 and red_bounds.x >= 0 \
 		and base_bounds == red_bounds \
+		and base_bounds.y - base_bounds.x + 1 == expected_row_count \
 		and separator_covers_fill
 
 
@@ -162,6 +198,50 @@ func _color_y_bounds(image: Image, rect: Rect2, target: Color) -> Vector2i:
 				min_y = mini(min_y, y)
 				max_y = maxi(max_y, y)
 	return Vector2i(min_y, max_y) if max_y >= 0 else Vector2i(-1, -1)
+
+
+func _verify_fill_bottom_sealed(image: Image, unit: Control) -> bool:
+	var health := unit.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health") as ProgressBar
+	var overlay := health.get_node("IncomingDamagePreview") as Control
+	var red_fill := overlay.get_node("Value") as ProgressBar
+	var base_style := health.get_theme_stylebox("fill") as StyleBoxFlat
+	var red_style := red_fill.get_theme_stylebox("fill") as StyleBoxFlat
+	if base_style == null or red_style == null:
+		return false
+	var scan_rect := health.get_global_rect().grow(3.0)
+	return _color_is_sealed_by_dark_frame(image, scan_rect, base_style.bg_color) \
+		and _color_is_sealed_by_dark_frame(image, scan_rect, red_style.bg_color)
+
+
+func _color_is_sealed_by_dark_frame(image: Image, rect: Rect2, target: Color) -> bool:
+	var left := clampi(floori(rect.position.x), 0, image.get_width() - 1)
+	var top := clampi(floori(rect.position.y), 0, image.get_height() - 1)
+	var right := clampi(ceili(rect.end.x), left, image.get_width() - 1)
+	var bottom := clampi(ceili(rect.end.y), top, image.get_height() - 1)
+	var sample_x := -1
+	var max_y := -1
+	for y in range(top, bottom + 1):
+		for x in range(left, right + 1):
+			var pixel := image.get_pixel(x, y)
+			if absf(pixel.r - target.r) <= 0.004 \
+					and absf(pixel.g - target.g) <= 0.004 \
+					and absf(pixel.b - target.b) <= 0.004 \
+					and pixel.a > 0.99 \
+					and y >= max_y:
+				max_y = y
+				sample_x = x
+	if sample_x < 0 or max_y + 1 >= image.get_height():
+		return false
+	var below := image.get_pixel(sample_x, max_y + 1)
+	var below_luminance := maxf(below.r, maxf(below.g, below.b))
+	if below_luminance >= 0.15:
+		print("HEALTH_SLOT_BOTTOM_GAP target=%s last_fill=(%d,%d) below=%s" % [
+			target.to_html(),
+			sample_x,
+			max_y,
+			below.to_html(),
+		])
+	return below_luminance < 0.15 and below.a > 0.99
 
 
 func _unit_by_id(battle: Control, unit_id: String) -> Control:

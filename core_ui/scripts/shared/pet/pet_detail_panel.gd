@@ -4,9 +4,10 @@ signal confirm_requested(command: Dictionary)
 
 const MODAL_PANEL_SCALE := Vector2.ONE
 const CONTEXT_PANEL_SCALE := Vector2.ONE
-const PANEL_SIZE := Vector2(360.0, 460.0)
+const PANEL_SIZE := Vector2(380.0, 820.0)
+const RIGHT_MARGIN := 0.0
+const TOP_MARGIN := 80.0
 const VIEWPORT_MARGIN := 16.0
-const POINTER_OFFSET := Vector2(24.0, 20.0)
 
 @onready var dim: ColorRect = $Dim
 @onready var panel: Control = $Panel
@@ -57,6 +58,14 @@ func show_context_detail(record: Dictionary, texture: Texture2D = null) -> void:
 	if confirm_button != null:
 		confirm_button.visible = false
 	_set_mouse_passthrough(self)
+	# The battle card is an occupied interaction layer. Keep the surrounding
+	# fullscreen detail host transparent, but stop clicks anywhere inside the
+	# visible card from falling through to the board's blank-area cancel path.
+	info_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	# Preserve passthrough outside the card while restoring the card's authored
+	# hover targets so their tooltips remain available in battle context mode.
+	if info_card.has_method("set_hover_tooltip_input_enabled"):
+		info_card.call("set_hover_tooltip_input_enabled", true)
 	move_to_front()
 
 
@@ -81,26 +90,22 @@ func is_context_detail() -> bool:
 
 
 func _apply_modal_layout() -> void:
-	if panel != null:
-		panel.scale = MODAL_PANEL_SCALE
-		var viewport_size := get_viewport_rect().size
-		panel.position = (viewport_size - PANEL_SIZE) * 0.5
+	_apply_right_layout(MODAL_PANEL_SCALE)
 
 
 func _apply_context_layout() -> void:
-	if panel != null:
-		panel.scale = CONTEXT_PANEL_SCALE
-		var viewport_size := get_viewport_rect().size
-		var pointer := get_viewport().get_mouse_position()
-		var desired := pointer + POINTER_OFFSET
-		if desired.x + PANEL_SIZE.x > viewport_size.x - VIEWPORT_MARGIN:
-			desired.x = pointer.x - PANEL_SIZE.x - POINTER_OFFSET.x
-		if desired.y + PANEL_SIZE.y > viewport_size.y - VIEWPORT_MARGIN:
-			desired.y = pointer.y - PANEL_SIZE.y - POINTER_OFFSET.y
-		panel.position = Vector2(
-			clampf(desired.x, VIEWPORT_MARGIN, maxf(VIEWPORT_MARGIN, viewport_size.x - PANEL_SIZE.x - VIEWPORT_MARGIN)),
-			clampf(desired.y, VIEWPORT_MARGIN, maxf(VIEWPORT_MARGIN, viewport_size.y - PANEL_SIZE.y - VIEWPORT_MARGIN))
-		)
+	_apply_right_layout(CONTEXT_PANEL_SCALE)
+
+
+func _apply_right_layout(panel_scale: Vector2) -> void:
+	if panel == null or not is_inside_tree():
+		return
+	panel.scale = panel_scale
+	var viewport_size := get_viewport_rect().size
+	panel.position = Vector2(
+		maxf(VIEWPORT_MARGIN, viewport_size.x - PANEL_SIZE.x - RIGHT_MARGIN),
+		clampf(TOP_MARGIN, VIEWPORT_MARGIN, maxf(VIEWPORT_MARGIN, viewport_size.y - PANEL_SIZE.y - VIEWPORT_MARGIN))
+	)
 
 
 func get_detail_snapshot() -> Dictionary:

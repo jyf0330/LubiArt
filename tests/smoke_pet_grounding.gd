@@ -11,7 +11,7 @@ const CASES := [
 	{"path": "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png"},
 	{"path": "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png"},
 	{"path": "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png"},
-	{"path": "res://art/images/shared/pets/animations/spr_057_frost_fox/anim_001_idle/frames/frame_001.png"},
+	{"path": "res://art/images/shared/pets/sheets/slices/pet_style_057_frost_fox.png"},
 ]
 
 const HERO_CASES := [

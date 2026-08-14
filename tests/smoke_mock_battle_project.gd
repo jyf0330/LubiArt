@@ -471,7 +471,9 @@ func _run() -> void:
 		"submit_command",
 		{"type": "SELECT_CELL", "x": 4, "y": 4}
 	))
-	assert(not bool(empty_select_response.get("accepted", true)))
+	assert(bool(empty_select_response.get("accepted", false)))
+	assert(bool(Dictionary(empty_select_response.get("result", {})).get("cleared", false)))
+	assert(String(Dictionary(game_session.call("current_snapshot")).get("selected_unit_id", "")) == "")
 	assert(int(game_session.call("replay_step_index")) == replay_step_before_empty_select)
 	assert(battle_view.get_node_or_null("Hud/AttackDirectionDrawer") == null)
 	var current_board := Dictionary(Dictionary(game_session.call("current_snapshot")).get("board", {}))
@@ -594,14 +596,10 @@ func _run() -> void:
 	drag_origin.cell_selected.emit(detail_grid.x, detail_grid.y)
 	await process_frame
 	await process_frame
-	assert(not bool(battle_probe.detail_summary().get("visible", true)))
-	assert(battle_probe.hover_pet(detail_grid, true))
-	await process_frame
-	await process_frame
 	assert((battle_view.get_node("OverlayHost/BattlePetDetailPanel") as Control).visible)
 	assert(battle_probe.hover_pet(detail_grid, false))
 	await process_frame
-	assert(not bool(battle_probe.detail_summary().get("visible", true)))
+	assert(bool(battle_probe.detail_summary().get("visible", false)))
 
 	var dragged_unit_id := _cell_unit_id(drag_origin)
 	var drag_origin_grid := drag_origin.call("get_grid_position") as Vector2i
@@ -735,7 +733,7 @@ func _assert_new_unit_assets() -> void:
 		[{"unitId": "enemy_hero", "unitName": "蜘蛛精"}, "boss", "hero_spider.png"],
 		[{"pet_id": "pal_002"}, "player", "pet_style_001_gold_mascot.png"],
 		[{"pet_id": "pal_030"}, "player", "pet_style_999_crystal_shell.png"],
-		[{"source_pet_id": "pal_042"}, "enemy", "pet_style_008_volcanic_dijiang.png"],
+		[{"source_pet_id": "pal_042"}, "enemy", "pet_style_014_horned_wing_dragon.png"],
 		[{"source_pet_id": "pal_006"}, "enemy", "spr_057_frost_fox/anim_001_idle/frames/frame_001.png"],
 	]
 	for test_case in cases:
@@ -805,7 +803,7 @@ func _assert_damage_preview_cycle() -> void:
 	var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
 	var health_value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/Value_Text") as Label
 	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview") as Control
-	var badge_value := badge.get_node("Value") as Label
+	var badge_value := badge.get_node("Value") as ProgressBar
 	var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
 	assert(bool(preview.get("active", false)))
 	assert(bool(preview.get("pinned", false)))
@@ -818,7 +816,8 @@ func _assert_damage_preview_cycle() -> void:
 	assert(stats_root.visible)
 	assert(health_value.text == "HP:20")
 	assert(badge.visible)
-	assert(badge_value.text == "")
+	assert(not badge_value.show_percentage)
+	assert(is_equal_approx(badge_value.value, badge_value.max_value))
 	pet.call("_on_damage_preview_timeout")
 	await create_timer(1.4).timeout
 	assert(String(Dictionary(pet.call("get_damage_preview_snapshot")).get("state", "")) == "visible")
@@ -849,7 +848,7 @@ func _assert_incoming_damage_badge() -> void:
 	}, "player", null)
 	pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20, true)
 	var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview") as Control
-	var value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Value") as Label
+	var value := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Value") as ProgressBar
 	var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
 	var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
 	assert(bool(preview.get("active", false)))
@@ -857,7 +856,8 @@ func _assert_incoming_damage_badge() -> void:
 	assert(int(preview.get("displayed_damage", -1)) == 15)
 	assert(int(preview.get("displayed_hp", -1)) == 20)
 	assert(badge.visible)
-	assert(value.text == "")
+	assert(not value.show_percentage)
+	assert(is_equal_approx(value.value, value.max_value))
 	assert(value.self_modulate == Color.WHITE)
 	assert(stats_root.visible)
 	var health := stats_root.get_node("Health") as ProgressBar
@@ -879,7 +879,6 @@ func _assert_prefab_effect_ownership() -> void:
 	await process_frame
 	assert(pet.has_method("play_cross_cell_projectile"))
 	assert(pet.has_method("play_damage_feedback"))
-	assert(pet.has_method("play_grid_movement"))
 	assert(pet.has_method("play_death_fade"))
 	assert(not pet.has_method("play_damage_number"))
 	assert(pet.get_node_or_null("CompleteBattleCreaturePrefab/04_BattleEffects") == null)

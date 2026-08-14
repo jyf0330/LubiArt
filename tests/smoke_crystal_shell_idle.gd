@@ -26,8 +26,8 @@ func _initialize() -> void:
 	if idle.get("animation_id", "") != "ANIM_SPR_999_IDLE_001":
 		_fail("animation id mismatch")
 		return
-	if frames.size() != 16 or durations.size() != 16:
-		_fail("expected 16 frames and durations")
+	if frames.size() != 4 or durations.size() != 4:
+		_fail("expected 4 frames and durations")
 		return
 	if float(idle.get("render_scale", 0.0)) != 1.0:
 		_fail("render scale mismatch")
@@ -37,7 +37,7 @@ func _initialize() -> void:
 		return
 
 	for index in frames.size():
-		if int(durations[index]) != 240:
+		if int(durations[index]) != 400:
 			_fail("frame duration mismatch at %d" % index)
 			return
 		var texture_path := str(frames[index])
@@ -57,7 +57,7 @@ func _initialize() -> void:
 		_fail("static texture canvas mismatch")
 		return
 
-	print("SMOKE_CRYSTAL_SHELL_IDLE_PASS frames=16 duration_ms=240 canvas=128x128")
+	print("SMOKE_CRYSTAL_SHELL_IDLE_PASS frames=4 duration_ms=400 loop_ms=1600 canvas=128x128")
 	quit(0)
 
 

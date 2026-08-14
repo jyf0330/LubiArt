@@ -6,11 +6,13 @@ extends Control
 const BattleDetailControllerScript := preload("res://core_ui/scripts/battle/controllers/battle_detail_controller.gd")
 const PetDetailPanelScene := preload("res://art/prefabs/pet/pet_detail.tscn")
 const TerrainDetailScene := preload("res://art/prefabs/terrain/terrain_detail.tscn")
+const QUALITY_TIER_IDS := ["bronze", "silver", "gold", "diamond"]
 
 var _assets: RefCounted = null
 var _snapshot: Dictionary = {}
 var _active_detail_grid := Vector2i(-1, -1)
 var _active_detail_unit_id := ""
+var _quality_tier_override := ""
 var _pet_detail_panel: Control = null
 var _terrain_detail_panel: PanelContainer = null
 var _detail_controller: RefCounted = BattleDetailControllerScript.new()
@@ -30,8 +32,10 @@ func request_detail(grid: Vector2i, unit_id: String) -> void:
 	if grid.x < 0 or grid.y < 0:
 		clear()
 		return
-	_active_detail_grid = grid
 	_active_detail_unit_id = unit_id
+	# Pet details follow the selected unit identity so the card stays accurate
+	# when that unit moves. Terrain details remain anchored to their grid.
+	_active_detail_grid = Vector2i(-1, -1) if unit_id != "" else grid
 	_render_active_detail()
 
 
@@ -39,6 +43,23 @@ func render_snapshot(snapshot: Dictionary) -> void:
 	_snapshot = snapshot.duplicate(true)
 	if _has_active_request():
 		_render_active_detail()
+
+
+func render_selection_snapshot(snapshot: Dictionary) -> void:
+	_snapshot = snapshot.duplicate(false)
+	if _has_active_request():
+		_render_active_detail()
+
+
+func set_quality_tier_override(tier: String) -> void:
+	var normalized := tier.strip_edges().to_lower()
+	_quality_tier_override = normalized if normalized in QUALITY_TIER_IDS else ""
+	if _has_active_request() and not _snapshot.is_empty():
+		_render_active_detail()
+
+
+func get_quality_tier_override() -> String:
+	return _quality_tier_override
 
 
 func clear() -> void:
@@ -129,6 +150,8 @@ func _render_active_detail() -> void:
 		),
 		_detail_controller.call("attack_shape", detail, unit, _snapshot)
 	))
+	if _quality_tier_override != "":
+		record["quality"] = _quality_tier_override
 	var texture := _detail_texture(unit)
 	if _pet_detail_panel.has_method("show_context_detail"):
 		_pet_detail_panel.call("show_context_detail", record, texture)

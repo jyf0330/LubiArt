@@ -324,7 +324,6 @@ func is_presentation_busy() -> bool:
 func render_battle_command_response(command: Dictionary, response: Dictionary) -> void:
 	var before_snapshot := _current_snapshot()
 	var after_snapshot := Dictionary(response.get("snapshot", before_snapshot))
-	_snapshot = after_snapshot.duplicate(true)
 	if _battle_view != null and _battle_view.has_method("render_command_response"):
 		_battle_view.call("render_command_response", command, response)
 	if not bool(response.get("accepted", false)):
@@ -335,7 +334,20 @@ func render_battle_command_response(command: Dictionary, response: Dictionary) -
 			"命令": command_type,
 			"原因": reason,
 		})
+		if command_type.strip_edges().to_upper() == "SELECT_CELL" \
+				and _battle_view != null \
+				and _battle_view.has_method("render_selection_snapshot"):
+			_battle_view.call("render_selection_snapshot", before_snapshot)
 		return
+	var command_type := String(command.get("type", "")).strip_edges().to_upper()
+	if command_type == "SELECT_CELL" \
+			and String(after_snapshot.get("phase", "")) == "battle" \
+			and _battle_view != null \
+			and _battle_view.has_method("render_selection_snapshot"):
+		_snapshot = after_snapshot.duplicate(false)
+		_battle_view.call("render_selection_snapshot", after_snapshot)
+		return
+	_snapshot = after_snapshot.duplicate(true)
 	if String(command.get("type", "")) == "RUN_COMBAT_ROUND" \
 			and String(after_snapshot.get("phase", "")) != "battle":
 		_render_battle_view(after_snapshot)

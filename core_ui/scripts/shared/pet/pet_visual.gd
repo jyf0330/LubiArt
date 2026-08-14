@@ -12,19 +12,22 @@ const DEFAULT_AUTHORED_HORIZONTAL_FACING := 1.0
 const TRANSFORM_IDLE_TEXTURE_PATHS := {
 	"res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png": true,
 }
+const STATIC_IDLE_TEXTURE_PATHS := {}
 const DAMAGE_PREVIEW_INITIAL_HOLD := 1.0
 const DAMAGE_PREVIEW_VISIBLE_HOLD := 1.0
 const DAMAGE_PREVIEW_HIDDEN_HOLD := 1.0
 const DAMAGE_PREVIEW_FADE_DURATION := 0.12
 const HEALTH_PREFIX := "HP:"
 const SHIELD_PREFIX := "SHLD:"
-const DAMAGE_PREVIEW_COLOR := Color("ff5a4f")
+const DAMAGE_PREVIEW_COLOR := Color("ff0000")
 const DAMAGE_PREVIEW_HEALTH_SCALE := 1.45
 const DAMAGE_PREVIEW_LETHAL_DIM_ALPHA := 0.32
 const DAMAGE_PREVIEW_LETHAL_FLASH_HALF_DURATION := 0.24
 const STAT_COLUMN_GAP := 1.0
 const STAT_COLUMN_RIGHT_INSET := 4.0
 const HEALTH_BAR_HEAD_GAP := 14.0
+const HEALTH_BAR_POSITIONING_HEIGHT := 11.0
+const HEALTH_BAR_RASTER_OVERSCAN := 1.0
 const DAMAGE_PREVIEW_BADGE_RIGHT_OVERHANG_RATIO := 0.25
 const DAMAGE_PREVIEW_BADGE_BOTTOM_INSET := 4.0
 const DAMAGE_HEALTH_BAR_DURATION := 0.32
@@ -54,7 +57,7 @@ static var _missing_authored_facing_paths: Dictionary = {}
 @onready var psd_damage_cap_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/DamageCap/Value_Text"
 @onready var incoming_damage_preview: Control = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"
 @onready var incoming_damage_separator: ColorRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Background"
-@onready var incoming_damage_value: Label = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Value"
+@onready var incoming_damage_value: ProgressBar = $"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview/Value"
 @onready var death_mark_rect: TextureRect = $"CompleteBattleCreaturePrefab/01_UnitVisual/DeathMark"
 @onready var animation: PetAnimation = $"CompleteBattleCreaturePrefab/03_AttackActions"
 @onready var hit_reaction: PetHitReaction = $"CompleteBattleCreaturePrefab/01_UnitVisual/HitReactionPlayer"
@@ -116,6 +119,7 @@ var _damage_preview_badge_base_modulate := Color.WHITE
 var _cursor_hit_texture: Texture2D = null
 var _cursor_hit_image: Image = null
 var _display_texture_source: Texture2D = null
+var _is_selected := false
 
 
 func _ready() -> void:
@@ -144,8 +148,6 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 	_assets = assets
 	_set_battle_presentation()
 	_layout_children()
-	frame_rect.texture = null
-	frame_rect.visible = false
 	if assets != null and assets.has_method("texture_for_unit"):
 		var result := Dictionary(assets.call("texture_for_unit", cell_data, side))
 		sprite_rect.texture = result.get("texture", null) as Texture2D
@@ -154,6 +156,7 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 		sprite_rect.texture = AUTHORED_CREATURE_TEXTURE
 	_display_texture_source = sprite_rect.texture
 	var animation_texture_path := _display_texture_source.resource_path
+	var uses_transform_idle := TRANSFORM_IDLE_TEXTURE_PATHS.has(animation_texture_path)
 	_layout_children()
 	var visible_foot_pivot := Vector2(
 		_battle_sprite_visible_rect.get_center().x,
@@ -164,8 +167,8 @@ func set_unit_data(data: Dictionary, unit_side: String, assets: RefCounted) -> v
 		sprite_rect.texture,
 		visible_foot_pivot,
 		animation_texture_path,
-		not TRANSFORM_IDLE_TEXTURE_PATHS.has(animation_texture_path),
-		TRANSFORM_IDLE_TEXTURE_PATHS.has(animation_texture_path),
+		not uses_transform_idle and not STATIC_IDLE_TEXTURE_PATHS.has(animation_texture_path),
+		uses_transform_idle,
 		_battle_horizontal_facing(side),
 		true,
 		_authored_horizontal_facing(_display_texture_source)
@@ -339,7 +342,7 @@ func reset_pet_view() -> void:
 	_battle_sprite_visible_rect = Rect2()
 	_battle_removed_bottom_pixels = 0
 	_battle_footline_bottom_inset = BATTLE_FOOTLINE_BOTTOM_INSET
-	frame_rect.texture = null
+	_is_selected = false
 	frame_rect.visible = false
 	sprite_rect.texture = null
 	_display_texture_source = null
@@ -604,7 +607,6 @@ func _show_damage_preview_value() -> void:
 		shield_group.visible = false
 	if _damage_preview_uses_badge:
 		if incoming_damage_value != null:
-			incoming_damage_value.text = ""
 			incoming_damage_value.self_modulate = Color.WHITE
 		_layout_damage_preview_in_health_bar()
 		_sync_lethal_damage_preview_flash()
@@ -645,14 +647,14 @@ func _stop_damage_preview_animation(restore_current_hp: bool) -> void:
 		incoming_damage_preview.visible = false
 		incoming_damage_preview.modulate = _damage_preview_badge_base_modulate
 	if incoming_damage_value != null:
-		incoming_damage_value.text = ""
+		incoming_damage_value.value = incoming_damage_value.max_value
 	_damage_preview_active = false
 	_damage_preview_lethal = false
 	_damage_preview_pinned = false
 	_damage_preview_state = &""
 	_damage_preview_sync_epoch_msec = -1
 	_leave_damage_preview_presentation()
-	_layout_shield_bar_segment()
+	_layout_shield_bar_below_health()
 	if not _damage_preview_uses_badge and stats_root != null:
 		_refresh_battle_health_bar()
 	_damage_preview_revealed_stats = false
@@ -678,7 +680,7 @@ func _enter_damage_preview_presentation() -> void:
 	health_group.position.x -= extra_width
 	health_group.scale *= DAMAGE_PREVIEW_HEALTH_SCALE
 	health_group.z_index = 12
-	_layout_shield_bar_segment()
+	_layout_shield_bar_below_health()
 	if attack_group != null:
 		attack_group.visible = false
 	if damage_cap_group != null:
@@ -698,7 +700,7 @@ func _leave_damage_preview_presentation() -> void:
 		attack_group.visible = _damage_preview_attack_was_visible
 	if shield_group != null:
 		shield_group.visible = _damage_preview_shield_was_visible
-	_layout_shield_bar_segment()
+	_layout_shield_bar_below_health()
 	if damage_cap_group != null:
 		damage_cap_group.visible = _damage_preview_cap_was_visible
 
@@ -721,25 +723,11 @@ func _layout_damage_preview_in_health_bar() -> void:
 			or incoming_damage_preview == null or health_group == null:
 		return
 	var safe_max_hp := maxi(1, _damage_preview_max_hp)
-	var current_shield := _damage_preview_current_shield \
-		if _damage_preview_current_shield >= 0 else maxi(0, int(cell_data.get("shield", 0)))
-	var projected_shield := _damage_preview_projected_shield \
-		if _damage_preview_projected_shield >= 0 else current_shield
-	var bar_capacity := maxi(
-		1,
-		safe_max_hp + maxi(_health_bar_max_shield, current_shield)
-	)
-	var current_effective := mini(
-		bar_capacity,
-		maxi(0, _damage_preview_current_hp) + current_shield
-	)
-	var projected_effective := mini(
-		current_effective,
-		maxi(0, _damage_preview_projected_hp) + projected_shield
-	)
-	var current_ratio := clampf(float(current_effective) / float(bar_capacity), 0.0, 1.0)
+	var current_hp := clampi(_damage_preview_current_hp, 0, safe_max_hp)
+	var projected_hp := clampi(_damage_preview_projected_hp, 0, current_hp)
+	var current_ratio := clampf(float(current_hp) / float(safe_max_hp), 0.0, 1.0)
 	var projected_ratio := clampf(
-		float(projected_effective) / float(bar_capacity),
+		float(projected_hp) / float(safe_max_hp),
 		0.0,
 		current_ratio
 	)
@@ -749,7 +737,10 @@ func _layout_damage_preview_in_health_bar() -> void:
 	if damage_fill_width <= 0.0:
 		incoming_damage_preview.visible = false
 		return
-	var preview_height := health_group.size.y
+	# The red fill is clipped by its preview parent. Give that parent the same
+	# one-row masked overscan used by the base ProgressBar so both fills reach
+	# the frame edge under integer and fractional battle transforms.
+	var preview_height := health_group.size.y + HEALTH_BAR_RASTER_OVERSCAN
 	incoming_damage_preview.position = Vector2(projected_fill_width, 0.0)
 	incoming_damage_preview.size = Vector2(
 		damage_fill_width,
@@ -759,7 +750,7 @@ func _layout_damage_preview_in_health_bar() -> void:
 	incoming_damage_preview.visible = _damage_preview_state != &"hidden"
 	if incoming_damage_separator != null:
 		incoming_damage_separator.position = Vector2.ZERO
-		incoming_damage_separator.size = Vector2(damage_fill_width, preview_height)
+		incoming_damage_separator.size = Vector2(minf(2.0, damage_fill_width), preview_height)
 	if incoming_damage_value != null:
 		incoming_damage_value.position = Vector2.ZERO
 		incoming_damage_value.size = Vector2(
@@ -808,8 +799,10 @@ func update_shield(value: int) -> void:
 
 
 func set_selected(selected: bool) -> void:
+	_is_selected = selected
 	if frame_rect != null:
-		frame_rect.modulate = Color(1.0, 0.92, 0.45, 1.0) if selected else Color.WHITE
+		frame_rect.visible = selected and _display_mode == &"battle"
+		frame_rect.modulate = Color.WHITE
 
 
 func show_action_block_attack_ranges(
@@ -884,17 +877,16 @@ func _refresh_battle_health_bar() -> void:
 	_health_bar_max_hp = maxi(current_hp, _max_hp(cell_data, current_hp)) \
 		if _has_max_hp(cell_data) else maxi(_health_bar_max_hp, current_hp)
 	var max_hp := maxi(1, _health_bar_max_hp)
-	var bar_capacity := maxi(1, max_hp + _health_bar_max_shield)
 	health_group.min_value = 0.0
-	health_group.max_value = float(bar_capacity)
-	health_group.value = float(mini(current_hp, bar_capacity))
+	health_group.max_value = float(max_hp)
+	health_group.value = float(mini(current_hp, max_hp))
 	if shield_group != null:
 		shield_group.min_value = 0.0
-		shield_group.max_value = 1.0
-		shield_group.value = 1.0
+		shield_group.max_value = float(maxi(1, _health_bar_max_shield))
+		shield_group.value = float(mini(current_shield, _health_bar_max_shield))
 		if shield_fill_style != null:
 			shield_group.add_theme_stylebox_override("fill", shield_fill_style)
-		_layout_shield_bar_segment(current_hp, current_shield, bar_capacity)
+		_layout_shield_bar_below_health(current_shield)
 	var fill_style := ally_health_fill_style if _is_player_side(side) else enemy_health_fill_style
 	if fill_style != null:
 		health_group.add_theme_stylebox_override("fill", fill_style)
@@ -1013,14 +1005,6 @@ func play_shake(duration: float = 0.22, strength: float = 7.0) -> void:
 	animation.play_shake(duration, strength)
 
 
-func move_to_position(target_position: Vector2, duration: float = 0.22) -> void:
-	animation.move_to_position(target_position, duration)
-
-
-func get_move_animation_duration(fallback: float = 0.22) -> float:
-	return animation.get_move_animation_duration(fallback)
-
-
 func play_attack_action(attack_type: String, element_id: String = "fire") -> void:
 	animation.play_sprite_attack(Vector2.RIGHT)
 	animation.play_attack_action(attack_type, element_id)
@@ -1137,19 +1121,6 @@ func play_attack_translation(
 	return _attack_translation_tween
 
 
-func play_grid_movement(
-	from_global_position: Vector2,
-	to_global_position: Vector2,
-	duration: float = 0.22
-) -> void:
-	var parent_control := get_parent() as Control
-	if parent_control == null:
-		return
-	var parent_inverse := parent_control.get_global_transform_with_canvas().affine_inverse()
-	position = parent_inverse * from_global_position
-	animation.move_to_position(parent_inverse * to_global_position, duration)
-
-
 func play_death_fade(duration: float = 0.42) -> void:
 	clear_dead_mark()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1182,6 +1153,7 @@ func _layout_children() -> void:
 	else:
 		_layout_collection_sprite()
 	_layout_battle_shadow()
+	_layout_selection_frame()
 	_layout_incoming_damage_preview()
 	_set_authored_rect(enemy_marker_group, Rect2(65.0, -49.0, 39.0, 48.0))
 	_layout_stats_from_prefab()
@@ -1246,6 +1218,18 @@ func _layout_battle_shadow() -> void:
 		shadow_center_y - shadow_size.y * 0.5
 	)
 	shadow_rect.size = shadow_size
+
+
+func _layout_selection_frame() -> void:
+	if frame_rect == null or shadow_rect == null or _display_mode != &"battle":
+		return
+	var selection_size := Vector2(
+		clampf(shadow_rect.size.x * 1.35, size.x * 0.62, size.x * 0.82),
+		clampf(shadow_rect.size.y * 2.0, 20.0, 30.0)
+	)
+	frame_rect.position = shadow_rect.get_rect().get_center() - selection_size * 0.5 + Vector2(0.0, 1.0)
+	frame_rect.size = selection_size
+	frame_rect.visible = _is_selected
 
 
 func _layout_incoming_damage_preview() -> void:
@@ -1472,48 +1456,37 @@ func _position_health_bar_above_sprite() -> void:
 	var sprite_top := _battle_sprite_actual_top_y()
 	if not is_finite(sprite_top):
 		return
-	health_group.position.y = sprite_top \
+	var authored_y := sprite_top \
 		- HEALTH_BAR_HEAD_GAP * _battle_stat_layout_scale \
-		- health_group.size.y * health_group.scale.y
-	_layout_shield_bar_segment()
+		- HEALTH_BAR_POSITIONING_HEIGHT * health_group.scale.y
+	# The frame's authored slot is exactly 9 rendered pixels high. Subpixel Y
+	# placement makes a StyleBoxFlat lose its bottom row on some sprite frames.
+	health_group.position.y = roundf(authored_y)
+	_layout_shield_bar_below_health()
 
 
-func _layout_shield_bar_segment(
-	current_hp: int = -1,
-	current_shield: int = -1,
-	bar_capacity: int = -1
-) -> void:
+func _layout_shield_bar_below_health(current_shield: int = -1) -> void:
 	if health_group == null or shield_group == null:
 		return
-	var safe_hp := maxi(0, current_hp) \
-		if current_hp >= 0 else maxi(0, int(cell_data.get("hp", 0)))
 	var safe_shield := maxi(0, current_shield) \
 		if current_shield >= 0 else maxi(0, int(cell_data.get("shield", 0)))
-	var safe_capacity := maxi(1, bar_capacity) if bar_capacity > 0 else maxi(
-		1,
-		maxi(1, _health_bar_max_hp) + maxi(_health_bar_max_shield, safe_shield)
-	)
-	var hp_ratio := clampf(float(safe_hp) / float(safe_capacity), 0.0, 1.0)
-	var shield_ratio := clampf(
-		float(safe_shield) / float(safe_capacity),
-		0.0,
-		1.0 - hp_ratio
-	)
-	shield_group.position = health_group.position + Vector2(
-		health_group.size.x * hp_ratio,
-		0.0
-	)
-	shield_group.size = Vector2(
-		health_group.size.x * shield_ratio,
-		health_group.size.y
-	)
+	var authored_health := Dictionary(_authored_stat_layout.get(health_group.name, {}))
+	var authored_shield := Dictionary(_authored_stat_layout.get(shield_group.name, {}))
+	var authored_health_position := Vector2(authored_health.get("position", Vector2.ZERO))
+	var authored_shield_position := Vector2(authored_shield.get("position", Vector2(42.0, 12.0)))
+	var authored_shield_size := Vector2(authored_shield.get("size", Vector2(96.0, 3.0)))
+	var authored_offset := authored_shield_position - authored_health_position
+	shield_group.position = health_group.position + authored_offset * health_group.scale
+	shield_group.size = Vector2(health_group.size.x, authored_shield_size.y)
 	shield_group.scale = health_group.scale
 	shield_group.rotation = health_group.rotation
 	shield_group.visible = _display_mode == &"battle" \
 		and not cell_data.is_empty() \
 		and not _damage_preview_active \
 		and safe_shield > 0 \
-		and shield_group.size.x > 0.0
+		and shield_group.value > 0.0
+
+
 func _edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> float:
 	if is_zero_approx(edge_end.y - edge_start.y):
 		return edge_start.x
@@ -1559,3 +1532,4 @@ func _reset_interaction_state() -> void:
 		stats_root.visible = false
 	if frame_rect != null:
 		frame_rect.modulate = Color.WHITE
+		frame_rect.visible = false

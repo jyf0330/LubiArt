@@ -19,13 +19,10 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = Path(r"C:\Users\jyf\Downloads\rika_660b791a.png")
 DELIVERY_ROOT = (
     ROOT
-    / "art/images/shared/pets/animations/spr_001_gold_mascot/anim_001_idle"
+    / "output/sprite_animation_candidates/spr_001_gold_mascot/idle/legacy_mischief_processor"
 )
 FRAME_ROOT = DELIVERY_ROOT / "frames"
-MANIFEST_ROOT = (
-    ROOT
-    / "art/manifests/shared/pets/animations/spr_001_gold_mascot/anim_001_idle"
-)
+MANIFEST_ROOT = DELIVERY_ROOT / "qa"
 INTAKE_ROOT = (
     ROOT
     / "output/sprite_animation_intake/spr_001_gold_mascot/anim_001_idle_mischief_cat"

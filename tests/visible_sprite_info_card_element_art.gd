@@ -1,6 +1,6 @@
 extends SceneTree
 
-const PET_DETAIL_SCENE := preload("res://art/prefabs/pet/pet_detail.tscn")
+const CARD_SCENE := preload("res://art/prefabs/pet/sprite_info_card.tscn")
 const ELEMENT_NAMES := ["暗", "水", "冰", "草", "电", "风", "火", "龙", "土"]
 
 
@@ -26,8 +26,7 @@ func _build_preview() -> void:
 	title.add_theme_font_size_override("font_size", 26)
 	background.add_child(title)
 
-	var detail := PET_DETAIL_SCENE.instantiate() as Control
-	var card := detail.get_node("Panel/SpriteInfoCard").duplicate() as Control
+	var card := CARD_SCENE.instantiate() as Control
 	card.position = Vector2(-1000.0, -1000.0)
 	background.add_child(card)
 	for index in range(ELEMENT_NAMES.size()):

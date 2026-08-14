@@ -50,6 +50,7 @@ class FakeBoard:
 	extends Control
 
 	var cells := {}
+	var local_selection_ids: Array[String] = []
 
 	func _cell_at(x: int, y: int) -> Control:
 		return cells.get(Vector2i(x, y)) as Control
@@ -68,6 +69,9 @@ class FakeBoard:
 
 	func _is_visible_board_cell(x: int, y: int) -> bool:
 		return cells.has(Vector2i(x, y))
+
+	func show_local_unit_selection(unit_id: String) -> void:
+		local_selection_ids.append(unit_id)
 
 
 func _initialize() -> void:
@@ -98,25 +102,53 @@ func _run() -> void:
 	)
 
 	interaction.call("on_cell_hovered", grid)
-	assert(detail_events.size() == 1)
-	assert(detail_events[0]["grid"] == grid)
-	assert(String(detail_events[0]["unitId"]) == "pet_hover_test")
+	assert(detail_events.is_empty())
 	assert(cell.unit.battle_stats_hovered)
 	interaction.call("on_cell_unhovered", grid)
-	assert(detail_events.size() == 2)
-	assert(detail_events[1]["grid"] == Vector2i(-1, -1))
+	assert(detail_events.is_empty())
 	assert(not cell.unit.battle_stats_hovered)
 	assert(cell.unit.battle_stats_hover_changes == [true, false])
 
 	detail_events.clear()
 	interaction.call("on_cell_selected", grid)
-	assert(detail_events.is_empty())
+	assert(detail_events.size() == 1)
+	assert(detail_events[0]["grid"] == grid)
+	assert(String(detail_events[0]["unitId"]) == "pet_hover_test")
 	assert(command_events.is_empty())
 
+	detail_events.clear()
 	cell.cell_data["side"] = "player"
 	interaction.call("on_cell_selected", grid)
-	assert(detail_events.is_empty())
+	assert(detail_events.size() == 1)
+	assert(detail_events[0]["grid"] == grid)
+	assert(String(detail_events[0]["unitId"]) == "pet_hover_test")
 	assert(command_events.size() == 1)
 	assert(String(command_events[0].get("type", "")) == "SELECT_CELL")
-	print("PET_HOVER_DETAIL_SMOKE_PASS")
+	interaction.call("on_cell_hovered", grid)
+	interaction.call("on_cell_unhovered", grid)
+	assert(detail_events.size() == 1)
+
+	var empty_grid := Vector2i(3, 1)
+	var empty_cell := FakeCell.new()
+	empty_cell.cell_data = {
+		"x": empty_grid.x,
+		"y": empty_grid.y,
+		"unitId": "",
+		"side": "",
+		"type": "floor",
+	}
+	board.add_child(empty_cell)
+	board.cells[empty_grid] = empty_cell
+	detail_events.clear()
+	command_events.clear()
+	interaction.call("on_cell_selected", empty_grid)
+	assert(detail_events.size() == 1)
+	assert(detail_events[0]["grid"] == Vector2i(-1, -1))
+	assert(String(detail_events[0]["unitId"]) == "")
+	assert(command_events.size() == 1)
+	assert(String(command_events[0].get("type", "")) == "SELECT_CELL")
+	assert(int(command_events[0].get("x", -1)) == empty_grid.x)
+	assert(int(command_events[0].get("y", -1)) == empty_grid.y)
+	assert(board.local_selection_ids == [""])
+	print("PET_SELECTION_DETAIL_SMOKE_PASS")
 	quit(0)

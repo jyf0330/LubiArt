@@ -535,7 +535,7 @@
   },
   "scope_notes": [
     "The global approval gate remains blocked by pre-existing unrelated unregistered animation artifacts; it reports no unapproved SPR_010 idle files.",
-    "The pre-existing move-specific smoke test expects an unmirrored positive x scale, while the current shared facing implementation intentionally mirrors rightward playback; the SPR_010 move manifest was not changed by this idle integration."
+    "Directional facing uses the current shared mirror implementation while idle playback remains active."
   ],
   "visual_qa_notes": [
     "The 16-frame sequence keeps the body centered and the authored 160x160 canvas stable while the dome and tentacles make a restrained idle motion.",

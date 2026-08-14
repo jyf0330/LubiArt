@@ -121,6 +121,8 @@ func set_button_shortcut_hints_visible(hints_visible: bool) -> void:
 func _on_health_bar_tier_requested(tier: String) -> void:
 	if board != null and board.has_method("set_all_health_bar_tiers"):
 		board.call("set_all_health_bar_tiers", tier)
+	if overlay != null and overlay.has_method("set_quality_tier_override"):
+		overlay.call("set_quality_tier_override", tier)
 
 
 func are_button_shortcut_hints_visible() -> bool:
@@ -171,6 +173,17 @@ func render_snapshot(snapshot: Dictionary) -> void:
 		play_battle_trace(new_events)
 	elif _rendered_trace_count < 0:
 		_rendered_trace_count = Array(incoming.get("battleTrace", incoming.get("battle_trace", []))).size()
+
+
+func render_selection_snapshot(snapshot: Dictionary) -> void:
+	_last_snapshot = snapshot.duplicate(false)
+	if board != null and board.has_method("render_selection_snapshot"):
+		board.call("render_selection_snapshot", snapshot)
+	if hud != null and hud.has_method("render_selection_snapshot"):
+		hud.call("render_selection_snapshot", snapshot)
+	if overlay != null and overlay.has_method("render_selection_snapshot"):
+		overlay.call("render_selection_snapshot", snapshot)
+	_presented_snapshot = snapshot.duplicate(false)
 
 
 func render_command_response(command: Dictionary, response: Dictionary) -> void:
@@ -347,6 +360,10 @@ func _input(event: InputEvent) -> void:
 			map_controls.call("handle_shortcut_input", event, false)
 		get_viewport().set_input_as_handled()
 		return
+	if action_id == ShortcutCatalog.ACTION_SETTINGS \
+			and pressed and not is_echo and _close_visible_detail():
+		get_viewport().set_input_as_handled()
+		return
 	if action_id not in [ShortcutCatalog.ACTION_SETTINGS, ShortcutCatalog.ACTION_ATTACK_ORDER]:
 		return
 	if map_controls.has_method("handle_shortcut_input"):
@@ -370,6 +387,15 @@ func _settings_menu_is_open() -> bool:
 
 func _attack_timeline_is_open() -> bool:
 	return hud != null and bool(hud.call("debug_is_attack_timeline_open"))
+
+
+func _close_visible_detail() -> bool:
+	if overlay == null or not overlay.has_method("has_visible_detail") \
+			or not bool(overlay.call("has_visible_detail")):
+		return false
+	overlay.call("clear")
+	GameLogScript.info("战斗按键/Esc", "已关闭战斗详情")
+	return true
 
 
 func _connect_map_controls() -> void:

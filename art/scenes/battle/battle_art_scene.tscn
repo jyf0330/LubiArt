@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://c0am8pxw3phnn"]
 
-[ext_resource type="Texture2D" uid="uid://c0gr02r6cf0x1" path="res://art/images/battle/map_controls/maps/forest_clearing_trial.png" id="1_bg"]
+[ext_resource type="Texture2D" uid="uid://26148s3ugiso" path="res://art/images/battle/map_controls/maps/grassland_morning.png" id="1_bg"]
 [ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/scenes/battle_scene.gd" id="2_script"]
 [ext_resource type="Script" uid="uid://u854nu5t7opc" path="res://core_ui/scripts/battle/controllers/battle_vfx_controller.gd" id="3_vfx"]
 [ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_hud.tscn" id="4_hud"]

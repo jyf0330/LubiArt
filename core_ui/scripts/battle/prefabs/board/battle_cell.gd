@@ -56,6 +56,7 @@ var _transient_element_visual_dirty := false
 var _unit_stat_layout_scale := 1.0
 var _active_element_tile_variant := ""
 var _is_hovered := false
+var _grid_visuals_visible := false
 var _attack_highlight_blink_tween: Tween = null
 
 
@@ -189,6 +190,19 @@ func set_highlight(mode: String) -> void:
 func set_hovered(value: bool) -> void:
 	_is_hovered = value
 	_update_interaction_highlights()
+
+
+func set_grid_visuals_visible(value: bool) -> void:
+	if _grid_visuals_visible == value:
+		return
+	_grid_visuals_visible = value
+	_update_attack_highlight()
+	_update_interaction_highlights()
+	queue_redraw()
+
+
+func are_grid_visuals_visible() -> bool:
+	return _grid_visuals_visible
 
 
 func is_hover_highlight_visible() -> bool:
@@ -445,9 +459,9 @@ func _update_attack_highlight() -> void:
 	var is_range := _highlight_mode == "range"
 	if _attack_highlight != null:
 		_attack_highlight.color = RANGE_HIGHLIGHT_FILL if is_range else ATTACK_HIGHLIGHT_FILL
-		_attack_highlight.visible = is_attack or is_range
+		_attack_highlight.visible = _grid_visuals_visible and (is_attack or is_range)
 	if _attack_highlight_border != null:
-		_attack_highlight_border.visible = is_attack
+		_attack_highlight_border.visible = _grid_visuals_visible and is_attack
 
 
 func _sync_interaction_highlight_geometry() -> void:
@@ -468,9 +482,9 @@ func _sync_interaction_highlight_geometry() -> void:
 
 func _update_interaction_highlights() -> void:
 	if _hover_highlight != null:
-		_hover_highlight.visible = _is_hovered
+		_hover_highlight.visible = _grid_visuals_visible and _is_hovered
 	if _hover_highlight_border != null:
-		_hover_highlight_border.visible = _is_hovered
+		_hover_highlight_border.visible = _grid_visuals_visible and _is_hovered
 
 
 func _has_point(point: Vector2) -> bool:
@@ -480,6 +494,8 @@ func _has_point(point: Vector2) -> bool:
 
 
 func _draw() -> void:
+	if not _grid_visuals_visible:
+		return
 	var cell_polygon := polygon.duplicate() if uses_perspective_geometry() else PackedVector2Array([
 		Vector2.ZERO,
 		Vector2(size.x, 0.0),

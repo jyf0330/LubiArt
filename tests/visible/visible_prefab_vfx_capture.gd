@@ -5,7 +5,6 @@ const MockSession := preload("res://session/mock_game_session.gd")
 const PROJECTILE_CAPTURE := "lubi_battle_prefab_projectile.png"
 const IMPACT_CAPTURE := "lubi_battle_prefab_impact.png"
 const BITE_CAPTURE := "lubi_battle_prefab_bite.png"
-const MOVEMENT_CAPTURE := "lubi_battle_prefab_movement.png"
 const DEATH_CAPTURE := "lubi_battle_prefab_death.png"
 
 
@@ -98,11 +97,10 @@ func _run() -> void:
 			return
 	if not await _capture_pet_owned_samples(battle_view):
 		return
-	print("VISIBLE_PREFAB_VFX_PASS projectile=%s impact=%s bite=%s movement=%s death=%s" % [
+	print("VISIBLE_PREFAB_VFX_PASS projectile=%s impact=%s bite=%s death=%s" % [
 		_capture_path(PROJECTILE_CAPTURE),
 		_capture_path(IMPACT_CAPTURE),
 		_capture_path(BITE_CAPTURE),
-		_capture_path(MOVEMENT_CAPTURE),
 		_capture_path(DEATH_CAPTURE),
 	])
 	quit(0)
@@ -129,12 +127,6 @@ func _capture_pet_owned_samples(battle_view: Control) -> bool:
 		return false
 	await create_timer(0.12).timeout
 	_save_capture(BITE_CAPTURE)
-
-	var origin_global := pet.global_position
-	pet.call("play_grid_movement", origin_global, origin_global + Vector2(72.0, 0.0), 0.36)
-	await create_timer(0.18).timeout
-	_save_capture(MOVEMENT_CAPTURE)
-	await create_timer(0.22).timeout
 
 	pet.call("play_death_fade", 0.42)
 	await create_timer(0.20).timeout

@@ -1,0 +1,564 @@
+[gd_scene load_steps=29 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/shared/pet/battle_pet_info_card.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://art/images/shared/pets/info_card/fonts/fusion_pixel_zh_hans.ttf" id="2_font"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/element_dark.png" id="3_element"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_hp.png" id="4_hp"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_attack.png" id="5_attack"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_ap.png" id="6_ap"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_defense.png" id="7_defense"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_shield.png" id="8_shield"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_regen.png" id="9_regen"]
+[sub_resource type="StyleBoxEmpty" id="StyleFrame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleHeader"]
+
+[sub_resource type="StyleBoxFlat" id="StyleNamePriceBar"]
+content_margin_left = 14.0
+content_margin_right = 96.0
+bg_color = Color(0.12, 0.36, 0.64, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.045, 0.13, 0.26, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+shadow_color = Color(0, 0, 0, 0.52)
+shadow_size = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleSection"]
+bg_color = Color(0.045, 0.17, 0.035, 0.97)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.47, 0.3, 0.15, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+shadow_color = Color(0, 0, 0, 0.48)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleAttackRange"]
+bg_color = Color(0.0745098, 0.117647, 0.101961, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.184314, 0.309804, 0.305882, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleAttackSectionDividers"]
+bg_color = Color(0, 0, 0, 0)
+border_width_top = 3
+border_width_bottom = 3
+border_color = Color(0.184314, 0.309804, 0.305882, 1)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleStatsSeparator"]
+bg_color = Color(0.0745098, 0.117647, 0.101961, 1)
+border_width_top = 3
+border_color = Color(0.184314, 0.309804, 0.305882, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleTraitEmpty"]
+bg_color = Color(0.0352941, 0.0588235, 0.0509804, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.105882, 0.152941, 0.137255, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleTraitAwakened"]
+bg_color = Color(0.0705882, 0.129412, 0.109804, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.545098, 0.466667, 0.266667, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+shadow_color = Color(0, 0, 0, 0.42)
+shadow_size = 2
+
+[sub_resource type="Gradient" id="GradientHealthUnder"]
+colors = PackedColorArray(0.07, 0.035, 0.015, 1, 0.14, 0.08, 0.035, 1)
+
+[sub_resource type="GradientTexture2D" id="TextureHealthUnder"]
+gradient = SubResource("GradientHealthUnder")
+width = 320
+height = 36
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="GradientHealth"]
+colors = PackedColorArray(0.08, 0.43, 0.08, 1, 0.28, 0.72, 0.14, 1)
+
+[sub_resource type="GradientTexture2D" id="TextureHealth"]
+gradient = SubResource("GradientHealth")
+width = 320
+height = 36
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="GradientShieldUnder"]
+colors = PackedColorArray(0.19, 0.215, 0.245, 1, 0.35, 0.39, 0.44, 1)
+
+[sub_resource type="GradientTexture2D" id="TextureShieldUnder"]
+gradient = SubResource("GradientShieldUnder")
+width = 320
+height = 36
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="GradientShield"]
+colors = PackedColorArray(0.43, 0.48, 0.55, 1, 0.84, 0.87, 0.9, 1)
+
+[sub_resource type="GradientTexture2D" id="TextureShield"]
+gradient = SubResource("GradientShield")
+width = 320
+height = 36
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="BattlePetInfoCard" type="Control"]
+custom_minimum_size = Vector2(380, 820)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 380.0
+offset_bottom = 820.0
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Frame" type="Panel" parent="."]
+layout_mode = 0
+offset_top = 46.0
+offset_right = 380.0
+offset_bottom = 820.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleFrame")
+
+[node name="QualityHeader" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 380.0
+offset_bottom = 60.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleHeader")
+
+[node name="QualityStars" type="Label" parent="QualityHeader"]
+layout_mode = 0
+offset_left = 126.0
+offset_top = 24.0
+offset_right = 254.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(1, 0.83, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.05, 0.01, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "★★★"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="QualityName" type="Label" parent="QualityHeader"]
+visible = false
+layout_mode = 0
+offset_left = 8.0
+offset_top = 34.0
+offset_right = 212.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(1, 0.83, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 17
+text = "黄金级"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PortraitPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 60.0
+offset_right = 371.0
+offset_bottom = 322.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleSection")
+
+[node name="PortraitBackdrop" type="ColorRect" parent="PortraitPanel"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 336.0
+offset_bottom = 254.0
+mouse_filter = 2
+color = Color(0.65, 0.35, 0.1, 0.16)
+
+[node name="Portrait" type="TextureRect" parent="PortraitPanel"]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 8.0
+offset_right = 272.0
+offset_bottom = 210.0
+mouse_filter = 2
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PetName" type="Label" parent="PortraitPanel"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 210.0
+offset_right = 336.0
+offset_bottom = 254.0
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 23
+theme_override_styles/normal = SubResource("StyleNamePriceBar")
+text = "影焰幼龙"
+horizontal_alignment = 0
+vertical_alignment = 1
+text_overrun_behavior = 3
+
+[node name="ElementIcon" type="TextureRect" parent="PortraitPanel"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 164.0
+offset_right = 58.0
+offset_bottom = 206.0
+mouse_filter = 0
+texture = ExtResource("3_element")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ElementName" type="Label" parent="PortraitPanel"]
+layout_mode = 0
+offset_left = 246.0
+offset_top = 210.0
+offset_right = 326.0
+offset_bottom = 254.0
+theme_override_colors/font_color = Color(1, 0.91, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+text = "2"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="HealthBar" type="TextureProgressBar" parent="."]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 330.0
+offset_right = 359.0
+offset_bottom = 366.0
+mouse_filter = 0
+texture_under = SubResource("TextureHealthUnder")
+texture_progress = SubResource("TextureHealth")
+nine_patch_stretch = true
+value = 100.0
+show_percentage = false
+
+[node name="HealthValue" type="Label" parent="HealthBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_right = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.01, 0.03, 0.03, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "850 / 850"
+horizontal_alignment = 0
+vertical_alignment = 1
+
+[node name="ShieldBar" type="TextureProgressBar" parent="."]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 366.0
+offset_right = 359.0
+offset_bottom = 402.0
+mouse_filter = 0
+texture_under = SubResource("TextureShieldUnder")
+texture_progress = SubResource("TextureShield")
+nine_patch_stretch = true
+value = 100.0
+show_percentage = false
+
+[node name="ShieldValue" type="Label" parent="ShieldBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_right = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.97, 0.98, 1, 1)
+theme_override_colors/font_outline_color = Color(0.015, 0.025, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "40 / 40"
+horizontal_alignment = 0
+vertical_alignment = 1
+
+[node name="AttackRangePanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 441.0
+offset_right = 135.0
+offset_bottom = 537.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleAttackRange")
+
+[node name="AttackRangeTitle" type="Label" parent="AttackRangePanel"]
+layout_mode = 0
+offset_top = -21.0
+offset_right = 320.0
+offset_bottom = 117.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleAttackSectionDividers")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AttackGrid" type="GridContainer" parent="AttackRangePanel"]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 31.0
+offset_right = 89.0
+offset_bottom = 65.0
+mouse_filter = 2
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+columns = 7
+
+[node name="TraitSlots" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 576.0
+offset_right = 359.0
+offset_bottom = 672.0
+mouse_filter = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TraitSlotSilver" type="Panel" parent="TraitSlots"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+mouse_filter = 0
+texture_filter = 2
+theme_override_styles/panel = SubResource("StyleTraitAwakened")
+
+[node name="TraitSlotGold" type="Panel" parent="TraitSlots"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+mouse_filter = 0
+texture_filter = 2
+theme_override_styles/panel = SubResource("StyleTraitEmpty")
+
+[node name="TraitSlotDiamond" type="Panel" parent="TraitSlots"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+mouse_filter = 0
+texture_filter = 2
+theme_override_styles/panel = SubResource("StyleTraitEmpty")
+
+[node name="StatsPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 690.0
+offset_right = 359.0
+offset_bottom = 794.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleStatsSeparator")
+
+[node name="StatsGrid" type="GridContainer" parent="StatsPanel"]
+layout_mode = 0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = 104.0
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="HpStat" type="VBoxContainer" parent="StatsPanel/StatsGrid"]
+visible = false
+custom_minimum_size = Vector2(100, 84)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="StatsPanel/StatsGrid/HpStat"]
+custom_minimum_size = Vector2(100, 48)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_hp")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="StatsPanel/StatsGrid/HpStat"]
+custom_minimum_size = Vector2(100, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "850 / 850"
+horizontal_alignment = 1
+
+[node name="AttackStat" type="VBoxContainer" parent="StatsPanel/StatsGrid"]
+custom_minimum_size = Vector2(100, 84)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="StatsPanel/StatsGrid/AttackStat"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("5_attack")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="StatsPanel/StatsGrid/AttackStat"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 36
+text = "148"
+horizontal_alignment = 1
+
+[node name="ApStat" type="VBoxContainer" parent="StatsPanel/StatsGrid"]
+visible = false
+custom_minimum_size = Vector2(100, 84)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="StatsPanel/StatsGrid/ApStat"]
+custom_minimum_size = Vector2(100, 48)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("6_ap")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="StatsPanel/StatsGrid/ApStat"]
+custom_minimum_size = Vector2(100, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "30 / 30"
+horizontal_alignment = 1
+
+[node name="DefenseStat" type="VBoxContainer" parent="StatsPanel/StatsGrid"]
+custom_minimum_size = Vector2(100, 84)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="StatsPanel/StatsGrid/DefenseStat"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_defense")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="StatsPanel/StatsGrid/DefenseStat"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 36
+text = "55"
+horizontal_alignment = 1
+
+[node name="ShieldStat" type="VBoxContainer" parent="StatsPanel/StatsGrid"]
+visible = false
+custom_minimum_size = Vector2(100, 84)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="StatsPanel/StatsGrid/ShieldStat"]
+custom_minimum_size = Vector2(100, 48)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_shield")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="StatsPanel/StatsGrid/ShieldStat"]
+custom_minimum_size = Vector2(100, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "40"
+horizontal_alignment = 1
+
+[node name="RegenStat" type="VBoxContainer" parent="StatsPanel/StatsGrid"]
+custom_minimum_size = Vector2(100, 84)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="StatsPanel/StatsGrid/RegenStat"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("9_regen")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="StatsPanel/StatsGrid/RegenStat"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 0.94, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.01, 0.005, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 36
+text = "12"
+horizontal_alignment = 1

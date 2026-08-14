@@ -41,7 +41,15 @@ func _ready() -> void:
 
 
 func render_snapshot(snap: Dictionary) -> void:
-	_snapshot = snap.duplicate(true)
+	_render_snapshot(snap, true)
+
+
+func render_selection_snapshot(snap: Dictionary) -> void:
+	_render_snapshot(snap, false)
+
+
+func _render_snapshot(snap: Dictionary, deep_copy: bool) -> void:
+	_snapshot = snap.duplicate(deep_copy)
 	_update_result_feedback(snap)
 	var selected_id := String(snap.get("selected_unit_id", snap.get("selectedUnitId", "")))
 	var selected := _selected_unit(selected_id)

@@ -95,10 +95,10 @@ mouse_default_cursor_shape = 2
 text = "调试地图：草原（早）"
 
 [node name="HealthBarTierButton" type="Button" parent="BattleActionPanel/Margin/Content"]
-editor_description = "美术调试用血条等级切换按钮。只切换宠物 prefab 的血条外框表现，不修改 Snapshot 或正式品质数据。"
+editor_description = "美术调试用星级切换按钮。同时切换宠物 prefab 的血条外框与右侧信息栏星级，不修改 Snapshot 或正式品质数据。"
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-tooltip_text = "依次把所有战斗单位的血条外框切换为青铜、白银、黄金和钻石。"
+tooltip_text = "依次把全部单位血条外框和右侧信息栏星级切换为青铜、白银、黄金和钻石。"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.968627, 0.917647, 0.815686, 1)
@@ -107,7 +107,7 @@ theme_override_font_sizes/font_size = 21
 theme_override_styles/normal = SubResource("StyleBox_difficulty_normal")
 theme_override_styles/hover = SubResource("StyleBox_difficulty_hover")
 theme_override_styles/pressed = SubResource("StyleBox_difficulty_pressed")
-text = "调试血条：青铜"
+text = "调试星级：青铜"
 
 [node name="PositionDifficultyButton" type="Button" parent="BattleActionPanel/Margin/Content"]
 editor_description = "摆位难度切换按钮。点击可在普通与简单之间切换，并把所选难度交给自动布置；计算期间也会显示摆位反馈。"

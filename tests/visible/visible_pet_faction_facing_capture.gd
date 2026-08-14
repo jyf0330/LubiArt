@@ -27,6 +27,7 @@ func _run() -> void:
 		[Vector2i(4, 5), 1, -1],
 		[Vector2i(0, 6), 1, -1],
 		[Vector2i(5, 2), -1, 1],
+		[Vector2i(5, 3), -1, -1],
 		[Vector2i(6, 2), -1, -1],
 		[Vector2i(7, 0), -1, 1],
 	]
@@ -85,6 +86,7 @@ func _snapshot() -> Dictionary:
 		_unit("player_crystal_shell", "pal_030", "Crystal Shell", "player", 4, 5),
 		_unit("player_hero", "", "Wukong", "hero_leader", 0, 6),
 		_unit("enemy_r01_001", "pal_001", "Earth Slime", "enemy", 5, 2),
+		_unit("enemy_r01_002", "pal_042", "Volcanic Dijiang", "enemy", 5, 3),
 		_unit("enemy_r02_003", "pal_006", "Frost Fox", "enemy", 6, 2),
 		_unit("enemy_boss", "", "Spider", "boss", 7, 0),
 	]

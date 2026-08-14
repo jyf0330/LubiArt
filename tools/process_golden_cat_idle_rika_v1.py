@@ -9,7 +9,7 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_PROCESSOR = ROOT / "tools/process_tide_crow_move_rika_v1.py"
+BASE_PROCESSOR = ROOT / "tools/sprite_animation_processor_helper.py"
 spec = importlib.util.spec_from_file_location("golden_cat_idle_processor", BASE_PROCESSOR)
 if spec is None or spec.loader is None:
     raise RuntimeError(f"Cannot load Rika sprite processor: {BASE_PROCESSOR}")

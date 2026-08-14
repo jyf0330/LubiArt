@@ -18,7 +18,6 @@ const DEATH_FADE_DURATION := 0.42
 const DEATH_IMPACT_HOLD_DURATION := 0.10
 const ELEMENT_SETTLEMENT_DELAY := 1.0
 const ARTIST_ROUND_BANNER_DURATION := 1.4
-const ARTIST_MOVE_DURATION := 0.22
 const ENEMY_ATTACK_TRANSLATION_OUT_DURATION := 0.18
 const ENEMY_ATTACK_TRANSLATION_HOLD_DURATION := 0.08
 const ENEMY_ATTACK_TRANSLATION_RETURN_DURATION := 0.16
@@ -110,12 +109,12 @@ func _sequence_pets_reset(event: Dictionary) -> void:
 func _sequence_enemy_move(event: Dictionary) -> void:
 	enemy_move_projection_requested.emit(event.duplicate(true))
 	play_event(event)
-	await get_tree().create_timer(ARTIST_MOVE_DURATION + ARTIST_ACTION_STEP_DELAY).timeout
+	await get_tree().create_timer(ARTIST_ACTION_STEP_DELAY).timeout
 
 
 func _sequence_movement(event: Dictionary) -> void:
-	var unit := play_event(event)
-	await get_tree().create_timer(_movement_duration(unit) + ARTIST_ACTION_STEP_DELAY).timeout
+	play_event(event)
+	await get_tree().create_timer(ARTIST_ACTION_STEP_DELAY).timeout
 
 
 func _sequence_round_start(event: Dictionary) -> void:
@@ -394,28 +393,10 @@ func _instant_death(event: Dictionary) -> Node:
 
 
 func play_movement(event: Dictionary) -> Node:
+	# Snapshot/board reconciliation owns position changes. Movement traces no longer
+	# drive a sprite action or positional tween.
 	var unit_id := String(event.get("unitId", Dictionary(event.get("actor", {})).get("id", "")))
-	var unit := _unit_by_id(unit_id)
-	if unit == null:
-		return null
-	var from_grid := _dict_grid(Dictionary(event.get("from", {})))
-	var to_grid := _dict_grid(Dictionary(event.get("to", {})))
-	var from_cell := _cell_at(from_grid)
-	var to_cell := _cell_at(to_grid)
-	if from_cell != null and to_cell != null and unit.has_method("play_grid_movement"):
-		unit.call(
-			"play_grid_movement",
-			from_cell.global_position,
-			to_cell.global_position,
-			_movement_duration(unit)
-		)
-	return unit
-
-
-func _movement_duration(unit: Node) -> float:
-	if unit != null and unit.has_method("get_move_animation_duration"):
-		return maxf(float(unit.call("get_move_animation_duration", ARTIST_MOVE_DURATION)), ARTIST_MOVE_DURATION)
-	return ARTIST_MOVE_DURATION
+	return _unit_by_id(unit_id)
 
 
 func play_damage_trace(event: Dictionary) -> Node:

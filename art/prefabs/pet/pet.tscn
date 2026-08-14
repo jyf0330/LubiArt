@@ -49,6 +49,29 @@ resource_local_to_scene = true
 shader = SubResource("Shader_hit_flash")
 shader_parameter/flash_amount = 0.0
 
+[sub_resource type="Shader" id="Shader_selection_ring"]
+code = "shader_type canvas_item;
+render_mode unshaded;
+
+uniform vec4 ring_color : source_color = vec4(1.0, 0.86, 0.03, 1.0);
+
+void fragment() {
+	vec2 centered = (UV - vec2(0.5)) * 2.0;
+	float distance_from_center = length(centered);
+	float outer = 1.0 - smoothstep(0.86, 1.0, distance_from_center);
+	float inner = 1.0 - smoothstep(0.52, 0.70, distance_from_center);
+	float ring = clamp(outer - inner, 0.0, 1.0);
+	float glow = smoothstep(0.38, 0.66, distance_from_center)
+		* (1.0 - smoothstep(0.90, 1.14, distance_from_center)) * 0.48;
+	COLOR = vec4(ring_color.rgb, ring_color.a * clamp(ring + glow, 0.0, 1.0));
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_selection_ring"]
+resource_local_to_scene = true
+shader = SubResource("Shader_selection_ring")
+shader_parameter/ring_color = Color(1, 0.86, 0.03, 1)
+
 [sub_resource type="LabelSettings" id="LabelSettings_stats"]
 font_size = 15
 outline_size = 3
@@ -57,25 +80,34 @@ shadow_color = Color(0, 0, 0, 0.95)
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_health_background"]
 bg_color = Color(0.015, 0.018, 0.02, 0.96)
+anti_aliasing = false
+expand_margin_bottom = 1.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_health_overlay_background"]
 bg_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_health_ally"]
-bg_color = Color(0.12, 0.76, 0.29, 1)
+bg_color = Color(0.137255, 0.847059, 0.196078, 1)
+anti_aliasing = false
+expand_margin_bottom = 1.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_health_enemy"]
 bg_color = Color(0.96, 0.58, 0.08, 1)
+anti_aliasing = false
+expand_margin_bottom = 1.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_shield_fill"]
-bg_color = Color(0.82, 0.84, 0.86, 1)
+bg_color = Color(0.796078, 0.858824, 0.988235, 1)
+anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_damage_preview_fill"]
-bg_color = Color(0.9, 0.08, 0.1, 1)
+bg_color = Color(1, 0, 0, 1)
+anti_aliasing = false
+expand_margin_bottom = 1.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_health_bronze"]
 atlas = ExtResource("43_health_bar_frames")
-region = Rect2(16, 18, 64, 23)
+region = Rect2(16, 18, 64, 24)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_health_silver"]
 atlas = ExtResource("43_health_bar_frames")
@@ -83,7 +115,7 @@ region = Rect2(16, 35, 64, 24)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_health_gold"]
 atlas = ExtResource("43_health_bar_frames")
-region = Rect2(16, 54, 64, 23)
+region = Rect2(16, 54, 64, 24)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_health_diamond"]
 atlas = ExtResource("43_health_bar_frames")
@@ -201,14 +233,15 @@ frames = Array[Texture2D]([ExtResource("36_shield_hit_001"), ExtResource("37_shi
 
 [node name="SelectionFrame" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual" unique_id=2043122973]
 visible = false
-z_index = 1
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+z_index = 0
+material = SubResource("ShaderMaterial_selection_ring")
+layout_mode = 0
+offset_left = 39.0
+offset_top = 100.0
+offset_right = 131.0
+offset_bottom = 130.0
 mouse_filter = 2
+texture = ExtResource("7_shadow")
 expand_mode = 1
 stretch_mode = 5
 
@@ -253,7 +286,7 @@ anchors_preset = 0
 offset_left = 42.0
 offset_top = 0.0
 offset_right = 138.0
-offset_bottom = 11.0
+offset_bottom = 10.0
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBox_health_background")
 theme_override_styles/fill = SubResource("StyleBox_health_ally")
@@ -265,27 +298,27 @@ visible = false
 clip_contents = true
 layout_mode = 0
 offset_right = 96.0
-offset_bottom = 11.0
+offset_bottom = 10.0
 mouse_filter = 2
 
-[node name="Value" type="Label" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"]
+[node name="Value" type="ProgressBar" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"]
 layout_mode = 0
 offset_left = 2.0
 offset_right = 96.0
-offset_bottom = 11.0
+offset_bottom = 10.0
 mouse_filter = 2
-theme_override_font_sizes/font_size = 1
-theme_override_styles/normal = SubResource("StyleBox_damage_preview_fill")
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_styles/background = SubResource("StyleBox_health_overlay_background")
+theme_override_styles/fill = SubResource("StyleBox_damage_preview_fill")
+value = 100.0
+show_percentage = false
 
 [node name="Background" type="ColorRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"]
 z_index = 1
 layout_mode = 0
 offset_right = 2.0
-offset_bottom = 11.0
+offset_bottom = 10.0
 mouse_filter = 2
-color = Color(0.9, 0.08, 0.1, 1)
+color = Color(1, 0, 0, 1)
 
 [node name="Icon" type="TextureRect" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health" unique_id=1694569303]
 texture_filter = 1
@@ -315,12 +348,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Shield" type="ProgressBar" parent="CompleteBattleCreaturePrefab/01_UnitVisual/Stats" unique_id=1068781472]
-z_index = 1
+z_index = 3
 anchors_preset = 0
 offset_left = 42.0
-offset_top = 0.0
+offset_top = 12.0
 offset_right = 138.0
-offset_bottom = 11.0
+offset_bottom = 15.0
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBox_health_overlay_background")
 theme_override_styles/fill = SubResource("StyleBox_shield_fill")

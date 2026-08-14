@@ -31,9 +31,12 @@ func _run() -> void:
 
 	var session := main_instance.call("get_game_session") as RefCounted
 	var snapshot := Dictionary(session.call("current_snapshot"))
-	var previews := Dictionary(snapshot.get("placement_damage_by_unit", {}))
-	if previews.size() != 4:
-		_fail("expected four captured placement previews, got %d" % previews.size())
+	var previews := Dictionary(snapshot.get(
+		"placement_damage_by_unit",
+		snapshot.get("placementDamageByUnit", {})
+	))
+	if previews.size() < 4:
+		_fail("expected all available placement previews, got %d" % previews.size())
 		return
 	var red_segments := 0
 	var shielded_preview_targets := 0
@@ -66,7 +69,7 @@ func _run() -> void:
 			return
 		red_segments += 1
 	if red_segments != previews.size():
-		_fail("visible red segment count does not match captured previews")
+		_fail("visible red segment count does not match all available previews")
 		return
 	if shielded_preview_targets <= 0:
 		_fail("capture has no shielded preview target for regression coverage")

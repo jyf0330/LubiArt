@@ -31,6 +31,7 @@ var _captured_incoming_preview_template: Dictionary = {}
 var _incoming_projection_unit_ids: Dictionary = {}
 var _projected_incoming_previews: Dictionary = {}
 var _legacy_insertion_row_templates: Dictionary = {}
+var _legacy_element_layers_projection: Dictionary = {}
 var _start_phase := START_PHASE_ROUTE
 
 
@@ -85,7 +86,6 @@ func submit_command(command: Dictionary) -> Dictionary:
 			{"type": "RESET_MOCK", "ok": true, "message": "已回到正式运行数据起点"}
 		)
 	if command_type == "GET_CELL_DETAIL":
-		_clear_captured_incoming_preview_projection()
 		return _accepted_projection(
 			command,
 			command_type,
@@ -102,7 +102,7 @@ func submit_command(command: Dictionary) -> Dictionary:
 	if command_type == "SELECT_CELL":
 		var selection := _projection_result(command_type, command)
 		if bool(selection.get("ok", false)):
-			return _accepted_projection(command, command_type, selection)
+			return _accepted_projection(command, command_type, selection, true)
 		return _rejected_response(
 			command,
 			command_type,
@@ -128,6 +128,7 @@ func persistence_slot_count() -> int:
 
 func reset(emit_change: bool = true) -> void:
 	_legacy_insertion_row_templates = {}
+	_legacy_element_layers_projection = {}
 	var file := FileAccess.open(CAPTURE_PATH, FileAccess.READ)
 	if file == null:
 		push_error("Cannot open production battle capture: %s" % CAPTURE_PATH)
@@ -179,6 +180,7 @@ func reset(emit_change: bool = true) -> void:
 	_captured_target_preview_templates = _collect_damage_preview_templates(capture)
 	_captured_incoming_preview_template = _collect_incoming_damage_preview_template(capture)
 	_ensure_captured_target_preview_projection()
+	_ensure_all_friendly_incoming_preview_projection()
 	_ensure_action_block_ranges_projection()
 	_ensure_skill_control_projection()
 	_steps = Array(capture.get("steps", [])).duplicate(true)
@@ -568,16 +570,197 @@ func _record_ref(record: Dictionary) -> String:
 
 
 func _apply_snapshot_delta(delta: Dictionary) -> void:
+	var previous_board := Dictionary(_snapshot.get("board", {})).duplicate(true)
+	var previous_trace_count := Array(
+		_snapshot.get("battleTrace", _snapshot.get("battle_trace", []))
+	).size()
 	for key_value in Array(delta.get("remove", [])):
 		_snapshot.erase(String(key_value))
 	for key_value in Dictionary(delta.get("set", {})).keys():
 		var key := String(key_value)
 		_snapshot[key] = Dictionary(delta.get("set", {}))[key_value]
 	_snapshot = _adapt_legacy_board_snapshot(_snapshot)
+	_reconcile_legacy_occupied_hit_element_tiles(previous_trace_count, previous_board)
 	_ensure_captured_target_preview_projection()
-	_ensure_tracked_incoming_preview_projection()
+	_ensure_all_friendly_incoming_preview_projection()
 	_ensure_action_block_ranges_projection()
 	_ensure_skill_control_projection()
+
+
+func _reconcile_legacy_occupied_hit_element_tiles(
+	previous_trace_count: int,
+	previous_board: Dictionary
+) -> void:
+	# Old exports wrote action-area element layers before the paired strike disclosed
+	# which coordinates were occupied. Reconcile only that exported event pair; never
+	# infer impact occupancy from units missing in the resulting snapshot.
+	var trace := Array(_snapshot.get("battleTrace", _snapshot.get("battle_trace", [])))
+	var first_new_event := clampi(previous_trace_count, 0, trace.size())
+	_project_legacy_element_layers(trace, first_new_event, previous_board)
+	if _legacy_element_layers_projection.is_empty():
+		return
+	var board := Dictionary(_snapshot.get("board", {}))
+	if not board.is_empty():
+		_snapshot["board"] = _subtract_legacy_occupied_hit_elements(board)
+	var view_model := Dictionary(_snapshot.get("viewModel", {})).duplicate(true)
+	if view_model.get("board", null) is Dictionary:
+		view_model["board"] = _subtract_legacy_occupied_hit_elements(
+			Dictionary(view_model["board"])
+		)
+		_snapshot["viewModel"] = view_model
+
+
+func _project_legacy_element_layers(
+	trace: Array,
+	first_new_event: int,
+	previous_board: Dictionary
+) -> void:
+	var event_index := first_new_event
+	while event_index < trace.size():
+		var event := Dictionary(trace[event_index])
+		if String(event.get("type", "")) != "ELEMENT_APPLIED":
+			event_index += 1
+			continue
+		var payload := Dictionary(event.get("payload", {}))
+		if not bool(payload.get("deferToAttackStrike", false)) \
+				or String(payload.get("sourceType", "")) != "action_area" \
+				or _element_application_has_explicit_occupancy(payload):
+			event_index += 1
+			continue
+		var element := String(payload.get("element", ""))
+		var application_targets := {}
+		for target_value in Array(payload.get("targets", [])):
+			var target := Dictionary(target_value)
+			application_targets[_trace_coordinate_key(target)] = true
+		var occupied_hit_targets := {}
+		var observed_attack_strike := false
+		var scan_index := event_index + 1
+		while scan_index < trace.size():
+			var following_event := Dictionary(trace[scan_index])
+			if String(following_event.get("type", "")) == "ELEMENT_APPLIED":
+				break
+			if String(following_event.get("type", "")) == "ATTACK_STRIKE":
+				var strike_payload := Dictionary(following_event.get("payload", {}))
+				if bool(strike_payload.get("applyElementOnImpact", false)) \
+						and String(strike_payload.get("element", "")) == element:
+					observed_attack_strike = true
+					for strike_target_value in Array(strike_payload.get("targets", [])):
+						var strike_target := Dictionary(strike_target_value)
+						var target_id := String(strike_target.get(
+							"id",
+							strike_target.get("unitId", strike_target.get("unit_id", ""))
+						)).strip_edges()
+						var coordinate_key := _trace_coordinate_key(strike_target)
+						if target_id != "" and application_targets.has(coordinate_key):
+							occupied_hit_targets[coordinate_key] = true
+			scan_index += 1
+		if not observed_attack_strike:
+			event_index = scan_index
+			continue
+		for change_value in Array(event.get("changes", [])):
+			var change := Dictionary(change_value)
+			var coordinate := _legacy_element_change_coordinate(change)
+			var coordinate_key := "%d,%d" % [coordinate.x, coordinate.y]
+			var change_element := String(change.get("element", element))
+			var delta := int(change.get("delta", 0))
+			if coordinate.x < 0 or coordinate.y < 0 \
+					or change_element != element \
+					or delta <= 0:
+				continue
+			var projection_key := "%s|%s" % [coordinate_key, element]
+			var projection := Dictionary(
+				_legacy_element_layers_projection.get(projection_key, {})
+			).duplicate(true)
+			if projection.is_empty():
+				projection = {
+					"x": coordinate.x,
+					"y": coordinate.y,
+					"element": element,
+					"layers": _board_element_layers(
+						previous_board,
+						coordinate.x,
+						coordinate.y,
+						element
+					),
+				}
+			if not occupied_hit_targets.has(coordinate_key):
+				projection["layers"] = int(projection.get("layers", 0)) + delta
+			_legacy_element_layers_projection[projection_key] = projection
+		event_index = scan_index
+
+
+func _element_application_has_explicit_occupancy(payload: Dictionary) -> bool:
+	for target_value in Array(payload.get("targets", [])):
+		var target := Dictionary(target_value)
+		for key in ["hitEnemy", "hit_enemy", "occupiedAtImpact", "occupied_at_impact", "empty"]:
+			if target.has(key):
+				return true
+	return false
+
+
+func _legacy_element_change_coordinate(change: Dictionary) -> Vector2i:
+	var path_parts := String(change.get("path", "")).split(".")
+	if path_parts.size() < 3 or path_parts[0] != "cell_elements":
+		return Vector2i(-1, -1)
+	var coordinate_parts := String(path_parts[1]).split(",")
+	if coordinate_parts.size() != 2:
+		return Vector2i(-1, -1)
+	return Vector2i(int(coordinate_parts[0]), int(coordinate_parts[1]))
+
+
+func _trace_coordinate_key(record: Dictionary) -> String:
+	return "%d,%d" % [
+		int(record.get("x", record.get("c", -1))),
+		int(record.get("y", record.get("r", -1))),
+	]
+
+
+func _board_element_layers(
+	board: Dictionary,
+	x: int,
+	y: int,
+	element: String
+) -> int:
+	var adapted_y := y
+	if not _legacy_insertion_row_templates.is_empty() \
+			and adapted_y >= int((BoardDimensionsScript.legacy_defaults().y + 1) / 2):
+		adapted_y += 1
+	for cell_value in Array(board.get("cells", [])):
+		var cell := Dictionary(cell_value)
+		if int(cell.get("x", cell.get("c", -1))) == x \
+				and int(cell.get("y", cell.get("r", -1))) == adapted_y:
+			return int(Dictionary(cell.get("elements", {})).get(element, 0))
+	return 0
+
+
+func _subtract_legacy_occupied_hit_elements(board: Dictionary) -> Dictionary:
+	var reconciled := board.duplicate(true)
+	var cells := Array(reconciled.get("cells", [])).duplicate(true)
+	for cell_index in range(cells.size()):
+		var cell := Dictionary(cells[cell_index]).duplicate(true)
+		var cell_x := int(cell.get("x", cell.get("c", -1)))
+		var cell_y := int(cell.get("y", cell.get("r", -1)))
+		var elements := Dictionary(cell.get("elements", {})).duplicate(true)
+		var changed := false
+		for projection_value in _legacy_element_layers_projection.values():
+			var projection := Dictionary(projection_value)
+			var projection_y := int(projection.get("y", -1))
+			if not _legacy_insertion_row_templates.is_empty() \
+					and projection_y >= int((BoardDimensionsScript.legacy_defaults().y + 1) / 2):
+				projection_y += 1
+			if cell_x != int(projection.get("x", -1)) or cell_y != projection_y:
+				continue
+			var element := String(projection.get("element", ""))
+			var current_layers := int(elements.get(element, 0))
+			var next_layers := int(projection.get("layers", 0))
+			if next_layers != current_layers:
+				elements[element] = next_layers
+				changed = true
+		if changed:
+			cell["elements"] = elements
+			cells[cell_index] = cell
+	reconciled["cells"] = cells
+	return reconciled
 
 
 func _adapt_legacy_board_snapshot(snapshot: Dictionary) -> Dictionary:
@@ -902,8 +1085,10 @@ func _mock_combos_for_order(order: Array) -> Array:
 func _accepted_projection(
 	command: Dictionary,
 	command_type: String,
-	result: Dictionary
+	result: Dictionary,
+	lightweight_delivery: bool = false
 ) -> Dictionary:
+	var response_snapshot := current_snapshot()
 	var response := {
 		"accepted": true,
 		"pending": false,
@@ -911,18 +1096,24 @@ func _accepted_projection(
 		"ok": true,
 		"command": command_type,
 		"result": result.duplicate(true),
-		"snapshot": current_snapshot(),
+		"snapshot": response_snapshot,
 		"stateVersion": int(_snapshot.get("stateVersion", -1)),
 		"stateHash": String(_snapshot.get("stateHash", "")),
 	}
-	command_completed.emit(command.duplicate(true), response.duplicate(true))
-	command_settled.emit(response.duplicate(true))
-	snapshot_received.emit(current_snapshot(), {
+	command_completed.emit(
+		command.duplicate(true),
+		response.duplicate(false) if lightweight_delivery else response.duplicate(true)
+	)
+	command_settled.emit(response.duplicate(false) if lightweight_delivery else response.duplicate(true))
+	snapshot_received.emit(response_snapshot.duplicate(false) if lightweight_delivery else current_snapshot(), {
 		"asynchronous": false,
 		"source": "formal_snapshot_projection",
 		"command": command_type,
 	})
-	snapshot_changed.emit(current_snapshot(), result.duplicate(true))
+	snapshot_changed.emit(
+		response_snapshot.duplicate(false) if lightweight_delivery else current_snapshot(),
+		result.duplicate(true)
+	)
 	return response
 
 
@@ -1070,6 +1261,20 @@ func _ensure_tracked_incoming_preview_projection() -> void:
 	unit_ids.sort()
 	for unit_id in unit_ids:
 		_ensure_captured_incoming_preview_for_unit(unit_id)
+
+
+func _ensure_all_friendly_incoming_preview_projection() -> void:
+	if _captured_incoming_preview_template.is_empty() \
+			or String(_snapshot.get("phase", "")) != "battle":
+		return
+	for value in Array(Dictionary(_snapshot.get("board", {})).get("cells", [])):
+		var cell := Dictionary(value)
+		if not _cell_is_friendly_target(cell):
+			continue
+		var unit_id := String(cell.get("unitId", cell.get("unit_id", "")))
+		if unit_id != "":
+			_incoming_projection_unit_ids[unit_id] = true
+	_ensure_tracked_incoming_preview_projection()
 
 
 func _ensure_captured_incoming_preview_for_unit(unit_id: String) -> void:
@@ -1286,6 +1491,24 @@ func _projection_result(command_type: String, command: Dictionary) -> Dictionary
 		if side in ["player", "hero", "hero_leader"]:
 			selected_unit_id = String(unit.get("id", unit.get("unitId", "")))
 		if selected_unit_id == "":
+			if not cell.is_empty() and unit.is_empty():
+				_snapshot["selected_unit_id"] = ""
+				if _snapshot.has("selectedUnitId"):
+					_snapshot["selectedUnitId"] = ""
+				_snapshot["selected"] = {
+					"unitId": "",
+					"x": x,
+					"y": y,
+				}
+				return {
+					"type": "SELECT_CELL",
+					"ok": true,
+					"cleared": true,
+					"x": x,
+					"y": y,
+					"unit_id": "",
+					"unit": {},
+				}
 			return {
 				"type": "SELECT_CELL",
 				"ok": false,

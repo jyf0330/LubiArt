@@ -141,12 +141,14 @@ func open_first_pet_detail() -> Dictionary:
 		if fallback.is_empty():
 			fallback = row
 		if String(data.get("side", data.get("unitSide", ""))) in ["player", "ally"] and not _is_hero(data):
-			hover_pet(grid, true)
+			cell.emit_signal("cell_selected", grid.x, grid.y)
 			return row
 	if not fallback.is_empty():
 		var grid_value := Dictionary(fallback["grid"])
 		var grid := Vector2i(int(grid_value["x"]), int(grid_value["y"]))
-		hover_pet(grid, true)
+		var cell := cell_at(grid)
+		if cell != null:
+			cell.emit_signal("cell_selected", grid.x, grid.y)
 		return fallback
 	return {"opened": false}
 
