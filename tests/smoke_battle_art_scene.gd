@@ -38,6 +38,9 @@ func _run() -> void:
 	var map_debug_button := art_scene.get_node_or_null(
 		"Hud/BattleActionPanel/Margin/Content/MapDebugButton"
 	) as Button
+	var map_selection_overlay := art_scene.get_node_or_null(
+		"OverlayHost/MapSelectionOverlay"
+	) as Control
 	var map_auto_button := art_scene.get_node_or_null("MapControls/AutoArrangeButton") as TextureButton
 	var map_reset_button := art_scene.get_node_or_null("MapControls/ResetButton") as TextureButton
 	var map_speed_button := art_scene.get_node_or_null("MapControls/SpeedButton") as TextureButton
@@ -74,22 +77,59 @@ func _run() -> void:
 		and asset_registry.call("all_declared_runtime_assets_exist")
 	)
 	var debug_map_cycle_works := false
-	if map_debug_button != null and board_background != null:
-		var debug_map_paths: Array[String] = []
-		for _debug_step in range(8):
-			map_debug_button.pressed.emit()
-			await process_frame
-			debug_map_paths.append(board_background.texture.resource_path)
+	if (
+		map_debug_button != null
+		and board_background != null
+		and map_controls != null
+		and map_selection_overlay != null
+	):
+		var default_is_mountain := (
+			String(map_controls.call("get_map_id")) == "mountain_new"
+			and board_background.texture.resource_path.get_file() == "mountain_new.png"
+		)
+		map_debug_button.pressed.emit()
+		await process_frame
+		var opened_with_eleven_maps := (
+			map_selection_overlay.visible
+			and int(map_selection_overlay.call("get_map_button_count")) == 11
+		)
+		var spring_button := map_selection_overlay.get_node(
+			"Panel/Margin/Content/MapGrid/ForestSpring"
+		) as TextureButton
+		spring_button.pressed.emit()
+		await process_frame
+		var spring_works := (
+			String(map_controls.call("get_map_id")) == "forest_spring"
+			and board_background.texture.resource_path.get_file() == "forest_spring.png"
+		)
+		map_debug_button.pressed.emit()
+		await process_frame
+		var autumn_button := map_selection_overlay.get_node(
+			"Panel/Margin/Content/MapGrid/ForestAutumn"
+		) as TextureButton
+		autumn_button.pressed.emit()
+		await process_frame
+		var autumn_works := (
+			String(map_controls.call("get_map_id")) == "forest_autumn"
+			and board_background.texture.resource_path.get_file() == "forest_autumn.png"
+		)
+		map_debug_button.pressed.emit()
+		await process_frame
+		var mountain_button := map_selection_overlay.get_node(
+			"Panel/Margin/Content/MapGrid/NewMountain"
+		) as TextureButton
+		mountain_button.pressed.emit()
+		await process_frame
+		var mountain_works := (
+			String(map_controls.call("get_map_id")) == "mountain_new"
+			and board_background.texture.resource_path.get_file() == "mountain_new.png"
+		)
 		debug_map_cycle_works = (
-			debug_map_paths.size() == 8
-			and debug_map_paths.all(func(path: String) -> bool:
-				return path.begins_with("res://art/images/battle/map_controls/maps/")
-				)
-			and debug_map_paths.duplicate().reduce(func(unique: Array, path: String) -> Array:
-				if path not in unique:
-					unique.append(path)
-				return unique
-				, []).size() == 8
+			default_is_mountain
+			and opened_with_eleven_maps
+			and spring_works
+			and autumn_works
+			and mountain_works
 		)
 	if hud != null and action_panel != null and debug_drawer_toggle_button != null:
 		var starts_collapsed := (
@@ -153,7 +193,7 @@ func _run() -> void:
 			and not attack_timeline.visible
 		)
 	var passed: bool = (
-		art_scene_source.count("[node ") == 10
+		art_scene_source.count("[node ") == 13
 		and occupied_cell_count > 0
 		and board != null
 		and board_background != null
@@ -182,7 +222,7 @@ func _run() -> void:
 		and int(attack_timeline.call("debug_marker_count")) == 8
 		and art_scene.get_node_or_null("Hud/AttackTimelineLayer/AttackTimelineToggleButton") == null
 		and attack_timeline_button_works
-		and art_scene.get_child_count() == 4
+		and art_scene.get_child_count() == 7
 		and board.get_child_count() == 4
 		and bottom_left_cell != null
 		and bottom_left_cell.visible

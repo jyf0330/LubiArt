@@ -10,6 +10,9 @@ const EXPECTED_MAP_IDS := [
 	"mountain_evening",
 	"mountain_morning",
 	"lowland_morning",
+	"forest_spring",
+	"forest_autumn",
+	"mountain_new",
 ]
 const EXPECTED_BUTTON_RECTS := {
 	"AutoArrangeButton": Rect2(1841.0, 915.0, 66.0, 62.0),
@@ -237,7 +240,7 @@ func _run() -> void:
 	prefab.call("set_speed_active", false)
 	assert(not speed_button.button_pressed)
 	assert(speed_button.texture_normal.resource_path.get_file() == "speed_normal.png")
-	assert(not bool(prefab.call("set_map_by_index", 8)))
+	assert(not bool(prefab.call("set_map_by_index", 11)))
 	assert(not bool(prefab.call("set_map_by_id", "missing")))
 	print("BATTLE_MAP_CONTROLS_SMOKE_PASS")
 	quit(0)

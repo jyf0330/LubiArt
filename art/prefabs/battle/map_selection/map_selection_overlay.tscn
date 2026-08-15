@@ -1,0 +1,529 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/map_selection/map_selection_overlay.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/lowland_evening.png" id="2_lowland_evening"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/grassland_evening.png" id="3_grassland_evening"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/forest_clearing_trial.png" id="4_grassland_morning"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/pond_evening.png" id="5_pond_evening"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/pond_morning.png" id="6_pond_morning"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/mountain_evening.png" id="7_mountain_evening"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/mountain_morning.png" id="8_mountain_morning"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/lowland_morning.png" id="9_lowland_morning"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/forest_spring.png" id="10_forest_spring"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/forest_autumn.png" id="11_forest_autumn"]
+[ext_resource type="Texture2D" path="res://art/images/battle/map_controls/maps/mountain_new.png" id="12_mountain_new"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.055, 0.046, 0.035, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.78, 0.61, 0.27, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.75)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="SelectionStyle"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(1, 0.82, 0.25, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="LabelStyle"]
+bg_color = Color(0.04, 0.035, 0.028, 0.88)
+border_width_top = 2
+border_color = Color(0.75, 0.56, 0.24, 1)
+corner_radius_bottom_left = 7
+corner_radius_bottom_right = 7
+
+[node name="MapSelectionOverlay" type="Control"]
+z_index = 60
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.015, 0.012, 0.01, 0.76)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 310.0
+offset_top = 105.0
+offset_right = 1610.0
+offset_bottom = 975.0
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Header" type="HBoxContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.88, 0.55, 1)
+theme_override_font_sizes/font_size = 34
+text = "选择战斗地图"
+vertical_alignment = 1
+
+[node name="Hint" type="Label" parent="Panel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.78, 0.72, 0.62, 1)
+theme_override_font_sizes/font_size = 20
+text = "仅切换美术预览，不修改战斗数据"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/Content/Header"]
+custom_minimum_size = Vector2(118, 48)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 23
+text = "关闭"
+
+[node name="MapGrid" type="GridContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18
+columns = 4
+
+[node name="LowlandEvening" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_lowland_evening")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/LowlandEvening"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/LowlandEvening"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/LowlandEvening/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "洼地（晚）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GrasslandEvening" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("3_grassland_evening")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/GrasslandEvening"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/GrasslandEvening"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/GrasslandEvening/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "草原（晚）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GrasslandMorning" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_grassland_morning")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/GrasslandMorning"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/GrasslandMorning"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/GrasslandMorning/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "草原（早）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PondEvening" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_pond_evening")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/PondEvening"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/PondEvening"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/PondEvening/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "池塘（晚）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PondMorning" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_pond_morning")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/PondMorning"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/PondMorning"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/PondMorning/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "池塘（早）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MountainEvening" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_mountain_evening")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/MountainEvening"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/MountainEvening"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/MountainEvening/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "山脉（晚）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MountainMorning" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_mountain_morning")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/MountainMorning"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/MountainMorning"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/MountainMorning/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "山脉（早）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LowlandMorning" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_lowland_morning")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/LowlandMorning"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/LowlandMorning"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/LowlandMorning/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "洼地（早）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ForestSpring" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("10_forest_spring")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/ForestSpring"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/ForestSpring"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/ForestSpring/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "森林（春）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ForestAutumn" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("11_forest_autumn")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/ForestAutumn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/ForestAutumn"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/ForestAutumn/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "森林（秋）"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NewMountain" type="TextureButton" parent="Panel/Margin/Content/MapGrid"]
+custom_minimum_size = Vector2(294, 166)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("12_mountain_new")
+ignore_texture_size = true
+stretch_mode = 6
+
+[node name="SelectionBorder" type="Panel" parent="Panel/Margin/Content/MapGrid/NewMountain"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectionStyle")
+
+[node name="NameBar" type="PanelContainer" parent="Panel/Margin/Content/MapGrid/NewMountain"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LabelStyle")
+
+[node name="Label" type="Label" parent="Panel/Margin/Content/MapGrid/NewMountain/NameBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_font_sizes/font_size = 20
+text = "山脉"
+horizontal_alignment = 1
+vertical_alignment = 1
