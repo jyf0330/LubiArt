@@ -21,9 +21,9 @@ func _run() -> void:
 	var pet_reference_count := Dictionary(manifest.get("pet_map_updates", {})).size()
 	_expect(String(manifest.get("schema", "")) == "ysbzs.shop-art-workspace-sync.v1", "sync manifest schema is current")
 	_expect(bool(manifest.get("display_only", false)), "formal data is marked display-only")
-	_expect(pet_reference_count >= 7, "sync carries the complete currently visible pet image closure")
+	_expect(pet_reference_count >= 10, "sync carries the complete multi-purchase pet image closure")
 	_expect(Array(manifest.get("outbound_files", [])).size() == pet_reference_count + 1, "sync carries only the bounded pet closure plus one merchant image")
-	_expect(Array(manifest.get("return_files", [])).size() == 12, "only twelve allowlisted art-owned shop and shared PNGs may return")
+	_expect(Array(manifest.get("return_files", [])).size() == 15, "only fifteen allowlisted art-owned shop and shared PNGs may return")
 	_expect(Array(manifest.get("forbidden_inbound_types", [])).has("gd"), "GDScript is explicitly forbidden inbound")
 	_expect(Array(manifest.get("forbidden_inbound_types", [])).has("tscn"), "Scene files are explicitly forbidden inbound")
 
@@ -33,7 +33,15 @@ func _run() -> void:
 	_expect(Array(Dictionary(preview.get("shop_snapshot", {})).get("shop_offers", [])).size() == 3, "formal basic shop exposes three real offers")
 	_expect(FileAccess.get_sha256(PREVIEW_PATH) == String(manifest.get("capture_sha256", "")), "preview hash matches sync manifest")
 	var mapped_pet_ids := Dictionary(manifest.get("pet_map_updates", {})).keys()
-	for snapshot_key in ["shop_snapshot", "refreshed_snapshot", "purchased_snapshot"]:
+	for snapshot_key in [
+		"shop_snapshot",
+		"refreshed_snapshot",
+		"purchased_snapshot",
+		"second_purchased_snapshot",
+		"party_full_snapshot",
+		"paid_refreshed_snapshot",
+		"bag_purchased_snapshot",
+	]:
 		for value in Array(Dictionary(preview.get(snapshot_key, {})).get("roster", [])):
 			var visible_roster_pet_id := String(Dictionary(value).get("pet_id", Dictionary(value).get("id", "")))
 			_expect(mapped_pet_ids.has(visible_roster_pet_id), "%s visible roster pet %s is inside the synchronized image closure" % [snapshot_key, visible_roster_pet_id])
@@ -49,7 +57,17 @@ func _run() -> void:
 	var runtime_capture := Dictionary(battle_capture.get("shop_art_capture", {}))
 	var projection_keys := Array(runtime_capture.get("runtime_projection_keys", []))
 	_expect(not projection_keys.is_empty(), "runtime capture declares its bounded presentation fields")
-	for snapshot_key in ["route_snapshot", "shop_snapshot", "refreshed_snapshot", "purchased_snapshot", "exit_snapshot"]:
+	for snapshot_key in [
+		"route_snapshot",
+		"shop_snapshot",
+		"refreshed_snapshot",
+		"purchased_snapshot",
+		"second_purchased_snapshot",
+		"party_full_snapshot",
+		"paid_refreshed_snapshot",
+		"bag_purchased_snapshot",
+		"exit_snapshot",
+	]:
 		var runtime_snapshot := Dictionary(runtime_capture.get(snapshot_key, {}))
 		var public_snapshot := Dictionary(preview.get(snapshot_key, {}))
 		_expect(runtime_snapshot.keys().all(func(key: Variant) -> bool: return projection_keys.has(key)), "%s contains presentation fields only" % snapshot_key)
@@ -58,6 +76,11 @@ func _run() -> void:
 			_expect(runtime_snapshot.get(key) == public_snapshot.get(key), "%s.%s matches the audited public Snapshot" % [snapshot_key, key])
 	_expect(not Dictionary(runtime_capture.get("route_snapshot", {})).has("battle"), "runtime capture excludes battle authority data")
 	_expect(not Dictionary(runtime_capture.get("route_snapshot", {})).has("run_plan"), "runtime capture excludes run-plan authority data")
+	var replay_snapshots := Dictionary(runtime_capture.get("replay_snapshots", {}))
+	_expect(replay_snapshots.size() == 8, "runtime capture carries all eight ordered formal shop snapshots")
+	for operation_value in Array(runtime_capture.get("operations", [])):
+		var snapshot_key := String(Dictionary(operation_value).get("snapshot_key", ""))
+		_expect(replay_snapshots.has(snapshot_key), "each formal operation resolves to an exported replay Snapshot")
 	_expect(not Array(battle_capture.get("steps", [])).is_empty(), "existing battle replay steps remain present")
 
 	var pet_map := Dictionary(_read_json(PET_MAP_PATH).get("by_pet_id", {}))
@@ -108,12 +131,39 @@ func _run() -> void:
 	var purchase := Dictionary(session.submit_command({"type": "BUY_OFFER", "offer_id": purchase_id}))
 	_expect(bool(purchase.get("accepted", false)), "Mock accepts synchronized formal purchase")
 	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("purchased_snapshot", {})), projection_keys), "purchase replays the exact formal public presentation projection")
+	var second_id := String(Dictionary(refreshed_offers[1]).get("id", ""))
+	var second_purchase := Dictionary(session.submit_command({"type": "BUY_OFFER", "offer_id": second_id}))
+	_expect(bool(second_purchase.get("accepted", false)), "Mock accepts the second captured formal purchase")
+	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("second_purchased_snapshot", {})), projection_keys), "second purchase replays the exact formal public projection")
+	var third_id := String(Dictionary(refreshed_offers[2]).get("id", ""))
+	var third_purchase := Dictionary(session.submit_command({"type": "BUY_OFFER", "offer_id": third_id}))
+	_expect(bool(third_purchase.get("accepted", false)), "Mock accepts the third captured formal purchase")
+	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("party_full_snapshot", {})), projection_keys), "third purchase replays the full-party formal projection")
+	var paid_refresh := Dictionary(session.submit_command({"type": "ROLL_SHOP"}))
+	_expect(bool(paid_refresh.get("accepted", false)), "Mock accepts the captured paid refresh")
+	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("paid_refreshed_snapshot", {})), projection_keys), "paid refresh replays the exact formal projection")
+	var paid_offers := Array(Dictionary(session.current_snapshot()).get("shop_offers", []))
+	var bag_purchase_id := String(Dictionary(paid_offers[0]).get("id", ""))
+	var bag_purchase := Dictionary(session.submit_command({"type": "BUY_OFFER", "offer_id": bag_purchase_id}))
+	_expect(bool(bag_purchase.get("accepted", false)), "Mock accepts the captured fifth purchase")
+	var bag_snapshot := Dictionary(session.current_snapshot())
+	_expect(_matches_public_projection(bag_snapshot, Dictionary(preview.get("bag_purchased_snapshot", {})), projection_keys), "fifth purchase replays the exact non-empty-bag formal projection")
+	_expect(Array(bag_snapshot.get("roster", [])).size() == 5, "captured replay contains five formal roster records")
+	_expect(Array(bag_snapshot.get("roster", [])).filter(func(value: Variant) -> bool: return not bool(Dictionary(value).get("active", false))).size() == 1, "captured replay contains exactly one inactive bag pet")
+	var bag_buttons := Array(shared_ui.call("bag_buttons"))
+	var bag_texture := ResourceLoader.load(String(pet_map.get("pal_017", "")), "Texture2D") as Texture2D
+	shared_ui.call("set_bag_texture", bag_buttons[0], bag_texture)
+	var bag_portrait := (bag_buttons[0] as TextureButton).get_node_or_null("BagPortrait") as TextureRect
+	_expect(bag_portrait != null and bag_portrait.texture == bag_texture, "synchronized bag art uses a direct texture child")
+	_expect(bag_portrait != null and bag_portrait.position == Vector2(19.0, 15.0) and bag_portrait.size == Vector2(116.0, 116.0), "square bag art preserves aspect and centers in the first authored slot")
+	var bag_material := (bag_buttons[0] as TextureButton).material as ShaderMaterial
+	_expect(bag_material != null and not bool(bag_material.get_shader_parameter("source_enabled")), "bag shader no longer resamples the synchronized pet source")
 	var exit := Dictionary(session.submit_command({"type": "EXIT_SHOP"}))
 	_expect(bool(exit.get("accepted", false)), "Mock accepts synchronized formal exit")
 	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("exit_snapshot", {})), projection_keys), "exit replays the exact formal public presentation projection")
 
 	if _ok:
-		print("SMOKE_FORMAL_SHOP_ART_SYNC_OK offers=3 empty_slots=2 visible_image_closure=true pets=%d merchant=1 return_png=12 direct_party_texture=true code_inbound=0" % pet_reference_count)
+		print("SMOKE_FORMAL_SHOP_ART_SYNC_OK offers=3 empty_slots=2 visible_image_closure=true pets=%d merchant=1 non_empty_bag=true direct_party_texture=true code_inbound=0" % pet_reference_count)
 		quit(0)
 	else:
 		quit(1)

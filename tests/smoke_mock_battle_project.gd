@@ -176,11 +176,20 @@ func _run() -> void:
 	}, 0, 8))
 	var sparse_bag_items := Array(sparse_bag_page.get("items", []))
 	assert(sparse_bag_items.size() == 8)
-	assert(Dictionary(sparse_bag_items[0]).is_empty())
-	assert(String(Dictionary(sparse_bag_items[1]).get("id", "")) == "bag_slot_1_pet")
+	assert(String(Dictionary(sparse_bag_items[0]).get("id", "")) == "bag_slot_1_pet")
+	assert(Dictionary(sparse_bag_items[1]).is_empty())
 	assert(Dictionary(sparse_bag_items[2]).is_empty())
-	assert(String(Dictionary(sparse_bag_items[5]).get("id", "")) == "bag_slot_5_pet")
+	assert(String(Dictionary(sparse_bag_items[4]).get("id", "")) == "bag_slot_5_pet")
 	assert(int(sparse_bag_page.get("total_count", 0)) == 2)
+	var zero_based_bag_page := Dictionary(inventory_presenter.call("page", {
+		"roster": [
+			{"id": "bag_slot_0_pet", "active": false, "bag_slot": 0},
+			{"id": "bag_slot_2_pet", "active": false, "bag_slot": 2},
+		],
+	}, 0, 8))
+	var zero_based_bag_items := Array(zero_based_bag_page.get("items", []))
+	assert(String(Dictionary(zero_based_bag_items[0]).get("id", "")) == "bag_slot_0_pet")
+	assert(String(Dictionary(zero_based_bag_items[2]).get("id", "")) == "bag_slot_2_pet")
 	var direct_round_response := Dictionary(isolated_session.submit_command({"type": "RUN_COMBAT_ROUND"}))
 	assert(bool(direct_round_response.get("accepted", false)))
 	assert(int(direct_round_response.get("captureStep", 0)) == 2)
@@ -362,7 +371,8 @@ func _run() -> void:
 	assert(party_slot_grid.get_child_count() == 4)
 	assert(bag_slot_grid.get_child(0) is TextureButton)
 	assert(party_slot_grid.get_child(0) is TextureButton)
-	assert(bag_slot_grid.get_child(0).get_child_count() == 0)
+	assert(bag_slot_grid.get_child(0).get_child_count() == 1)
+	assert((bag_slot_grid.get_child(0) as TextureButton).get_node_or_null("BagPortrait") is TextureRect)
 	assert(party_slot_grid.get_child(0).get_child_count() == 0)
 	var shop_scene := load("res://art/scenes/shop/shop_scene.tscn") as PackedScene
 	assert(shop_scene != null)

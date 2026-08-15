@@ -105,15 +105,65 @@ func _run() -> void:
 	await _release_focus()
 	await _capture("08_bag_closed", "再次点击宝箱关闭背包", shop)
 
+	var second_offer := offers.get_node("Offer02") as Button
+	await _click(second_offer)
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _release_focus()
+	var second_purchased_snapshot := Dictionary(shop.call("preview_snapshot"))
+	_expect(Array(second_purchased_snapshot.get("roster", [])).size() == 3, "second captured formal purchase adds the third roster record")
+	await _capture("09_second_purchase", "购买第二件商品完成", shop)
+
+	var third_offer := offers.get_node("Offer03") as Button
+	await _click(third_offer)
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _release_focus()
+	var party_full_snapshot := Dictionary(shop.call("preview_snapshot"))
+	_expect(_active_roster_count(party_full_snapshot) == 4, "third captured formal purchase fills the four-member party")
+	await _capture("10_party_full_purchase", "购买第三件商品填满队伍", shop)
+
+	await _click(refresh, false)
+	await create_timer(0.18).timeout
+	_expect(curtain.visible, "captured paid refresh curtain is visible during the operation")
+	await _release_focus()
+	await _capture("11_paid_refresh_curtain", "点击付费刷新后的红帘过程", shop)
+	await create_timer(0.55).timeout
+	_expect(not curtain.visible and not refresh.disabled, "captured paid refresh completes and unlocks input")
+	await _release_focus()
+	await _capture("12_paid_refresh_complete", "付费刷新动画完成", shop)
+
+	first_offer = offers.get_node("Offer01") as Button
+	await _click(first_offer)
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _release_focus()
+	var bag_purchased_snapshot := Dictionary(shop.call("preview_snapshot"))
+	_expect(_active_roster_count(bag_purchased_snapshot) == 4 and _inactive_roster_count(bag_purchased_snapshot) == 1, "fifth captured formal purchase enters the bag")
+	await _capture("13_bag_pet_purchase", "购买第五只宠物进入背包", shop)
+
+	await _click(bag_button)
+	await _release_focus()
+	await _capture("14_bag_with_pet_open", "打开已有宠物的背包", shop)
+	var first_bag_slot := shop.get_node("RouteSharedUi/Middle_Bag/Slots/Bag_Slot") as TextureButton
+	_expect(first_bag_slot.get_meta("pet_texture", null) != null, "first authored bag slot renders the captured inactive pet")
+	await _move_mouse(first_bag_slot.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("15_bag_pet_hover", "悬停背包第一只宠物", shop)
+	await _click(bag_button)
+	await _release_focus()
+	await _capture("16_bag_with_pet_closed", "关闭已有宠物的背包", shop)
+
 	var exit_button := shop.get_node("RouteSharedUi/ExitButton") as TextureButton
 	await _move_mouse(exit_button.get_global_rect().get_center())
 	await _settle(8)
 	await _release_focus()
-	await _capture("09_exit_hover", "悬停商店退出牌", shop)
+	await _capture("17_exit_hover", "悬停商店退出牌", shop)
 	await _click(exit_button)
 	await _settle(30)
 	_expect(String(_game.call("get_active_feature_id")) == "", "real exit returns to route")
-	await _capture("10_exit_to_route", "退出商店返回路线", null)
+	await _capture("18_exit_to_route", "退出商店返回路线", null)
 	_finish()
 
 
@@ -164,6 +214,18 @@ func _offer_is_sold(snapshot: Dictionary, offer_id: String) -> bool:
 		if String(offer.get("id", "")) == offer_id:
 			return bool(offer.get("sold", false))
 	return false
+
+
+func _active_roster_count(snapshot: Dictionary) -> int:
+	return Array(snapshot.get("roster", [])).filter(
+		func(value: Variant) -> bool: return bool(Dictionary(value).get("active", false))
+	).size()
+
+
+func _inactive_roster_count(snapshot: Dictionary) -> int:
+	return Array(snapshot.get("roster", [])).filter(
+		func(value: Variant) -> bool: return not bool(Dictionary(value).get("active", false))
+	).size()
 
 
 func _click(control: Control, settle_after := true) -> void:
@@ -255,6 +317,8 @@ func _action_from_control_name(control_name: StringName) -> String:
 		return "BUY_OFFER"
 	if "refresh" in value or "roll" in value:
 		return "ROLL_SHOP"
+	if "bag_slot" in value or "bagslot" in value:
+		return "BAG_SLOT"
 	if "bag" in value:
 		return "TOGGLE_BAG"
 	if "party" in value:

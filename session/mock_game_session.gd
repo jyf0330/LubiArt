@@ -40,6 +40,7 @@ var _shop_offer_pool: Array = []
 var _shop_roll_offset := 0
 var _shop_art_capture: Dictionary = {}
 var _shop_capture_purchase_available := false
+var _shop_capture_operation_index := 0
 
 
 func _init(options: Dictionary = {}) -> void:
@@ -129,7 +130,7 @@ func submit_command(command: Dictionary) -> Dictionary:
 	if command_type == "DROP_ITEM_ON_TARGET" and String(_snapshot.get("phase", "")) == START_PHASE_SHOP:
 		return _accepted_projection(command, command_type, _apply_local_drop_command(command, command_type))
 	if command_type == "ROLL_SHOP" and String(_snapshot.get("phase", "")) == START_PHASE_SHOP:
-		return _accepted_projection(command, command_type, _project_shop_roll())
+		return _project_shop_roll(command)
 	return _replay_captured_command(command, command_type)
 
 
@@ -167,6 +168,7 @@ func reset(emit_change: bool = true) -> void:
 	_capture_source = Dictionary(capture.get("source", {})).duplicate(true)
 	_shop_art_capture = Dictionary(capture.get("shop_art_capture", {})).duplicate(true)
 	_shop_capture_purchase_available = not _shop_art_capture.is_empty()
+	_shop_capture_operation_index = 0
 	_presentation_bootstrap_snapshot = Dictionary(
 		capture.get("presentation_bootstrap_snapshot", {})
 	).duplicate(true)
@@ -249,6 +251,9 @@ func _normalized_start_phase(value: String) -> String:
 
 
 func _project_shop_entry(command: Dictionary) -> Dictionary:
+	var replay := _replay_next_shop_capture(command, "CHOOSE_ROUTE")
+	if bool(replay.get("handled", false)):
+		return Dictionary(replay.get("response", {}))
 	var stall := _apply_shop_phase_from_route(command)
 	if stall.is_empty():
 		return _rejected_response(
@@ -300,6 +305,9 @@ func _apply_shop_phase_from_route(command: Dictionary) -> Dictionary:
 
 
 func _project_shop_exit(command: Dictionary) -> Dictionary:
+	var replay := _replay_next_shop_capture(command, "EXIT_SHOP")
+	if bool(replay.get("handled", false)):
+		return Dictionary(replay.get("response", {}))
 	var captured_exit := _shop_capture_snapshot("exit_snapshot")
 	if not captured_exit.is_empty():
 		_snapshot = captured_exit
@@ -318,7 +326,10 @@ func _project_shop_exit(command: Dictionary) -> Dictionary:
 	})
 
 
-func _project_shop_roll() -> Dictionary:
+func _project_shop_roll(command: Dictionary = {"type": "ROLL_SHOP"}) -> Dictionary:
+	var replay := _replay_next_shop_capture(command, "ROLL_SHOP")
+	if bool(replay.get("handled", false)):
+		return Dictionary(replay.get("response", {}))
 	var captured_refresh := _shop_capture_snapshot("refreshed_snapshot")
 	if not captured_refresh.is_empty():
 		_snapshot = captured_refresh
@@ -592,6 +603,9 @@ func _apply_local_drop_command(command: Dictionary, command_type: String) -> Dic
 
 
 func _apply_local_buy_command(command: Dictionary) -> Dictionary:
+	var replay := _replay_next_shop_capture(command, "BUY_OFFER")
+	if bool(replay.get("handled", false)):
+		return Dictionary(replay.get("response", {}))
 	var offer_id := String(command.get("offer_id", command.get("offerId", ""))).strip_edges()
 	if _shop_capture_purchase_available and _shop_capture_purchase_offer_id() == offer_id:
 		var captured_purchase := _shop_capture_snapshot("purchased_snapshot")
@@ -622,8 +636,83 @@ func _apply_local_buy_command(command: Dictionary) -> Dictionary:
 
 
 func _shop_capture_snapshot(key: String) -> Dictionary:
+	var replay_snapshots := Dictionary(_shop_art_capture.get("replay_snapshots", {}))
+	if replay_snapshots.has(key) and replay_snapshots[key] is Dictionary:
+		return Dictionary(replay_snapshots[key]).duplicate(true)
 	var value: Variant = _shop_art_capture.get(key, {})
 	return Dictionary(value).duplicate(true) if value is Dictionary else {}
+
+
+func _replay_next_shop_capture(command: Dictionary, command_type: String) -> Dictionary:
+	var replay_snapshots := Dictionary(_shop_art_capture.get("replay_snapshots", {}))
+	var operations := Array(_shop_art_capture.get("operations", []))
+	if replay_snapshots.is_empty() or operations.is_empty():
+		return {"handled": false}
+	if _shop_capture_operation_index >= operations.size():
+		return {
+			"handled": true,
+			"response": _rejected_response(
+				command,
+				command_type,
+				"SHOP_CAPTURE_COMPLETE",
+				"正式商店公开操作序列已经回放完毕"
+			),
+		}
+	var operation := Dictionary(operations[_shop_capture_operation_index])
+	var expected_command := Dictionary(operation.get("command", {}))
+	if not _shop_capture_command_matches(command, command_type, expected_command):
+		return {
+			"handled": true,
+			"response": _rejected_response(
+				command,
+				command_type,
+				"SHOP_CAPTURE_SEQUENCE_MISMATCH",
+				"该操作不是正式商店公开回放序列的下一步"
+			),
+		}
+	var snapshot_key := String(operation.get("snapshot_key", ""))
+	var captured_snapshot := _shop_capture_snapshot(snapshot_key)
+	var identity := Dictionary(operation.get("snapshot_identity", {}))
+	if captured_snapshot.is_empty() \
+			or int(captured_snapshot.get("stateVersion", -1)) != int(identity.get("stateVersion", -2)) \
+			or String(captured_snapshot.get("stateHash", "")) != String(identity.get("stateHash", "")):
+		return {
+			"handled": true,
+			"response": _rejected_response(
+				command,
+				command_type,
+				"SHOP_CAPTURE_IDENTITY_MISMATCH",
+				"正式商店公开 Snapshot 身份校验失败"
+			),
+		}
+	_snapshot = captured_snapshot
+	_shop_capture_operation_index += 1
+	return {
+		"handled": true,
+		"response": _accepted_projection(command, command_type, {
+			"type": command_type,
+			"ok": true,
+			"formal_shop_capture_replay": true,
+			"capture_operation": String(operation.get("name", "")),
+			"snapshot_key": snapshot_key,
+		}),
+	}
+
+
+func _shop_capture_command_matches(
+	command: Dictionary,
+	command_type: String,
+	expected: Dictionary
+) -> bool:
+	if command_type != String(expected.get("type", "")).strip_edges().to_upper():
+		return false
+	if command_type == "CHOOSE_ROUTE":
+		return String(command.get("option_id", command.get("optionId", ""))) \
+			== String(expected.get("option_id", expected.get("optionId", "")))
+	if command_type == "BUY_OFFER":
+		return String(command.get("offer_id", command.get("offerId", ""))) \
+			== String(expected.get("offer_id", expected.get("offerId", "")))
+	return true
 
 
 func _shop_capture_matches_option(command: Dictionary) -> bool:

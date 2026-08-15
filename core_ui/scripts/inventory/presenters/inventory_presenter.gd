@@ -35,9 +35,10 @@ func _indexed_pets_by_bag_slot(all_pets: Array) -> Array:
 	var indexed_pets: Array = []
 	var used_slots := {}
 	var compact_slot := 0
+	var slot_base := _detected_bag_slot_base(all_pets)
 	for value in all_pets:
 		var pet := Dictionary(value)
-		var pet_slot := _explicit_bag_slot(pet)
+		var pet_slot := _explicit_bag_slot(pet, slot_base)
 		if pet_slot < 0:
 			pet_slot = compact_slot
 		while used_slots.has(pet_slot):
@@ -51,9 +52,18 @@ func _indexed_pets_by_bag_slot(all_pets: Array) -> Array:
 	return indexed_pets
 
 
-func _explicit_bag_slot(pet: Dictionary) -> int:
+func _explicit_bag_slot(pet: Dictionary, slot_base: int) -> int:
 	if pet.has("bag_slot"):
-		return int(pet.get("bag_slot", -1))
+		return int(pet.get("bag_slot", -1)) - slot_base
 	if pet.has("bagSlot"):
-		return int(pet.get("bagSlot", -1))
+		return int(pet.get("bagSlot", -1)) - slot_base
 	return -1
+
+
+func _detected_bag_slot_base(all_pets: Array) -> int:
+	for value in all_pets:
+		var pet := Dictionary(value)
+		var explicit := int(pet.get("bag_slot", pet.get("bagSlot", -1)))
+		if explicit == 0:
+			return 0
+	return 1
