@@ -1,0 +1,13 @@
+{
+  "schema": "lubiart_shop_merchant_map_v1",
+  "default": "res://art/images/shop/screen_shop_godot_v1/merchant_default.png",
+  "lookup_fields": [
+    "nodeId",
+    "node_id",
+    "id",
+    "shopPoolId",
+    "shop_pool_id"
+  ],
+  "variants": {},
+  "status": "pending_confirmed_same_style_merchant_variants"
+}

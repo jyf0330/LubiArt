@@ -3,8 +3,6 @@ extends SceneTree
 const GameScene := preload("res://art/scenes/app/game.tscn")
 
 var _failed := false
-var _view: Control = null
-var _commands: Array[Dictionary] = []
 
 
 func _initialize() -> void:
@@ -17,11 +15,6 @@ func _run() -> void:
 	await _settle()
 
 	var view := game.call("get_three_choice_view") as Control
-	_view = view
-	var game_callback := Callable(game, "_on_command_requested")
-	if view.command_requested.is_connected(game_callback):
-		view.command_requested.disconnect(game_callback)
-	view.command_requested.connect(_complete_command_request)
 	var card_grid := view.get_node("MainBG/Containers/Middle/Middle_Three_Option/CardGrid") as Control
 	var route_button := _first_shop_route_button(card_grid)
 	_expect(route_button != null, "mock route exposes a shop choice")
@@ -29,27 +22,33 @@ func _run() -> void:
 		quit(1)
 		return
 	var route_highlight := route_button.get_parent().get_node("RouteHighlight") as TextureRect
-	var exit_button := view.get_node("MainBG/Containers/ExitButton") as TextureButton
-	var party_button := view.get_node("MainBG/Containers/Party/Party_Container/Party_Slot") as TextureButton
-	_expect(party_button.get_meta("pet_texture", null) is Texture2D, "default application entry renders the session party sprite")
-	_expect(not exit_button.disabled, "route exit keeps its authored hover state before a choice is selected")
+	var exit_button := view.get_node("RouteSharedUi/ExitButton") as TextureButton
+	var party_button := view.get_node("RouteSharedUi/Party/Party_Container/Party_Slot") as TextureButton
+	_expect(party_button.get_meta("pet_texture", null) is Texture2D, "route shared UI renders the session party sprite")
+	_expect(view.get_node_or_null("MainBG/Containers/Middle/Middle_Shop") == null, "legacy Middle_Shop node tree is deleted")
 
 	route_button.pressed.emit()
 	await process_frame
-	_expect(not exit_button.disabled, "route selection keeps the authored exit door interactive")
 	_expect(route_highlight.visible, "route selection keeps the selected card highlight visible")
-	_expect(_commands.is_empty(), "route card click does not submit immediately")
-
 	exit_button.pressed.emit()
 	await _settle()
-	_expect(_commands.size() == 1 and String(_commands[0].get("type", "")) == "CHOOSE_ROUTE", "route exit submits the selected CHOOSE_ROUTE command")
-	_expect(String(_commands[0].get("kind", "")) == "shop", "route exit preserves the selected route kind")
-	_expect((view.get_node("MainBG/Containers/Middle/Middle_Shop") as Control).visible, "accepted route choice renders the shop view")
+	_expect(String(game.call("get_active_feature_id")) == "shop", "accepted shop route mounts the dedicated ShopScene")
+	var shop := game.call("get_active_feature_view") as Control
+	_expect(shop != null and shop.name == "ShopScene", "FeatureHost owns the dedicated ShopScene")
+	_expect(not view.visible, "ThreeChoiceScene is hidden while ShopScene is active")
+	if shop == null:
+		game.queue_free()
+		await process_frame
+		quit(1)
+		return
+	_expect(shop.get_node("Offers").get_child_count() == 5, "ShopScene exposes exactly five authored offer buttons")
+	_expect(shop.get_node("RouteSharedUi") != null, "ShopScene reuses RouteSharedUi")
 
-	exit_button.pressed.emit()
+	var shop_exit := shop.get_node("RouteSharedUi/ExitButton") as TextureButton
+	shop_exit.pressed.emit()
 	await _settle()
-	_expect(_commands.size() == 2 and String(_commands[1].get("type", "")) == "EXIT_SHOP", "shop exit submits EXIT_SHOP through the page root")
-	_expect((view.get_node("MainBG/Containers/Middle/Middle_Three_Option") as Control).visible, "accepted shop exit returns to the route view")
+	_expect(String(game.call("get_active_feature_id")) == "", "EXIT_SHOP releases the ShopScene feature")
+	_expect(view.visible, "EXIT_SHOP restores ThreeChoiceScene")
 
 	game.queue_free()
 	await process_frame
@@ -58,9 +57,9 @@ func _run() -> void:
 
 
 func _settle() -> void:
-	for _frame in range(24):
+	for _frame in range(36):
 		await process_frame
-	await create_timer(0.35).timeout
+	await create_timer(0.2).timeout
 
 
 func _first_shop_route_button(card_grid: Control) -> TextureButton:
@@ -69,21 +68,6 @@ func _first_shop_route_button(card_grid: Control) -> TextureButton:
 		if button != null and String(button.get_meta("route_kind", "")) == "shop":
 			return button
 	return null
-
-
-func _complete_command_request(command: Dictionary, request_id: int) -> void:
-	_commands.append(command.duplicate(true))
-	var snapshot := Dictionary(_view.get("_snapshot")).duplicate(true)
-	match String(command.get("type", "")):
-		"CHOOSE_ROUTE":
-			snapshot["phase"] = "shop"
-		"EXIT_SHOP":
-			snapshot["phase"] = "route"
-	_view.call("complete_command_request", request_id, {
-		"accepted": true,
-		"command": String(command.get("type", "")),
-		"snapshot": snapshot,
-	})
 
 
 func _expect(condition: bool, message: String) -> void:

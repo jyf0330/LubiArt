@@ -1,0 +1,183 @@
+[gd_scene format=3 uid="uid://c5wl78xnh4ipc"]
+
+[ext_resource type="Script" uid="uid://rq75y1er63y3" path="res://core_ui/scripts/shop/scenes/shop_scene.gd" id="1_shop"]
+[ext_resource type="Texture2D" uid="uid://b5m71bt4v5bex" path="res://art/images/shop/screen_shop_godot_v1/background.png" id="2_background"]
+[ext_resource type="Texture2D" uid="uid://cgxbplupbjcl1" path="res://art/images/shop/screen_shop_godot_v1/shop_facade.png" id="3_facade"]
+[ext_resource type="Texture2D" uid="uid://cj0whdxwx0hhm" path="res://art/images/shop/screen_shop_godot_v1/merchant_default.png" id="4_merchant"]
+[ext_resource type="Texture2D" uid="uid://c6qvqj8a6uy16" path="res://art/images/shop/screen_shop_godot_v1/refresh_curtain.png" id="5_curtain"]
+[ext_resource type="Texture2D" uid="uid://cbvwk7sui3xf3" path="res://art/images/shop/screen_shop_godot_v1/refresh_bell_normal.png" id="6_bell_normal"]
+[ext_resource type="Texture2D" uid="uid://djjcqxhjcf1h8" path="res://art/images/shop/screen_shop_godot_v1/refresh_bell_hover.png" id="7_bell_hover"]
+[ext_resource type="PackedScene" path="res://art/prefabs/route/route_shared_ui.tscn" id="8_shared"]
+[ext_resource type="Texture2D" uid="uid://bl2co6qksj5ts" path="res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png" id="9_offer_1"]
+[ext_resource type="Texture2D" uid="uid://dqnkuv72lrvfc" path="res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png" id="10_offer_2"]
+[ext_resource type="Texture2D" uid="uid://dnkoaqmofggdy" path="res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png" id="11_offer_3"]
+[ext_resource type="Texture2D" uid="uid://bxpp04ryhfgwl" path="res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png" id="12_offer_4"]
+[ext_resource type="Texture2D" uid="uid://beymia0s6aq7e" path="res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png" id="13_offer_5"]
+
+[node name="ShopScene" type="Control" unique_id=2125262833]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
+
+[node name="Background" type="TextureRect" parent="." unique_id=2139712256]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -960.0
+offset_top = -540.0
+offset_right = 960.0
+offset_bottom = 540.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_background")
+stretch_mode = 5
+
+[node name="ShopFacade" type="TextureRect" parent="." unique_id=820355188]
+z_index = 1
+layout_mode = 0
+offset_left = 31.0
+offset_top = 86.0
+offset_right = 1797.0
+offset_bottom = 1074.0
+mouse_filter = 2
+texture = ExtResource("3_facade")
+stretch_mode = 5
+
+[node name="Merchant" type="TextureRect" parent="." unique_id=697121720]
+z_index = 2
+layout_mode = 0
+offset_left = 813.0
+offset_top = 580.0
+offset_right = 990.0
+offset_bottom = 782.0
+mouse_filter = 2
+texture = ExtResource("4_merchant")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Offers" type="Control" parent="." unique_id=1686432440]
+z_index = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Offer01" type="Button" parent="Offers" unique_id=1860005426]
+layout_mode = 0
+offset_left = 498.0
+offset_top = 360.0
+offset_right = 658.0
+offset_bottom = 550.0
+theme_override_colors/font_color = Color(0.99, 0.84, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+icon = ExtResource("9_offer_1")
+flat = true
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+metadata/price_tag_center = Vector2(583, 542)
+metadata/price_tag_width = 30.0
+
+[node name="Offer02" type="Button" parent="Offers" unique_id=2130491814]
+layout_mode = 0
+offset_left = 823.0
+offset_top = 360.0
+offset_right = 983.0
+offset_bottom = 550.0
+theme_override_colors/font_color = Color(0.99, 0.84, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+icon = ExtResource("10_offer_2")
+flat = true
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+metadata/price_tag_center = Vector2(904.5, 542)
+metadata/price_tag_width = 30.0
+
+[node name="Offer03" type="Button" parent="Offers" unique_id=227468715]
+layout_mode = 0
+offset_left = 1148.0
+offset_top = 375.0
+offset_right = 1308.0
+offset_bottom = 565.0
+theme_override_colors/font_color = Color(0.99, 0.84, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+icon = ExtResource("11_offer_3")
+flat = true
+icon_alignment = 1
+vertical_icon_alignment = 1
+expand_icon = true
+metadata/price_tag_center = Vector2(1228, 542)
+metadata/price_tag_width = 30.0
+
+[node name="Offer04" type="Button" parent="Offers" unique_id=2118672105]
+layout_mode = 0
+offset_left = 498.0
+offset_top = 610.0
+offset_right = 658.0
+offset_bottom = 800.0
+theme_override_colors/font_color = Color(0.99, 0.84, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+icon = ExtResource("12_offer_4")
+flat = true
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+metadata/price_tag_center = Vector2(582.5, 792)
+metadata/price_tag_width = 30.0
+
+[node name="Offer05" type="Button" parent="Offers" unique_id=339851030]
+layout_mode = 0
+offset_left = 1148.0
+offset_top = 610.0
+offset_right = 1308.0
+offset_bottom = 800.0
+theme_override_colors/font_color = Color(0.99, 0.84, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+icon = ExtResource("13_offer_5")
+flat = true
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+metadata/price_tag_center = Vector2(1227, 793)
+metadata/price_tag_width = 30.0
+
+[node name="RefreshButton" type="TextureButton" parent="." unique_id=579976958]
+z_index = 4
+layout_mode = 0
+offset_left = 945.0
+offset_top = 712.0
+offset_right = 1034.0
+offset_bottom = 798.0
+texture_normal = ExtResource("6_bell_normal")
+texture_pressed = ExtResource("7_bell_hover")
+texture_hover = ExtResource("7_bell_hover")
+texture_focused = ExtResource("7_bell_hover")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="RefreshCurtain" type="TextureRect" parent="." unique_id=1202256789]
+visible = false
+z_index = 20
+layout_mode = 0
+offset_left = 492.0
+offset_top = 313.0
+offset_right = 1328.0
+offset_bottom = 815.0
+mouse_filter = 2
+texture = ExtResource("5_curtain")
+stretch_mode = 5
+
+[node name="RouteSharedUi" parent="." unique_id=95752494 instance=ExtResource("8_shared")]
+z_index = 30
+layout_mode = 1
+offset_top = -20.0
+offset_bottom = -20.0

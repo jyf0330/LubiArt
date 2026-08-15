@@ -55,19 +55,19 @@ func _run() -> void:
 	_expect((second_route.get_parent().get_node("RouteHighlight") as TextureRect).visible, "route hover highlight is visible")
 	_save_capture("operation_02_route_hover.png")
 
-	var exit_button := view.get_node("MainBG/Containers/ExitButton") as TextureButton
+	var exit_button := view.get_node("RouteSharedUi/ExitButton") as TextureButton
 	_move_mouse_to(exit_button)
 	await _settle(6)
 	_expect(exit_button.visible and not exit_button.disabled, "exit door remains available during the visible interaction pass")
 	_save_capture("operation_03_exit_hover.png")
 
-	var bag_button := view.get_node("MainBG/Containers/Bags/Bag_Button") as TextureButton
+	var bag_button := view.get_node("RouteSharedUi/Bags/Bag_Button") as TextureButton
 	_click(bag_button)
 	await _settle(24)
 	var middle := view.get_node("MainBG/Containers/Middle") as Control
-	var bags := view.get_node("MainBG/Containers/Bags") as Control
-	var party := view.get_node("MainBG/Containers/Party") as Control
-	var top := view.get_node("MainBG/Containers/Top") as Control
+	var bags := view.get_node("RouteSharedUi/Bags") as Control
+	var party := view.get_node("RouteSharedUi/Party") as Control
+	var top := view.get_node("RouteSharedUi/Top") as Control
 	_expect(bags.z_index > middle.z_index, "open bag chest and party shelf render above the bag overlay mask")
 	_expect(party.z_index > middle.z_index, "party sprites render above the bag overlay mask")
 	_expect(top.z_index > middle.z_index, "coin panel, icon, and amount render above the bag overlay mask")
@@ -75,10 +75,10 @@ func _run() -> void:
 	_expect(_bag_open_rear_left_gap_is_transparent(bag_button), "the open bag texture does not leak the closed chest at the authored rear-left gap")
 	_save_capture("operation_04_bag_open.png")
 
-	var bag_item_bar := view.get_node("MainBG/Containers/Middle/Middle_Bag/ItemBar") as Control
+	var bag_item_bar := view.get_node("RouteSharedUi/Middle_Bag/ItemBar") as Control
 	var bag_slot_paths := []
 	for slot_index in range(BAG_PAINTED_FRAME_CENTERS.size()):
-		bag_slot_paths.append("MainBG/Containers/Middle/Middle_Bag/Slots/Bag_Slot%s" % ["" if slot_index == 0 else str(slot_index + 1)])
+		bag_slot_paths.append("RouteSharedUi/Middle_Bag/Slots/Bag_Slot%s" % ["" if slot_index == 0 else str(slot_index + 1)])
 	for slot_index in range(bag_slot_paths.size()):
 		var tested_slot := view.get_node(bag_slot_paths[slot_index]) as TextureButton
 		_move_mouse_to(tested_slot)
@@ -88,7 +88,7 @@ func _run() -> void:
 		# fallback while still positioning the real pointer at the target.
 		tested_slot.mouse_entered.emit()
 		await _settle(2)
-		_expect((view.get_node("ItemSlotHoverHighlight") as TextureRect).visible, "bag slot %d hover highlight is visible" % [slot_index + 1])
+		_expect((view.get_node("RouteSharedUi/ItemSlotHoverHighlight") as TextureRect).visible, "bag slot %d hover highlight is visible" % [slot_index + 1])
 		_expect_bag_highlight_aligned(view, bag_item_bar, tested_slot, slot_index)
 		_save_capture("alignment_slot_%02d_hover.png" % [slot_index + 1])
 		if slot_index == 0:
@@ -105,9 +105,9 @@ func _run() -> void:
 	_click(bag_button)
 	await _settle(24)
 	_expect(_bag_button_uses_only_texture(bag_button, "bag_closed.png"), "the same Bag_Button returns to only its closed texture after closing the bag")
-	var party_slot := view.get_node("MainBG/Containers/Party/Party_Container/Party_Slot") as TextureButton
+	var party_slot := view.get_node("RouteSharedUi/Party/Party_Container/Party_Slot") as TextureButton
 	var party_material := party_slot.material as ShaderMaterial
-	_expect(not (view.get_node("ItemSlotHoverHighlight") as TextureRect).visible, "team slots do not use the shared slot-ring highlight")
+	_expect(not (view.get_node("RouteSharedUi/ItemSlotHoverHighlight") as TextureRect).visible, "team slots do not use the shared slot-ring highlight")
 	_expect(party_material != null and bool(party_material.get_shader_parameter("shadow_enabled")), "occupied party sprite has an authored ground shadow")
 	_expect(float(party_material.get_shader_parameter("shadow_highlight")) < 0.5, "party shadow starts in its normal state")
 	_move_mouse_to(party_slot)
@@ -115,7 +115,7 @@ func _run() -> void:
 	if float(party_material.get_shader_parameter("shadow_highlight")) <= 0.5:
 		party_slot.mouse_entered.emit()
 		await _settle(2)
-	_expect(not (view.get_node("ItemSlotHoverHighlight") as TextureRect).visible, "party hover does not restore the deleted slot ring")
+	_expect(not (view.get_node("RouteSharedUi/ItemSlotHoverHighlight") as TextureRect).visible, "party hover does not restore the deleted slot ring")
 	_expect(float(party_material.get_shader_parameter("shadow_highlight")) > 0.5, "party hover brightens the sprite ground shadow")
 	var detail_panel := view.get_node("ArtistPetDetailPanel") as Control
 	var detail_surface := detail_panel.get_node("Panel") as Control
@@ -128,10 +128,10 @@ func _run() -> void:
 	for protected_path in [
 		"MainBG/Temple",
 		"MainBG/Containers/Middle/Middle_Three_Option",
-		"MainBG/Containers/Party",
-		"MainBG/Containers/Bags",
-		"MainBG/Containers/ExitButton",
-		"MainBG/Containers/Top/Hud",
+		"RouteSharedUi/Party",
+		"RouteSharedUi/Bags",
+		"RouteSharedUi/ExitButton",
+		"RouteSharedUi/Top/Hud",
 	]:
 		var protected_control := view.get_node(protected_path) as Control
 		_expect(not detail_rect.intersects(_transformed_control_rect(protected_control)), "left detail panel does not cover %s" % protected_path)
@@ -152,7 +152,7 @@ func _run() -> void:
 	_expect(drag_preview != null and drag_preview.visible, "standalone party preview can be picked up and dragged")
 	_expect(party_slot.texture_normal == null, "dragging temporarily hides the authored source sprite and shadow")
 	_save_capture("operation_11_party_drag_preview.png")
-	var party_slot_2 := view.get_node("MainBG/Containers/Party/Party_Container/Party_Slot2") as TextureButton
+	var party_slot_2 := view.get_node("RouteSharedUi/Party/Party_Container/Party_Slot2") as TextureButton
 	_release_mouse_at(view, party_slot_2)
 	await _settle(8)
 	_expect(party_slot.texture_normal == null, "standalone party drop clears the source slot")
@@ -172,7 +172,7 @@ func _run() -> void:
 	_expect(not Dictionary(bag_slot.get_meta("drag_record", {})).is_empty(), "standalone bag drop preserves the local preview record")
 	_save_capture("operation_13_party_drop_to_bag_slot.png")
 
-	var party_slot_4 := view.get_node("MainBG/Containers/Party/Party_Container/Party_Slot4") as TextureButton
+	var party_slot_4 := view.get_node("RouteSharedUi/Party/Party_Container/Party_Slot4") as TextureButton
 	bag_slot.button_down.emit()
 	await _settle(3)
 	_release_mouse_at(view, party_slot_4)
@@ -181,13 +181,13 @@ func _run() -> void:
 	_expect(party_slot_4.texture_normal != null, "standalone party return places the sprite in the chosen party slot")
 	_save_capture("operation_14_bag_drop_to_party_slot.png")
 
-	var empty_party_slot := view.get_node("MainBG/Containers/Party/Party_Container/Party_Slot3") as TextureButton
+	var empty_party_slot := view.get_node("RouteSharedUi/Party/Party_Container/Party_Slot3") as TextureButton
 	var empty_party_material := empty_party_slot.material as ShaderMaterial
 	_move_mouse_to(empty_party_slot)
 	await _settle(6)
 	_expect(empty_party_slot.texture_normal == null, "empty party slot has no sprite or ground shadow draw surface")
 	_expect(float(empty_party_material.get_shader_parameter("shadow_highlight")) < 0.5, "empty party slot hover does not create a shadow highlight")
-	_expect(not (view.get_node("ItemSlotHoverHighlight") as TextureRect).visible, "empty party slot hover has no slot-ring highlight")
+	_expect(not (view.get_node("RouteSharedUi/ItemSlotHoverHighlight") as TextureRect).visible, "empty party slot hover has no slot-ring highlight")
 
 	print("VISIBLE_THREE_CHOICE_STANDALONE_CAPTURE_%s project_root=%s output=%s" % ["FAIL" if _failed else "PASS", _project_root, _output_dir])
 	quit(1 if _failed else 0)
@@ -245,7 +245,7 @@ func _release_mouse_at(view: Control, control: Control) -> void:
 
 
 func _expect_bag_highlight_aligned(view: Control, item_bar: Control, slot: Control, slot_index: int) -> void:
-	var highlight := view.get_node("ItemSlotHoverHighlight") as TextureRect
+	var highlight := view.get_node("RouteSharedUi/ItemSlotHoverHighlight") as TextureRect
 	var slot_canvas_origin := slot.get_global_transform_with_canvas().origin
 	var slot_position_in_scene := view.get_global_transform_with_canvas().affine_inverse() * slot_canvas_origin
 	var expected := slot_position_in_scene + (view.get("item_slot_highlight_offset") as Vector2)

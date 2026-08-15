@@ -5,17 +5,12 @@ extends Control
 ## emits requests upward. Game owns the session and completes every request.
 
 signal command_requested(command: Dictionary, request_id: int)
-signal session_operation_requested(operation: StringName, arguments: Dictionary, request_id: int)
-signal command_response_received(request_id: int)
-signal session_operation_response_received(request_id: int)
 signal presentation_settled
 
 const GameLogScript := preload("res://core/logging/game_log.gd")
 const StagePresenterScript := preload("res://core_ui/scripts/artist_flow/presenters/artist_flow_stage_presenter.gd")
 const AssetRegistryScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd")
 const RoutePresenterScript := preload("res://core_ui/scripts/route/presenters/route_presenter.gd")
-const ShopPresenterScript := preload("res://core_ui/scripts/shop/presenters/shop_presenter.gd")
-const LegacyCodeShopViewScript := preload("res://core_ui/scripts/shop/views/legacy_code_shop_view.gd")
 const InventoryPresenterScript := preload("res://core_ui/scripts/inventory/presenters/inventory_presenter.gd")
 const PartyPresenterScript := preload("res://core_ui/scripts/party/presenters/party_presenter.gd")
 const SettlementPresenterScript := preload("res://core_ui/scripts/settlement/presenters/settlement_presenter.gd")
@@ -23,117 +18,36 @@ const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy
 const ShortcutCatalog := preload("res://core_ui/scripts/shared/shortcut_catalog.gd")
 const RequestBrokerScript := preload("res://core_ui/scripts/artist_flow/controllers/three_choice_request_broker.gd")
 const FocusCoordinatorScript := preload("res://core_ui/scripts/artist_flow/controllers/three_choice_focus_coordinator.gd")
-const DeveloperToolbarScript := preload("res://core_ui/scripts/artist_flow/controllers/three_choice_developer_toolbar.gd")
 const DragControllerScript := preload("res://core_ui/scripts/artist_flow/controllers/three_choice_drag_controller.gd")
 
 const VIEW_THREE_OPTION := &"three_option"
-const VIEW_SHOP := &"shop"
 const VIEW_BAG := &"bag"
-const VIEW_BATTLE := &"battle"
 
-const DRAG_PREVIEW_SIZE := Vector2(110.0, 110.0)
 const SLOT_DRAG_PREVIEW_SIZE := Vector2(96.0, 96.0)
-const SHOP_SLOT_COUNT := 8
-const BAG_SLOT_COUNT := 8
-const PARTY_SLOT_COUNT := 4
-const SHOP_SLOT_SIZE := Vector2(96.0, 96.0)
-const BAG_SLOT_SIZE := Vector2(154.0, 146.0)
-const BAG_SLOT_DISPLAY_SIZE := Vector2(121.0, 116.0)
-const BAG_SLOT_DISPLAY_OFFSET := Vector2(24.0, 13.0)
-const PARTY_SLOT_SIZE := Vector2(164.0, 170.0)
-const PARTY_SLOT_DISPLAY_SIZE := Vector2(126.0, 124.0)
-const PARTY_SLOT_DISPLAY_OFFSET := Vector2(19.0, 12.0)
-const SLOT_LAYOUT_SHOP := 0
-const SLOT_LAYOUT_COLLECTION := 1
-const SLOT_LAYOUT_PARTY := 2
-const COLLECTION_SLOT_SHADER_SOURCE := """
-shader_type canvas_item;
-
-uniform vec2 control_size = vec2(110.0, 110.0);
-uniform vec2 display_size = vec2(110.0, 73.3333);
-uniform vec2 display_offset = vec2(0.0, 0.0);
-uniform sampler2D source_texture : filter_nearest;
-uniform vec2 source_size = vec2(1.0, 1.0);
-uniform bool shadow_enabled = false;
-uniform sampler2D shadow_texture : filter_nearest;
-uniform vec2 shadow_size = vec2(79.0, 19.0);
-uniform vec2 shadow_offset = vec2(42.5, 110.0);
-uniform float shadow_highlight : hint_range(0.0, 1.0) = 0.0;
-
-void fragment() {
-	vec4 tint = COLOR;
-	vec2 pixel_position = UV * control_size;
-	vec4 output_color = vec4(0.0);
-	if (shadow_enabled) {
-		vec2 shadow_pixel_position = pixel_position - shadow_offset;
-		bool inside_shadow = shadow_pixel_position.x >= 0.0 && shadow_pixel_position.y >= 0.0 && shadow_pixel_position.x < shadow_size.x && shadow_pixel_position.y < shadow_size.y;
-		if (inside_shadow) {
-			float shadow_alpha = texture(shadow_texture, shadow_pixel_position / shadow_size).a;
-			vec3 normal_shadow = vec3(0.035, 0.055, 0.055);
-			vec3 bright_shadow = vec3(0.480, 0.720, 0.680);
-			float shadow_opacity = mix(0.68, 1.0, shadow_highlight);
-			output_color = vec4(mix(normal_shadow, bright_shadow, shadow_highlight), shadow_alpha * shadow_opacity * tint.a);
-		}
-	}
-	vec2 display_pixel_position = pixel_position - display_offset;
-	bool outside = display_pixel_position.x < 0.0 || display_pixel_position.y < 0.0 || display_pixel_position.x >= display_size.x || display_pixel_position.y >= display_size.y;
-	if (!outside) {
-		vec2 display_uv = display_pixel_position / display_size;
-		float source_aspect = source_size.x / source_size.y;
-		float target_aspect = display_size.x / display_size.y;
-		vec2 source_uv = display_uv;
-		if (source_aspect > target_aspect) {
-			source_uv.x = 0.5 + (display_uv.x - 0.5) * target_aspect / source_aspect;
-		} else {
-			source_uv.y = 0.5 + (display_uv.y - 0.5) * source_aspect / target_aspect;
-		}
-		source_uv.x -= 0.000001;
-		vec4 sprite_color = texture(source_texture, source_uv) * tint;
-		output_color = sprite_color + output_color * (1.0 - sprite_color.a);
-	}
-	COLOR = output_color;
-}
-"""
 const DRAG_SOURCE_NONE := DragControllerScript.SOURCE_NONE
-const DRAG_SOURCE_SHOP := DragControllerScript.SOURCE_SHOP
 const DRAG_SOURCE_PARTY := DragControllerScript.SOURCE_PARTY
 const DRAG_SOURCE_BAG := DragControllerScript.SOURCE_BAG
-const TARGET_AUTO := &"auto"
-const TARGET_PARTY := &"party"
-const TARGET_BAG := &"bag"
-const TARGET_SELL := &"sell"
-const RUN_TOOL_SIZE := Vector2(92.0, 48.0)
 const FIXED_TEST_PLAY_SEED := "ysbzs-test-play-20260715-v1"
-const BAG_CLOSED_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_closed.png")
-const BAG_OPEN_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_open_full.png")
 const PARTY_SHELF_TEXTURE := preload("res://art/images/route/three_choice_psd/party_shelf.png")
 const BAG_SLOT_HIGHLIGHT_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_item_highlight.png")
 const STANDALONE_PARTY_PREVIEW_TEXTURE := preload("res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png")
 
-@export_group("Item Slot Highlight")
-@export var item_slot_highlight_offset := Vector2.ZERO
-
 @onready var middle_three_option: Control = $MainBG/Containers/Middle/Middle_Three_Option
-@onready var bag_overlay_mask: Control = $MainBG/Containers/Middle/BagOverlayMask
-@onready var middle_shop: Control = $MainBG/Containers/Middle/Middle_Shop
-@onready var middle_bag: Control = $MainBG/Containers/Middle/Middle_Bag
-@onready var party_container: Control = $MainBG/Containers/Party/Party_Container
-@onready var top_shop: Control = get_node_or_null("MainBG/Containers/Top/Top_Shop") as Control
-@onready var top_sell_button: TextureButton = get_node_or_null("MainBG/Containers/Top/Top_Sell") as TextureButton
-@onready var shop_back_button: TextureButton = get_node_or_null("MainBG/Containers/Top/Top_Shop/Shop_BackButton") as TextureButton
-@onready var bags_panel: Control = $MainBG/Containers/Bags
-@onready var bag_button: TextureButton = $MainBG/Containers/Bags/Bag_Button
-@onready var bag_storage_state: TextureRect = $MainBG/Containers/Bags/BagStorageState
-@onready var exit_button: TextureButton = $MainBG/Containers/ExitButton
-@onready var time_label: Label = get_node_or_null("MainBG/Containers/Top/Hud/TimeLabel") as Label
-@onready var coin_label: Label = get_node_or_null("MainBG/Containers/Top/Hud/CoinLabel") as Label
+@onready var route_shared_ui: Control = $RouteSharedUi
+@onready var bag_overlay_mask: Control = $RouteSharedUi/BagOverlayMask
+@onready var middle_bag: Control = $RouteSharedUi/Middle_Bag
+@onready var party_container: Control = $RouteSharedUi/Party/Party_Container
+@onready var top_sell_button: TextureButton = $RouteSharedUi/Top/Top_Sell
+@onready var bags_panel: Control = $RouteSharedUi/Bags
+@onready var bag_button: TextureButton = $RouteSharedUi/Bags/Bag_Button
+@onready var bag_storage_state: TextureRect = $RouteSharedUi/Bags/BagStorageState
+@onready var exit_button: TextureButton = $RouteSharedUi/ExitButton
 
 var _stage_presenter := StagePresenterScript.new()
 var _snapshot: Dictionary = {}
 var _last_command_snapshot: Dictionary = {}
 var _request_broker := RequestBrokerScript.new()
 var _focus_coordinator := FocusCoordinatorScript.new()
-var _developer_toolbar := DeveloperToolbarScript.new()
 var _drag_controller := DragControllerScript.new()
 var _current_view := VIEW_THREE_OPTION
 var _view_before_bag := VIEW_THREE_OPTION
@@ -141,13 +55,10 @@ var _is_transitioning := false
 var _asset_registry := AssetRegistryScript.new()
 var _three_buttons: Array[TextureButton] = []
 var _three_slots: Array[Control] = []
-var _shop_buttons: Array[TextureButton] = []
-var _shop_slots: Array[Control] = []
 var _party_buttons: Array[TextureButton] = []
 var _party_slots: Array[Control] = []
 var _bag_buttons: Array[TextureButton] = []
 var _bag_slots: Array[Control] = []
-var _slot_draw_texture: ImageTexture = null
 var _is_toggling_bag := false
 var _bag_page := 0
 var _hovered_route_index := -1
@@ -155,38 +66,22 @@ var _selected_route_index := -1
 var _selected_route_command := {}
 var _hovered_storage_source := DRAG_SOURCE_NONE
 var _hovered_storage_index := -1
-var _battle_view: Control = null
 var _pet_detail_panel: Control = null
-var _bazaar_info_panel: Control = null
-var _legacy_code_shop_view: Control = null
-@onready var _item_slot_hover_highlight: TextureRect = $ItemSlotHoverHighlight
 var _route_presenter := RoutePresenterScript.new()
-var _shop_presenter := ShopPresenterScript.new()
 var _inventory_presenter := InventoryPresenterScript.new()
 var _party_presenter := PartyPresenterScript.new()
 var _settlement_presenter := SettlementPresenterScript.new()
-var _developer_tools := false
 var _standalone_art_preview := false
 
 func _ready() -> void:
 	RuntimeUiPolicy.install()
-	_developer_tools = RuntimeUiPolicy.developer_tools_enabled()
 	_configure_request_broker()
 	_asset_registry.reload()
-	_build_runtime_slots()
+	_prepare_shared_slots()
 	_collect_slots()
 	_set_bag_storage_count(0)
 	_configure_drag_controller()
 	_ensure_pet_detail_panel()
-	_ensure_bazaar_info_panel()
-	_ensure_legacy_code_shop_view()
-	_developer_toolbar.configure(
-		self,
-		Callable(self, "_request_session_operation"),
-		Callable(self, "_on_developer_operation_completed")
-	)
-	_developer_toolbar.set_enabled(_developer_tools)
-	_apply_runtime_ui_mode()
 	_configure_stage_presenter()
 	_connect_buttons()
 	_configure_focus_navigation()
@@ -201,92 +96,21 @@ func _ready() -> void:
 	call_deferred("_show_initial_view")
 	call_deferred("_grab_focus_for_current_view")
 
-func _build_runtime_slots() -> void:
-	var draw_image := Image.create(1, 1, false, Image.FORMAT_RGBA8)
-	draw_image.fill(Color.WHITE)
-	_slot_draw_texture = ImageTexture.create_from_image(draw_image)
-	var shop_slots := _slot_root(middle_shop) as GridContainer
-	var bag_slots := _slot_root(middle_bag) as GridContainer
-	_build_slot_buttons(shop_slots, "Shop_Slot", SHOP_SLOT_COUNT, SHOP_SLOT_SIZE, SLOT_LAYOUT_SHOP)
-	_build_slot_buttons(bag_slots, "Bag_Slot", BAG_SLOT_COUNT, BAG_SLOT_SIZE, SLOT_LAYOUT_COLLECTION)
-	_configure_authored_slot_buttons(party_container, "Party_Slot", PARTY_SLOT_COUNT, PARTY_SLOT_SIZE, SLOT_LAYOUT_PARTY)
-
-func _build_slot_buttons(
-	container: Node,
-	base_name: String,
-	count: int,
-	slot_size: Vector2,
-	slot_layout_mode: int
-) -> void:
-	if container == null:
-		return
-	for index in range(count):
-		var button := TextureButton.new()
-		button.name = base_name if index == 0 else "%s%d" % [base_name, index + 1]
-		_configure_slot_button(button, slot_size, slot_layout_mode)
-		container.add_child(button)
-
-func _configure_authored_slot_buttons(
-	container: Node,
-	base_name: String,
-	count: int,
-	slot_size: Vector2,
-	slot_layout_mode: int
-) -> void:
-	if container == null:
-		return
-	for index in range(count):
-		var button_name := base_name if index == 0 else "%s%d" % [base_name, index + 1]
-		var button := container.get_node_or_null(button_name) as TextureButton
-		if button != null:
-			_configure_slot_button(button, slot_size, slot_layout_mode)
-
-func _configure_slot_button(button: TextureButton, slot_size: Vector2, slot_layout_mode: int) -> void:
-	if slot_layout_mode != SLOT_LAYOUT_PARTY:
-		button.custom_minimum_size = slot_size
-		button.ignore_texture_size = true
-		button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED if slot_layout_mode == SLOT_LAYOUT_SHOP else TextureButton.STRETCH_SCALE
-	if slot_layout_mode == SLOT_LAYOUT_COLLECTION or slot_layout_mode == SLOT_LAYOUT_PARTY:
+func _prepare_shared_slots() -> void:
+	route_shared_ui.call("ensure_bag_buttons")
+	for value in Array(route_shared_ui.call("party_buttons")):
+		var button := value as TextureButton
+		if button == null:
+			continue
 		button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		var slot_material := button.material as ShaderMaterial
-		if slot_material == null:
-			slot_material = _make_collection_slot_material(slot_size, slot_layout_mode)
-			button.material = slot_material
-		elif slot_layout_mode != SLOT_LAYOUT_PARTY:
-			_configure_collection_slot_material(slot_material, slot_size, slot_layout_mode)
-	button.set_meta("slot_surface_self", true)
-	button.set_meta("drag_preview_size", SLOT_DRAG_PREVIEW_SIZE)
-
-func _make_collection_slot_material(slot_size: Vector2, slot_layout_mode: int = SLOT_LAYOUT_COLLECTION) -> ShaderMaterial:
-	var shader := Shader.new()
-	shader.code = COLLECTION_SLOT_SHADER_SOURCE
-	var slot_material := ShaderMaterial.new()
-	slot_material.shader = shader
-	_configure_collection_slot_material(slot_material, slot_size, slot_layout_mode)
-	return slot_material
-
-func _configure_collection_slot_material(
-	slot_material: ShaderMaterial,
-	slot_size: Vector2,
-	slot_layout_mode: int
-) -> void:
-	slot_material.set_shader_parameter("control_size", slot_size)
-	var display_size := PARTY_SLOT_DISPLAY_SIZE if slot_layout_mode == SLOT_LAYOUT_PARTY else BAG_SLOT_DISPLAY_SIZE
-	var display_offset := PARTY_SLOT_DISPLAY_OFFSET if slot_layout_mode == SLOT_LAYOUT_PARTY else BAG_SLOT_DISPLAY_OFFSET
-	slot_material.set_shader_parameter("display_size", display_size)
-	slot_material.set_shader_parameter("display_offset", display_offset)
+		button.set_meta("slot_surface_self", true)
+		button.set_meta("drag_preview_size", SLOT_DRAG_PREVIEW_SIZE)
 
 func _set_slot_texture(button: TextureButton, texture_resource: Texture2D) -> void:
-	button.set_meta("pet_texture", texture_resource)
-	var slot_material := button.material as ShaderMaterial
-	if slot_material == null:
-		button.texture_normal = texture_resource
-		return
-	button.texture_normal = _slot_draw_texture if texture_resource != null else null
-	slot_material.set_shader_parameter("source_texture", texture_resource)
-	slot_material.set_shader_parameter("source_size", texture_resource.get_size() if texture_resource != null else Vector2.ONE)
 	if button in _party_buttons:
-		_update_party_shadow_highlight(_party_buttons.find(button))
+		route_shared_ui.call("set_party_texture", button, texture_resource)
+	else:
+		route_shared_ui.call("set_bag_texture", button, texture_resource)
 
 func _game_cursor() -> Node:
 	if not is_inside_tree():
@@ -311,15 +135,9 @@ func _configure_request_broker() -> void:
 	var command_callback := Callable(self, "_on_broker_command_requested")
 	if not _request_broker.command_requested.is_connected(command_callback):
 		_request_broker.command_requested.connect(command_callback)
-	var operation_callback := Callable(self, "_on_broker_session_operation_requested")
-	if not _request_broker.session_operation_requested.is_connected(operation_callback):
-		_request_broker.session_operation_requested.connect(operation_callback)
 
 func _on_broker_command_requested(command: Dictionary, request_id: int) -> void:
 	command_requested.emit(command.duplicate(true), request_id)
-
-func _on_broker_session_operation_requested(operation: StringName, arguments: Dictionary, request_id: int) -> void:
-	session_operation_requested.emit(operation, arguments.duplicate(true), request_id)
 
 func _set_game_cursor_loading(source: StringName, active: bool) -> void:
 	var cursor := _game_cursor()
@@ -331,7 +149,6 @@ func _exit_tree() -> void:
 	_stage_presenter.dispose()
 	_request_broker.dispose()
 	_focus_coordinator.dispose()
-	_developer_toolbar.dispose()
 
 func render_snapshot(snapshot: Dictionary, animate_transition: bool = true) -> void:
 	_snapshot = snapshot.duplicate(true)
@@ -352,97 +169,43 @@ func render_current_snapshot() -> void:
 func is_presentation_busy() -> bool:
 	return _is_transitioning
 
-func render_battle_command_response(command: Dictionary, response: Dictionary) -> void:
-	var before_snapshot := _current_snapshot()
-	var after_snapshot := Dictionary(response.get("snapshot", before_snapshot))
-	if _battle_view != null and _battle_view.has_method("render_command_response"):
-		_battle_view.call("render_command_response", command, response)
-	if not bool(response.get("accepted", false)):
-		var command_type := String(response.get("command", command.get("type", "")))
-		var error := Dictionary(response.get("error", {}))
-		var reason := String(error.get("message", error.get("code", "rejected")))
-		GameLogScript.warning("界面/核心命令", "核心拒绝战斗界面命令", {
-			"命令": command_type,
-			"原因": reason,
-		})
-		if command_type.strip_edges().to_upper() == "SELECT_CELL" \
-				and _battle_view != null \
-				and _battle_view.has_method("render_selection_snapshot"):
-			_battle_view.call("render_selection_snapshot", before_snapshot)
-		return
-	var command_type := String(command.get("type", "")).strip_edges().to_upper()
-	if command_type == "SELECT_CELL" \
-			and String(after_snapshot.get("phase", "")) == "battle" \
-			and _battle_view != null \
-			and _battle_view.has_method("render_selection_snapshot"):
-		_snapshot = after_snapshot.duplicate(false)
-		_battle_view.call("render_selection_snapshot", after_snapshot)
-		return
-	_snapshot = after_snapshot.duplicate(true)
-	if String(command.get("type", "")) == "RUN_COMBAT_ROUND" \
-			and String(after_snapshot.get("phase", "")) != "battle":
-		_render_battle_view(after_snapshot)
-		await _await_battle_trace_sequence()
-	# Commands that remain in battle only need the active battle presentation.
-	# Re-rendering the hidden route HUD, roster and bazaar content here adds work
-	# directly to pointer-down/up without changing anything the player can see.
-	if String(after_snapshot.get("phase", "")) == "battle" and _battle_view != null:
-		_render_battle_view(after_snapshot)
-		await _transition_to_view(VIEW_BATTLE)
-		return
-	var target_view := _render_content_from_state(after_snapshot)
-	await _transition_to_view(target_view)
-
-func configure_session_capabilities(supports_persistence: bool, slot_count: int) -> void:
-	_developer_toolbar.configure_session_capabilities(supports_persistence, slot_count)
-
 func complete_command_request(request_id: int, response: Dictionary) -> void:
 	_request_broker.complete_command(request_id, response)
-	command_response_received.emit(request_id)
-
-func complete_session_operation_request(request_id: int, result: Dictionary) -> void:
-	_request_broker.complete_session_operation(request_id, result)
-	session_operation_response_received.emit(request_id)
 
 func get_feature_controller(feature_name: StringName) -> Variant:
 	match feature_name:
 		&"route":
 			return _route_presenter
-		&"shop":
-			return _shop_presenter
 		&"inventory":
 			return _inventory_presenter
 		&"party":
 			return _party_presenter
 		&"settlement":
 			return _settlement_presenter
-		&"battle":
-			return _battle_view
 		_:
 			return null
 
 func get_missing_image_report() -> Array:
 	return _asset_registry.missing_image_report()
 
-func get_battle_missing_mapping_report() -> Array:
-	if _battle_view != null and _battle_view.has_method("get_missing_mapping_report"):
-		return Array(_battle_view.call("get_missing_mapping_report"))
-	return []
-
 func _collect_slots() -> void:
 	_three_slots = _get_direct_control_children(_slot_root(middle_three_option))
 	_three_buttons = _get_texture_buttons(middle_three_option)
-	_shop_slots = _get_direct_control_children(_slot_root(middle_shop))
-	_shop_buttons = _get_texture_buttons(middle_shop)
 	_party_slots = _get_direct_control_children(party_container)
-	_party_buttons = _get_texture_buttons(party_container)
+	_party_buttons.clear()
+	for value in Array(route_shared_ui.call("party_buttons")):
+		if value is TextureButton:
+			_party_buttons.append(value as TextureButton)
 	_bag_slots = _get_direct_control_children(_slot_root(middle_bag))
-	_bag_buttons = _get_texture_buttons(middle_bag)
+	_bag_buttons.clear()
+	for value in Array(route_shared_ui.call("bag_buttons")):
+		if value is TextureButton:
+			_bag_buttons.append(value as TextureButton)
 
 func _configure_drag_controller() -> void:
 	_drag_controller.configure(self, {
-		"shop_buttons": _shop_buttons,
-		"shop_slots": _shop_slots,
+		"shop_buttons": [],
+		"shop_slots": [],
 		"party_buttons": _party_buttons,
 		"party_slots": _party_slots,
 		"bag_buttons": _bag_buttons,
@@ -453,15 +216,16 @@ func _configure_drag_controller() -> void:
 
 func _set_drag_source_visible(
 		button: TextureButton,
-		_source: StringName,
+		source: StringName,
 		_index: int,
 		texture_resource: Texture2D,
 		source_visible: bool
 ) -> void:
-	_set_slot_texture(button, texture_resource if source_visible else null)
+	button.set_meta("pet_texture", texture_resource)
+	route_shared_ui.call("set_drag_source_visible", button, source, source_visible)
 
 func _show_drag_bag_highlight(slot: Control, _index: int) -> void:
-	_show_item_slot_highlight(slot, item_slot_highlight_offset, BAG_SLOT_HIGHLIGHT_TEXTURE)
+	route_shared_ui.call("show_bag_slot_highlight", slot, BAG_SLOT_HIGHLIGHT_TEXTURE)
 
 func _connect_buttons() -> void:
 	for index in range(_three_buttons.size()):
@@ -474,20 +238,6 @@ func _connect_buttons() -> void:
 			button.mouse_entered.connect(_on_three_mouse_entered.bind(index))
 		if not button.mouse_exited.is_connected(_on_three_mouse_exited):
 			button.mouse_exited.connect(_on_three_mouse_exited.bind(index))
-
-	for index in range(_shop_buttons.size()):
-		var button := _shop_buttons[index]
-		button.focus_mode = Control.FOCUS_ALL
-		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		if not button.button_down.is_connected(_on_shop_button_down):
-			button.button_down.connect(_on_shop_button_down.bind(index))
-		if not button.mouse_entered.is_connected(_on_shop_pet_mouse_entered):
-			button.mouse_entered.connect(_on_shop_pet_mouse_entered.bind(index))
-		if not button.mouse_exited.is_connected(_on_shop_pet_mouse_exited):
-			button.mouse_exited.connect(_on_shop_pet_mouse_exited.bind(index))
-		var keyboard_callback := Callable(self, "_on_shop_gui_input").bind(index)
-		if not button.gui_input.is_connected(keyboard_callback):
-			button.gui_input.connect(keyboard_callback)
 
 	for index in range(_party_buttons.size()):
 		var button := _party_buttons[index]
@@ -513,14 +263,6 @@ func _connect_buttons() -> void:
 		if not button.mouse_exited.is_connected(_on_bag_pet_mouse_exited):
 			button.mouse_exited.connect(_on_bag_pet_mouse_exited.bind(index))
 
-	if shop_back_button != null and not shop_back_button.pressed.is_connected(_on_shop_back_pressed):
-		shop_back_button.pressed.connect(_on_shop_back_pressed)
-	if shop_back_button != null:
-		shop_back_button.focus_mode = Control.FOCUS_ALL
-	if top_shop != null:
-		top_shop.mouse_filter = Control.MOUSE_FILTER_STOP
-	if top_shop != null and not top_shop.gui_input.is_connected(_on_top_shop_gui_input):
-		top_shop.gui_input.connect(_on_top_shop_gui_input)
 	if not bag_button.pressed.is_connected(_on_bag_pressed):
 		bag_button.pressed.connect(_on_bag_pressed)
 	bag_button.focus_mode = Control.FOCUS_ALL
@@ -540,12 +282,9 @@ func _configure_focus_navigation() -> void:
 	_focus_coordinator.configure(
 		self,
 		_three_buttons,
-		_shop_buttons,
 		_party_buttons,
 		_bag_buttons,
-		shop_back_button,
 		bag_button,
-		_bazaar_info_panel,
 		exit_button
 	)
 	_configure_current_focus_ring()
@@ -554,9 +293,6 @@ func _configure_current_focus_ring() -> void:
 	_focus_coordinator.refresh(_current_view)
 
 func _grab_focus_for_current_view() -> void:
-	if _current_view == VIEW_SHOP and _legacy_code_shop_view != null and _legacy_code_shop_view.visible:
-		_legacy_code_shop_view.call("grab_initial_focus")
-		return
 	_focus_coordinator.grab_if_current_focus_hidden(_current_view)
 
 func _restore_button_tint(button: BaseButton) -> void:
@@ -574,19 +310,17 @@ func _render_content_from_state(snap: Dictionary) -> StringName:
 	var target_view := VIEW_THREE_OPTION
 	match String(snap.get("phase", "route")):
 		"shop":
-			_render_shop(snap)
-			_render_legacy_code_shop(snap)
-			target_view = VIEW_SHOP
+			# Shop is rendered by the dedicated feature Scene mounted by Game.
+			target_view = VIEW_THREE_OPTION
 		"reward":
 			_render_reward(snap)
 		"battle":
-			_render_battle_view(snap)
-			target_view = VIEW_BATTLE
+			# Game owns the mounted BattleArtScene; this hidden route page does not render it.
+			pass
 		"battle_end", "day_end", "game_over":
 			_render_terminal_choice(snap)
 		_:
 			_render_route(snap)
-	_render_bazaar_information(snap, target_view)
 	return target_view
 
 func _render_route(snap: Dictionary) -> void:
@@ -678,43 +412,6 @@ func _render_reward(snap: Dictionary) -> void:
 		_restore_button_tint(button)
 	call_deferred("_configure_current_focus_ring")
 
-func _render_battle_view(snap: Dictionary) -> void:
-	if _battle_view != null and _battle_view.has_method("render_snapshot"):
-		_battle_view.call("render_snapshot", snap)
-
-func attach_feature_view(feature_id: StringName, view: Node) -> void:
-	if feature_id != VIEW_BATTLE or not (view is Control):
-		return
-	var battle_view := _runtime_feature_view(view)
-	if battle_view == null:
-		return
-	if _battle_view == battle_view:
-		return
-	_detach_battle_view()
-	_battle_view = battle_view
-	_battle_view.visible = false
-	_battle_view.z_index = 50
-	_battle_view.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_configure_stage_presenter()
-
-func detach_feature_view(feature_id: StringName, view: Node = null) -> void:
-	if feature_id != VIEW_BATTLE:
-		return
-	if view != null and _battle_view != _runtime_feature_view(view):
-		return
-	_detach_battle_view()
-
-func _runtime_feature_view(view: Node) -> Control:
-	if view == null:
-		return null
-	if view.has_method("get_runtime_view"):
-		return view.call("get_runtime_view") as Control
-	return view as Control
-
-func _detach_battle_view() -> void:
-	_battle_view = null
-	_configure_stage_presenter()
-
 func _render_terminal_choice(snap: Dictionary) -> void:
 	var card := Dictionary(_settlement_presenter.call("terminal_card", snap, FIXED_TEST_PLAY_SEED))
 	var title := String(card.get("title", "继续"))
@@ -736,35 +433,6 @@ func _render_terminal_choice(snap: Dictionary) -> void:
 			button.set_meta("detail_record", {})
 			_clear_runtime_overlays(slot)
 		button.set_meta("base_tint", Color.WHITE)
-		_restore_button_tint(button)
-	call_deferred("_configure_current_focus_ring")
-
-func _render_shop(snap: Dictionary) -> void:
-	var cards := Array(_shop_presenter.call("cards", snap))
-	for index in range(_shop_buttons.size()):
-		var card := Dictionary(cards[index]) if index < cards.size() else {}
-		var offer := Dictionary(card.get("record", {}))
-		var button := _shop_buttons[index]
-		var slot := _shop_slots[index] if index < _shop_slots.size() else button.get_parent()
-		var has_offer := not offer.is_empty() and bool(card.get("available", false))
-		var purchasable := bool(card.get("purchasable", false))
-		button.disabled = not has_offer
-		button.set_meta("purchasable", purchasable)
-		button.set_meta("availability", Dictionary(card.get("availability", {})))
-		button.set_meta("base_tint", Color.WHITE if purchasable else Color(0.56, 0.56, 0.56, 1.0))
-		if has_offer:
-			var texture := _pet_texture(offer)
-			_set_slot_texture(button, texture)
-			button.set_meta("command", Dictionary(card.get("command", {})))
-			button.set_meta("drag_record", offer)
-			_clear_runtime_overlays(slot)
-			if texture == null:
-				_record_missing_image("shop_offer", offer)
-		else:
-			_set_slot_texture(button, null)
-			button.set_meta("command", {})
-			button.set_meta("drag_record", {})
-			_clear_runtime_overlays(slot)
 		_restore_button_tint(button)
 	call_deferred("_configure_current_focus_ring")
 
@@ -858,100 +526,24 @@ func _on_three_mouse_exited(_index: int) -> void:
 	_set_hovered_route_card(-1)
 	_close_pet_context_detail()
 
-func _on_shop_button_down(index: int) -> void:
-	if _is_transitioning or _has_active_drag() or _current_view != VIEW_SHOP or index < 0 or index >= _shop_buttons.size():
-		return
-	var command := Dictionary(_shop_buttons[index].get_meta("command", {}))
-	if command.is_empty():
-		return
-	if not bool(_shop_buttons[index].get_meta("purchasable", false)):
-		_show_shop_unavailable_feedback(index)
-		return
-	var offer := Dictionary(_shop_buttons[index].get_meta("drag_record", {}))
-	var item_type := String(offer.get("item_type", "宠物" if String(offer.get("pet_id", "")) != "" else ""))
-	if item_type != "宠物":
-		_close_pet_context_detail()
-		if await _submit_core_command(command):
-			_render_content_from_state(_take_core_command_snapshot())
-		return
-	_close_pet_context_detail()
-	_drag_controller.begin_shop(index)
-
-func _on_shop_gui_input(event: InputEvent, index: int) -> void:
-	if event is InputEventMouseButton or not event.is_action_pressed("ui_accept"):
-		return
-	accept_event()
-	_clear_drag_state()
-	await _purchase_shop_offer_with_focus(index)
-
-func _purchase_shop_offer_with_focus(index: int) -> void:
-	if _is_transitioning or _current_view != VIEW_SHOP or index < 0 or index >= _shop_buttons.size():
-		return
-	var button := _shop_buttons[index]
-	var command := Dictionary(button.get_meta("command", {}))
-	if command.is_empty():
-		return
-	if not bool(button.get_meta("purchasable", false)):
-		_show_shop_unavailable_feedback(index)
-		return
-	_close_pet_context_detail()
-	if await _submit_core_command(command):
-		_render_content_from_state(_take_core_command_snapshot())
-		call_deferred("_grab_focus_for_current_view")
-
-func _show_shop_unavailable_feedback(index: int) -> void:
-	if index < 0 or index >= _shop_buttons.size():
-		return
-	var offer := Dictionary(_shop_buttons[index].get_meta("drag_record", {}))
-	var availability := Dictionary(_shop_buttons[index].get_meta("availability", {}))
-	var message := RuntimeUiPolicy.text("UI_RESULT_NO_COINS", [
-		int(availability.get("coins", _current_snapshot().get("coins", 0))),
-		int(availability.get("price", offer.get("price", 0))),
-	])
-	_show_bazaar_feedback(message, false)
-
-func _on_shop_pet_mouse_entered(index: int) -> void:
-	if _is_transitioning or _has_active_drag() or _current_view != VIEW_SHOP:
-		return
-	_show_shop_pet_context(index)
-
-func _on_shop_pet_mouse_exited(_index: int) -> void:
-	if _has_active_drag() or _current_view != VIEW_SHOP:
-		return
-	_hide_item_slot_highlight()
-	_close_pet_context_detail()
-
 func _on_party_button_down(index: int) -> void:
 	_start_storage_drag_candidate(DRAG_SOURCE_PARTY, index)
 
 func _on_party_pet_mouse_entered(index: int) -> void:
-	if _is_transitioning or _has_active_drag() or _current_view == VIEW_BATTLE:
+	if _is_transitioning or _has_active_drag():
 		return
 	_set_hovered_storage_target(DRAG_SOURCE_PARTY, index)
 	if index >= 0 and index < _party_buttons.size():
-		_party_buttons[index].set_meta("party_mouse_hovered", true)
-	_update_party_shadow_highlight(index)
+		route_shared_ui.call("set_party_hovered", _party_buttons[index], true)
 	_show_storage_pet_context(DRAG_SOURCE_PARTY, index)
 
 func _on_party_pet_mouse_exited(index: int) -> void:
 	if index >= 0 and index < _party_buttons.size():
-		_party_buttons[index].set_meta("party_mouse_hovered", false)
-	_update_party_shadow_highlight(index)
+		route_shared_ui.call("set_party_hovered", _party_buttons[index], false)
 	if _has_active_drag():
 		return
 	_clear_hovered_storage_target(DRAG_SOURCE_PARTY, index)
 	_close_pet_context_detail()
-
-func _update_party_shadow_highlight(index: int) -> void:
-	if index < 0 or index >= _party_buttons.size():
-		return
-	var button := _party_buttons[index]
-	var slot_material := button.material as ShaderMaterial
-	if slot_material == null:
-		return
-	var occupied := button.has_meta("pet_texture") and button.get_meta("pet_texture") != null
-	var highlighted := occupied and bool(button.get_meta("party_mouse_hovered", false))
-	slot_material.set_shader_parameter("shadow_highlight", 1.0 if highlighted else 0.0)
 
 func _on_bag_slot_button_down(index: int) -> void:
 	_start_storage_drag_candidate(DRAG_SOURCE_BAG, index)
@@ -962,7 +554,7 @@ func _on_bag_pet_mouse_entered(index: int) -> void:
 	_set_hovered_storage_target(DRAG_SOURCE_BAG, index)
 	_show_item_slot_highlight(
 		_bag_slots[index] if index >= 0 and index < _bag_slots.size() else null,
-		item_slot_highlight_offset,
+		null,
 		BAG_SLOT_HIGHLIGHT_TEXTURE
 	)
 	_show_storage_pet_context(DRAG_SOURCE_BAG, index)
@@ -1042,34 +634,25 @@ func _has_active_drag() -> bool:
 	return _drag_controller.is_active()
 
 func _can_sell_storage_items() -> bool:
-	return _current_view != VIEW_BATTLE and party_container != null and party_container.is_visible_in_tree()
+	return party_container != null and party_container.is_visible_in_tree()
 
 func _can_start_storage_drag(source: StringName) -> bool:
 	if source == DRAG_SOURCE_PARTY:
-		return _current_view != VIEW_BATTLE and party_container != null and party_container.is_visible_in_tree()
+		return party_container != null and party_container.is_visible_in_tree()
 	if source == DRAG_SOURCE_BAG:
 		return _current_view == VIEW_BAG and middle_bag != null and middle_bag.is_visible_in_tree()
 	return false
 
-func _drop_dragged_shop_item(mouse_position: Vector2) -> void:
-	await _execute_drag_release_plan(_drag_controller.plan_release(mouse_position))
-
-func _drop_dragged_storage_item(mouse_position: Vector2) -> void:
-	await _execute_drag_release_plan(_drag_controller.plan_release(mouse_position))
-
 func _execute_drag_release_plan(plan: Dictionary) -> void:
 	match StringName(plan.get("kind", DragControllerScript.PLAN_NONE)):
-		DragControllerScript.PLAN_INSPECT_SHOP:
-			_show_shop_pet_context(int(plan.get("source_index", -1)))
 		DragControllerScript.PLAN_SUBMIT:
 			var command := Dictionary(plan.get("command", {})).duplicate(true)
 			if command.is_empty() or not await _submit_core_command(command):
 				return
 			_drag_controller.accept_release()
 			var target_view := _render_content_from_state(_take_core_command_snapshot())
-			var source := StringName(plan.get("source", DragControllerScript.SOURCE_NONE))
 			var target_kind := StringName(plan.get("target_kind", DragControllerScript.TARGET_AUTO))
-			if source != DRAG_SOURCE_SHOP and _current_view == VIEW_BAG and target_kind != DragControllerScript.TARGET_SELL:
+			if _current_view == VIEW_BAG and target_kind != DragControllerScript.TARGET_SELL:
 				_show_view(VIEW_BAG)
 				return
 			await _transition_to_view(target_view)
@@ -1123,12 +706,6 @@ func _storage_button(source: StringName, index: int) -> TextureButton:
 func _drag_record_for_source(source: StringName, index: int) -> Dictionary:
 	return _drag_controller.record_for_source(source, index)
 
-func _drag_button_for_candidate() -> TextureButton:
-	return _drag_controller.candidate_button()
-
-func _drag_preview_size_for_candidate() -> Vector2:
-	return _drag_controller.preview_size_for_candidate()
-
 func _update_drag_preview(mouse_position: Vector2) -> void:
 	_drag_controller.update_preview(mouse_position)
 
@@ -1148,24 +725,12 @@ func _set_sell_button_visible(is_visible: bool) -> void:
 	top_sell_button.visible = is_visible
 	top_sell_button.disabled = not is_visible
 
-func _on_shop_back_pressed() -> void:
-	if _is_transitioning or _has_active_drag():
-		return
-	if not await _submit_core_command({"type": "EXIT_SHOP"}):
-		return
-	var target_view := _render_content_from_state(_take_core_command_snapshot())
-	await _transition_to_view(target_view)
-
-
 func _on_exit_pressed() -> void:
 	if _is_transitioning or _has_active_drag() or _current_view == VIEW_BAG:
 		return
 	if _standalone_art_preview:
 		return
 	var phase := String(_current_snapshot().get("phase", "route"))
-	if phase == "shop":
-		await _on_shop_back_pressed()
-		return
 	if phase != "route" or _selected_route_command.is_empty():
 		return
 	var command := _selected_route_command.duplicate(true)
@@ -1175,15 +740,6 @@ func _on_exit_pressed() -> void:
 	_selected_route_command = {}
 	var target_view := _render_content_from_state(_take_core_command_snapshot())
 	await _transition_to_view(target_view)
-
-func _on_top_shop_gui_input(event: InputEvent) -> void:
-	if _current_view != VIEW_SHOP or _has_active_drag():
-		return
-	if event is InputEventMouseButton:
-		var mouse_button_event := event as InputEventMouseButton
-		if mouse_button_event.button_index == MOUSE_BUTTON_LEFT and not mouse_button_event.pressed:
-			accept_event()
-			await _on_shop_back_pressed()
 
 func _on_bag_pressed() -> void:
 	if _is_transitioning or _is_toggling_bag or _has_active_drag():
@@ -1209,17 +765,14 @@ func _show_view(view: StringName) -> void:
 	_close_pet_detail()
 	_current_view = view
 	_stage_presenter.show_immediate(view)
-	_set_legacy_code_shop_visible(view == VIEW_SHOP)
-	_set_persistent_hud_visible(view != VIEW_BATTLE)
+	_set_persistent_hud_visible(true)
 	_set_bag_button_open(view == VIEW_BAG)
 	_update_exit_button_state()
-	_set_run_tools_visible(true)
 	presentation_settled.emit()
 	call_deferred("_grab_focus_for_current_view")
 
 func _set_initial_state() -> void:
 	_ensure_persistent_hud_visible()
-	_set_run_tools_visible(true)
 	_stage_presenter.set_initial()
 	call_deferred("_grab_focus_for_current_view")
 
@@ -1231,11 +784,9 @@ func _show_initial_view() -> void:
 	var target_view := _target_view_from_state()
 	await _stage_presenter.show_initial(target_view)
 	_current_view = target_view
-	_set_legacy_code_shop_visible(target_view == VIEW_SHOP)
 	_ensure_persistent_hud_visible()
 	_set_bag_button_open(target_view == VIEW_BAG)
 	_update_exit_button_state()
-	_set_run_tools_visible(true)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 	presentation_settled.emit()
@@ -1247,15 +798,11 @@ func _transition_to_view(target_view: StringName) -> void:
 		return
 	_is_transitioning = true
 	_set_game_cursor_loading(&"view_transition", true)
-	if target_view == VIEW_SHOP:
-		_set_legacy_code_shop_visible(true)
 	await _stage_presenter.switch_view(_current_view, target_view)
 	_current_view = target_view
-	_set_legacy_code_shop_visible(target_view == VIEW_SHOP)
 	_ensure_persistent_hud_visible()
 	_set_bag_button_open(target_view == VIEW_BAG)
 	_update_exit_button_state()
-	_set_run_tools_visible(true)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 	presentation_settled.emit()
@@ -1267,18 +814,12 @@ func _open_bag() -> void:
 	_view_before_bag = _current_view
 	_set_bag_overlay_visible(true)
 	_set_bag_view_visible(true)
-	if _view_before_bag == VIEW_SHOP:
-		middle_shop.visible = false
-		if top_shop != null:
-			top_shop.visible = false
 	middle_three_option.visible = true
 	_set_canvas_alpha(middle_three_option, 1.0)
 	_current_view = VIEW_BAG
 	_ensure_persistent_hud_visible()
 	_set_bag_button_open(true)
 	_update_exit_button_state()
-	_set_run_tools_visible(true)
-	_render_bazaar_information(_current_snapshot(), VIEW_BAG)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 	call_deferred("_grab_focus_for_current_view")
@@ -1288,20 +829,12 @@ func _close_bag() -> void:
 	_set_game_cursor_loading(&"view_transition", true)
 	_set_bag_overlay_visible(false)
 	_set_bag_view_visible(false)
-	if _view_before_bag == VIEW_SHOP:
-		middle_three_option.visible = false
-		middle_shop.visible = true
-		if top_shop != null:
-			top_shop.visible = true
-	else:
-		middle_three_option.visible = true
+	middle_three_option.visible = true
 	_set_canvas_alpha(middle_three_option, 1.0)
 	_current_view = _view_before_bag
 	_ensure_persistent_hud_visible()
 	_set_bag_button_open(false)
 	_update_exit_button_state()
-	_set_run_tools_visible(true)
-	_render_bazaar_information(_current_snapshot(), _current_view)
 	_set_game_cursor_loading(&"view_transition", false)
 	_is_transitioning = false
 	call_deferred("_grab_focus_for_current_view")
@@ -1326,13 +859,7 @@ func _set_canvas_alpha(node: CanvasItem, alpha: float) -> void:
 	node.modulate = color
 
 func _target_view_from_state() -> StringName:
-	match String(_current_snapshot().get("phase", "route")):
-		"shop":
-			return VIEW_SHOP
-		"battle":
-			return VIEW_BATTLE
-		_:
-			return VIEW_THREE_OPTION
+	return VIEW_THREE_OPTION
 
 func _before_stage_clear() -> void:
 	_close_pet_context_detail()
@@ -1343,14 +870,11 @@ func _configure_stage_presenter() -> void:
 	_stage_presenter.configure(self, null, {
 		&"three_option": middle_three_option,
 		&"bag_overlay": bag_overlay_mask,
-		&"shop": middle_shop,
-		&"bag": middle_bag,
-		&"shop_top": top_shop,
-		&"battle": _battle_view
+		&"bag": middle_bag
 	}, Callable(self, "_before_stage_clear"))
 
 func _ensure_persistent_hud_visible() -> void:
-	_set_persistent_hud_visible(_current_view != VIEW_BATTLE)
+	_set_persistent_hud_visible(true)
 
 func _set_persistent_hud_visible(is_visible: bool) -> void:
 	if bags_panel != null:
@@ -1362,108 +886,11 @@ func _set_persistent_hud_visible(is_visible: bool) -> void:
 func _ensure_pet_detail_panel() -> void:
 	if _pet_detail_panel != null:
 		return
-	var scene_root := self
-	_pet_detail_panel = scene_root.get_node_or_null("ArtistPetDetailPanel") as Control
+	_pet_detail_panel = route_shared_ui.get_node_or_null("ArtistPetDetailPanel") as Control
 	if _pet_detail_panel != null and _pet_detail_panel.has_signal("confirm_requested"):
 		var callback := Callable(self, "_on_pet_detail_confirm_requested")
 		if not _pet_detail_panel.is_connected("confirm_requested", callback):
 			_pet_detail_panel.connect("confirm_requested", callback)
-
-func _ensure_bazaar_info_panel() -> void:
-	if _bazaar_info_panel != null:
-		return
-	var scene_root := self
-	_bazaar_info_panel = scene_root.get_node_or_null("BazaarInfoPanel") as Control
-	if _bazaar_info_panel == null:
-		return
-	if _bazaar_info_panel.has_signal("command_requested"):
-		_bazaar_info_panel.connect("command_requested", Callable(self, "_on_bazaar_info_command_requested"))
-
-func _ensure_legacy_code_shop_view() -> void:
-	if _legacy_code_shop_view != null:
-		return
-	_legacy_code_shop_view = LegacyCodeShopViewScript.new() as Control
-	_legacy_code_shop_view.name = "LegacyCodeShopView"
-	_legacy_code_shop_view.z_index = 80
-	add_child(_legacy_code_shop_view)
-	_legacy_code_shop_view.call("configure", Callable(self, "_pet_texture"))
-	_legacy_code_shop_view.connect("command_requested", Callable(self, "_on_legacy_code_shop_command_requested"))
-
-func _render_legacy_code_shop(snap: Dictionary) -> void:
-	_ensure_legacy_code_shop_view()
-	if _legacy_code_shop_view != null:
-		_legacy_code_shop_view.call("render_snapshot", snap)
-
-func _set_legacy_code_shop_visible(is_visible: bool) -> void:
-	_ensure_legacy_code_shop_view()
-	if _legacy_code_shop_view == null:
-		return
-	_legacy_code_shop_view.visible = is_visible
-	if is_visible:
-		call_deferred("_grab_focus_for_current_view")
-
-func _on_legacy_code_shop_command_requested(command: Dictionary) -> void:
-	if _is_transitioning or _current_view != VIEW_SHOP or command.is_empty():
-		return
-	_close_pet_context_detail()
-	if not await _submit_core_command(command):
-		return
-	var target_view := _render_content_from_state(_take_core_command_snapshot())
-	await _transition_to_view(target_view)
-
-func _apply_runtime_ui_mode() -> void:
-	var scene_root := self
-	var debug_button := scene_root.get_node_or_null("MainBG/DebugButton") as Control
-	if debug_button != null:
-		debug_button.visible = _developer_tools
-		debug_button.mouse_filter = Control.MOUSE_FILTER_STOP if _developer_tools else Control.MOUSE_FILTER_IGNORE
-		debug_button.focus_mode = Control.FOCUS_ALL if _developer_tools else Control.FOCUS_NONE
-
-func _render_bazaar_information(snap: Dictionary, target_view: StringName) -> void:
-	_ensure_bazaar_info_panel()
-	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("render_snapshot"):
-		var panel_snapshot := snap.duplicate(true)
-		panel_snapshot["ui_bag_page"] = _bag_page
-		_bazaar_info_panel.call("render_snapshot", panel_snapshot, target_view)
-
-func _on_bazaar_info_command_requested(command: Dictionary) -> void:
-	if _is_transitioning or command.is_empty():
-		return
-	if String(command.get("type", "")) == "UI_SET_BAG_PAGE":
-		_bag_page = max(0, int(command.get("page", 0)))
-		var snap := _current_snapshot()
-		_render_roster(snap)
-		_render_bazaar_information(snap, VIEW_BAG)
-		return
-	if not await _submit_core_command(command):
-		return
-	var target_view := _render_content_from_state(_take_core_command_snapshot())
-	await _transition_to_view(target_view)
-
-func _show_pet_detail(record: Dictionary, confirm_command: Dictionary = {}) -> void:
-	_ensure_pet_detail_panel()
-	if _pet_detail_panel == null or not _pet_detail_panel.has_method("show_detail"):
-		return
-	var detail_record := Dictionary(record.get("source", record))
-	if detail_record.is_empty():
-		detail_record = record
-	detail_record = _detail_record_with_display_skill(detail_record)
-	detail_record["attack_shape"] = _attack_shape_for_record(detail_record, _current_snapshot())
-	_pet_detail_panel.call("show_detail", detail_record, _pet_texture(detail_record), confirm_command)
-
-func _show_shop_pet_context(index: int) -> void:
-	if index < 0 or index >= _shop_buttons.size():
-		return
-	var record := _drag_record_for_source(DRAG_SOURCE_SHOP, index)
-	if record.is_empty():
-		_close_pet_context_detail()
-		return
-	_ensure_pet_detail_panel()
-	if _pet_detail_panel == null or not _pet_detail_panel.has_method("show_context_detail"):
-		return
-	var detail_record := _detail_record_with_display_skill(record)
-	detail_record["attack_shape"] = _attack_shape_for_record(detail_record, _current_snapshot())
-	_pet_detail_panel.call("show_context_detail", detail_record, _pet_texture(detail_record))
 
 func _show_storage_pet_context(source: StringName, index: int) -> void:
 	var record := _drag_record_for_source(source, index)
@@ -1483,24 +910,13 @@ func _close_pet_context_detail() -> void:
 
 func _show_item_slot_highlight(
 		slot: Control,
-		highlight_offset: Variant = null,
+		_highlight_offset: Variant = null,
 		texture_resource: Texture2D = null
 ) -> void:
-	if slot == null or texture_resource == null:
-		_hide_item_slot_highlight()
-		return
-	var resolved_offset := item_slot_highlight_offset
-	if highlight_offset is Vector2:
-		resolved_offset = highlight_offset as Vector2
-	_item_slot_hover_highlight.texture = texture_resource
-	var slot_canvas_origin := slot.get_global_transform_with_canvas().origin
-	var slot_position_in_scene := get_global_transform_with_canvas().affine_inverse() * slot_canvas_origin
-	_item_slot_hover_highlight.position = slot_position_in_scene + resolved_offset
-	_item_slot_hover_highlight.visible = true
-	_item_slot_hover_highlight.move_to_front()
+	route_shared_ui.call("show_bag_slot_highlight", slot, texture_resource)
 
 func _hide_item_slot_highlight() -> void:
-	_item_slot_hover_highlight.visible = false
+	route_shared_ui.call("hide_bag_slot_highlight")
 
 func _detail_record_with_display_skill(record: Dictionary) -> Dictionary:
 	var detail_record := record.duplicate(true)
@@ -1534,26 +950,6 @@ func _on_pet_detail_confirm_requested(command: Dictionary) -> void:
 	var target_view := _render_content_from_state(_take_core_command_snapshot())
 	await _transition_to_view(target_view)
 
-func _await_battle_trace_sequence() -> void:
-	if _battle_view != null \
-			and _battle_view.has_method("is_battle_input_locked") \
-			and bool(_battle_view.call("is_battle_input_locked")) \
-			and _battle_view.has_signal("trace_sequence_finished"):
-		await _battle_view.trace_sequence_finished
-
-func _set_run_tools_status(text: String) -> void:
-	_developer_toolbar.set_status(text)
-
-func _set_run_tools_visible(is_visible: bool) -> void:
-	_developer_toolbar.set_visible_for_view(_current_view, is_visible)
-
-func _on_developer_operation_completed(operation: StringName, result: Dictionary) -> void:
-	if operation == &"load" and result.get("snapshot") is Dictionary:
-		_snapshot = Dictionary(result.get("snapshot", {})).duplicate(true)
-	var target_view := _render_content_from_state(_current_snapshot())
-	if operation == &"load":
-		await _transition_to_view(target_view)
-
 func _submit_core_command(command: Dictionary) -> bool:
 	var before_snapshot := _current_snapshot()
 	_set_game_cursor_loading(&"session_command", true)
@@ -1563,80 +959,20 @@ func _submit_core_command(command: Dictionary) -> bool:
 	_snapshot = after_snapshot.duplicate(true)
 	if bool(response.get("accepted", false)):
 		_last_command_snapshot = after_snapshot.duplicate(true)
-		_publish_command_feedback(command, response, before_snapshot, after_snapshot, true)
 		return true
 	var command_type := String(response.get("command", command.get("type", "")))
 	var error := Dictionary(response.get("error", {}))
 	var reason := String(error.get("message", error.get("code", "rejected")))
-	_publish_command_feedback(command, response, before_snapshot, after_snapshot, false)
-	_set_run_tools_status(RuntimeUiPolicy.text("UI_RESULT_COMMAND_REJECTED", [reason]))
 	GameLogScript.warning("界面/核心命令", "核心拒绝界面命令", {"命令": command_type, "原因": reason, "当前视图": _current_view})
 	return false
-
-func _publish_command_feedback(command: Dictionary, response: Dictionary, before: Dictionary, after: Dictionary, success: bool) -> void:
-	if _current_view == VIEW_BATTLE:
-		return
-	var command_type := String(command.get("type", response.get("command", "")))
-	var message := ""
-	if command_type == "BUY_OFFER":
-		var offer := _offer_for_command(before, command)
-		var name := String(offer.get("name", offer.get("id", command.get("offer_id", "商品"))))
-		var price := int(offer.get("price", 0))
-		if success:
-			message = RuntimeUiPolicy.text("UI_RESULT_PURCHASED", [name, int(after.get("coins", 0))])
-		elif int(before.get("coins", 0)) < price:
-			message = RuntimeUiPolicy.text("UI_RESULT_NO_COINS", [int(before.get("coins", 0)), price])
-	if message == "" and success and command_type == "ROLL_SHOP":
-		message = RuntimeUiPolicy.text("UI_RESULT_REFRESHED", [int(after.get("coins", 0))])
-	if message == "":
-		message = _latest_log_line(after)
-	if message == "":
-		message = RuntimeUiPolicy.text("UI_RESULT_COMMAND_ACCEPTED" if success else "UI_RESULT_COMMAND_REJECTED", [command_type])
-	_show_bazaar_feedback(message, success)
-
-func _offer_for_command(snap: Dictionary, command: Dictionary) -> Dictionary:
-	var offer_id := String(command.get("offer_id", command.get("offerId", command.get("id", ""))))
-	for value in Array(snap.get("shop_offers", [])):
-		var offer := Dictionary(value)
-		if String(offer.get("id", offer.get("offer_id", ""))) == offer_id:
-			return offer
-	return {}
-
-func _latest_log_line(snap: Dictionary) -> String:
-	var lines := Array(snap.get("log_lines", snap.get("logLines", [])))
-	return String(lines.back()).strip_edges() if not lines.is_empty() else ""
-
-func _show_bazaar_feedback(message: String, success: bool) -> void:
-	_ensure_bazaar_info_panel()
-	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("show_command_feedback"):
-		_bazaar_info_panel.call("show_command_feedback", message, success)
-	_ensure_legacy_code_shop_view()
-	if _legacy_code_shop_view != null and _legacy_code_shop_view.has_method("show_command_feedback"):
-		_legacy_code_shop_view.call("show_command_feedback", message, success)
 
 func _take_core_command_snapshot() -> Dictionary:
 	var snapshot := _last_command_snapshot
 	_last_command_snapshot = {}
 	return snapshot if not snapshot.is_empty() else _current_snapshot()
 
-func set_developer_tools_enabled(enabled: bool) -> void:
-	_developer_tools = enabled
-	_developer_toolbar.set_enabled(enabled)
-	_apply_runtime_ui_mode()
-	_set_run_tools_visible(true)
-
-func _apply_async_game_session_snapshot(snap: Dictionary) -> void:
-	if snap.is_empty():
-		return
-	_snapshot = snap.duplicate(true)
-	var target_view := _render_content_from_state(snap)
-	await _transition_to_view(target_view)
-
 func _current_snapshot() -> Dictionary:
 	return _snapshot
-
-func _request_session_operation(operation: StringName, arguments: Dictionary) -> Dictionary:
-	return Dictionary(await _request_broker.request_session_operation(operation, arguments))
 
 func _slot_root(root: Node) -> Node:
 	if root == null:
@@ -1683,21 +1019,10 @@ func _clear_route_card(slot: Control, button: TextureButton) -> void:
 		slot.call("clear")
 
 func _render_hud(snap: Dictionary) -> void:
-	if time_label != null:
-		var day := int(snap.get("day", 1))
-		var node_index := int(snap.get("node_index", snap.get("nodeIndex", 1)))
-		time_label.text = "第%d天 第%d节点" % [day, node_index]
-	if coin_label != null:
-		coin_label.text = str(int(snap.get("coins", 0)))
+	route_shared_ui.call("set_coin_amount", int(snap.get("coins", 0)))
 
 func _set_bag_button_open(is_open: bool) -> void:
-	if bag_button == null:
-		return
-	var state_texture := BAG_OPEN_TEXTURE if is_open else BAG_CLOSED_TEXTURE
-	bag_button.texture_normal = state_texture
-	bag_button.texture_pressed = state_texture
-	bag_button.texture_hover = state_texture
-	bag_button.texture_focused = state_texture
+	route_shared_ui.call("set_bag_open", is_open)
 
 func _set_hovered_route_card(index: int) -> void:
 	_hovered_route_index = index
@@ -1718,8 +1043,8 @@ func _update_exit_button_state() -> void:
 	if exit_button == null:
 		return
 	var phase := String(_current_snapshot().get("phase", "route"))
-	var supported_phase := phase == "route" or phase == "shop"
-	exit_button.visible = supported_phase and _current_view != VIEW_BATTLE
+	var supported_phase := phase == "route"
+	exit_button.visible = supported_phase
 	exit_button.disabled = not supported_phase \
 		or _current_view == VIEW_BAG
 
@@ -1750,14 +1075,7 @@ func _route_slot_highlight_texture(index: int) -> Texture2D:
 	return _asset_registry.route_slot_highlight_texture(index)
 
 func _pet_texture(record: Dictionary) -> Texture2D:
-	var texture := _asset_registry.pet_texture(record)
-	if texture != null:
-		return texture
-	_asset_registry.record_missing_image("pet_visual", record)
-	return _asset_registry.fallback_pet_texture()
-
-func _load_pet_image_map() -> void:
-	_asset_registry.reload()
+	return _asset_registry.pet_texture(record)
 
 func _record_missing_image(context: String, record: Dictionary) -> void:
 	_asset_registry.record_missing_image(context, record)

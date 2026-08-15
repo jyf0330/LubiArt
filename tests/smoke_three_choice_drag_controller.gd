@@ -63,10 +63,12 @@ func _run() -> void:
 	var party_command := Dictionary(party_plan.get("command", {}))
 	_expect(party_command == {
 		"type": "DROP_ITEM_ON_TARGET",
+		"source_type": "shop",
+		"source_index": 0,
 		"offer_id": "offer_1",
 		"target_type": "party",
 		"target_index": 0,
-	}, "shop plan contains only the semantic drop intent")
+	}, "shop plan contains the semantic drop intent and stable source slot")
 	party_command["offer_id"] = "mutated"
 	_expect(String(Dictionary(shop_button.get_meta("command", {})).get("offer_id", "")) == "offer_1", "release plans do not mutate button command metadata")
 	controller.clear()
@@ -84,7 +86,7 @@ func _run() -> void:
 	var bag_plan := controller.plan_release(_center(bag))
 	var bag_command := Dictionary(bag_plan.get("command", {}))
 	_expect(StringName(bag_plan.get("source")) == DragControllerScript.SOURCE_PARTY, "storage plan preserves presentation source kind")
-	_expect(String(bag_command.get("unitId", "")) == "unit_party" and String(bag_command.get("target_type", "")) == "bag", "storage plan uses stable unit identity and authored bag target")
+	_expect(String(bag_command.get("unitId", "")) == "unit_party" and String(bag_command.get("source_type", "")) == "party" and int(bag_command.get("source_index", -1)) == 0 and String(bag_command.get("target_type", "")) == "bag", "storage plan uses stable unit identity, source slot, and authored bag target")
 	var self_plan := controller.plan_release(_center(party))
 	_expect(StringName(self_plan.get("kind")) == DragControllerScript.PLAN_NONE, "same-slot storage release is a no-op")
 	var sell_plan := controller.plan_sell()
