@@ -1,8 +1,8 @@
 {
   "schema": "ysbzs.shop-art-workspace-sync.v1",
   "direction": "formal_to_art_then_art_to_formal",
-  "formal_commit": "431707310e1e0cc3d8c33b3370a909810d319abd",
-  "art_commit": "6b01c7874fc9d6de6d0d47774738fc0fbc9b55af",
+  "formal_commit": "075ff6b13469b9d8be6be402636b0a844129556c",
+  "art_commit": "5845236584c33bf1afec82ca02660ee677720a43",
   "capture_sha256": "93daab55d41783b5de5e8e3ae23ebfdd9143af785c33113d6627e2ba32824689",
   "display_only": true,
   "forbidden_inbound_types": [
@@ -281,6 +281,17 @@
       "has_alpha": true
     },
     {
+      "source": "art/images/shop/screen_shop_godot_v1/shared_party_shadow.png",
+      "target": "art/images/shop/screen_shop_godot_v1/shared_party_shadow.png",
+      "owner": "art_owned",
+      "formal_target_existed": false,
+      "formal_baseline_sha256": "",
+      "art_baseline_sha256": "174b7e9cf1c23f87bfdd6f523f394fbbf84bd8d32849224903c885055f1164fc",
+      "width": 79,
+      "height": 19,
+      "has_alpha": true
+    },
+    {
       "source": "art/images/route/three_choice_psd/bag_closed.png",
       "target": "art/images/shop/screen_shop_godot_v1/shared_bag_closed.png",
       "owner": "art_owned",
@@ -337,11 +348,11 @@
     }
   ],
   "preconditions": {
-    "art_battle_capture_sha256": "0be615e7e47df7f2a2069d26eade52af930971ef5124fecd9a6982aa093d098f",
+    "art_battle_capture_sha256": "fdcb200a9cc56c0adceaa46142006674d98cba8f4a969cf49b509bc2fee38a21",
     "art_pet_map_sha256": "fd5e378971b4cd1846ba02ea260d5cbc71e37a76a57662eee6fb75caa5f624bc",
     "art_merchant_map_sha256": "4b4187674057e173d21aca0765dae18916c83cfa92ac4af8ceff57520074bf82"
   },
-  "applied_art_commit_before": "6b01c7874fc9d6de6d0d47774738fc0fbc9b55af",
-  "applied_at_utc": "2026-08-15T19:19:43.633600+00:00",
+  "applied_art_commit_before": "5845236584c33bf1afec82ca02660ee677720a43",
+  "applied_at_utc": "2026-08-15T21:38:09.860517+00:00",
   "battle_replay_steps_preserved_sha256": "cc4d90342280ea94f61ea0a3ed09619b0dfe19cb676166625ca281b09053b00f"
 }

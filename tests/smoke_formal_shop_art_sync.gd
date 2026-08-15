@@ -22,7 +22,7 @@ func _run() -> void:
 	_expect(bool(manifest.get("display_only", false)), "formal data is marked display-only")
 	_expect(pet_reference_count >= 7, "sync carries the complete currently visible pet image closure")
 	_expect(Array(manifest.get("outbound_files", [])).size() == pet_reference_count + 1, "sync carries only the bounded pet closure plus one merchant image")
-	_expect(Array(manifest.get("return_files", [])).size() == 11, "only eleven allowlisted art-owned shop and shared PNGs may return")
+	_expect(Array(manifest.get("return_files", [])).size() == 12, "only twelve allowlisted art-owned shop and shared PNGs may return")
 	_expect(Array(manifest.get("forbidden_inbound_types", [])).has("gd"), "GDScript is explicitly forbidden inbound")
 	_expect(Array(manifest.get("forbidden_inbound_types", [])).has("tscn"), "Scene files are explicitly forbidden inbound")
 
@@ -95,7 +95,7 @@ func _run() -> void:
 	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("exit_snapshot", {})), projection_keys), "exit replays the exact formal public presentation projection")
 
 	if _ok:
-		print("SMOKE_FORMAL_SHOP_ART_SYNC_OK offers=3 empty_slots=2 visible_image_closure=true pets=%d merchant=1 return_png=11 code_inbound=0" % pet_reference_count)
+		print("SMOKE_FORMAL_SHOP_ART_SYNC_OK offers=3 empty_slots=2 visible_image_closure=true pets=%d merchant=1 return_png=12 code_inbound=0" % pet_reference_count)
 		quit(0)
 	else:
 		quit(1)
