@@ -1,6 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://c0am8pxw3phnn"]
+[gd_scene load_steps=11 format=3 uid="uid://c0am8pxw3phnn"]
 
-[ext_resource type="Texture2D" uid="uid://26148s3ugiso" path="res://art/images/battle/map_controls/maps/grassland_morning.png" id="1_bg"]
+[ext_resource type="Texture2D" uid="uid://heldtfn1mlb4" path="res://art/images/battle/map_controls/maps/mountain_new.png" id="1_bg"]
 [ext_resource type="Script" uid="uid://1k7qp63if7w8" path="res://core_ui/scripts/battle/scenes/battle_scene.gd" id="2_script"]
 [ext_resource type="Script" uid="uid://u854nu5t7opc" path="res://core_ui/scripts/battle/controllers/battle_vfx_controller.gd" id="3_vfx"]
 [ext_resource type="PackedScene" path="res://art/prefabs/battle/hud/battle_hud.tscn" id="4_hud"]
@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://core_ui/scripts/battle/scenes/battle_overlay.gd" id="6_overlay"]
 [ext_resource type="PackedScene" path="res://art/prefabs/battle/settings/settings_menu.tscn" id="7_settings"]
 [ext_resource type="PackedScene" uid="uid://dc3ji3lomdhex" path="res://art/prefabs/battle/hud/battle_map_controls.tscn" id="8_map_controls"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/enemy_info/enemy_info_drawer.tscn" id="9_enemy_info_drawer"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/map_selection/map_selection_overlay.tscn" id="10_map_selection"]
 
 [node name="BattleArtScene" type="Control" unique_id=2108670375]
 editor_description = "正式战斗 Scene。只保留 Board、HUD 与 Overlay 三个职责边界；数据驱动格子、宠物和临时表现分别由对应 Host 管理。"
@@ -82,6 +84,13 @@ offset_bottom = 1080.0
 [node name="Hud" parent="." unique_id=1317306424 instance=ExtResource("4_hud")]
 editor_description = "战斗 HUD。集中显示行动控制、技能顺序与攻击时间线，并把操作请求交给战斗页面根。"
 
+[node name="EnemyInfoDrawer" parent="." instance=ExtResource("9_enemy_info_drawer")]
+layout_mode = 0
+offset_left = 1509.0
+offset_top = 94.0
+offset_right = 1920.0
+offset_bottom = 924.0
+
 [node name="OverlayHost" type="Control" parent="." unique_id=680115176]
 z_index = 300
 editor_description = "按需挂载当前宠物或地形详情。"
@@ -96,6 +105,14 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("6_overlay")
 
+[node name="MapSelectionOverlay" parent="OverlayHost" instance=ExtResource("10_map_selection")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 [node name="SettingsMenu" parent="OverlayHost" instance=ExtResource("7_settings")]
 editor_description = "设置菜单实例。由 OverlayHost 在需要时显示或隐藏，不负责战斗阶段与页面路由。"
 visible = false

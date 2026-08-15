@@ -89,10 +89,10 @@ autowrap_mode = 2
 [node name="MapDebugButton" type="Button" parent="BattleActionPanel/Margin/Content" unique_id=755270265]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-tooltip_text = "仅用于美术调试：循环切换 Board/Background，不修改正式 Snapshot。"
+tooltip_text = "打开地图选择界面，不修改战斗数据。"
 focus_mode = 0
 mouse_default_cursor_shape = 2
-text = "调试地图：草原（早）"
+text = "选择地图：山脉"
 
 [node name="HealthBarTierButton" type="Button" parent="BattleActionPanel/Margin/Content"]
 editor_description = "美术调试用星级切换按钮。同时切换宠物 prefab 的血条外框与右侧信息栏星级，不修改 Snapshot 或正式品质数据。"

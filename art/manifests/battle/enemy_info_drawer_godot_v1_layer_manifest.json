@@ -1,0 +1,179 @@
+{
+    "schemaVersion":  1,
+    "status":  "user_confirmed_for_integration",
+    "source":  {
+                   "originalFileName":  "琚敾鍑讳俊鎭爮.psd",
+                   "originalModified":  false,
+                   "derivedComponentPsd":  "res://art/images/battle/enemy_info_drawer/source_psd/component_attacked_enemy_info_godot_v1.psd",
+                   "derivedScreenPsd":  "res://art/images/battle/enemy_info_drawer/source_psd/screen_enemy_info_drawer_godot_v1.psd"
+               },
+    "canvas":  {
+                   "width":  411,
+                   "height":  830,
+                   "baselineViewportWidth":  1920,
+                   "baselineViewportHeight":  1080
+               },
+    "component":  {
+                      "rect":  [
+                                   28,
+                                   28,
+                                   383,
+                                   174
+                               ],
+                      "width":  355,
+                      "height":  146,
+                      "count":  5,
+                      "verticalGap":  11
+                  },
+    "layerMappings":  [
+                          {
+                              "sourceLayer":  "enemy_info_panel",
+                              "classification":  "MERGE_TEXTURE",
+                              "export":  "drawer_panel.png",
+                              "target":  "EnemyInfoDrawer/DrawerPanel",
+                              "rect":  [
+                                           0,
+                                           0,
+                                           411,
+                                           830
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/card_background",
+                              "classification":  "MERGE_TEXTURE",
+                              "export":  "card_background.png",
+                              "target":  "AttackedEnemyInfoCard/BaseArt",
+                              "rect":  [
+                                           28,
+                                           28,
+                                           383,
+                                           174
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/health/background",
+                              "classification":  "MERGE_TEXTURE",
+                              "export":  "health_background.png",
+                              "target":  "AttackedEnemyInfoCard/HealthBar/Background",
+                              "rect":  [
+                                           88,
+                                           42,
+                                           370,
+                                           86
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/health/fill",
+                              "classification":  "DYNAMIC_FIELD",
+                              "export":  "health_fill.png",
+                              "target":  "AttackedEnemyInfoCard/HealthBar/Fill",
+                              "rect":  [
+                                           92,
+                                           46,
+                                           366,
+                                           82
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/health/value",
+                              "classification":  "DYNAMIC_FIELD",
+                              "export":  null,
+                              "target":  "AttackedEnemyInfoCard/HealthBar/HpValue",
+                              "rect":  [
+                                           201,
+                                           54,
+                                           254,
+                                           77
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/shield",
+                              "classification":  "DYNAMIC_FIELD",
+                              "export":  [
+                                             "shield_background.png",
+                                             "shield_fill.png"
+                                         ],
+                              "target":  "AttackedEnemyInfoCard/ShieldBar",
+                              "rect":  [
+                                           89,
+                                           86,
+                                           369,
+                                           95
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/target_portrait",
+                              "classification":  "DYNAMIC_FIELD",
+                              "export":  null,
+                              "target":  "AttackedEnemyInfoCard/TargetPortrait",
+                              "rect":  [
+                                           27,
+                                           30,
+                                           89,
+                                           101
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/attack_logo_01",
+                              "classification":  "STATE_RESOURCE",
+                              "export":  "attack_logo_01.png",
+                              "target":  "AttackedEnemyInfoCard/AttackLogo",
+                              "rect":  [
+                                           37,
+                                           104,
+                                           91,
+                                           155
+                                       ],
+                              "state":  "variant_01"
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/attack_logo_02",
+                              "classification":  "STATE_RESOURCE",
+                              "export":  "attack_logo_02.png",
+                              "target":  "AttackedEnemyInfoCard/AttackLogo",
+                              "rect":  [
+                                           41,
+                                           102,
+                                           86,
+                                           153
+                                       ],
+                              "state":  "variant_02"
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/attack_group/background",
+                              "classification":  "MERGE_TEXTURE",
+                              "export":  "attack_group_background.png",
+                              "target":  "AttackedEnemyInfoCard/AttackGroupBackground",
+                              "rect":  [
+                                           88,
+                                           102,
+                                           370,
+                                           156
+                                       ]
+                          },
+                          {
+                              "sourceLayer":  "attacked_enemy_info/attack_group/portrait_slots",
+                              "classification":  "DYNAMIC_FIELD",
+                              "export":  null,
+                              "target":  "AttackedEnemyInfoCard/Attackers/AttackerPortrait1..4",
+                              "rect":  [
+                                           101,
+                                           106,
+                                           361,
+                                           153
+                                       ],
+                              "note":  "Runtime portraits are 46 px high, evenly spaced and centered."
+                          },
+                          {
+                              "sourceLayer":  "drawer_triangle_button",
+                              "classification":  "STATE_RESOURCE",
+                              "export":  "drawer_triangle_button.svg",
+                              "target":  "EnemyInfoDrawer/ToggleButton",
+                              "note":  "User-requested high-contrast solid triangle replacement. Preserves the existing 48x48 asset canvas and ToggleButton geometry."
+                          }
+                      ],
+    "runtimeBoundary":  {
+                            "production":  "Public Snapshot only.",
+                            "debug":  "Random values and manual controls exist only in the standalone debug scene."
+                        }
+}

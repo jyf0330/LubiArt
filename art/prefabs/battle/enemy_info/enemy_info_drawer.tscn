@@ -1,0 +1,86 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/enemy_info/enemy_info_drawer.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/images/battle/enemy_info_drawer/drawer_panel.png" id="2_panel"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/enemy_info/attacked_enemy_info_card.tscn" id="3_card"]
+[ext_resource type="Texture2D" path="res://art/images/battle/enemy_info_drawer/drawer_triangle_button.svg" id="4_arrow"]
+
+[node name="EnemyInfoDrawer" type="Control"]
+editor_description = "右上敌人信息侧滑抽屉。最多显示 5 个受击目标及各自最多 4 名攻击者。"
+z_index = 80
+custom_minimum_size = Vector2(411, 830)
+layout_mode = 0
+offset_right = 411.0
+offset_bottom = 830.0
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="DrawerPanel" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 411.0
+offset_bottom = 830.0
+mouse_filter = 2
+texture = ExtResource("2_panel")
+expand_mode = 1
+
+[node name="ToggleButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = -56.0
+offset_top = 28.0
+offset_right = -4.0
+offset_bottom = 84.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Arrow" type="TextureRect" parent="ToggleButton"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 8.0
+offset_right = 46.0
+offset_bottom = 48.0
+mouse_filter = 2
+texture = ExtResource("4_arrow")
+expand_mode = 1
+
+[node name="CardList" type="Control" parent="."]
+layout_mode = 0
+offset_right = 411.0
+offset_bottom = 830.0
+mouse_filter = 2
+
+[node name="Card1" parent="CardList" instance=ExtResource("3_card")]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 28.0
+offset_right = 383.0
+offset_bottom = 174.0
+
+[node name="Card2" parent="CardList" instance=ExtResource("3_card")]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 185.0
+offset_right = 383.0
+offset_bottom = 331.0
+
+[node name="Card3" parent="CardList" instance=ExtResource("3_card")]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 342.0
+offset_right = 383.0
+offset_bottom = 488.0
+
+[node name="Card4" parent="CardList" instance=ExtResource("3_card")]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 499.0
+offset_right = 383.0
+offset_bottom = 645.0
+
+[node name="Card5" parent="CardList" instance=ExtResource("3_card")]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 656.0
+offset_right = 383.0
+offset_bottom = 802.0

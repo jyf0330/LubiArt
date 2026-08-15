@@ -63,7 +63,10 @@
       "mountain_morning": "res://art/images/battle/map_controls/maps/mountain_morning.png",
       "mountain_evening": "res://art/images/battle/map_controls/maps/mountain_evening.png",
       "lowland_morning": "res://art/images/battle/map_controls/maps/lowland_morning.png",
-      "lowland_evening": "res://art/images/battle/map_controls/maps/lowland_evening.png"
+      "lowland_evening": "res://art/images/battle/map_controls/maps/lowland_evening.png",
+      "forest_spring": "res://art/images/battle/map_controls/maps/forest_spring.png",
+      "forest_autumn": "res://art/images/battle/map_controls/maps/forest_autumn.png",
+      "mountain_new": "res://art/images/battle/map_controls/maps/mountain_new.png"
     }
   },
   "buttons": {

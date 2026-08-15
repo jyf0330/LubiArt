@@ -15,6 +15,7 @@ const GameLogScript := preload("res://core/logging/game_log.gd")
 const ShortcutCatalog := preload("res://core_ui/scripts/shared/shortcut_catalog.gd")
 const NORMAL_BATTLE_SPEED := 1.0
 const FAST_BATTLE_SPEED := 2.0
+const DEFAULT_ART_MAP_ID := "mountain_new"
 const SETTINGS_MODAL_BLOCKED_SHORTCUTS := [
 	ShortcutCatalog.ACTION_AUTO_ARRANGE,
 	ShortcutCatalog.ACTION_RESET_ARRANGE,
@@ -36,7 +37,9 @@ const TIMELINE_MODAL_BLOCKED_SHORTCUTS := [
 @onready var hud: Control = $Hud
 @onready var overlay: Control = $OverlayHost
 @onready var settings_menu: Control = $OverlayHost/SettingsMenu
+@onready var map_selection_overlay: Control = $OverlayHost/MapSelectionOverlay
 @onready var map_controls: Control = $MapControls
+@onready var enemy_info_drawer: Control = $EnemyInfoDrawer
 @onready var map_debug_button: Button = $Hud/BattleActionPanel/Margin/Content/MapDebugButton
 @onready var map_auto_arrange_button: TextureButton = $MapControls/AutoArrangeButton
 @onready var map_reset_button: TextureButton = $MapControls/ResetButton
@@ -97,6 +100,9 @@ func _ready() -> void:
 	_configure_round_rewind_action({})
 	set_button_shortcut_hints_visible(_button_shortcut_hints_visible)
 	map_debug_button.pressed.connect(_on_map_debug_button_pressed)
+	map_selection_overlay.connect("map_selected", Callable(self, "_on_map_selected"))
+	if enemy_info_drawer.has_method("configure"):
+		enemy_info_drawer.call("configure", _assets)
 
 
 func _exit_tree() -> void:
@@ -303,6 +309,8 @@ func _commit_presentation_snapshot(
 	)
 	hud.call("render_snapshot", snapshot)
 	overlay.call("render_snapshot", snapshot)
+	if enemy_info_drawer.has_method("render_snapshot"):
+		enemy_info_drawer.call("render_snapshot", snapshot)
 	_sync_map_controls(snapshot)
 	_presented_snapshot = snapshot.duplicate(true)
 	_announce_round_if_needed(snapshot)
@@ -429,11 +437,8 @@ func _configure_round_rewind_action(snapshot: Dictionary) -> void:
 
 
 func _sync_map_controls(snapshot: Dictionary) -> void:
-	if _assets != null and _assets.has_method("battle_background_key"):
-		var map_id := String(_assets.call("battle_background_key", snapshot))
-		if bool(map_controls.call("set_map_by_id", map_id)):
-			_debug_map_index = int(map_controls.call("get_map_index"))
-			_update_map_debug_button_label()
+	if _debug_map_index < 0:
+		_apply_art_map(DEFAULT_ART_MAP_ID)
 	_update_map_control_availability(snapshot)
 
 
@@ -476,6 +481,8 @@ func _close_secondary_interfaces() -> void:
 		hud.call("close_attack_timeline")
 	if overlay.has_method("clear"):
 		overlay.call("clear")
+	if map_selection_overlay.has_method("close"):
+		map_selection_overlay.call("close")
 
 
 func _on_settings_menu_visibility_changed() -> void:
@@ -636,20 +643,26 @@ func _on_shortcut_bindings_changed(bindings: Dictionary) -> void:
 
 
 func _on_map_debug_button_pressed() -> void:
-	var map_ids := map_controls.call("get_map_ids") as PackedStringArray
-	if map_ids.is_empty():
-		return
-	_debug_map_index = (_debug_map_index + 1) % map_ids.size()
-	if not bool(map_controls.call("set_map_by_index", _debug_map_index)):
-		return
+	_close_secondary_interfaces()
+	map_selection_overlay.call("open", String(map_controls.call("get_map_id")))
+
+
+func _on_map_selected(map_id: String) -> void:
+	_apply_art_map(map_id)
+
+
+func _apply_art_map(map_id: String) -> bool:
+	if not bool(map_controls.call("set_map_by_id", map_id)):
+		return false
+	_debug_map_index = int(map_controls.call("get_map_index"))
 	var texture := map_controls.call("get_map_texture") as Texture2D
 	if texture != null and board.has_method("set_background_texture"):
 		board.call("set_background_texture", texture)
 	_update_map_debug_button_label()
-
+	return true
 
 func _update_map_debug_button_label() -> void:
-	map_debug_button.text = "调试地图：%s" % String(map_controls.call("get_map_display_name"))
+	map_debug_button.text = "选择地图：%s" % String(map_controls.call("get_map_display_name"))
 
 
 func _on_settings_session_operation_requested(

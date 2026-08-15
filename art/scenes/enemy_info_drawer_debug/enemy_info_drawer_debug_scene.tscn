@@ -1,0 +1,143 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/debug/enemy_info_drawer/enemy_info_drawer_debug.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/enemy_info/attacked_enemy_info_card.tscn" id="2_card"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_panel"]
+bg_color = Color(0.105882, 0.0862745, 0.0745098, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.721569, 0.568627, 0.301961, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="EnemyInfoDrawerDebugScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0352941, 0.054902, 0.0705882, 0.96)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 0
+offset_left = 600.0
+offset_top = 85.0
+offset_right = 1320.0
+offset_bottom = 135.0
+theme_override_font_sizes/font_size = 30
+text = "被攻击精灵信息栏 · 行动伤害预览调试"
+horizontal_alignment = 1
+
+[node name="PreviewArea" type="Control" parent="."]
+layout_mode = 0
+offset_left = 450.0
+offset_top = 250.0
+offset_right = 805.0
+offset_bottom = 396.0
+
+[node name="AttackedEnemyInfoCard" parent="PreviewArea" instance=ExtResource("2_card")]
+
+[node name="DebugPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 950.0
+offset_top = 145.0
+offset_right = 1510.0
+offset_bottom = 865.0
+theme_override_styles/panel = SubResource("StyleBox_panel")
+
+[node name="Margin" type="MarginContainer" parent="DebugPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Controls" type="VBoxContainer" parent="DebugPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Heading" type="Label" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "调试面板"
+
+[node name="PreviewState" type="Label" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "状态：战斗开始，满血满护盾，攻击组为空"
+autowrap_mode = 2
+
+[node name="ToggleMovePreview" type="Button" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "模拟移动：进入 / 移出攻击范围"
+
+[node name="HpReadout" type="Label" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "HP：100 / 100"
+
+[node name="HpSlider" type="HSlider" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+
+[node name="RandomOneDigit" type="Button" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "随机一位数 HP"
+
+[node name="RandomTwoDigits" type="Button" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "随机两位数 HP"
+
+[node name="RandomThreeDigits" type="Button" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "随机三位数 HP"
+
+[node name="ShieldReadout" type="Label" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "护盾：100 / 100"
+
+[node name="ShieldSlider" type="HSlider" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+
+[node name="RandomTarget" type="Button" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "随机更换被攻击精灵"
+
+[node name="ToggleLogo" type="Button" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "切换攻击 Logo"
+
+[node name="AttackerLabel" type="Label" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+text = "进入范围后的攻击小组精灵数量"
+
+[node name="AttackerCount" type="OptionButton" parent="DebugPanel/Margin/Controls"]
+layout_mode = 2
+item_count = 5
+selected = 0
+popup/item_0/text = "0 个（开战默认）"
+popup/item_0/id = 0
+popup/item_1/text = "1 个"
+popup/item_1/id = 1
+popup/item_2/text = "2 个"
+popup/item_2/id = 2
+popup/item_3/text = "3 个"
+popup/item_3/id = 3
+popup/item_4/text = "4 个"
+popup/item_4/id = 4
