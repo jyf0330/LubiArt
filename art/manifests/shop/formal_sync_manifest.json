@@ -1,8 +1,8 @@
 {
   "schema": "ysbzs.shop-art-workspace-sync.v1",
   "direction": "formal_to_art_then_art_to_formal",
-  "formal_commit": "075ff6b13469b9d8be6be402636b0a844129556c",
-  "art_commit": "5845236584c33bf1afec82ca02660ee677720a43",
+  "formal_commit": "d0f237d0c6e2d1b9c1254ef688c3189148104fe5",
+  "art_commit": "7607b9474551f4285a6b41df2ee797166e887f77",
   "capture_sha256": "93daab55d41783b5de5e8e3ae23ebfdd9143af785c33113d6627e2ba32824689",
   "display_only": true,
   "forbidden_inbound_types": [
@@ -284,8 +284,8 @@
       "source": "art/images/shop/screen_shop_godot_v1/shared_party_shadow.png",
       "target": "art/images/shop/screen_shop_godot_v1/shared_party_shadow.png",
       "owner": "art_owned",
-      "formal_target_existed": false,
-      "formal_baseline_sha256": "",
+      "formal_target_existed": true,
+      "formal_baseline_sha256": "174b7e9cf1c23f87bfdd6f523f394fbbf84bd8d32849224903c885055f1164fc",
       "art_baseline_sha256": "174b7e9cf1c23f87bfdd6f523f394fbbf84bd8d32849224903c885055f1164fc",
       "width": 79,
       "height": 19,
@@ -300,6 +300,28 @@
       "art_baseline_sha256": "e67f747af0153cd874006ade750e8980f255ead8acbbcee80a84e352a5d70ce4",
       "width": 236,
       "height": 233,
+      "has_alpha": true
+    },
+    {
+      "source": "art/images/route/three_choice_psd/bag_open_full.png",
+      "target": "art/images/shop/screen_shop_godot_v1/shared_bag_open.png",
+      "owner": "art_owned",
+      "formal_target_existed": false,
+      "formal_baseline_sha256": "",
+      "art_baseline_sha256": "7fc098745fe01f225269a517d691e39c508c6e7a788c33bfd8925cdfc5ab17ef",
+      "width": 236,
+      "height": 233,
+      "has_alpha": true
+    },
+    {
+      "source": "art/images/route/three_choice_psd/bag_inventory_base.png",
+      "target": "art/images/shop/screen_shop_godot_v1/shared_bag_inventory.png",
+      "owner": "art_owned",
+      "formal_target_existed": false,
+      "formal_baseline_sha256": "",
+      "art_baseline_sha256": "7eb46975716c1a36ce346c9c5ae21674048e26b153d06f33a356e4c3e9e07fa1",
+      "width": 818,
+      "height": 439,
       "has_alpha": true
     },
     {
@@ -348,11 +370,11 @@
     }
   ],
   "preconditions": {
-    "art_battle_capture_sha256": "fdcb200a9cc56c0adceaa46142006674d98cba8f4a969cf49b509bc2fee38a21",
+    "art_battle_capture_sha256": "56e5b8bc2abc051005cf86d13d514afa351262cb1d2a88eac929ff1c92e4c7ea",
     "art_pet_map_sha256": "fd5e378971b4cd1846ba02ea260d5cbc71e37a76a57662eee6fb75caa5f624bc",
     "art_merchant_map_sha256": "4b4187674057e173d21aca0765dae18916c83cfa92ac4af8ceff57520074bf82"
   },
-  "applied_art_commit_before": "5845236584c33bf1afec82ca02660ee677720a43",
-  "applied_at_utc": "2026-08-15T21:38:09.860517+00:00",
+  "applied_art_commit_before": "7607b9474551f4285a6b41df2ee797166e887f77",
+  "applied_at_utc": "2026-08-15T22:30:56.245589+00:00",
   "battle_replay_steps_preserved_sha256": "cc4d90342280ea94f61ea0a3ed09619b0dfe19cb676166625ca281b09053b00f"
 }
