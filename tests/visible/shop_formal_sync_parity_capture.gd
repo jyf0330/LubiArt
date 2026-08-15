@@ -92,10 +92,14 @@ func _run() -> void:
 	await _capture("05_purchase_complete", "购买第一件商品完成", shop)
 
 	var exit_button := shop.get_node("RouteSharedUi/ExitButton") as TextureButton
+	await _move_mouse(exit_button.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("06_exit_hover", "悬停商店退出牌", shop)
 	await _click(exit_button)
 	await _settle(30)
 	_expect(String(_game.call("get_active_feature_id")) == "", "real exit returns to route")
-	await _capture("06_exit_to_route", "退出商店返回路线", null)
+	await _capture("07_exit_to_route", "退出商店返回路线", null)
 	_finish()
 
 
