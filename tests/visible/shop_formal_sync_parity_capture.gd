@@ -3,6 +3,7 @@ extends SceneTree
 const MAIN_SCENE := preload("res://art/scenes/app/game.tscn")
 const WINDOW_SIZE := Vector2i(1920, 1080)
 const OPTION_ID := "node_shop_basic"
+const NEUTRAL_MOUSE_POSITION := Vector2(1850.0, 1030.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -49,6 +50,8 @@ func _run() -> void:
 		_finish()
 		return
 	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _settle(2)
 	var offers := shop.get_node("Offers") as Control
 	_expect(_visible_offer_count(offers) == 3, "three synchronized formal offers are visible")
 	_expect(_empty_offer_count(offers) == 2, "two authored shelf slots remain intentionally empty")
