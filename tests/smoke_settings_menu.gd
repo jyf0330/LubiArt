@@ -24,6 +24,13 @@ func _run() -> void:
 	assert(not menu.visible)
 	assert(not attack_timeline.visible)
 
+	# A visible battle detail consumes Esc before the settings shortcut.
+	var pet_detail := battle.get_node("OverlayHost/BattlePetDetailPanel") as Control
+	pet_detail.visible = true
+	await _press_key(battle.get_viewport(), KEY_ESCAPE)
+	assert(not pet_detail.visible)
+	assert(not menu.visible)
+
 	await _press_key_with_feedback(battle.get_viewport(), KEY_ESCAPE, settings_button)
 	assert(menu.visible)
 

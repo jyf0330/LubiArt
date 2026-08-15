@@ -31,9 +31,11 @@ func _run() -> void:
 	var damage_cap := stats.get_node("DamageCap") as Control
 	var groups: Array[Control] = [health, attack, shield, damage_cap]
 	var authored_sizes := [
-		Vector2(96.0, 11.0),
+		# The Control is 10px high so Godot's last fill row is masked by the
+		# frame; the authored visible slot remains exactly 96x9 pixels.
+		Vector2(96.0, 10.0),
 		Vector2(88.0, 24.0),
-		Vector2(96.0, 11.0),
+		Vector2(96.0, 3.0),
 		Vector2(88.0, 24.0),
 	]
 	var authored_label_rects: Array[Rect2] = []
@@ -123,6 +125,8 @@ func _run() -> void:
 	assert(health.visible)
 	assert(not attack.visible)
 	assert(shield.visible)
+	assert(is_equal_approx(shield.position.x, health.position.x))
+	assert(is_equal_approx(shield.position.y - health.position.y, 12.0 * health.scale.y))
 	assert(not damage_cap.visible)
 	assert(health is ProgressBar)
 	assert(is_equal_approx((health as ProgressBar).value, 16.0))
@@ -162,11 +166,10 @@ func _assert_health_bar_tracks_sprite_top(
 		]
 	)
 	var sprite_top := float(pet.call("get_battle_sprite_actual_top_y"))
-	var health_bottom := health.position.y + health.size.y * health.scale.y
-	assert(is_equal_approx(
-		sprite_top - health_bottom,
-		14.0 * health.scale.y
-	))
+	var health_bottom := health.position.y + 11.0 * health.scale.y
+	assert(absf(
+		sprite_top - health_bottom - 14.0 * health.scale.y
+	) <= 0.5001)
 
 
 func _assert_rows_in_right_column(

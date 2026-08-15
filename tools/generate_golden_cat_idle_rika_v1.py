@@ -10,7 +10,7 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_SCRIPT = ROOT / "tools/generate_moss_stone_wyrmling_move_rika_v1.py"
+BASE_SCRIPT = ROOT / "tools/rika_animation_helper.py"
 spec = importlib.util.spec_from_file_location("golden_cat_rika_base", BASE_SCRIPT)
 if spec is None or spec.loader is None:
     raise RuntimeError(f"Cannot load Rika helper: {BASE_SCRIPT}")

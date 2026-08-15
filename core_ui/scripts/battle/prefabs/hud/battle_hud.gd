@@ -75,6 +75,16 @@ func render_snapshot(snapshot: Dictionary) -> void:
 	_apply_command_availability()
 
 
+func render_selection_snapshot(snapshot: Dictionary) -> void:
+	_snapshot = snapshot.duplicate(false)
+	if action_panel.has_method("render_selection_snapshot"):
+		action_panel.call("render_selection_snapshot", _snapshot)
+	elif action_panel.has_method("render_snapshot"):
+		action_panel.call("render_snapshot", _snapshot)
+	debug_drawer_toggle_button.visible = action_panel.visible
+	_apply_command_availability()
+
+
 func set_input_locked(locked: bool) -> void:
 	_input_locked = locked
 	if action_panel.has_method("set_input_locked"):
@@ -264,10 +274,10 @@ func _on_health_bar_tier_button_pressed() -> void:
 func _refresh_health_bar_tier_button() -> void:
 	if health_bar_tier_button == null:
 		return
-	health_bar_tier_button.text = "调试血条：%s" % String(
+	health_bar_tier_button.text = "调试星级：%s" % String(
 		HEALTH_BAR_TIER_LABELS[_health_bar_tier_index]
 	)
-	health_bar_tier_button.tooltip_text = "点击切换全部单位血条到下一等级：%s" % String(
+	health_bar_tier_button.tooltip_text = "点击切换全部单位血条外框和右侧信息栏星级到下一档：%s" % String(
 		HEALTH_BAR_TIER_LABELS[(_health_bar_tier_index + 1) % HEALTH_BAR_TIER_LABELS.size()]
 	)
 

@@ -1,6 +1,8 @@
 extends SceneTree
 
 const PREFAB := preload("res://art/prefabs/battle/hud/battle_map_controls.tscn")
+const APPLICATION_TOOLTIP_THEME := preload("res://art/themes/shared/application_tooltip_theme.tres")
+const EXPECTED_TOOLTIP_POSITION_OFFSET := Vector2(72.0, 64.0)
 const EXPECTED_MAP_IDS := [
 	"lowland_evening",
 	"grassland_evening",
@@ -62,6 +64,21 @@ func _run() -> void:
 		float(ProjectSettings.get_setting("gui/timers/tooltip_delay_sec")),
 		1.0
 	))
+	assert(
+		Vector2(ProjectSettings.get_setting("display/mouse_cursor/tooltip_position_offset"))
+		== EXPECTED_TOOLTIP_POSITION_OFFSET
+	)
+	assert(String(ProjectSettings.get_setting("gui/theme/custom")) == (
+		"res://art/themes/shared/application_tooltip_theme.tres"
+	))
+	assert(APPLICATION_TOOLTIP_THEME.get_font_size("font_size", "TooltipLabel") == 24)
+	assert(APPLICATION_TOOLTIP_THEME.get_constant("outline_size", "TooltipLabel") == 4)
+	var tooltip_style := APPLICATION_TOOLTIP_THEME.get_stylebox("panel", "TooltipPanel") as StyleBoxFlat
+	assert(tooltip_style != null)
+	assert(tooltip_style.content_margin_left == 14.0)
+	assert(tooltip_style.content_margin_top == 10.0)
+	assert(tooltip_style.content_margin_right == 14.0)
+	assert(tooltip_style.content_margin_bottom == 10.0)
 	assert(prefab.get_node_or_null("MapBackground") == null)
 	for index in range(EXPECTED_MAP_IDS.size()):
 		assert(bool(prefab.call("set_map_by_index", index)))

@@ -90,11 +90,7 @@
       "authored_horizontal_facing": "left",
       "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/animations/spr_009_azure_thunder_owl/anim_001_idle/frames/frame_001.png": {
-      "authored_horizontal_facing": "right",
-      "footline_bottom_inset": 15
-    },
-    "res://art/images/shared/pets/animations/spr_012_azure_wind_feather/anim_001_idle/frames/frame_001.png": {
+    "res://art/images/shared/pets/sheets/slices/pet_style_012_azure_wind_feather.png": {
       "authored_horizontal_facing": "right",
       "used_rect": [
         10,
@@ -104,7 +100,7 @@
       ],
       "footline_bottom_inset": 15
     },
-    "res://art/images/shared/pets/animations/spr_057_frost_fox/anim_001_idle/frames/frame_001.png": {
+    "res://art/images/shared/pets/sheets/slices/pet_style_057_frost_fox.png": {
       "authored_horizontal_facing": "left",
       "footline_bottom_inset": 15
     },
@@ -125,16 +121,6 @@
         25,
         84,
         92
-      ],
-      "footline_bottom_inset": 15
-    },
-    "res://art/images/shared/pets/animations/spr_010_void_octopus/anim_001_idle/frames/frame_001.png": {
-      "authored_horizontal_facing": "neutral",
-      "used_rect": [
-        16,
-        23,
-        128,
-        114
       ],
       "footline_bottom_inset": 15
     },

@@ -7,13 +7,10 @@
   },
   "cross_action": {
     "idle_shared_scale": 1.078125,
-    "move_shared_scale": 1.3663366336633664,
-    "idle_visible_height_mean": 121.9375,
-    "move_visible_height_mean": 123.125
+    "idle_visible_height_mean": 121.9375
   },
   "actions": {
-    "idle": "PASS",
-    "move": "PASS"
+    "idle": "PASS"
   },
   "runtime_evidence": "res://output/qa/aqua_crystal_frog/battle_runtime/battle_runtime_overview.png",
   "status": "PASS"

@@ -18,9 +18,15 @@ func pet_record(unit: Dictionary, skill_description: String, attack_shape: Dicti
 		"attack": int(unit.get("atk", unit.get("attack", 0))),
 		"defense": int(unit.get("def", unit.get("defense", 0))),
 		"shield": max(0, int(unit.get("shield", 0))),
+		"max_shield": max(0, int(unit.get("max_shield", unit.get("maxShield", unit.get("shield", 0))))),
 		"regen": int(unit.get("regen", unit.get("regeneration", 0))),
 		"skill_description": skill_description,
 		"attack_shape": attack_shape,
+		"traits": unit.get("traits", unit.get("traitIds", unit.get("trait_ids", []))),
+		"quality_traits": unit.get("quality_traits", unit.get("qualityTraits", [])),
+		"quality_upgrades": unit.get("quality_upgrades", unit.get("qualityUpgrades", [])),
+		"quality_upgrade": dict_value(unit.get("quality_upgrade", unit.get("qualityUpgrade", {}))).duplicate(true),
+		"quality_progression": dict_value(unit.get("quality_progression", unit.get("qualityProgression", {}))).duplicate(true),
 	}
 
 

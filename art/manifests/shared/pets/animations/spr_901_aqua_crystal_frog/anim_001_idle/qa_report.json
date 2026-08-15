@@ -24,7 +24,7 @@
   "processing": {
     "creative_changes": "none",
     "frame_order": "row-major, top-left to bottom-right",
-    "background": "magenta removal for idle; source transparency preserved for move",
+    "background": "magenta removal with source transparency preserved",
     "component_policy": "largest connected body only",
     "resize": "nearest-neighbor shared action scale",
     "shared_scale": 1.078125,

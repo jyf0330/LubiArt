@@ -1,7 +1,7 @@
 {
-  "version": 7,
+  "version": 8,
   "source_set": "confirmed_sprite_style_2026-07-30",
-  "count": 11,
+  "count": 13,
   "images": [
     {
       "index": 1,
@@ -58,6 +58,20 @@
       "name": "volcanic_dijiang",
       "display_name": "Volcanic Dijiang",
       "path": "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png"
+    },
+    {
+      "index": 12,
+      "sprite_id": "SPR_012",
+      "name": "azure_wind_feather",
+      "display_name": "Azure Wind Feather",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_012_azure_wind_feather.png"
+    },
+    {
+      "index": 57,
+      "sprite_id": "SPR_057",
+      "name": "frost_fox",
+      "display_name": "Frost Fox",
+      "path": "res://art/images/shared/pets/sheets/slices/pet_style_057_frost_fox.png"
     },
     {
       "index": 901,

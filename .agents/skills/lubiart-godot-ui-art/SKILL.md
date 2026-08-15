@@ -1,6 +1,6 @@
 ---
 name: lubiart-godot-ui-art
-description: Serve as the mandatory starting point and closing memory loop for every conversation or task in the standalone LubiArt repository, including planning, questions, diagnosis, status, documentation, Git work, Godot UI scenes and prefabs, presentation scripts, images and manifests, PSD conversion, battle or route-screen visuals, sprites and animation, offline Snapshot playback, delivery, and regression checks. Always load the project standards and conversation synthesis before acting, then summarize the completed conversation back into this Skill's living reference before the final response.
+description: Serve as the mandatory starting point and closing memory loop for every conversation or task in the standalone LubiArt repository, including planning, questions, diagnosis, status, documentation, Git work, Godot UI scenes and prefabs, presentation scripts, images and manifests, PSD conversion, battle or route-screen visuals, sprites and animation, offline Snapshot playback, delivery, and regression checks. Always load the project standards, current baseline, and relevant conversation history before acting, then summarize the completed conversation back into this Skill's living reference before the final response.
 ---
 
 # LubiArt Godot UI Art
@@ -10,9 +10,11 @@ Work as the presentation and art-integration specialist for this standalone Godo
 ## Start every conversation from the Skill
 
 1. Read the repository-root [AGENTS.md](../../../AGENTS.md) completely on every task. It contains the detailed mandatory rules; this Skill does not replace it.
-2. Read [conversation-synthesis.md](references/conversation-synthesis.md) completely on every task, including questions, planning, diagnosis, status checks, documentation, and Git-only work. Use it to recover established decisions, prior failures, exceptions, and the newest standard before responding or acting.
-3. Inspect the current files involved in the request: relevant `.tscn`, prefab, script, image, manifest, Snapshot, tests, documentation, Git diff, and real Godot rendering. For each file used as evidence, distinguish whether it exists, is Git-tracked, is modified, or is untracked; current untracked content may be important work but is not automatically a stable repository baseline. Treat counts, paths, mappings, whitelist entries, and enabled states as dynamic facts that must be read from the current workspace.
-4. Preserve unrelated and pre-existing work in a dirty worktree. Do not revert, overwrite, clean, stage, or commit it unless the user explicitly requests that action.
+2. Read [current-baseline.md](references/current-baseline.md) completely on every task. It is the concise operational index for current validation tiers, active blockers, and history routing.
+3. Search [conversation-synthesis.md](references/conversation-synthesis.md) with the request's keywords, related file paths, feature names, and known issue names. Read every matching entry with enough surrounding context to recover established decisions, prior failures, exceptions, and unresolved work. Read the synthesis completely only when targeted retrieval cannot settle a conflict or status, the task requires a cross-topic historical audit, or the user explicitly asks for it.
+4. Inspect the current files involved in the request: relevant `.tscn`, prefab, script, image, manifest, Snapshot, tests, documentation, Git diff, and real Godot rendering. For each file used as evidence, distinguish whether it exists, is Git-tracked, is modified, or is untracked; current untracked content may be important work but is not automatically a stable repository baseline. Treat counts, paths, mappings, whitelist entries, and enabled states as dynamic facts that must be read from the current workspace.
+5. Preserve unrelated and pre-existing work in a dirty worktree. Do not revert, overwrite, clean, stage, or commit it unless the user explicitly requests that action.
+6. Recover every related unresolved request, confirmation, blocker, and prior status before asking the user to explain an issue. If the prerequisite for a recorded blocker later becomes available, resume from the preserved requirement and verify the complete behavior; do not make the user repeat the same problem.
 
 Do not treat loading this Skill as optional merely because the request appears small, non-technical, or unrelated to visual production. Every LubiArt conversation must begin from this shared project memory.
 
@@ -28,8 +30,9 @@ Before sending the final response for every completed user turn, update [convers
 6. Exclude hidden reasoning, system/developer instructions, secrets, API keys, raw logs, repetitive tool chatter, and transient details that do not help a future task.
 7. Treat the write-back as part of task completion. Do not claim the conversation is complete until the Skill memory update succeeds. If the Skill reference cannot be safely updated, report that as a blocker.
 8. Validate the Skill after structural or frontmatter changes. For ordinary memory-only updates, at minimum verify the reference remains readable UTF-8, its table of contents remains accurate, and no current rule is duplicated or contradicted.
+9. When the turn changes a durable current standard, validation policy, or active blocker, also update [current-baseline.md](references/current-baseline.md). Do not copy the chronological log into the baseline.
 
-Use the chronological log in the synthesis as the audit trail and its thematic sections as the current operational memory. Keep entries concise; the Skill stores reusable conclusions, not verbatim chat history.
+Use the concise baseline for routine startup, the synthesis thematic sections for detailed current decisions, and its chronological log as the audit trail. Keep entries concise; the Skill stores reusable conclusions, not verbatim chat history.
 
 ## Resolve changing standards
 
@@ -86,9 +89,9 @@ Stop at the relevant gate; perform only safe preparation until it is satisfied.
 2. **Godot-dedicated PSD:** when the source is scattered art, slices, loose layers, or several state assets, complete and confirm the Godot-dedicated PSD, 1920×1080 canvas, runtime layer classification, state handling, dynamic placeholders, and manifest mapping before node reduction, script-generated assembly, or prefab splitting.
 3. **Image specification:** if the anchor or a required visual parameter is missing, list the missing information and remain at material confirmation. For a set, finish and confirm one representative sample and its rule table before batch expansion.
 4. **Formal animation admission:** keep generation and QA output in a candidate directory. Only after the user explicitly confirms the exact sprite, action, and version may identical approved frames and delivery evidence enter the protected formal directory and whitelist.
-5. **Rika AI:** during free preparation, inspect the selected current client or script and verify that it supports the intended non-billable authentication/balance query, explicit paid submission, and candidate-directory output; do not infer a command, price, or capability from an older script name. Immediately before every paid submission, reread `RIKA_API_KEY`, preferring `HKCU\Environment` and falling back to the current process only if absent. Perform a non-billable authentication and balance check without exposing the key. State the operation, expected call count, known or uncertain cost/credit impact, and target output, then obtain explicit confirmation for that scope. Reconfirm retries, new variants, higher specifications, or additional billable work.
+5. **Rika AI:** the user explicitly authorized direct in-scope Rika use on `2026-08-13`; do not pause for per-call, retry, variant, or higher-spec payment confirmation. During preparation, inspect the selected current client or script and verify that it supports the intended non-billable authentication/balance query, explicit paid submission, and candidate-directory output; do not infer a command, price, or capability from an older script name. Immediately before every paid submission, reread `RIKA_API_KEY`, preferring `HKCU\Environment` and falling back to the current process only if absent. Perform a non-billable authentication and balance check without exposing the key, ensure the balance is sufficient, then execute only calls within the user's task scope. Record the operation, expected call count, known or uncertain cost/credit impact, target output, actual call count, and actual credit change. Stop only for failed authentication, insufficient balance, or a material expansion beyond the user's task authorization.
 
-Other image generation, rendering, training, export, and API services do not need payment or quota confirmation unless the user explicitly requires it.
+Other image generation, rendering, training, export, and API services likewise do not need payment or quota confirmation unless the user explicitly requires it.
 
 ## Implement inside the presentation boundary
 
@@ -106,12 +109,16 @@ Use [conversation-synthesis.md](references/conversation-synthesis.md) for ration
 
 - an orthographic `8×8` equal-cell white-line board;
 - instant auto-arrange followed by refreshed damage preview, not the superseded `0.22s` cell-by-cell movement;
+- no sprite `move` action in production, approval manifests, or runtime playback; positional Snapshot changes keep the current still or approved idle presentation;
 - the player hero at `(0, 7)` and enemy hero at `(7, 0)` when adapting older Snapshot layouts;
 - player units facing right and enemy/Boss units facing left, calculated from each asset's recorded authored facing;
 - player health green, enemy health orange-yellow, red only for lost or projected-loss segments, and flashing only for lethal preview;
-- visible grey-white shield as a continuous segment on the same scale as health, without shield-number text;
+- the nominal `96x9` health slot fully covered at every actual battle transform: the frame aperture can rasterize to nine or ten screen rows, so base health and red projected loss use matching bottom overscan, identical visible Y bounds, and must meet the dark frame on the next row with no map-color seam;
+- all four health-frame tiers cropped as `64x24` source regions and rendered at exact `3x` nominal scale (`192x72`), never stretching a `23px`-high crop to `72px` and thereby changing the slot raster between tiers;
+- a separate blue-grey shield bar centered in the black slot below health, using its own full-width scale and no shield-number text;
 - proportional actual health loss and a floating fading damage number, without changing the unit body's position, scale, or pivot for hit feedback;
-- unapproved animation remaining static, and approved timing or facial-motion exceptions staying scoped to the exact asset version.
+- unapproved animation remaining static, and approved timing or facial-motion exceptions staying scoped to the exact asset version;
+- the currently approved runtime idle whitelist containing only `SPR_014 / idle / 001`, which keeps its reviewed four-frame `4×400ms = 1600ms` exception; every newly rebuilt idle delivers sixteen reviewed `128×128` local-motion frames, freezes the face and all facial features, and waits for exact-version timing approval before runtime admission.
 
 Do not hardcode this snapshot into runtime data. It is an execution guide for established presentation behavior and remains subordinate to newer explicit instructions and verified current files.
 
@@ -131,5 +138,7 @@ Run only checks that exist and are relevant, and retain inspectable evidence.
 ## Deliver honestly
 
 Report the files and responsibilities changed, whether node topology changed, the checks actually run, real Godot operation coverage, and exact evidence paths. State `BLOCKED` when a required visual, interface, data-boundary, approval, or animation check is absent or fails. Generated output, editor appearance, a passing smoke test, or Git presence alone never proves delivery acceptance.
+
+Always label the task state precisely: `规则已确认` means only the requirement is recorded; `已实现未验收` means the scoped code or asset exists but required acceptance is incomplete; `已完成` requires the scoped implementation and required real evidence; `BLOCKED / 未修复` means the requested behavior is not delivered. Diagnosis, documentation, or identification of a missing prerequisite must never be described as a fix. Preserve the exact blocker and original requirement so later work can continue without another user report.
 
 Before the final response, complete the mandatory conversation write-back described above. When a new project standard is confirmed, update the affected rule source, tests, and [conversation-synthesis.md](references/conversation-synthesis.md) so obsolete instructions do not remain presented as current. Preserve the historical failure lesson, but keep only one current rule.

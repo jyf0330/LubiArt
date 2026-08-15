@@ -35,12 +35,21 @@ const PROJECTILE_TEXTURES := {
 const FRAME_ANIMATION_MANIFEST_PATH := "res://art/manifests/shared/pets/animations/pet_frame_animation_manifest.json"
 const DEFAULT_AUTHORED_HORIZONTAL_FACING := 1.0
 const DIRECTION_EPSILON := 0.001
+const SYNCHRONIZED_IDLE_FRAME_COUNT := 4
+const SYNCHRONIZED_IDLE_FRAME_DURATION_MS := 400
+const SYNCHRONIZED_IDLE_LOOP_DURATION_MS := 1600
+const SYNCHRONIZED_TRANSFORM_IDLE_SCALES: Array[Vector2] = [
+	Vector2.ONE,
+	Vector2(1.012, 0.985),
+	Vector2.ONE,
+	Vector2(0.992, 1.012),
+]
 static var _frame_profiles_loaded := false
 static var _frame_profiles_by_texture_path: Dictionary = {}
+static var _frame_texture_cache: Dictionary = {}
 var _view: Control = null
 var _base_position := Vector2.ZERO
 var _shake_tween: Tween = null
-var _move_tween: Tween = null
 var _attack_tween: Tween = null
 var _idle_sprite: TextureRect = null
 var _idle_base_scale := Vector2.ONE
@@ -54,6 +63,9 @@ var _frame_tween: Tween = null
 var _frame_playback_token := 0
 var _frame_action: StringName = &""
 var _frame_index := -1
+var _synchronized_idle_textures: Array[Texture2D] = []
+var _synchronized_idle_durations_ms: Array[int] = []
+var _synchronized_transform_idle := false
 var _frame_render_scale := Vector2.ONE
 var _frame_footline_y_ratio := 1.0
 var _authored_horizontal_facing := DEFAULT_AUTHORED_HORIZONTAL_FACING
@@ -76,6 +88,11 @@ func configure(view: Control) -> void:
 	reset()
 
 
+func _process(_delta: float) -> void:
+	if _frame_action == &"idle":
+		_apply_synchronized_idle_phase()
+
+
 func layout_authored(view_size: Vector2, canvas_size: Vector2 = PSD_CANVAS_SIZE) -> void:
 	if canvas_size.x <= 0.0 or canvas_size.y <= 0.0:
 		return
@@ -89,12 +106,9 @@ func reset() -> void:
 	_stop_sprite_idle()
 	if _shake_tween != null and _shake_tween.is_valid():
 		_shake_tween.kill()
-	if _move_tween != null and _move_tween.is_valid():
-		_move_tween.kill()
 	if _attack_tween != null and _attack_tween.is_valid():
 		_attack_tween.kill()
 	_shake_tween = null
-	_move_tween = null
 	_attack_tween = null
 	_last_attack_snapshot = {}
 	_hide_all_action_art()
@@ -159,26 +173,16 @@ func _start_transform_idle_loop() -> void:
 	_stop_frame_tween()
 	_frame_action = &"idle"
 	_frame_index = -1
-	var facing_scale := _idle_base_scale * Vector2(_facing_mirror_x(), 1.0)
-	_frame_tween = _idle_sprite.create_tween().set_loops()
-	_frame_tween.tween_property(
-		_idle_sprite,
-		"scale",
-		facing_scale * Vector2(1.012, 0.985),
-		0.48
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_frame_tween.tween_property(
-		_idle_sprite,
-		"scale",
-		facing_scale * Vector2(0.992, 1.012),
-		0.48
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_frame_tween.tween_property(
-		_idle_sprite,
-		"scale",
-		facing_scale,
-		0.24
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_synchronized_transform_idle = true
+	_synchronized_idle_durations_ms.assign(
+		[
+			SYNCHRONIZED_IDLE_FRAME_DURATION_MS,
+			SYNCHRONIZED_IDLE_FRAME_DURATION_MS,
+			SYNCHRONIZED_IDLE_FRAME_DURATION_MS,
+			SYNCHRONIZED_IDLE_FRAME_DURATION_MS,
+		]
+	)
+	_apply_synchronized_idle_phase(true)
 
 
 func play_sprite_attack(direction: Vector2, _duration: float = 0.42) -> void:
@@ -188,19 +192,6 @@ func play_sprite_attack(direction: Vector2, _duration: float = 0.42) -> void:
 	_attack_release_delay = 0.0
 	if _play_frame_action(&"attack", false):
 		_attack_release_delay = _frame_action_release_delay(&"attack")
-		return
-	_start_sprite_idle_loop()
-
-
-func play_sprite_move(direction: Vector2, _duration: float = 0.36) -> void:
-	if _idle_sprite == null:
-		return
-	_update_horizontal_facing(direction)
-	# Positional movement keeps the reviewed idle loop playing. There is no
-	# separate sprite movement action in the artist mock.
-	if _frame_action == &"idle":
-		return
-	if not _begin_sprite_action():
 		return
 	_start_sprite_idle_loop()
 
@@ -243,10 +234,19 @@ func _play_frame_action(action: StringName, loop: bool) -> bool:
 	if frame_paths.is_empty() or frame_paths.size() != durations_ms.size():
 		push_warning("Invalid pet frame animation '%s' for %s" % [action, _animation_texture_path])
 		return false
-	var frame_textures: Array = []
+	if action == &"idle" and (
+			frame_paths.size() != SYNCHRONIZED_IDLE_FRAME_COUNT
+			or not _has_uniform_idle_timing(durations_ms)
+	):
+		push_warning(
+			"Pet idle animation must use the shared 4-frame / 1.6-second rhythm: %s"
+			% _animation_texture_path
+		)
+		return false
+	var frame_textures: Array[Texture2D] = []
 	for frame_path_value in frame_paths:
 		var frame_path := String(frame_path_value)
-		var frame_texture := load(frame_path) as Texture2D
+		var frame_texture := _cached_frame_texture(frame_path)
 		if frame_texture == null:
 			push_warning("Missing pet animation frame: %s" % frame_path)
 			return false
@@ -270,6 +270,11 @@ func _play_frame_action(action: StringName, loop: bool) -> bool:
 		0.0,
 		1.0
 	)
+	if loop and action == &"idle":
+		_synchronized_idle_textures.assign(frame_textures)
+		_synchronized_idle_durations_ms.assign(durations_ms)
+		_apply_synchronized_idle_phase(true)
+		return true
 	_frame_tween = _idle_sprite.create_tween()
 	if loop:
 		_frame_tween.set_loops()
@@ -281,6 +286,68 @@ func _play_frame_action(action: StringName, loop: bool) -> bool:
 	if not loop:
 		_frame_tween.tween_callback(_finish_frame_action.bind(playback_token))
 	return true
+
+
+func _apply_synchronized_idle_phase(force: bool = false) -> void:
+	if _idle_sprite == null or _frame_action != &"idle":
+		return
+	var index := _synchronized_idle_frame_index(
+		Time.get_ticks_msec(),
+		_synchronized_idle_durations_ms
+	)
+	if index < 0 or (not force and index == _frame_index):
+		return
+	if _synchronized_transform_idle:
+		_frame_index = index
+		var facing_scale := _idle_base_scale * Vector2(_facing_mirror_x(), 1.0)
+		_idle_sprite.scale = facing_scale * SYNCHRONIZED_TRANSFORM_IDLE_SCALES[index]
+		_idle_sprite.position = _idle_base_position
+		return
+	if index >= _synchronized_idle_textures.size():
+		return
+	_apply_animation_frame(
+		_frame_playback_token,
+		index,
+		_synchronized_idle_textures[index]
+	)
+
+
+static func _synchronized_idle_frame_index(clock_msec: int, durations_ms: Array) -> int:
+	if durations_ms.is_empty():
+		return -1
+	var total_duration_ms := 0
+	for duration_value in durations_ms:
+		total_duration_ms += maxi(1, int(duration_value))
+	if total_duration_ms <= 0:
+		return -1
+	var phase_msec := posmod(clock_msec, total_duration_ms)
+	var elapsed_msec := 0
+	for index in range(durations_ms.size()):
+		elapsed_msec += maxi(1, int(durations_ms[index]))
+		if phase_msec < elapsed_msec:
+			return index
+	return durations_ms.size() - 1
+
+
+static func _has_uniform_idle_timing(durations_ms: Array) -> bool:
+	if durations_ms.size() != SYNCHRONIZED_IDLE_FRAME_COUNT:
+		return false
+	var total_duration_ms := 0
+	for duration_value in durations_ms:
+		var duration_ms := int(duration_value)
+		if duration_ms != SYNCHRONIZED_IDLE_FRAME_DURATION_MS:
+			return false
+		total_duration_ms += duration_ms
+	return total_duration_ms == SYNCHRONIZED_IDLE_LOOP_DURATION_MS
+
+
+static func _cached_frame_texture(frame_path: String) -> Texture2D:
+	if _frame_texture_cache.has(frame_path):
+		return _frame_texture_cache[frame_path] as Texture2D
+	var frame_texture := load(frame_path) as Texture2D
+	if frame_texture != null:
+		_frame_texture_cache[frame_path] = frame_texture
+	return frame_texture
 
 
 func _apply_animation_frame(playback_token: int, index: int, texture_resource: Texture2D) -> void:
@@ -330,6 +397,9 @@ func _stop_frame_tween() -> void:
 	_frame_tween = null
 	_frame_action = &""
 	_frame_index = -1
+	_synchronized_idle_textures.clear()
+	_synchronized_idle_durations_ms.clear()
+	_synchronized_transform_idle = false
 	_frame_render_scale = Vector2.ONE
 	_frame_footline_y_ratio = 1.0
 
@@ -369,10 +439,6 @@ func _frame_action_release_delay(action: StringName) -> float:
 	for index in range(release_frame - 1):
 		total_ms += maxf(float(durations_ms[index]), 0.0)
 	return total_ms / 1000.0
-
-
-func get_move_animation_duration(fallback: float = 0.22) -> float:
-	return _frame_action_duration(&"move", fallback)
 
 
 static func _ensure_frame_profiles_loaded() -> void:
@@ -468,16 +534,6 @@ func play_shake(duration: float = 0.22, strength: float = 7.0) -> void:
 	_shake_tween.tween_property(_view, "position:x", _base_position.x - strength, duration * 0.18)
 	_shake_tween.tween_property(_view, "position:x", _base_position.x + strength * 0.55, duration * 0.18)
 	_shake_tween.tween_property(_view, "position:x", _base_position.x, duration * 0.18)
-
-
-func move_to_position(target_position: Vector2, duration: float = 0.22) -> void:
-	if _view == null:
-		return
-	play_sprite_move(target_position - _view.position, duration)
-	if _move_tween != null and _move_tween.is_valid():
-		_move_tween.kill()
-	_move_tween = _view.create_tween()
-	_move_tween.tween_property(_view, "position", target_position, maxf(duration, 0.01)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 func play_attack_action(attack_type: String, element_id: String = "fire") -> Node:

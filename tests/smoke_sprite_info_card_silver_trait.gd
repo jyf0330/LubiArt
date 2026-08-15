@@ -1,6 +1,6 @@
 extends SceneTree
 
-const PET_DETAIL_SCENE := preload("res://art/prefabs/pet/pet_detail.tscn")
+const CARD_SCENE := preload("res://art/prefabs/pet/sprite_info_card.tscn")
 const EXPECTED_ART_SIZE := Vector2(48.0, 48.0)
 const EXPECTED_LOCK_SIZE := Vector2(50.0, 50.0)
 const EXPECTED_NAMES := ["自愈", "本命爆发", "护体", "连击倍增", "收尾暴击", "元素回响", "越战越勇", "壮体"]
@@ -21,10 +21,9 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var detail := PET_DETAIL_SCENE.instantiate() as Control
-	root.add_child(detail)
+	var card := CARD_SCENE.instantiate() as Control
+	root.add_child(card)
 	await process_frame
-	var card := detail.get_node("Panel/SpriteInfoCard") as Control
 	var trait_art := card.get_node("TraitArt") as TextureRect
 	var lock_art := card.get_node("TraitLockSilver") as TextureRect
 	assert(card.call("get_silver_trait_variant_names") == PackedStringArray(EXPECTED_NAMES))

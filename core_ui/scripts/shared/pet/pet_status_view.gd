@@ -61,7 +61,7 @@ func set_mode(mode: StringName) -> void:
 	_battle_mode_enabled = battle_visible
 	for label in _psd_value_labels():
 		label.visible = battle_visible
-	# Battle health and shield are communicated by the shared composite bar.
+	# Battle health and shield use stacked bars in the shared unit frame.
 	# Keep their authored labels available for data binding, but never render
 	# duplicate numeric text over the unit.
 	if psd_health_value != null:

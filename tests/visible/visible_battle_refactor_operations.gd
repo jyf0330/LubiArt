@@ -72,9 +72,38 @@ func _run() -> void:
 	await _stabilize()
 	var detail_summary := Dictionary(_probe.call("detail_summary"))
 	if not bool(detail_summary.get("visible", false)):
-		_fail("pet detail hover did not produce a visible panel")
+		_fail("selected pet did not produce a persistent detail panel")
+		return
+	_probe.call("hover_cell", empty_grid, true)
+	_probe.call("hover_cell", empty_grid, false)
+	if not bool(Dictionary(_probe.call("detail_summary")).get("visible", false)):
+		_fail("selected pet detail closed after the pointer left the pet")
 		return
 	await _capture("operation_04_pet_detail_open.png")
+
+	empty_cell.emit_signal("cell_selected", empty_grid.x, empty_grid.y)
+	await _settle(2)
+	if bool(Dictionary(_probe.call("detail_summary")).get("visible", false)):
+		_fail("empty floor selection did not close the pet detail")
+		return
+	var board_node := _battle.get_node_or_null("Board") as Control
+	if board_node != null and board_node.has_method("is_layout_grid_visible") \
+			and bool(board_node.call("is_layout_grid_visible")):
+		_fail("empty floor selection did not clear the local unit selection")
+		return
+	if not bool(Dictionary(_probe.call("open_first_pet_detail")).get("opened", false)):
+		_fail("pet detail could not be reopened for the Esc check")
+		return
+	_battle.call("render_snapshot", _snapshot)
+	await _settle(2)
+	await _press_key(KEY_ESCAPE)
+	if bool(Dictionary(_probe.call("detail_summary")).get("visible", false)):
+		_fail("Esc did not close the pet detail")
+		return
+	var settings_menu := _battle.get_node_or_null("OverlayHost/SettingsMenu") as Control
+	if settings_menu != null and settings_menu.visible:
+		_fail("Esc opened settings while closing the pet detail")
+		return
 
 	_probe.call("clear_detail")
 	var preview_case := Dictionary(_probe.call("first_player_drag_case", _snapshot))
@@ -115,9 +144,19 @@ func _first_empty_cell() -> Control:
 		var cell := child as Control
 		if cell == null or not cell.visible or not cell.has_method("get_grid_position"):
 			continue
-		if cell.has_method("get_unit_node") and cell.call("get_unit_node") == null:
+		var raw_data = cell.get("cell_data")
+		var data := Dictionary(raw_data) if raw_data is Dictionary else {}
+		if cell.has_method("get_unit_node") and cell.call("get_unit_node") == null \
+				and not _has_visible_elements(Dictionary(data.get("elements", {}))):
 			return cell
 	return null
+
+
+func _has_visible_elements(elements: Dictionary) -> bool:
+	for amount in elements.values():
+		if int(amount) > 0:
+			return true
+	return false
 
 
 func _cell_host() -> Control:
@@ -154,6 +193,21 @@ func _all_descendants(parent: Node) -> Array[Node]:
 func _settle(frame_count: int) -> void:
 	for _frame in range(frame_count):
 		await process_frame
+
+
+func _press_key(keycode: Key) -> void:
+	var press := InputEventKey.new()
+	press.keycode = keycode
+	press.physical_keycode = keycode
+	press.pressed = true
+	_battle.get_viewport().push_input(press, true)
+	await process_frame
+	var release := InputEventKey.new()
+	release.keycode = keycode
+	release.physical_keycode = keycode
+	release.pressed = false
+	_battle.get_viewport().push_input(release, true)
+	await process_frame
 
 
 func _capture(file_name: String) -> void:

@@ -90,6 +90,7 @@ func _validate_banner(banner: Control, round_number: int) -> void:
 	var title := banner.get_node("Title") as Label
 	var subtitle := banner.get_node("Subtitle") as Label
 	assert(title.text == "第%d回合" % round_number)
+	assert(not subtitle.visible)
 	assert(title.get_theme_font("font") == subtitle.get_theme_font("font"))
 	assert(title.get_theme_font("font").resource_path == ROUND_FONT_PATH)
 

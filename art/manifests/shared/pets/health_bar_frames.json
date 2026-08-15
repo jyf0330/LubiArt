@@ -7,13 +7,34 @@
   "atlas_canvas": [64, 24],
   "battle_cell_size": [120, 120],
   "rendered_frame_canvas": [192, 72],
+  "frame_display_rule": "all tier regions are 64x24 source pixels rendered at exact 3x scale",
   "sizing_basis": "inner_health_slot_only",
   "tier_decorations_affect_slot_size": false,
   "inner_health_slot": {
     "source_rect_within_atlas": [24, 10, 32, 3],
     "source_scaled_size": [96, 9],
-    "display_size": [96, 11],
-    "bottom_seam_overlap": 2
+    "nominal_display_size": [96, 9],
+    "viewport_raster_height_range": [9, 10],
+    "godot_progress_bar_control_size": [96, 10],
+    "masked_bottom_render_compensation": 1,
+    "fill_expand_margin_bottom": 1,
+    "damage_preview_clip_overscan": 1,
+    "acceptance": "base and projected-loss fills share exact visible Y bounds, cover every transparent frame-aperture row, and meet a dark frame row immediately below",
+    "pixel_snap_y": true,
+    "anti_aliasing": false
+  },
+  "shield_slot": {
+    "layout": "separate_below_health",
+    "source_rect_within_atlas": [24, 14, 32, 1],
+    "source_scaled_size": [96, 3],
+    "display_size": [96, 3],
+    "offset_from_health_slot": [0, 12],
+    "sizing_basis": "current_shield_over_observed_max_shield"
+  },
+  "palette_guides": {
+    "ally_health": "#23D832",
+    "damage_preview": "#FF0000",
+    "shield": "#CBDBFC"
   },
   "tiers": {
     "bronze": {

@@ -46,7 +46,7 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 
-	animation.play_sprite_move(Vector2.LEFT)
+	animation.play_sprite_attack(Vector2.LEFT)
 	await process_frame
 	await process_frame
 	var player_snapshot := Dictionary(animation.get_frame_animation_snapshot())
@@ -76,7 +76,7 @@ func _run() -> void:
 		true,
 		1.0
 	)
-	animation.play_sprite_move(Vector2.RIGHT)
+	animation.play_sprite_attack(Vector2.RIGHT)
 	await process_frame
 	await process_frame
 	var enemy_snapshot := Dictionary(animation.get_frame_animation_snapshot())
@@ -97,6 +97,8 @@ func _run() -> void:
 	if not await _verify_prefab_faction("player", true, "pal_001", "player_right_source", 1):
 		return
 	if not await _verify_prefab_faction("enemy", false, "pal_001", "enemy_r01_001", 1):
+		return
+	if not await _verify_prefab_faction("enemy", false, "pal_042", "enemy_r01_002", -1):
 		return
 	if not await _verify_prefab_faction("player", true, "pal_057", "player_left_source", -1):
 		return
@@ -125,7 +127,8 @@ func _verify_prefab_faction(
 	expects_right: bool,
 	pet_id: String,
 	unit_id: String,
-	authored_facing: int
+	authored_facing: int,
+	expects_static: bool = false
 ) -> bool:
 	var pet := PetScene.instantiate() as Control
 	pet.size = Vector2(150.0, 132.0)
@@ -144,10 +147,14 @@ func _verify_prefab_faction(
 	var sprite := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/CreatureArt") as TextureRect
 	var animation := pet.get_node("CompleteBattleCreaturePrefab/03_AttackActions")
 	var marker := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/EnemyMarker_Optional") as Control
-	animation.call("play_sprite_move", Vector2.LEFT if expects_right else Vector2.RIGHT)
+	animation.call("play_sprite_attack", Vector2.LEFT if expects_right else Vector2.RIGHT)
 	await process_frame
 	await process_frame
 	var snapshot := Dictionary(animation.call("get_frame_animation_snapshot"))
+	if expects_static and not Dictionary(snapshot.get("actions", {})).is_empty():
+		pet.queue_free()
+		_fail("%s prefab unexpectedly loaded an unapproved frame animation" % side)
+		return false
 	var expected_mirror := 1 if (1 if expects_right else -1) == authored_facing else -1
 	var correct_sign := sprite.scale.x > 0.0 if expected_mirror > 0 else sprite.scale.x < 0.0
 	if not correct_sign \

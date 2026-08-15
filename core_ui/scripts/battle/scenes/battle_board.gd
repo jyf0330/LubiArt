@@ -41,12 +41,23 @@ var _drag_interaction := BattleBoardDragInteractionScript.new()
 var _unit_nodes_by_id := {}
 var _unit_pool: Array[Control] = []
 var _health_bar_tier_override := ""
+var _layout_grid_selected := false
+var _layout_grid_drag_active := false
+var _layout_grid_input_locked := false
+var _selected_unit_id := ""
+var _authoritative_selected_unit_id := ""
+var _inspection_selected_unit_id := ""
+var _inspection_selection_active := false
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_process_input(true)
 	set_process(false)
+	if board_background != null:
+		var background_input := Callable(self, "_on_board_background_gui_input")
+		if not board_background.gui_input.is_connected(background_input):
+			board_background.gui_input.connect(background_input)
 	_preview_coordinator.call("configure", self, BattlePreviewPresenterScript.new())
 	_drag_interaction.call("configure", self, board_grid, unit_host, _assets, _preview_coordinator)
 	_drag_interaction.command_requested.connect(_on_interaction_command_requested)
@@ -60,8 +71,19 @@ func configure(assets: RefCounted) -> void:
 
 
 func set_input_locked(locked: bool) -> void:
+	_layout_grid_input_locked = locked
+	_sync_layout_grid_visibility()
 	_drag_interaction.call("set_input_locked", locked)
 	_preview_coordinator.call("set_input_locked", locked)
+
+
+func set_layout_drag_active(active: bool) -> void:
+	_layout_grid_drag_active = active
+	_sync_layout_grid_visibility()
+
+
+func is_layout_grid_visible() -> bool:
+	return (_layout_grid_selected or _layout_grid_drag_active) and not _layout_grid_input_locked
 
 
 func show_direction_preview(unit_id: String, direction: String) -> void:
@@ -153,8 +175,42 @@ func render_snapshot(
 	_ensure_board()
 	_last_rendered_cell_count = 0
 	_render_board_cells(cells, pending_reset_ids, reconcile_unit_presentation)
+	_sync_unit_selection(snapshot)
 	_preview_coordinator.call("render_snapshot", _last_snapshot)
 	_drag_interaction.call("restore_after_snapshot")
+
+
+func show_local_unit_selection(unit_id: String) -> void:
+	_inspection_selection_active = false
+	_inspection_selected_unit_id = ""
+	_sync_unit_selection_id(unit_id)
+
+
+func show_local_unit_inspection(unit_id: String) -> void:
+	_inspection_selection_active = true
+	_inspection_selected_unit_id = unit_id
+	_sync_unit_selection_id(unit_id, false)
+
+
+func clear_local_unit_inspection() -> void:
+	_inspection_selection_active = false
+	_inspection_selected_unit_id = ""
+	_sync_unit_selection_id(_authoritative_selected_unit_id)
+
+
+func current_selected_unit_id() -> String:
+	return _selected_unit_id
+
+
+func current_authoritative_selected_unit_id() -> String:
+	return _authoritative_selected_unit_id
+
+
+func render_selection_snapshot(snapshot: Dictionary) -> void:
+	_sync_selection_snapshot_keys(_last_snapshot, snapshot)
+	_sync_unit_selection(snapshot)
+	if _preview_coordinator.has_method("render_selection_snapshot"):
+		_preview_coordinator.call("render_selection_snapshot", snapshot)
 
 
 func _render_battle_background(snapshot: Dictionary) -> void:
@@ -216,6 +272,64 @@ func _release_unused_units(desired_unit_ids: Dictionary) -> void:
 		unit.visible = false
 		unit.name = "PooledBattleUnit_%d" % _unit_pool.size()
 		_unit_pool.append(unit)
+
+
+func _sync_unit_selection(snapshot: Dictionary) -> void:
+	var selected_unit_id := String(snapshot.get(
+		"selected_unit_id",
+		snapshot.get("selectedUnitId", "")
+	))
+	_authoritative_selected_unit_id = selected_unit_id
+	if _inspection_selection_active:
+		if _inspection_selected_unit_id == "":
+			_sync_unit_selection_id("", false)
+			return
+		if _unit_nodes_by_id.has(_inspection_selected_unit_id):
+			_sync_unit_selection_id(_inspection_selected_unit_id, false)
+			return
+		_inspection_selection_active = false
+	_inspection_selected_unit_id = ""
+	_sync_unit_selection_id(_authoritative_selected_unit_id)
+
+
+func _sync_unit_selection_id(selected_unit_id: String, enable_layout_grid: bool = true) -> void:
+	_selected_unit_id = selected_unit_id
+	_layout_grid_selected = false
+	for unit_id_value in _unit_nodes_by_id.keys():
+		var unit := _unit_nodes_by_id[unit_id_value] as Control
+		if unit == null or not is_instance_valid(unit) or not unit.has_method("set_selected"):
+			continue
+		var is_selected := selected_unit_id != "" and String(unit_id_value) == selected_unit_id
+		unit.call("set_selected", is_selected)
+		_layout_grid_selected = _layout_grid_selected or (is_selected and enable_layout_grid)
+	_sync_layout_grid_visibility()
+
+
+func _sync_selection_snapshot_keys(target: Dictionary, source: Dictionary) -> void:
+	for key in [
+		"selected_unit_id",
+		"selectedUnitId",
+		"selected",
+		"selected_action_slot_index",
+		"selectedActionSlotIndex",
+		"selected_action_slots",
+		"selectedActionSlots",
+		"action_block_ranges_by_unit",
+		"actionBlockRangesByUnit",
+		"action_preview_by_unit",
+		"actionPreviewByUnit",
+		"placement_damage_by_unit",
+		"placementDamageByUnit",
+	]:
+		if source.has(key):
+			target[key] = source[key]
+
+
+func _sync_layout_grid_visibility() -> void:
+	var should_show := is_layout_grid_visible()
+	for cell in _cell_pool:
+		if cell != null and is_instance_valid(cell) and cell.has_method("set_grid_visuals_visible"):
+			cell.call("set_grid_visuals_visible", should_show)
 
 
 func _sync_cell_unit(
@@ -319,6 +433,8 @@ func _build_board() -> void:
 		var active := index < required_cell_count
 		cell.visible = active
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP if active else Control.MOUSE_FILTER_IGNORE
+		if cell.has_method("set_grid_visuals_visible"):
+			cell.call("set_grid_visuals_visible", is_layout_grid_visible())
 		if not active:
 			if cell.has_method("set_hovered"):
 				cell.call("set_hovered", false)
@@ -490,6 +606,16 @@ func _on_cell_hovered(x: int, y: int) -> void:
 
 func _on_cell_unhovered(x: int, y: int) -> void:
 	_drag_interaction.call("on_cell_unhovered", Vector2i(x, y))
+
+
+func _on_board_background_gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or mouse_event.pressed:
+		return
+	_drag_interaction.call("on_blank_area_selected")
+	board_background.accept_event()
 
 
 func _on_interaction_command_requested(command: Dictionary) -> void:

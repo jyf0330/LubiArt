@@ -38,6 +38,29 @@ func render_snapshot(snapshot: Dictionary) -> void:
 	sync_enemy_damage_previews(_preserve_settled_enemy_damage_previews)
 
 
+func render_selection_snapshot(snapshot: Dictionary) -> void:
+	for key in [
+		"selected_unit_id",
+		"selectedUnitId",
+		"selected",
+		"selected_action_slot_index",
+		"selectedActionSlotIndex",
+		"selected_action_slots",
+		"selectedActionSlots",
+		"action_block_ranges_by_unit",
+		"actionBlockRangesByUnit",
+		"action_preview_by_unit",
+		"actionPreviewByUnit",
+		"placement_damage_by_unit",
+		"placementDamageByUnit",
+	]:
+		if snapshot.has(key):
+			_last_snapshot[key] = snapshot[key]
+	_clear_all_cell_highlights()
+	_apply_selected_action_block_ranges()
+	sync_enemy_damage_previews(_preserve_settled_enemy_damage_previews)
+
+
 func show_direction_preview(unit_id: String, direction: String) -> void:
 	if unit_id == "" or direction == "":
 		_clear_direction_hover_preview()

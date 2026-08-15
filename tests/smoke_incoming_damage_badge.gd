@@ -23,7 +23,7 @@ func _run() -> void:
 		pet.call("start_damage_preview", 20, 7, -1, 15, 2, 0, 20)
 		var badge := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview") as Control
 		var separator := badge.get_node("Background") as ColorRect
-		var value := badge.get_node("Value") as Label
+		var value := badge.get_node("Value") as ProgressBar
 		var stats_root := pet.get_node("CompleteBattleCreaturePrefab/01_UnitVisual/Stats") as Control
 		var health := stats_root.get_node("Health") as ProgressBar
 		var preview := Dictionary(pet.call("get_damage_preview_snapshot"))
@@ -35,14 +35,15 @@ func _run() -> void:
 		assert(int(preview.get("displayed_damage", -1)) == 15)
 		assert(int(preview.get("displayed_hp", -1)) == 20)
 		assert(badge.visible)
-		assert(value.text == "")
+		assert(not value.show_percentage)
+		assert(is_equal_approx(value.value, value.max_value))
 		assert(value.self_modulate == Color.WHITE)
 		assert(stats_root.visible and health.visible)
 		assert(badge.get_parent() == health)
-		assert(is_equal_approx(badge.position.x, health.size.x * (7.0 / 22.0)))
+		assert(is_equal_approx(badge.position.x, health.size.x * (7.0 / 20.0)))
 		assert(is_zero_approx(badge.position.y))
-		assert(is_equal_approx(badge.size.y, health.size.y))
-		assert(is_equal_approx(badge.size.x, health.size.x * (15.0 / 22.0)))
+		assert(is_equal_approx(badge.size.y, health.size.y + 1.0))
+		assert(is_equal_approx(badge.size.x, health.size.x * (13.0 / 20.0)))
 		assert(badge.scale == Vector2.ONE)
 		assert(is_equal_approx(separator.size.x * badge.scale.x, 2.0))
 		var fill := health.get_theme_stylebox("fill") as StyleBoxFlat
@@ -67,7 +68,7 @@ func _run() -> void:
 		assert(value.modulate.a < 0.95)
 		pet.call("stop_damage_preview")
 		assert(not badge.visible)
-		assert(value.text == "")
+		assert(not value.show_percentage)
 		pet.queue_free()
 	print("INCOMING_DAMAGE_BAR_SMOKE_PASS")
 	quit(0)

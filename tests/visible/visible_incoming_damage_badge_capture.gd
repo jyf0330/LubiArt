@@ -43,10 +43,10 @@ func _run() -> void:
 	var held_badge := held_preview.get_node(
 		"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"
 	) as Control
-	var held_value := held_badge.get_node("Value") as Label
+	var held_value := held_badge.get_node("Value") as ProgressBar
 	var held_state := Dictionary(held_preview.call("get_damage_preview_snapshot"))
 	if not held_badge.visible or not bool(held_state.get("embedded_in_health_bar", false)) \
-			or held_value.text != "":
+			or held_value.show_percentage:
 		_fail("embedded incoming-damage bar was not visible over the manual drag target")
 		return
 	probe.finish_drag(target_grid)
@@ -58,10 +58,10 @@ func _run() -> void:
 	var badge := preview_pet.get_node(
 		"CompleteBattleCreaturePrefab/01_UnitVisual/Stats/Health/IncomingDamagePreview"
 	) as Control
-	var value := badge.get_node("Value") as Label
+	var value := badge.get_node("Value") as ProgressBar
 	var preview_state := Dictionary(preview_pet.call("get_damage_preview_snapshot"))
 	if not badge.visible or not bool(preview_state.get("embedded_in_health_bar", false)) \
-			or value.text != "":
+			or value.show_percentage:
 		_fail("embedded incoming-damage bar was not visible")
 		return
 	var stats := preview_pet.get_node(
