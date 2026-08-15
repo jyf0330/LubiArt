@@ -91,23 +91,29 @@ func _run() -> void:
 	await _release_focus()
 	await _capture("05_purchase_complete", "购买第一件商品完成", shop)
 
+	var party_slot := shop.get_node("RouteSharedUi/Party/Party_Container/Party_Slot") as TextureButton
+	await _move_mouse(party_slot.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("06_party_hover", "悬停第一名队伍宠物", shop)
+
 	var bag_button := shop.get_node("RouteSharedUi/Bags/Bag_Button") as TextureButton
 	await _click(bag_button)
 	await _release_focus()
-	await _capture("06_bag_open", "点击宝箱打开背包", shop)
+	await _capture("07_bag_open", "点击宝箱打开背包", shop)
 	await _click(bag_button)
 	await _release_focus()
-	await _capture("07_bag_closed", "再次点击宝箱关闭背包", shop)
+	await _capture("08_bag_closed", "再次点击宝箱关闭背包", shop)
 
 	var exit_button := shop.get_node("RouteSharedUi/ExitButton") as TextureButton
 	await _move_mouse(exit_button.get_global_rect().get_center())
 	await _settle(8)
 	await _release_focus()
-	await _capture("08_exit_hover", "悬停商店退出牌", shop)
+	await _capture("09_exit_hover", "悬停商店退出牌", shop)
 	await _click(exit_button)
 	await _settle(30)
 	_expect(String(_game.call("get_active_feature_id")) == "", "real exit returns to route")
-	await _capture("09_exit_to_route", "退出商店返回路线", null)
+	await _capture("10_exit_to_route", "退出商店返回路线", null)
 	_finish()
 
 
@@ -251,6 +257,8 @@ func _action_from_control_name(control_name: StringName) -> String:
 		return "ROLL_SHOP"
 	if "bag" in value:
 		return "TOGGLE_BAG"
+	if "party" in value:
+		return "PARTY_SLOT"
 	if "exit" in value:
 		return "EXIT_SHOP"
 	return "CONTROL"
