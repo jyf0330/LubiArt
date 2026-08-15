@@ -12,12 +12,11 @@ art/prefabs/
  │   ├── pet_detail.tscn
  │   └── sprite_info_card.tscn
  ├── route/
+ │   ├── route_shared_ui.tscn
  │   └── three_choice_card.tscn
  ├── shared/
  │   └── cursor/
  │       └── game_cursor.tscn
- ├── shop/
- │   └── bazaar_info_panel.tscn
  └── terrain/
      ├── terrain.tscn
      └── terrain_detail.tscn
@@ -28,7 +27,7 @@ art/prefabs/
 - `sprite_info_card.tscn`：由宠物详情实例化的内部卡片组件，可在独立美术调试 Scene 中直接检查。
 - `attack_direction_drawer.tscn`：已从正式战斗 HUD 移除的历史内部组件，文件暂时保留供独立检查。
 - `three_choice_card.tscn`：三选一页面的路线卡模板，保留可编辑的卡面、悬停表现与点击区域。
-- `bazaar_info_panel.tscn`：商店条目的信息浮层组件。
+- `route_shared_ui.tscn`：三选与商店共用的背包、队伍、金币、出口和详情界面；统一拥有八个数据叶子背包槽及共享视觉状态。
 - `game_cursor.tscn`：应用装配层复用的鼠标指针表现组件。
 - `terrain.tscn`：战斗棋盘重复实例化的地形格。
 - `terrain_detail.tscn`：战斗中查看地形元素、威胁和预览的详情面板。

@@ -19,12 +19,13 @@ required_files=(
   "tools/check_approved_sprite_animations.py"
   "art/scenes/app/game.tscn"
   "art/scenes/three_choice/three_choice_scene.tscn"
+  "art/scenes/shop/shop_scene.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
   "art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn"
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
-  "art/prefabs/shop/bazaar_info_panel.tscn"
+  "art/prefabs/route/route_shared_ui.tscn"
   "art/prefabs/battle/hud/battle_hud.tscn"
   "art/prefabs/battle/hud/battle_map_controls.tscn"
   "art/prefabs/battle/hud/attack_direction_drawer.tscn"
@@ -54,6 +55,7 @@ done
 expected_scenes=(
   "art/scenes/app/game.tscn"
   "art/scenes/battle/battle_art_scene.tscn"
+  "art/scenes/shop/shop_scene.tscn"
   "art/scenes/sprite_info_card_debug/sprite_info_card_debug_scene.tscn"
   "art/scenes/three_choice/three_choice_scene.tscn"
 )
@@ -61,7 +63,7 @@ expected_scenes=(
 actual_scenes="$(cd "$MOCK_ROOT" && find art/scenes -type f -name "*.tscn" | sort)"
 expected_scenes_text="$(printf '%s\n' "${expected_scenes[@]}")"
 if [[ "$actual_scenes" != "$expected_scenes_text" ]]; then
-  printf '%s\n' "Standalone project must contain the Game shell, two formal UI scenes, and the approved debug scenes." >&2
+  printf '%s\n' "Standalone project must contain the Game shell, three formal UI scenes, and the approved debug scenes." >&2
   exit 1
 fi
 
@@ -81,9 +83,9 @@ expected_prefabs=(
   "art/prefabs/pet/pet.tscn"
   "art/prefabs/pet/pet_detail.tscn"
   "art/prefabs/pet/sprite_info_card.tscn"
+  "art/prefabs/route/route_shared_ui.tscn"
   "art/prefabs/route/three_choice_card.tscn"
   "art/prefabs/shared/cursor/game_cursor.tscn"
-  "art/prefabs/shop/bazaar_info_panel.tscn"
   "art/prefabs/terrain/terrain.tscn"
   "art/prefabs/terrain/terrain_detail.tscn"
 )
@@ -160,7 +162,7 @@ if find "$MOCK_ROOT/core_ui" -type f ! -path "$MOCK_ROOT/core_ui/scripts/*" ! -n
   exit 1
 fi
 
-python "$MOCK_ROOT/tools/check_approved_sprite_animations.py"
+python3 "$MOCK_ROOT/tools/check_approved_sprite_animations.py"
 
 printf '%s\n' "MOCK_UI_STANDALONE_STRUCTURE_PASS"
 

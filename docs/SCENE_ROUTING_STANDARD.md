@@ -42,7 +42,7 @@
 
 必须走完整 Command / Snapshot / Game / SceneRouter 链路。例如路线选择后进入战斗。
 
-三选路线阶段分成两个页面内步骤：路线卡点击只保存并高亮当前选择，不发送 Command；`MainBG/Containers/ExitButton` 始终保留 normal/hover 美术反馈，但只有已有选择时才作为“下一步”提交该卡对应的 `CHOOSE_ROUTE`。进入商店后，同一出口按钮改为提交 `EXIT_SHOP`。出口按钮与路线卡都不知道目标 `.tscn`，最终 Feature 仍只由 Game 根据返回的 Snapshot 决定。
+三选路线阶段分成两个页面内步骤：路线卡点击只保存并高亮当前选择，不发送 Command；`RouteSharedUi/ExitButton` 始终保留 normal/hover 美术反馈，但只有已有选择时才作为“下一步”提交该卡对应的 `CHOOSE_ROUTE`。Snapshot 进入商店 phase 后，Game 在 `FeatureHost` 挂载独立 `ShopScene`；商店中的同一共享出口外观由 `ShopScene` 根发送 `EXIT_SHOP`。出口按钮与路线卡都不知道目标 `.tscn`，最终 Feature 仍只由 Game 根据返回的 Snapshot 决定。
 
 ### 同 Scene 面板切换
 
@@ -55,7 +55,7 @@
 ## 5. 禁止项
 
 - Button 或普通子节点直接 `change_scene*()`、加载目标 Scene 路径或操作 `FeatureHost`。
-- `ThreeChoiceScene`、`BattleArtScene` 或 prefab 创建、缓存、替换、保存或直接调用 GameSession。
+- `ThreeChoiceScene`、`ShopScene`、`BattleArtScene` 或 prefab 创建、缓存、替换、保存或直接调用 GameSession。
 - 美术 Scene 通过 `feature_view_requested` 一类信号要求创建特定页面；它只能发送语义 Command 和报告表现完成。
 - SceneRouter 根据 `phase`、业务字段或按钮名称判断目标页面。
 - 为了路由在普通节点上新增空脚本，或在脚本中临时拼装静态 UI。
@@ -65,8 +65,8 @@
 ```text
 Game
 ├── ThreeChoiceScene       常驻美术展示 Scene
-├── FeatureHost            动态挂载 BattleArtScene
+├── FeatureHost            动态挂载 ShopScene 或 BattleArtScene
 └── GameCursor             应用级输入反馈
 ```
 
-当前路由规则只有一条：`Snapshot.phase == "battle"` 时 Game 确保 `BattleArtScene` 已挂载；其他阶段在表现过渡完成后由 Game 释放战斗 Scene。以后新增结算、图鉴或设置等独立 Scene 时，也只能在 Game 的 Snapshot → Feature 映射中登记，不能把目标路径写回按钮或美术 Scene。
+当前路由规则为：`Snapshot.phase == "shop"` 时 Game 确保 `ShopScene` 已挂载并隐藏常驻三选，`Snapshot.phase == "battle"` 时确保 `BattleArtScene` 已挂载；回到路线等阶段后，Game 释放当前动态 Feature 并恢复三选。以后新增结算、图鉴或设置等独立 Scene 时，也只能在 Game 的 Snapshot → Feature 映射中登记，不能把目标路径写回按钮或美术 Scene。

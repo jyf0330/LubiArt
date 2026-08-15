@@ -16,7 +16,10 @@ const DEFAULT_COMBOS := [
 	{"id": "combo_pincer", "name": "前后夹击", "skills": ["skill_vanguard", "skill_flank"]},
 ]
 const START_PHASE_ROUTE := "route"
+const START_PHASE_SHOP := "shop"
 const START_PHASE_BATTLE := "battle"
+const SHOP_OFFER_COUNT := 5
+const MOCK_SHOP_ROLL_POOL_SIZE := 10
 
 var _capture_source: Dictionary = {}
 var _presentation_bootstrap_snapshot: Dictionary = {}
@@ -32,6 +35,8 @@ var _incoming_projection_unit_ids: Dictionary = {}
 var _projected_incoming_previews: Dictionary = {}
 var _legacy_insertion_row_templates: Dictionary = {}
 var _start_phase := START_PHASE_ROUTE
+var _shop_offer_pool: Array = []
+var _shop_roll_offset := 0
 
 
 func _init(options: Dictionary = {}) -> void:
@@ -113,6 +118,16 @@ func submit_command(command: Dictionary) -> Dictionary:
 		return _project_action_direction(command)
 	if command_type == "MOVE_HERO":
 		return _accepted_projection(command, command_type, _project_move_hero(command))
+	if command_type == "CHOOSE_ROUTE" and String(_snapshot.get("phase", "")) == START_PHASE_ROUTE:
+		return _project_shop_entry(command)
+	if command_type == "EXIT_SHOP" and String(_snapshot.get("phase", "")) == START_PHASE_SHOP:
+		return _project_shop_exit(command)
+	if command_type == "BUY_OFFER" and String(_snapshot.get("phase", "")) == START_PHASE_SHOP:
+		return _accepted_projection(command, command_type, _apply_local_buy_command(command))
+	if command_type == "DROP_ITEM_ON_TARGET" and String(_snapshot.get("phase", "")) == START_PHASE_SHOP:
+		return _accepted_projection(command, command_type, _apply_local_drop_command(command, command_type))
+	if command_type == "ROLL_SHOP" and String(_snapshot.get("phase", "")) == START_PHASE_SHOP:
+		return _accepted_projection(command, command_type, _project_shop_roll())
 	return _replay_captured_command(command, command_type)
 
 
@@ -158,10 +173,16 @@ func reset(emit_change: bool = true) -> void:
 		_presentation_bootstrap_snapshot
 	)
 	_battle_bootstrap_snapshot = _adapt_legacy_board_snapshot(_battle_bootstrap_snapshot)
+	var exported_shop_offers := Array(_presentation_bootstrap_snapshot.get("shop_offers", []))
+	var roll_pool_size := mini(MOCK_SHOP_ROLL_POOL_SIZE, exported_shop_offers.size())
+	_shop_offer_pool = exported_shop_offers.slice(0, roll_pool_size).duplicate(true)
+	_shop_roll_offset = 0
 	if _start_phase == START_PHASE_BATTLE or _presentation_bootstrap_snapshot.is_empty():
 		_snapshot = _battle_bootstrap_snapshot.duplicate(true)
 	else:
 		_snapshot = _presentation_bootstrap_snapshot.duplicate(true)
+		if _start_phase == START_PHASE_SHOP:
+			_apply_shop_phase_from_route({})
 	_skill_control_order = []
 	_skill_control_units = []
 	for unit_value in Array(_battle_bootstrap_snapshot.get("units", [])):
@@ -216,7 +237,93 @@ func _normalized_start_phase(value: String) -> String:
 	var phase := value.strip_edges().to_lower()
 	if phase == START_PHASE_BATTLE:
 		return START_PHASE_BATTLE
+	if phase == START_PHASE_SHOP:
+		return START_PHASE_SHOP
 	return START_PHASE_ROUTE
+
+
+func _project_shop_entry(command: Dictionary) -> Dictionary:
+	var stall := _apply_shop_phase_from_route(command)
+	if stall.is_empty():
+		return _rejected_response(
+			command,
+			"CHOOSE_ROUTE",
+			"SHOP_ROUTE_NOT_EXPORTED",
+			"公开 Snapshot 中没有对应的商店路线项"
+		)
+	_advance_artist_flow_projection("shop")
+	return _accepted_projection(command, "CHOOSE_ROUTE", {
+		"type": "CHOOSE_ROUTE",
+		"ok": true,
+		"mock_snapshot_projection": true,
+		"active_stall": stall,
+	})
+
+
+func _apply_shop_phase_from_route(command: Dictionary) -> Dictionary:
+	var requested_id := String(command.get("option_id", command.get("optionId", "")))
+	var selected: Dictionary = {}
+	for value in Array(_snapshot.get("route_options", [])):
+		var option := Dictionary(value)
+		var option_id := String(option.get("id", option.get("optionId", option.get("option_id", ""))))
+		if requested_id != "" and option_id != requested_id:
+			continue
+		if String(option.get("kind", option.get("nodeType", ""))) != "shop":
+			continue
+		selected = option
+		break
+	if selected.is_empty():
+		return {}
+	var stall := Dictionary(selected.get("sourceNode", selected.get("source_node", {}))).duplicate(true)
+	if stall.is_empty():
+		stall = selected.duplicate(true)
+	_snapshot["phase"] = START_PHASE_SHOP
+	_snapshot["active_stall"] = stall
+	var visible_offers := Array(_snapshot.get("shop_offers", [])).duplicate(true)
+	if visible_offers.size() > SHOP_OFFER_COUNT:
+		_snapshot["shop_offers"] = visible_offers.slice(0, SHOP_OFFER_COUNT)
+	var pool_id := String(stall.get("shopPoolId", stall.get("shop_pool_id", "")))
+	if pool_id != "":
+		_snapshot["active_shop_pool"] = pool_id
+	return stall
+
+
+func _project_shop_exit(command: Dictionary) -> Dictionary:
+	_snapshot["phase"] = START_PHASE_ROUTE
+	_snapshot["active_stall"] = {}
+	_advance_artist_flow_projection("route")
+	return _accepted_projection(command, "EXIT_SHOP", {
+		"type": "EXIT_SHOP",
+		"ok": true,
+		"mock_snapshot_projection": true,
+	})
+
+
+func _project_shop_roll() -> Dictionary:
+	if _shop_offer_pool.size() <= SHOP_OFFER_COUNT:
+		return _noop_result("ROLL_SHOP", "公开 Snapshot 没有足够的已映射商品用于补货")
+	_shop_roll_offset = (_shop_roll_offset + SHOP_OFFER_COUNT) % _shop_offer_pool.size()
+	var rolled_offers := []
+	for index in range(SHOP_OFFER_COUNT):
+		var pool_index := (_shop_roll_offset + index) % _shop_offer_pool.size()
+		rolled_offers.append(Dictionary(_shop_offer_pool[pool_index]).duplicate(true))
+	_snapshot["shop_offers"] = rolled_offers
+	_advance_artist_flow_projection("shop_roll")
+	return {
+		"type": "ROLL_SHOP",
+		"ok": true,
+		"mock_snapshot_projection": true,
+		"offer_ids": rolled_offers.map(func(value): return String(Dictionary(value).get("id", ""))),
+		"message": "Mock 已从公开 Snapshot 的已映射商品中补货",
+	}
+
+
+func _advance_artist_flow_projection(label: String) -> void:
+	var next_version := int(_snapshot.get("stateVersion", 0)) + 1
+	_snapshot["stateVersion"] = next_version
+	_snapshot["state_version"] = next_version
+	_snapshot["stateHash"] = "mock_artist_flow_%s_%d" % [label, next_version]
+	_snapshot["state_hash"] = _snapshot["stateHash"]
 
 
 func _replay_captured_command(command: Dictionary, command_type: String) -> Dictionary:
@@ -387,10 +494,14 @@ func _apply_local_drop_command(command: Dictionary, command_type: String) -> Dic
 	var roster := Array(_snapshot.get("roster", [])).duplicate(true)
 	var source_roster_index := _roster_index_for_drop_source(roster, source_type, source_index, command)
 	var source_offer_id := ""
+	var source_offer_price := 0
 	if source_roster_index < 0 and source_type == "shop":
 		var offer := _shop_offer_for_drop_source(source_index, command)
 		if not offer.is_empty():
 			source_offer_id = String(offer.get("id", command.get("offer_id", "")))
+			source_offer_price = maxi(0, int(offer.get("price", 0)))
+			if int(_snapshot.get("coins", 0)) < source_offer_price:
+				return _noop_result(command_type, "Mock 金币不足，未购买该精灵")
 			offer["active"] = false
 			offer["slot"] = 0
 			offer["bag_slot"] = _first_free_bag_slot(roster)
@@ -438,6 +549,7 @@ func _apply_local_drop_command(command: Dictionary, command_type: String) -> Dic
 		roster[occupant_index] = occupant
 	if source_offer_id != "":
 		_remove_shop_offer(source_offer_id)
+		_snapshot["coins"] = maxi(0, int(_snapshot.get("coins", 0)) - source_offer_price)
 	_commit_local_roster(roster)
 	return {
 		"type": command_type,
@@ -445,6 +557,25 @@ func _apply_local_drop_command(command: Dictionary, command_type: String) -> Dic
 		"mock_local_projection": true,
 		"message": "Mock 已本地更新队伍和背包位置",
 	}
+
+
+func _apply_local_buy_command(command: Dictionary) -> Dictionary:
+	var offer_id := String(command.get("offer_id", command.get("offerId", ""))).strip_edges()
+	var offers := Array(_snapshot.get("shop_offers", []))
+	var source_index := -1
+	for index in range(offers.size()):
+		if String(Dictionary(offers[index]).get("id", "")) == offer_id:
+			source_index = index
+			break
+	if source_index < 0:
+		return _noop_result("BUY_OFFER", "Mock 没找到该商店商品，未执行购买")
+	return _apply_local_drop_command({
+		"source_type": "shop",
+		"source_index": source_index,
+		"offer_id": offer_id,
+		"target_type": "bag",
+		"target_index": -1,
+	}, "BUY_OFFER")
 
 
 func _commit_local_roster(roster: Array) -> void:
@@ -543,11 +674,12 @@ func _shop_offer_for_drop_source(source_index: int, command: Dictionary) -> Dict
 func _remove_shop_offer(offer_id: String) -> void:
 	if offer_id == "":
 		return
-	var offers := []
-	for value in Array(_snapshot.get("shop_offers", [])):
-		var offer := Dictionary(value)
-		if String(offer.get("id", "")) != offer_id:
-			offers.append(offer)
+	var offers := Array(_snapshot.get("shop_offers", [])).duplicate(true)
+	for index in range(offers.size()):
+		if String(Dictionary(offers[index]).get("id", "")) != offer_id:
+			continue
+		offers[index] = {}
+		break
 	_snapshot["shop_offers"] = offers
 
 

@@ -198,14 +198,18 @@ func _run() -> void:
 	assert(not three_choice_source.contains("game_controller.gd"))
 	assert(not three_choice_source.contains("three_choice_surface.gd"))
 	assert(not three_choice_source.contains("artist_flow_controller.gd"))
-	assert(three_choice_source.contains("[node name=\"ItemSlotHoverHighlight\" type=\"TextureRect\" parent=\".\""))
+	assert(three_choice_source.contains("res://art/prefabs/route/route_shared_ui.tscn"))
+	assert(three_choice_source.contains("[node name=\"RouteSharedUi\" parent=\".\" instance=ExtResource"))
+	assert(not three_choice_source.contains("[node name=\"Middle_Shop\""))
 	assert(not three_choice_source.contains("[node name=\"DragPreview\""))
 	assert(not three_choice_source.contains("[node name=\"AnimationPlayer\""))
 	assert(not three_choice_source.contains("[node name=\"Shop_Slot\""))
 	assert(not three_choice_source.contains("[node name=\"Bag_Slot\""))
-	assert(three_choice_source.contains("[node name=\"Party_Slot\" type=\"TextureButton\" parent=\"MainBG/Containers/Party/Party_Container\""))
+	var shared_ui_source := FileAccess.get_file_as_string("res://art/prefabs/route/route_shared_ui.tscn")
+	assert(shared_ui_source.contains("[node name=\"ItemSlotHoverHighlight\" type=\"TextureRect\" parent=\".\""))
+	assert(shared_ui_source.contains("[node name=\"Party_Slot\" type=\"TextureButton\" parent=\"Party/Party_Container\""))
 	for index in range(2, 5):
-		assert(three_choice_source.contains("[node name=\"Party_Slot%d\" type=\"TextureButton\" parent=\"MainBG/Containers/Party/Party_Container\"" % index))
+		assert(shared_ui_source.contains("[node name=\"Party_Slot%d\" type=\"TextureButton\" parent=\"Party/Party_Container\"" % index))
 	assert(not three_choice_source.contains("res://art/prefabs/pet/pet.tscn"))
 	assert(three_choice_source.count("instance=ExtResource(\"5_card\")") == 3)
 	var asset_registry_source := FileAccess.get_file_as_string("res://core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd")
@@ -352,18 +356,25 @@ func _run() -> void:
 	assert(route_three_choice_view.get_node_or_null("DragPreview") == null)
 	var route_card_grid := route_three_choice_view.get_node("MainBG/Containers/Middle/Middle_Three_Option/CardGrid")
 	assert(route_card_grid.get_child_count() == 3)
-	var shop_slot_grid := route_three_choice_view.get_node("MainBG/Containers/Middle/Middle_Shop/Slots")
-	var bag_slot_grid := route_three_choice_view.get_node("MainBG/Containers/Middle/Middle_Bag/Slots")
-	var party_slot_grid := route_three_choice_view.get_node("MainBG/Containers/Party/Party_Container")
-	assert(shop_slot_grid.get_child_count() == 8)
+	var bag_slot_grid := route_three_choice_view.get_node("RouteSharedUi/Middle_Bag/Slots")
+	var party_slot_grid := route_three_choice_view.get_node("RouteSharedUi/Party/Party_Container")
 	assert(bag_slot_grid.get_child_count() == 8)
 	assert(party_slot_grid.get_child_count() == 4)
-	assert(shop_slot_grid.get_child(0) is TextureButton)
 	assert(bag_slot_grid.get_child(0) is TextureButton)
 	assert(party_slot_grid.get_child(0) is TextureButton)
-	assert(shop_slot_grid.get_child(0).get_child_count() == 0)
 	assert(bag_slot_grid.get_child(0).get_child_count() == 0)
 	assert(party_slot_grid.get_child(0).get_child_count() == 0)
+	var shop_scene := load("res://art/scenes/shop/shop_scene.tscn") as PackedScene
+	assert(shop_scene != null)
+	var shop_instance := shop_scene.instantiate()
+	root.add_child(shop_instance)
+	await process_frame
+	assert(shop_instance.get_node("Offers").get_child_count() == 5)
+	for offer_button in shop_instance.get_node("Offers").get_children():
+		assert(offer_button is Button)
+		assert(offer_button.get_child_count() == 0)
+	shop_instance.queue_free()
+	await process_frame
 	var drag_controller := route_three_choice_view.get("_drag_controller") as RefCounted
 	assert(drag_controller != null)
 	assert(bool(drag_controller.call("begin_storage", &"party", 0, true, true)))
@@ -396,12 +407,10 @@ func _run() -> void:
 	assert(StringName(routing_main_instance.call("get_active_feature_id")) == &"battle")
 	assert(routing_main_instance.call("get_active_feature_view") != null)
 	routing_view.command_requested.emit({"type": "TEST_LEAVE_BATTLE"}, 7002)
-	for _frame in range(4):
+	for _frame in range(8):
 		await process_frame
-	assert(routing_main_instance.call("get_active_feature_view") != null)
-	routing_view.call("render_snapshot", routing_session.current_snapshot(), false)
-	await process_frame
 	assert(routing_main_instance.call("get_active_feature_view") == null)
+	assert(routing_view.visible)
 	routing_main_instance.queue_free()
 	await process_frame
 
@@ -1175,28 +1184,16 @@ func _stat_edge_x_at_y(edge_start: Vector2, edge_end: Vector2, y: float) -> floa
 func _assert_three_choice_scene_hierarchy(scene_source: String) -> void:
 	assert(scene_source.contains("[node name=\"Middle\" type=\"Control\" parent=\"MainBG/Containers\""))
 	assert(_node_parent(scene_source, "Middle_Three_Option") == "MainBG/Containers/Middle")
-	assert(_node_parent(scene_source, "BagOverlayMask") == "MainBG/Containers/Middle")
-	assert(_node_parent(scene_source, "Middle_Shop") == "MainBG/Containers/Middle")
-	assert(_node_parent(scene_source, "Middle_Bag") == "MainBG/Containers/Middle")
-	assert(_node_parent(scene_source, "Bags") == "MainBG/Containers")
 
 	var middle_children := _direct_scene_children(scene_source, "MainBG/Containers/Middle")
-	assert(middle_children.size() == 4)
+	assert(middle_children.size() == 1)
 	assert(middle_children[0] == "Middle_Three_Option")
-	assert(middle_children[1] == "BagOverlayMask")
-	assert(middle_children[2] == "Middle_Shop")
-	assert(middle_children[3] == "Middle_Bag")
-
-	var bag_children := _direct_scene_children(scene_source, "MainBG/Containers/Bags")
-	assert(bag_children.size() == 2)
-	assert(bag_children[0] == "Bag_Button")
-	assert(bag_children[1] == "BagStorageState")
-	assert(scene_source.contains("[node name=\"Top_Sell\" type=\"TextureButton\" parent=\"MainBG/Containers/Top\""))
+	assert(scene_source.contains("[node name=\"RouteSharedUi\" parent=\".\" instance=ExtResource"))
 	assert(not scene_source.contains("[node name=\"SellHighlight\""))
 
 
 func _assert_three_choice_runtime_slot_policy(script_source: String) -> void:
-	assert(script_source.contains("_build_slot_buttons(shop_slots, \"Shop_Slot\", SHOP_SLOT_COUNT, SHOP_SLOT_SIZE, SLOT_LAYOUT_SHOP)"))
+	assert(not script_source.contains("_build_slot_buttons(shop_slots"))
 	assert(script_source.contains("_build_slot_buttons(bag_slots, \"Bag_Slot\", BAG_SLOT_COUNT, BAG_SLOT_SIZE, SLOT_LAYOUT_COLLECTION)"))
 	assert(script_source.contains("_configure_authored_slot_buttons(party_container, \"Party_Slot\", PARTY_SLOT_COUNT, PARTY_SLOT_SIZE, SLOT_LAYOUT_PARTY)"))
 	assert(script_source.contains("var button := TextureButton.new()"))

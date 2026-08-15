@@ -27,7 +27,7 @@ func _run() -> void:
 		for _frame in range(4):
 			await process_frame
 
-	var bag_button := main_instance.get_node_or_null("ThreeChoiceScene/MainBG/Containers/Bags/Bag_Button") as TextureButton
+	var bag_button := main_instance.get_node_or_null("ThreeChoiceScene/RouteSharedUi/Bags/Bag_Button") as TextureButton
 	if bag_button != null:
 		bag_button.pressed.emit()
 		for _frame in range(20):
@@ -35,7 +35,7 @@ func _run() -> void:
 		_save_capture("/private/tmp/lubi_three_choice_bag.png")
 
 	var party_button := main_instance.get_node_or_null(
-		"ThreeChoiceScene/MainBG/Containers/Party/Party_Container/Party_Slot"
+		"ThreeChoiceScene/RouteSharedUi/Party/Party_Container/Party_Slot"
 	) as TextureButton
 	if party_button != null:
 		if bag_button != null:
@@ -54,7 +54,7 @@ func _run() -> void:
 	var first_button := main_instance.get_node_or_null(
 		"ThreeChoiceScene/MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot/Three_Button"
 	) as TextureButton
-	var exit_button := main_instance.get_node_or_null("ThreeChoiceScene/MainBG/Containers/ExitButton") as TextureButton
+	var exit_button := main_instance.get_node_or_null("ThreeChoiceScene/RouteSharedUi/ExitButton") as TextureButton
 	if first_button != null and exit_button != null:
 		first_button.pressed.emit()
 		exit_button.mouse_entered.emit()

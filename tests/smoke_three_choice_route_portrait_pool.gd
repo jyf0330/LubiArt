@@ -54,13 +54,13 @@ func _run() -> void:
 		var button := card.get_node("Three_Button") as TextureButton
 		_expect(portrait.texture != null, "standalone ThreeChoice Scene keeps an authored portrait preview")
 		_expect(not button.disabled, "standalone route preview accepts real hover input")
-	var party_button := view.get_node("MainBG/Containers/Party/Party_Container/Party_Slot") as TextureButton
+	var party_button := view.get_node("RouteSharedUi/Party/Party_Container/Party_Slot") as TextureButton
 	_expect(party_button.get_meta("pet_texture", null) is Texture2D, "standalone ThreeChoice Scene shows an authored party sprite preview")
-	var exit_button := view.get_node("MainBG/Containers/ExitButton") as TextureButton
+	var exit_button := view.get_node("RouteSharedUi/ExitButton") as TextureButton
 	var temple := view.get_node("MainBG/Temple") as TextureRect
-	var top := view.get_node("MainBG/Containers/Top") as Control
+	var top := view.get_node("RouteSharedUi/Top") as Control
 	_expect(exit_button.z_index > temple.z_index and exit_button.z_index < top.z_index, "exit door renders above the temple and below the coin HUD")
-	var bag_slots := view.get_node("MainBG/Containers/Middle/Middle_Bag/Slots") as GridContainer
+	var bag_slots := view.get_node("RouteSharedUi/Middle_Bag/Slots") as GridContainer
 	_expect(bag_slots.get_theme_constant("h_separation") == 31, "bag hover columns match the measured painted-frame spacing")
 	_expect(bag_slots.get_theme_constant("v_separation") == 32, "bag hover rows match the measured painted-frame spacing")
 	view.queue_free()
