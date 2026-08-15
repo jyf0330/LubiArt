@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MockGameSessionScript := preload("res://session/mock_game_session.gd")
+const SharedUiScene := preload("res://art/prefabs/route/route_shared_ui.tscn")
 
 const SYNC_MANIFEST_PATH := "res://art/manifests/shop/formal_sync_manifest.json"
 const PREVIEW_PATH := "res://data/formal_shop_art_preview.json"
@@ -71,6 +72,23 @@ func _run() -> void:
 	_expect(merchant_path.begins_with("res://art/images/formal_sync/shop/merchants/"), "basic shop uses synchronized formal merchant")
 	_expect(ResourceLoader.exists(merchant_path, "Texture2D"), "synchronized merchant imports as Texture2D")
 
+	var shared_ui := SharedUiScene.instantiate()
+	root.add_child(shared_ui)
+	var party_buttons := Array(shared_ui.call("party_buttons"))
+	var wide_texture := ResourceLoader.load(String(pet_map.get("pal_002", "")), "Texture2D") as Texture2D
+	var square_texture := ResourceLoader.load(String(pet_map.get("pal_009", "")), "Texture2D") as Texture2D
+	shared_ui.call("set_party_texture", party_buttons[0], wide_texture)
+	shared_ui.call("set_party_texture", party_buttons[1], square_texture)
+	await process_frame
+	var wide_portrait := (party_buttons[0] as TextureButton).get_node_or_null("PartyPortrait") as TextureRect
+	var square_portrait := (party_buttons[1] as TextureButton).get_node_or_null("PartyPortrait") as TextureRect
+	_expect(wide_portrait != null and wide_portrait.texture == wide_texture, "wide synchronized party art uses a direct texture child")
+	_expect(square_portrait != null and square_portrait.texture == square_texture, "square synchronized party art uses a direct texture child")
+	_expect(wide_portrait != null and wide_portrait.position == Vector2(5.0, 12.0) and wide_portrait.size == Vector2(154.0, 124.0), "wide party art preserves its authored aspect projection")
+	_expect(square_portrait != null and square_portrait.position == Vector2(19.0, 11.0) and square_portrait.size == Vector2(126.0, 126.0), "square party art preserves its authored aspect projection")
+	var wide_material := (party_buttons[0] as TextureButton).material as ShaderMaterial
+	_expect(wide_material != null and not bool(wide_material.get_shader_parameter("source_enabled")), "party shader remains shadow-only after direct texture projection")
+
 	var session := MockGameSessionScript.new({"start_phase": "route"})
 	var route := Dictionary(session.current_snapshot())
 	_expect(String(route.get("phase", "")) == "route", "Mock starts from synchronized formal route")
@@ -95,7 +113,7 @@ func _run() -> void:
 	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("exit_snapshot", {})), projection_keys), "exit replays the exact formal public presentation projection")
 
 	if _ok:
-		print("SMOKE_FORMAL_SHOP_ART_SYNC_OK offers=3 empty_slots=2 visible_image_closure=true pets=%d merchant=1 return_png=12 code_inbound=0" % pet_reference_count)
+		print("SMOKE_FORMAL_SHOP_ART_SYNC_OK offers=3 empty_slots=2 visible_image_closure=true pets=%d merchant=1 return_png=12 direct_party_texture=true code_inbound=0" % pet_reference_count)
 		quit(0)
 	else:
 		quit(1)

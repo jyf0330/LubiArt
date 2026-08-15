@@ -7,6 +7,8 @@ const BAG_SLOT_COUNT := 8
 const BAG_SLOT_SIZE := Vector2(154.0, 146.0)
 const BAG_SLOT_DISPLAY_SIZE := Vector2(121.0, 116.0)
 const BAG_SLOT_DISPLAY_OFFSET := Vector2(24.0, 13.0)
+const PARTY_SLOT_DISPLAY_LIMIT := Vector2(155.0, 126.0)
+const PARTY_SLOT_DISPLAY_CENTER := Vector2(82.0, 74.0)
 const BAG_CLOSED_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_closed.png")
 const BAG_OPEN_TEXTURE := preload("res://art/images/route/three_choice_psd/bag_open_full.png")
 
@@ -128,16 +130,49 @@ func set_party_texture(button: TextureButton, texture: Texture2D) -> void:
 		return
 	button.set_meta("pet_texture", texture)
 	button.self_modulate.a = 1.0
+	var portrait := _ensure_party_portrait(button)
+	var display_rect := _party_texture_rect(texture)
+	portrait.position = display_rect.position
+	portrait.size = display_rect.size
+	portrait.texture = texture
+	portrait.visible = texture != null
 	var shader_material := button.material as ShaderMaterial
 	if shader_material == null:
-		button.texture_normal = texture
 		return
-	shader_material.set_shader_parameter("source_enabled", texture != null)
+	shader_material.set_shader_parameter("source_enabled", false)
 	shader_material.set_shader_parameter("shadow_enabled", texture != null)
-	shader_material.set_shader_parameter("source_texture", texture)
-	shader_material.set_shader_parameter("source_size", texture.get_size() if texture != null else Vector2.ONE)
 	shader_material.set_shader_parameter("shadow_highlight", 0.0)
 	button.visible = true
+
+
+func _ensure_party_portrait(button: TextureButton) -> TextureRect:
+	var portrait := button.get_node_or_null("PartyPortrait") as TextureRect
+	if portrait != null:
+		return portrait
+	portrait = TextureRect.new()
+	portrait.name = "PartyPortrait"
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_SCALE
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(portrait)
+	return portrait
+
+
+func _party_texture_rect(texture: Texture2D) -> Rect2:
+	var display_size := PARTY_SLOT_DISPLAY_LIMIT
+	if texture != null:
+		var source_size := texture.get_size()
+		if source_size.x > 0.0 and source_size.y > 0.0:
+			var scale := minf(
+				PARTY_SLOT_DISPLAY_LIMIT.x / source_size.x,
+				PARTY_SLOT_DISPLAY_LIMIT.y / source_size.y
+			)
+			display_size = Vector2(
+				floorf(source_size.x * scale * 0.5) * 2.0,
+				floorf(source_size.y * scale * 0.5) * 2.0
+			)
+	return Rect2(PARTY_SLOT_DISPLAY_CENTER - display_size * 0.5, display_size)
 
 
 func set_bag_texture(button: TextureButton, texture: Texture2D) -> void:
