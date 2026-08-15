@@ -191,6 +191,8 @@ func _capture(name: String, operation: String, shop: Control) -> void:
 		"coins": int(snapshot.get("coins", 0)),
 		"offer_count": Array(snapshot.get("shop_offers", [])).size(),
 		"roster_count": Array(snapshot.get("roster", [])).size(),
+		"state_version": int(snapshot.get("stateVersion", snapshot.get("state_version", -1))),
+		"state_hash": String(snapshot.get("stateHash", snapshot.get("state_hash", ""))),
 	})
 
 
