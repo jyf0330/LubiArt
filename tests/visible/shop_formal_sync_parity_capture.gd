@@ -53,6 +53,7 @@ func _run() -> void:
 	await _settle(24)
 	await _move_mouse(NEUTRAL_MOUSE_POSITION)
 	await _settle(2)
+	await _release_focus()
 	var offers := shop.get_node("Offers") as Control
 	_expect(_visible_offer_count(offers) == 3, "three synchronized formal offers are visible")
 	_expect(_empty_offer_count(offers) == 2, "two authored shelf slots remain intentionally empty")
@@ -61,6 +62,7 @@ func _run() -> void:
 	var first_offer := offers.get_node("Offer01") as Button
 	await _move_mouse(first_offer.get_global_rect().get_center())
 	await _settle(8)
+	await _release_focus()
 	await _capture("02_offer_hover", "悬停第一件商品", shop)
 
 	var refresh := shop.get_node("RefreshButton") as TextureButton
@@ -68,10 +70,12 @@ func _run() -> void:
 	await create_timer(0.18).timeout
 	var curtain := shop.get_node("RefreshCurtain") as TextureRect
 	_expect(curtain.visible, "refresh curtain is visible during the operation")
+	await _release_focus()
 	await _capture("03_refresh_curtain", "点击刷新后的红帘过程", shop)
 	await create_timer(0.55).timeout
 	_expect(not curtain.visible and not refresh.disabled, "refresh completes and unlocks input")
 	_expect(_visible_offer_count(offers) == 3, "refresh keeps the formal three-offer shape")
+	await _release_focus()
 	await _capture("04_refresh_complete", "刷新动画完成", shop)
 
 	first_offer = offers.get_node("Offer01") as Button
@@ -82,6 +86,9 @@ func _run() -> void:
 	var purchased_snapshot := Dictionary(shop.call("preview_snapshot"))
 	_expect(purchase_id != "" and _offer_is_sold(purchased_snapshot, purchase_id), "real click marks the captured first offer sold")
 	_expect(int(purchased_snapshot.get("coins", 0)) < coins_before_purchase, "real purchase deducts formal coins")
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _settle(2)
+	await _release_focus()
 	await _capture("05_purchase_complete", "购买第一件商品完成", shop)
 
 	var exit_button := shop.get_node("RouteSharedUi/ExitButton") as TextureButton
@@ -175,6 +182,13 @@ func _settle(count: int) -> void:
 		await process_frame
 
 
+func _release_focus() -> void:
+	var focused := root.gui_get_focus_owner()
+	if focused != null:
+		focused.release_focus()
+	await process_frame
+
+
 func _capture(name: String, operation: String, shop: Control) -> void:
 	await RenderingServer.frame_post_draw
 	var path := _output_dir.path_join(name + ".png")
@@ -183,6 +197,7 @@ func _capture(name: String, operation: String, shop: Control) -> void:
 	if image != null and not image.is_empty():
 		_expect(image.save_png(path) == OK, "capture writes %s" % path)
 	var snapshot := _current_snapshot(shop)
+	var mouse_position := root.get_mouse_position()
 	_captures.append({
 		"name": name,
 		"operation": operation,
@@ -193,7 +208,38 @@ func _capture(name: String, operation: String, shop: Control) -> void:
 		"roster_count": Array(snapshot.get("roster", [])).size(),
 		"state_version": int(snapshot.get("stateVersion", snapshot.get("state_version", -1))),
 		"state_hash": String(snapshot.get("stateHash", snapshot.get("state_hash", ""))),
+		"interaction": {
+			"pointer_position": [roundi(mouse_position.x), roundi(mouse_position.y)],
+			"hovered": _interaction_identity(root.gui_get_hovered_control()),
+			"focused": _interaction_identity(root.gui_get_focus_owner()),
+		},
 	})
+
+
+func _interaction_identity(control: Control) -> Dictionary:
+	var target := control
+	while target != null and not (target is BaseButton):
+		target = target.get_parent() as Control
+	if target == null:
+		return {"action": "none", "offer_id": "", "control": ""}
+	var command := Dictionary(target.get_meta("command", {}))
+	var offer := Dictionary(target.get_meta("offer", {}))
+	var action := String(command.get("type", ""))
+	var offer_id := String(command.get("offer_id", offer.get("id", "")))
+	if action == "":
+		action = _action_from_control_name(target.name)
+	return {"action": action, "offer_id": offer_id, "control": String(target.name)}
+
+
+func _action_from_control_name(control_name: StringName) -> String:
+	var value := String(control_name).to_lower()
+	if "offer" in value:
+		return "BUY_OFFER"
+	if "refresh" in value or "roll" in value:
+		return "ROLL_SHOP"
+	if "exit" in value:
+		return "EXIT_SHOP"
+	return "CONTROL"
 
 
 func _current_snapshot(shop: Control) -> Dictionary:
