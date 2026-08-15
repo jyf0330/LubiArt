@@ -11,6 +11,8 @@ func _run() -> void:
 	var detail := PET_DETAIL_SCENE.instantiate() as Control
 	root.add_child(detail)
 	await process_frame
+	assert(bool(detail.get("context_follow_pointer")))
+	assert((detail.get_node("Panel") as Control).scale.is_equal_approx(Vector2.ONE))
 	assert(detail.get_node_or_null("DebugPanel") == null)
 	assert(detail.get_node_or_null("DebugToggleButton") == null)
 	assert(not detail.has_method("set_debug_enabled"))

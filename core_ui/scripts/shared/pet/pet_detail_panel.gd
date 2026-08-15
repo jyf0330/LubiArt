@@ -9,6 +9,9 @@ const RIGHT_MARGIN := 0.0
 const TOP_MARGIN := 80.0
 const VIEWPORT_MARGIN := 16.0
 
+@export_group("Context Detail Layout")
+@export var context_follow_pointer := true
+
 @onready var dim: ColorRect = $Dim
 @onready var panel: Control = $Panel
 @onready var info_card: Control = $Panel/SpriteInfoCard
@@ -19,11 +22,16 @@ var _detail_snapshot := {}
 var _confirm_command := {}
 var _is_context_detail := false
 var _mouse_filters_by_id := {}
+var _authored_context_panel_position := Vector2.ZERO
+var _authored_context_panel_scale := Vector2.ONE
 
 
 func _ready() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if panel != null:
+		_authored_context_panel_position = panel.position
+		_authored_context_panel_scale = panel.scale
 	if close_button != null:
 		close_button.pressed.connect(close)
 	if confirm_button != null:
@@ -94,6 +102,12 @@ func _apply_modal_layout() -> void:
 
 
 func _apply_context_layout() -> void:
+	if panel == null:
+		return
+	if not context_follow_pointer:
+		panel.position = _authored_context_panel_position
+		panel.scale = _authored_context_panel_scale
+		return
 	_apply_right_layout(CONTEXT_PANEL_SCALE)
 
 

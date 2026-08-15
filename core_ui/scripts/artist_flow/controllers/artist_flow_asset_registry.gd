@@ -16,10 +16,24 @@ const ROUTE_ICON_BY_KIND := {
 	"battle": "res://art/images/route/three_choice_psd/route_icon_event.png",
 	"rest": "res://art/images/route/three_choice_psd/route_icon_event.png",
 }
-const ROUTE_SLOT_IMAGE_PATHS := [
-	"res://art/images/route/three_choice_psd/route_portrait_shop.png",
-	"res://art/images/route/three_choice_psd/route_portrait_event.png",
-	"res://art/images/route/three_choice_psd/route_portrait_reward.png",
+const ROUTE_SLOT_IMAGE_POOLS := [
+	[
+		"res://art/images/route/three_choice_psd/route_portrait_shop.png",
+		"res://art/images/route/three_choice_psd/route_portrait_shop_bai_xiaochang.png",
+		"res://art/images/route/three_choice_psd/route_portrait_shop_variant_3.png",
+		"res://art/images/route/three_choice_psd/route_portrait_shop_variant_5.png",
+	],
+	[
+		"res://art/images/route/three_choice_psd/route_portrait_event.png",
+		"res://art/images/route/three_choice_psd/route_portrait_event_herb_merchant.png",
+		"res://art/images/route/three_choice_psd/route_portrait_event_fish_merchant.png",
+		"res://art/images/route/three_choice_psd/route_portrait_event_ox_merchant.png",
+	],
+	[
+		"res://art/images/route/three_choice_psd/route_portrait_reward.png",
+		"res://art/images/route/three_choice_psd/route_portrait_reward_short_samurai.png",
+		"res://art/images/route/three_choice_psd/route_portrait_reward_variant_4.png",
+	],
 ]
 const ROUTE_SLOT_ICON_PATHS := [
 	"res://art/images/route/three_choice_psd/route_icon_shop.png",
@@ -27,9 +41,9 @@ const ROUTE_SLOT_ICON_PATHS := [
 	"res://art/images/route/three_choice_psd/route_icon_reward.png",
 ]
 const ROUTE_SLOT_HIGHLIGHT_PATHS := [
-	"res://art/images/route/three_choice_psd/route_highlight_1.png",
-	"res://art/images/route/three_choice_psd/route_highlight_2.png",
-	"res://art/images/route/three_choice_psd/route_highlight_3.png",
+	"res://art/images/route/three_choice_psd/route_highlight_shop.png",
+	"res://art/images/route/three_choice_psd/route_highlight_event.png",
+	"res://art/images/route/three_choice_psd/route_highlight_reward.png",
 ]
 const PET_IMAGE_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
 const PET_SHEET_SLICE_DIR := "res://art/images/shared/pets/sheets/slices"
@@ -42,9 +56,13 @@ var _missing_images := {}
 var _pet_asset_resolver: RefCounted = null
 var _shop_character_by_id := {}
 var _reward_node_by_id := {}
+var _route_portrait_path_by_key := {}
+var _route_rng := RandomNumberGenerator.new()
 
 
 func reload() -> void:
+	_route_rng.randomize()
+	_route_portrait_path_by_key.clear()
 	_pet_asset_resolver = PetAssetResolverScript.new()
 	_pet_asset_resolver.call("configure", PET_SHEET_SLICE_DIR, PET_EXPLICIT_IMAGE_DIR)
 	_pet_asset_resolver.call("load_map", PET_IMAGE_MAP_PATH)
@@ -71,9 +89,23 @@ func route_texture(option: Dictionary, kind: String) -> Texture2D:
 	return load(path) as Texture2D
 
 
-func route_slot_texture(index: int) -> Texture2D:
-	var safe_index := clampi(index, 0, ROUTE_SLOT_IMAGE_PATHS.size() - 1)
-	return load(String(ROUTE_SLOT_IMAGE_PATHS[safe_index])) as Texture2D
+func route_slot_texture(index: int, option: Dictionary = {}) -> Texture2D:
+	var safe_index := clampi(index, 0, ROUTE_SLOT_IMAGE_POOLS.size() - 1)
+	var pool := Array(ROUTE_SLOT_IMAGE_POOLS[safe_index])
+	if pool.is_empty():
+		return null
+	var cache_key := "%d:%s" % [safe_index, _route_option_identity(option)]
+	if not _route_portrait_path_by_key.has(cache_key):
+		_route_portrait_path_by_key[cache_key] = String(pool[_route_rng.randi_range(0, pool.size() - 1)])
+	return load(String(_route_portrait_path_by_key[cache_key])) as Texture2D
+
+
+func _route_option_identity(option: Dictionary) -> String:
+	for key in ["route_id", "routeId", "node_id", "nodeId", "option_id", "optionId", "id", "kind", "type"]:
+		var value := String(option.get(key, "")).strip_edges()
+		if value != "":
+			return value
+	return "default"
 
 
 func route_icon_texture(kind: String) -> Texture2D:

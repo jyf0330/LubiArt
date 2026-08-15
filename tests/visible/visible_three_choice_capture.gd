@@ -23,6 +23,9 @@ func _run() -> void:
 		for _frame in range(4):
 			await process_frame
 		_save_capture("/private/tmp/lubi_three_choice_hover.png")
+		second_button.mouse_exited.emit()
+		for _frame in range(4):
+			await process_frame
 
 	var bag_button := main_instance.get_node_or_null("ThreeChoiceScene/MainBG/Containers/Bags/Bag_Button") as TextureButton
 	if bag_button != null:
@@ -47,6 +50,17 @@ func _run() -> void:
 		for _frame in range(4):
 			await process_frame
 		_save_capture("/private/tmp/lubi_three_choice_pet_exit.png")
+
+	var first_button := main_instance.get_node_or_null(
+		"ThreeChoiceScene/MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot/Three_Button"
+	) as TextureButton
+	var exit_button := main_instance.get_node_or_null("ThreeChoiceScene/MainBG/Containers/ExitButton") as TextureButton
+	if first_button != null and exit_button != null:
+		first_button.pressed.emit()
+		exit_button.mouse_entered.emit()
+		for _frame in range(8):
+			await process_frame
+		_save_capture("/private/tmp/lubi_three_choice_exit_hover.png")
 
 	print("VISIBLE_THREE_CHOICE_CAPTURE_PASS /private/tmp/lubi_three_choice_current.png")
 	quit()
