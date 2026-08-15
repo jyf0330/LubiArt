@@ -8,6 +8,10 @@
     "shopPoolId",
     "shop_pool_id"
   ],
-  "variants": {},
-  "status": "pending_confirmed_same_style_merchant_variants"
+  "variants": {
+    "node_shop_basic": "res://art/images/formal_sync/shop/merchants/shop_character_001.png",
+    "night_base": "res://art/images/formal_sync/shop/merchants/shop_character_001.png",
+    "夜市商人": "res://art/images/formal_sync/shop/merchants/shop_character_001.png"
+  },
+  "status": "formal_reference_sync_active"
 }

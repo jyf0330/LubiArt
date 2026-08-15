@@ -38,6 +38,8 @@ var _legacy_element_layers_projection: Dictionary = {}
 var _start_phase := START_PHASE_ROUTE
 var _shop_offer_pool: Array = []
 var _shop_roll_offset := 0
+var _shop_art_capture: Dictionary = {}
+var _shop_capture_purchase_available := false
 
 
 func _init(options: Dictionary = {}) -> void:
@@ -163,6 +165,8 @@ func reset(emit_change: bool = true) -> void:
 		_steps = []
 		return
 	_capture_source = Dictionary(capture.get("source", {})).duplicate(true)
+	_shop_art_capture = Dictionary(capture.get("shop_art_capture", {})).duplicate(true)
+	_shop_capture_purchase_available = not _shop_art_capture.is_empty()
 	_presentation_bootstrap_snapshot = Dictionary(
 		capture.get("presentation_bootstrap_snapshot", {})
 	).duplicate(true)
@@ -253,7 +257,12 @@ func _project_shop_entry(command: Dictionary) -> Dictionary:
 			"SHOP_ROUTE_NOT_EXPORTED",
 			"公开 Snapshot 中没有对应的商店路线项"
 		)
-	_advance_artist_flow_projection("shop")
+	var captured_shop := _shop_capture_snapshot("shop_snapshot")
+	if not captured_shop.is_empty() and _shop_capture_matches_option(command):
+		_snapshot = captured_shop
+		stall = Dictionary(_snapshot.get("active_stall", stall)).duplicate(true)
+	else:
+		_advance_artist_flow_projection("shop")
 	return _accepted_projection(command, "CHOOSE_ROUTE", {
 		"type": "CHOOSE_ROUTE",
 		"ok": true,
@@ -291,6 +300,14 @@ func _apply_shop_phase_from_route(command: Dictionary) -> Dictionary:
 
 
 func _project_shop_exit(command: Dictionary) -> Dictionary:
+	var captured_exit := _shop_capture_snapshot("exit_snapshot")
+	if not captured_exit.is_empty():
+		_snapshot = captured_exit
+		return _accepted_projection(command, "EXIT_SHOP", {
+			"type": "EXIT_SHOP",
+			"ok": true,
+			"formal_shop_capture_replay": true,
+		})
 	_snapshot["phase"] = START_PHASE_ROUTE
 	_snapshot["active_stall"] = {}
 	_advance_artist_flow_projection("route")
@@ -302,6 +319,19 @@ func _project_shop_exit(command: Dictionary) -> Dictionary:
 
 
 func _project_shop_roll() -> Dictionary:
+	var captured_refresh := _shop_capture_snapshot("refreshed_snapshot")
+	if not captured_refresh.is_empty():
+		_snapshot = captured_refresh
+		_shop_capture_purchase_available = true
+		return {
+			"type": "ROLL_SHOP",
+			"ok": true,
+			"formal_shop_capture_replay": true,
+			"offer_ids": Array(_snapshot.get("shop_offers", [])).map(
+				func(value): return String(Dictionary(value).get("id", ""))
+			),
+			"message": "Mock 已回放正式商店刷新后的公开 Snapshot",
+		}
 	if _shop_offer_pool.size() <= SHOP_OFFER_COUNT:
 		return _noop_result("ROLL_SHOP", "公开 Snapshot 没有足够的已映射商品用于补货")
 	_shop_roll_offset = (_shop_roll_offset + SHOP_OFFER_COUNT) % _shop_offer_pool.size()
@@ -563,6 +593,17 @@ func _apply_local_drop_command(command: Dictionary, command_type: String) -> Dic
 
 func _apply_local_buy_command(command: Dictionary) -> Dictionary:
 	var offer_id := String(command.get("offer_id", command.get("offerId", ""))).strip_edges()
+	if _shop_capture_purchase_available and _shop_capture_purchase_offer_id() == offer_id:
+		var captured_purchase := _shop_capture_snapshot("purchased_snapshot")
+		if not captured_purchase.is_empty():
+			_snapshot = captured_purchase
+			_shop_capture_purchase_available = false
+			return {
+				"type": "BUY_OFFER",
+				"ok": true,
+				"formal_shop_capture_replay": true,
+				"message": "Mock 已回放正式商店购买后的公开 Snapshot",
+			}
 	var offers := Array(_snapshot.get("shop_offers", []))
 	var source_index := -1
 	for index in range(offers.size()):
@@ -578,6 +619,27 @@ func _apply_local_buy_command(command: Dictionary) -> Dictionary:
 		"target_type": "bag",
 		"target_index": -1,
 	}, "BUY_OFFER")
+
+
+func _shop_capture_snapshot(key: String) -> Dictionary:
+	var value: Variant = _shop_art_capture.get(key, {})
+	return Dictionary(value).duplicate(true) if value is Dictionary else {}
+
+
+func _shop_capture_matches_option(command: Dictionary) -> bool:
+	var source := Dictionary(_shop_art_capture.get("source", {}))
+	var expected := String(source.get("selected_option_id", ""))
+	var requested := String(command.get("option_id", command.get("optionId", "")))
+	return expected != "" and expected == requested
+
+
+func _shop_capture_purchase_offer_id() -> String:
+	for value in Array(_shop_art_capture.get("operations", [])):
+		var operation := Dictionary(value)
+		if String(operation.get("name", "")) != "purchase_offer":
+			continue
+		return String(Dictionary(operation.get("command", {})).get("offer_id", ""))
+	return ""
 
 
 func _commit_local_roster(roster: Array) -> void:
