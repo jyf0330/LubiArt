@@ -40,8 +40,8 @@
 
 ## 目录职责
 
-- `art/scenes/`：保留应用装配 Scene `app/game.tscn`、与正式项目同步的两个正式 UI Scene：`three_choice/three_choice_scene.tscn` 与 `battle/battle_art_scene.tscn`，以及独立美术调试 Scene `sprite_info_card_debug/sprite_info_card_debug_scene.tscn`；项目从 `game.tscn` 启动。
-- `art/prefabs/`：保留四个公开 prefab：`pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn`、`terrain/terrain_detail.tscn`，以及宠物详情内部组件 `pet/sprite_info_card.tscn` 与独立战斗右侧信息栏组件 `pet/battle_pet_info_card.tscn`。
+- `art/scenes/`：保留应用装配 Scene `app/game.tscn`、与正式项目同步的三个正式 UI Scene：`three_choice/three_choice_scene.tscn`、`shop/shop_scene.tscn` 与 `battle/battle_art_scene.tscn`，以及独立美术调试 Scene `sprite_info_card_debug/sprite_info_card_debug_scene.tscn`；项目从 `game.tscn` 启动。
+- `art/prefabs/`：保留公开 prefab：`pet/pet.tscn`、`pet/pet_detail.tscn`、`terrain/terrain.tscn`、`terrain/terrain_detail.tscn` 与 `route/route_shared_ui.tscn`，以及宠物详情内部组件 `pet/sprite_info_card.tscn` 与独立战斗右侧信息栏组件 `pet/battle_pet_info_card.tscn`。
 - `art/images/`：只放图片与相邻的 Godot `.import` 文件。
 - `art/manifests/`：只放图片资源映射和 manifest JSON。
 - `core_ui/scripts/`：按 scope 分类的 Controller、Presenter、Adapter 和预制体表现脚本。
@@ -56,8 +56,8 @@
 
 ## 文件类型规则
 
-- 应用总装配 `.tscn` 放 `art/scenes/app/`；三选一和战斗两个正式 UI `.tscn` 放 `art/scenes/<scope>/`；独立美术调试 Scene 也放在独立 scope 下，不接入正式路由。
-- 宠物、宠物详情、地形、地形详情四个公开 `.tscn` 放 `art/prefabs/<scope>/`；允许把可独立编辑和调试的内部 UI 组件做成额外 prefab。
+- 应用总装配 `.tscn` 放 `art/scenes/app/`；三选一、商店和战斗三个正式 UI `.tscn` 放 `art/scenes/<scope>/`；独立美术调试 Scene 也放在独立 scope 下，不接入正式路由。
+- 宠物、宠物详情、地形、地形详情与共享路线 UI 等公开 `.tscn` 放 `art/prefabs/<scope>/`；允许把可独立编辑和调试的内部 UI 组件做成额外 prefab。
 - `.png`、`.jpg`、`.webp`、`.svg` 等图片放 `art/images/<scope>/`。
 - 图片映射和 manifest `.json` 放 `art/manifests/<scope>/`；Mock 回放数据仍放 `data/`。
 - UI `.gd` 与 `.gd.uid` 放 `core_ui/scripts/<scope>/`。
@@ -135,12 +135,13 @@
 - 正式美术 Scene 的二级职责节点本身可以是 `TextureRect`、`TextureButton`、`Sprite2D` 等图片节点并挂载分组脚本；该节点的图片可以按状态不显示、暂时隐藏或保持空纹理，图片当前是否可见不影响它作为职责根节点和脚本入口。
 - 二级职责图片节点没有纹理或当前不显示图片时，挂载脚本不得设置 `size`、`custom_minimum_size`、offset、位置或其他静态几何，也不得用代码给空图片制造占位尺寸；需要的基准几何必须明确保存在 `.tscn` 中，不承担显示、布局或输入职责的空图片不得仅为承载脚本而人为设置尺寸。
 - 每个正式美术 Scene 默认只保留 `1` 个页面级根展示脚本；确有第二个完整页面职责时上限为 `2`。Scene 可以实例化带根脚本的 prefab；prefab 内部脚本与上述完整职责分组脚本不拥有页面路由权，也不得持有 Session。
-- `app/game.tscn` 的 `game_controller.gd` 是唯一 Session、Command、持久化和 Feature Scene 生命周期拥有者；`ThreeChoiceScene` 与 `BattleArtScene` 的根展示脚本只接收 Snapshot、绑定已有节点、播放表现并发送操作请求，不得自己创建、持有或直接调用 GameSession。
+- `app/game.tscn` 的 `game_controller.gd` 是唯一 Session、Command、持久化和 Feature Scene 生命周期拥有者；`ThreeChoiceScene`、`ShopScene` 与 `BattleArtScene` 的根展示脚本只接收 Snapshot、绑定已有节点、播放表现并发送操作请求，不得自己创建、持有或直接调用 GameSession。
 - 普通图片、文本、容器、按钮和纯布局节点默认不挂脚本。只有子节点本身是可独立复用的 prefab，或者确实拥有独立状态、动画、输入处理或稳定公开接口时，才可作为例外挂脚本；普通点击信号由职责根节点的脚本统一连接和处理。
 - 脚本职责固定按 `页面根脚本 -> 职责组根脚本 -> prefab 根脚本 -> 普通图片/文本/按钮` 分层。前三层只在节点确实拥有独立状态、输入、动画、生命周期或稳定公开接口时挂脚本；最后一层默认不挂脚本，由最近的职责根统一配置、连接信号和播放表现。不得把同一职责拆散到多个普通子节点脚本，也不得让 prefab 根或职责组根取得页面路由、Session 或 Command 裁决权。
-- `ThreeChoiceScene` 是三选一界面唯一的页面级展示脚本，负责接收 Snapshot、切换路线/商店/背包展示状态、创建允许的数据驱动简单槽位、连接普通按钮并向 `game_controller.gd` 发送语义操作请求。美术人员直接运行该 Scene 且没有应用 Session 时，允许页面根仅用已接入静态纹理显示不可提交、非权威的美术预览；不得在该模式创建 Session、构造玩法数据或发送 Command，挂入 `game.tscn` 后必须完全由 Session Snapshot 覆盖。`Background`、`StageHost`、`PartyGrid`、`BagButton`、`ItemHoverHighlight`、`OverlayHost`、`ItemBar`、`ItemGrid` 和 `BagMask` 等显示、布局、容器或普通按钮节点不挂脚本；`BagButton` 的点击由页面根统一连接。
-- 三选背包展开时，现有 `MainBG/Containers/Middle/BagOverlayMask` 只压暗背景、建筑和路线等非背包操作内容，不得覆盖现有 `MainBG/Containers/Bags` 中的背包箱子与队伍底座、`MainBG/Containers/Party` 中的精灵立绘，以及 `MainBG/Containers/Top/Hud` 中的金币数量框、图标和数量；相关绘制层级必须直接 authored 在 `three_choice_scene.tscn`。背包开关只使用现有 `MainBG/Containers/Bags/Bag_Button`，同一节点在点击后把 normal、pressed、hover、focused 全部切换到当前开/关状态纹理，不得叠加第二个开箱或关箱节点。`bag_open_full.png` 必须只由开箱状态导出，不得合成关箱层；箱盖左后方与背景的间隙必须保持真透明，并同时用正式 PNG 透明通道断言和真实 Godot 开箱截图验收，不得只检查节点数量或纹理文件名。背包 `4×2` 槽位横纵间距固定为 `31px`、`32px`；现有 `ItemSlotHoverHighlight` 固定为 `183×177`、相对槽位 `(-10,-14)`，运行时只负责把槽位 Canvas 坐标转换回 Scene 本地坐标并应用该 authored 偏移，八个槽位都必须在真实窗口逐格验收并与底图实测金框中心保持不超过 `2px` 的误差。
-- 三选一路线卡只有 `RouteCard` prefab 根挂脚本，负责卡片数据、悬停、选中动画和点击信号；其 `Portrait`、`KindIcon`、`StateFx`、`IncenseFx` 等普通图片不挂脚本，即使使用 Tween 也由 `RouteCard` 根脚本控制已有子节点。`PetDetail`、`BazaarDetail` 等详情 prefab 因拥有独立展示接口和开关状态，脚本挂在各自 prefab 根，并由页面根按需实例化或展示。
+- `ThreeChoiceScene` 是三选一界面唯一的页面级展示脚本，负责接收路线 Snapshot、切换路线/背包展示状态、连接普通按钮并向 `game_controller.gd` 发送语义操作请求；它不再包含或渲染商店。`ShopScene` 是商店唯一的页面级展示脚本，负责五个现有商品按钮、动态价格、商人、刷新帘子和刷新铃，并发送 `BUY_OFFER`、`ROLL_SHOP`、`DROP_ITEM_ON_TARGET`、`EXIT_SHOP` 等语义请求。美术人员直接运行任一正式 Scene 且没有应用 Session 时，只允许页面根进入不创建 Session、不写持久状态的本地非权威美术预览；挂入 `game.tscn` 后必须关闭预览并完全由 Session Snapshot 与语义 Command 覆盖。
+- 三选与商店共用 `RouteSharedUi` prefab 中的背包、队伍栏位、金币框、出口门、背包打开界面/遮罩和宠物详情；两个正式 Scene 都只实例化该 prefab，不复制这些节点或重复导入其图片。`RouteSharedUi` 只处理已有 UI 节点、状态与信号，不拥有页面路由、Session 或玩法裁决权；其全屏根节点使用 `MOUSE_FILTER_IGNORE`，只允许已有可交互子节点命中，不能遮挡下层路线卡、商品或刷新铃。
+- 背包展开时，`RouteSharedUi/BagOverlayMask` 只压暗非背包操作内容，不得覆盖 `RouteSharedUi/Bags`、`RouteSharedUi/Party` 与 `RouteSharedUi/Top/Hud`；相关绘制层级直接 authored 在 `route_shared_ui.tscn`。背包开关只使用现有 `RouteSharedUi/Bags/Bag_Button`，同一节点在点击后把 normal、pressed、hover、focused 全部切换到当前开/关状态纹理，不得叠加第二个开箱或关箱节点。`bag_open_full.png` 必须只由开箱状态导出，不得合成关箱层；箱盖左后方与背景的间隙必须保持真透明，并同时用正式 PNG 透明通道断言和真实 Godot 开箱截图验收，不得只检查节点数量或纹理文件名。背包 `4×2` 槽位横纵间距固定为 `31px`、`32px`；现有 `ItemSlotHoverHighlight` 固定为 `183×177`、相对槽位 `(-10,-14)`，运行时只负责把槽位 Canvas 坐标转换回 `RouteSharedUi` 本地坐标并应用该 authored 偏移，八个槽位都必须在真实窗口逐格验收并与底图实测金框中心保持不超过 `2px` 的误差。
+- 三选一路线卡只有 `RouteCard` prefab 根挂脚本，负责卡片数据、悬停、选中动画和点击信号；其 `Portrait`、`KindIcon`、`StateFx`、`IncenseFx` 等普通图片不挂脚本，即使使用 Tween 也由 `RouteCard` 根脚本控制已有子节点。`PetDetail` 等详情 prefab 因拥有独立展示接口和开关状态，脚本挂在各自 prefab 根，并由页面根按需实例化或展示；已删除的 `BazaarDetail` 不得作为兼容层恢复。
 - `BattleArtScene` 页面根只负责 Snapshot、语义操作请求、Trace 调度以及 `Board`、`Hud`、详情层等职责组之间的协调。格子池、单位池、棋盘尺寸、选择和拖拽归 `Board` 根脚本；Trace 特效的创建、播放和释放生命周期归 `VfxHost` 根脚本。将这些职责从页面根迁入已有 `Board` 或 `VfxHost` 是脚本职责调整，不构成新增节点的理由。
 - 元素地块必须按一次攻击范围中的每个格子分别判断，并以该格在攻击命中当刻的结果为准：命中敌人的格子只结算攻击，不生成元素地块，敌人随后死亡或移走也不得在该格补画；攻击到空地的格子必须在对应 `ELEMENT_APPLIED` Trace 播放时实时生成并持续显示。不得等整段战斗 Trace 结束后，再依据最终 Snapshot 中单位已经消失这一事实批量补出先前命中敌人的元素地块。新公共 Trace 优先直接提供逐格 `hitEnemy` / `empty` 或等价字段；对于已经交付的旧捕获，如果 `ELEMENT_APPLIED` 明确声明 `deferToAttackStrike`，且紧随其后的同元素公共 `ATTACK_STRIKE` 在同一坐标提供非空单位 ID，则 Mock 允许仅以这组公共事件为依据把该格判为命中时占用，并在 Session 回放适配中剔除该次错误新增层数；同组 `ATTACK_STRIKE` 的空 ID 坐标继续保留元素。该兼容不得读取最终死亡或移位状态，也不得处理没有匹配 `ATTACK_STRIKE` 的事件；若连这组公共证据也不存在或互相冲突，仍必须先在正式项目修正规则与导出器并重新导出。
 - 战斗规划画面从首次进入战斗及每个新规划阶段开始，就必须为所有拥有公共预计受伤结果的单位统一显示红色掉血预览；点击、选中、悬停、打开详情和拖拽都不得成为预览首次出现的前置条件，也不得清除其他单位的预览。点击“开始行动”进入战斗演出时仍立即清除全部瞬态预览，下一规划阶段再按新 Snapshot 统一恢复。
@@ -161,7 +162,7 @@
 ## Scene 路由约束
 
 - 跨 Scene 操作固定走 `已有 Button -> 当前 Scene 根脚本发送语义 Command -> GameSession 返回 Result/Snapshot -> Game 根据 Snapshot 选择 Feature -> SceneRouter 挂载到 FeatureHost -> 目标 Scene 渲染 -> presentation_settled -> Game 释放旧 Feature`。
-- 三选路线卡点击只在当前页面保存选中项并保持选中高亮，不立即提交；路线阶段由已确认的 `MainBG/Containers/ExitButton` 作为“下一步”提交所选 `CHOOSE_ROUTE`。未选择路线时出口仍保留 normal/hover 美术反馈，但点击不得提交。商店阶段同一出口按钮提交 `EXIT_SHOP`。两种语义都由 `ThreeChoiceScene` 页面根发送，不得由路线卡或出口按钮直接切换 Scene。
+- 三选路线卡点击只在当前页面保存选中项并保持选中高亮，不立即提交；路线阶段由 `RouteSharedUi/ExitButton` 作为“下一步”提交所选 `CHOOSE_ROUTE`。未选择路线时出口仍保留 normal/hover 美术反馈，但点击不得提交。Game 收到商店 phase 后通过 `FeatureHost` 挂载独立 `ShopScene` 并隐藏三选；商店中的 `RouteSharedUi/ExitButton` 由 `ShopScene` 根发送 `EXIT_SHOP`，Game 根据返回 Snapshot 释放商店并恢复三选。按钮均不得直接切换 Scene。
 - Button、普通子节点和美术 Scene 不得知道目标 `.tscn` 路径，不得直接 `change_scene*()`、操作 `FeatureHost`，也不得发送“加载某个页面”的路由请求。
 - `SceneRouter` 只实例化、挂载和释放；它不读取 Snapshot、不判断 phase、不执行 Command。Snapshot 到 Feature 的映射只写在 `game_controller.gd`。
 - 同一 Scene 内的背包、抽屉和遮罩显隐由当前 Scene 根脚本处理；当前 Scene 已拥有的详情 prefab 由根脚本传入展示数据。这两类操作不经过 SceneRouter，也不改变权威玩法阶段。
