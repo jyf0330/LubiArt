@@ -11,6 +11,7 @@ var _project_root := ""
 var _git_root := ""
 var _failed := false
 var _captures: Array = []
+var _game: Control = null
 
 
 func _initialize() -> void:
@@ -33,18 +34,18 @@ func _run() -> void:
 	DisplayServer.window_set_size(WINDOW_SIZE)
 	root.size = WINDOW_SIZE
 
-	var game := MAIN_SCENE.instantiate() as Control
-	root.add_child(game)
+	_game = MAIN_SCENE.instantiate() as Control
+	root.add_child(_game)
 	await _settle(36)
-	var route_button := _find_command_button(game, "CHOOSE_ROUTE", OPTION_ID)
+	var route_button := _find_command_button(_game, "CHOOSE_ROUTE", OPTION_ID)
 	_expect(route_button != null, "route exposes node_shop_basic")
 	if route_button == null:
 		_finish()
 		return
 	await _click(route_button)
-	var route_confirm := game.get_node("ThreeChoiceScene/RouteSharedUi/ExitButton") as TextureButton
+	var route_confirm := _game.get_node("ThreeChoiceScene/RouteSharedUi/ExitButton") as TextureButton
 	await _click(route_confirm)
-	var shop := await _wait_for_shop(game)
+	var shop := await _wait_for_shop(_game)
 	_expect(shop != null, "real route pointer flow mounts the authored ShopScene")
 	if shop == null:
 		_finish()
@@ -86,7 +87,7 @@ func _run() -> void:
 	var exit_button := shop.get_node("RouteSharedUi/ExitButton") as TextureButton
 	await _click(exit_button)
 	await _settle(30)
-	_expect(String(game.call("get_active_feature_id")) == "", "real exit returns to route")
+	_expect(String(_game.call("get_active_feature_id")) == "", "real exit returns to route")
 	await _capture("06_exit_to_route", "退出商店返回路线", null)
 	_finish()
 
@@ -181,7 +182,7 @@ func _capture(name: String, operation: String, shop: Control) -> void:
 	_expect(image != null and not image.is_empty(), "viewport image exists for %s" % name)
 	if image != null and not image.is_empty():
 		_expect(image.save_png(path) == OK, "capture writes %s" % path)
-	var snapshot := Dictionary(shop.call("preview_snapshot")) if shop != null else {}
+	var snapshot := _current_snapshot(shop)
 	_captures.append({
 		"name": name,
 		"operation": operation,
@@ -189,7 +190,18 @@ func _capture(name: String, operation: String, shop: Control) -> void:
 		"phase": String(snapshot.get("phase", "route")),
 		"coins": int(snapshot.get("coins", 0)),
 		"offer_count": Array(snapshot.get("shop_offers", [])).size(),
+		"roster_count": Array(snapshot.get("roster", [])).size(),
 	})
+
+
+func _current_snapshot(shop: Control) -> Dictionary:
+	if shop != null and is_instance_valid(shop):
+		return Dictionary(shop.call("preview_snapshot"))
+	if _game != null and is_instance_valid(_game):
+		var session := _game.call("get_game_session") as RefCounted
+		if session != null:
+			return Dictionary(session.call("current_snapshot"))
+	return {}
 
 
 func _finish() -> void:
