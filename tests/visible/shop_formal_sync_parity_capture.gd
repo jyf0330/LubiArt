@@ -100,6 +100,15 @@ func _run() -> void:
 	await _release_focus()
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "the authored fifth empty aperture exposes no stale purchase action")
 	await _capture("02d_entry_fifth_empty_slot_hover", "指针移入入口第五个空货孔", shop)
+	var fifth_empty_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _mouse_button(FIFTH_EMPTY_SLOT_POSITION, true)
+	await process_frame
+	await _mouse_button(FIFTH_EMPTY_SLOT_POSITION, false)
+	await _settle(5)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == fifth_empty_snapshot_before_click, "clicking the authored fifth empty aperture leaves the captured formal snapshot unchanged")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "the authored fifth empty aperture click leaves no purchase identity")
+	await _capture("02d2_entry_fifth_empty_slot_click", "点击入口第五个空货孔", shop)
 
 	var refresh := shop.get_node("RefreshButton") as TextureButton
 	await _move_mouse(refresh.get_global_rect().get_center())
