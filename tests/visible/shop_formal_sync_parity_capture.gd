@@ -15,6 +15,7 @@ const ENTRY_THIRD_EMPTY_PARTY_SLOT_POSITION := Vector2(996.0, 878.0)
 const BAG_BUTTON_POSITION := Vector2(430.0, 892.0)
 const COIN_PANEL_SAFE_POSITION := Vector2(1388.0, 930.0)
 const COIN_EXIT_OVERLAP_POSITION := Vector2(1412.0, 930.0)
+const EXIT_TRANSPARENT_GAP_POSITION := Vector2(1544.0, 500.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -136,6 +137,22 @@ func _run() -> void:
 	_expect(JSON.stringify(shop.call("preview_snapshot")) == entry_coin_exit_snapshot_before_click, "clicking the authored coin-covered exit edge leaves the captured formal snapshot unchanged")
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored coin-covered exit edge click leaves no exit identity")
 	await _capture("01f2_entry_coin_exit_overlap_click", "点击金币牌与退出牌交叠边缘", shop)
+	_expect(entry_exit_button.get_global_rect().has_point(EXIT_TRANSPARENT_GAP_POSITION), "authored exit rectangle contains the shared transparent-gap pointer")
+	_expect(not coin_panel.get_global_rect().has_point(EXIT_TRANSPARENT_GAP_POSITION), "authored exit transparent-gap pointer stays outside the coin panel")
+	await _move_mouse(EXIT_TRANSPARENT_GAP_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored exit PNG transparent gap exposes no exit action")
+	await _capture("01g_entry_exit_transparent_gap_hover", "悬停退出牌透明空隙", shop)
+	var entry_exit_transparent_gap_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _mouse_button(EXIT_TRANSPARENT_GAP_POSITION, true)
+	await process_frame
+	await _mouse_button(EXIT_TRANSPARENT_GAP_POSITION, false)
+	await _settle(5)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == entry_exit_transparent_gap_snapshot_before_click, "clicking the authored exit PNG transparent gap leaves the captured formal snapshot unchanged")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored exit PNG transparent-gap click leaves no exit identity")
+	await _capture("01g2_entry_exit_transparent_gap_click", "点击退出牌透明空隙", shop)
 
 	var first_offer := offers.get_node("Offer01") as Button
 	await _move_mouse(first_offer.get_global_rect().get_center())
