@@ -127,6 +127,15 @@ func _run() -> void:
 	await _release_focus()
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored coin panel blocks the covered exit edge from exposing an exit action")
 	await _capture("01f_entry_coin_exit_overlap_hover", "悬停金币牌与退出牌交叠边缘", shop)
+	var entry_coin_exit_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _mouse_button(COIN_EXIT_OVERLAP_POSITION, true)
+	await process_frame
+	await _mouse_button(COIN_EXIT_OVERLAP_POSITION, false)
+	await _settle(5)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == entry_coin_exit_snapshot_before_click, "clicking the authored coin-covered exit edge leaves the captured formal snapshot unchanged")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored coin-covered exit edge click leaves no exit identity")
+	await _capture("01f2_entry_coin_exit_overlap_click", "点击金币牌与退出牌交叠边缘", shop)
 
 	var first_offer := offers.get_node("Offer01") as Button
 	await _move_mouse(first_offer.get_global_rect().get_center())
