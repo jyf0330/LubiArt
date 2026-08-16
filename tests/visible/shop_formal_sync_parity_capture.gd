@@ -12,6 +12,7 @@ const FIFTH_EMPTY_SLOT_POSITION := Vector2(1228.0, 704.0)
 const ENTRY_SECOND_EMPTY_PARTY_SLOT_POSITION := Vector2(820.0, 878.0)
 const ENTRY_FOURTH_EMPTY_PARTY_SLOT_POSITION := Vector2(1176.0, 878.0)
 const ENTRY_THIRD_EMPTY_PARTY_SLOT_POSITION := Vector2(996.0, 878.0)
+const BAG_BUTTON_POSITION := Vector2(430.0, 892.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -225,6 +226,11 @@ func _run() -> void:
 	await _capture("06c_party_second_click", "点击第二名队伍宠物", shop)
 
 	var bag_button := shop.get_node("RouteSharedUi/Bags/Bag_Button") as TextureButton
+	_expect(bag_button.get_global_rect().has_point(BAG_BUTTON_POSITION), "the authored closed bag contains the shared parity pointer")
+	await _move_mouse(BAG_BUTTON_POSITION)
+	await _settle(8)
+	await _release_focus()
+	await _capture("06d_bag_closed_hover", "悬停关闭态宝箱", shop)
 	await _click(bag_button)
 	await _release_focus()
 	await _capture("07_bag_open", "点击宝箱打开背包", shop)
