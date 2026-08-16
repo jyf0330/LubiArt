@@ -250,6 +250,12 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("15_bag_pet_hover", "悬停背包第一只宠物", shop)
+	var mixed_bag_eighth_slot := shop.get_node("RouteSharedUi/Middle_Bag/Slots/Bag_Slot8") as TextureButton
+	_expect(Dictionary(mixed_bag_eighth_slot.get_meta("drag_record", {})).is_empty(), "the authored mixed bag keeps the eighth slot empty")
+	await _move_mouse(Vector2(1183.0, 674.0))
+	await _settle(8)
+	await _release_focus()
+	await _capture("15b_bag_pet_eighth_empty_slot_hover", "已有宠物时悬停背包第八空槽", shop)
 	await _click(bag_button)
 	await _release_focus()
 	await _capture("16_bag_with_pet_closed", "关闭已有宠物的背包", shop)
