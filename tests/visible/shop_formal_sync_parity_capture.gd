@@ -663,6 +663,14 @@ func _run() -> void:
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored re-entered second-offer cancelled press leaves no purchase hover identity")
 	_expect(String(_interaction_identity(root.gui_get_focus_owner()).get("action", "")) == "none", "authored re-entered second-offer cancelled press leaves keyboard focus clear")
 	await _capture("19c_reentered_second_offer_press_cancelled", "重进商店后移出并松开取消第二件商品", reentered_shop)
+	await _move_mouse(SECOND_OFFER_HOVER_POSITION)
+	await _settle(60)
+	await _release_focus()
+	_expect(JSON.stringify(reentered_shop.call("preview_snapshot")) == reentered_snapshot_before_press, "rehovering the authored re-entered second offer after cancellation leaves the captured formal snapshot unchanged")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "BUY_OFFER", "authored re-entered second offer restores BUY_OFFER on a real rehover after cancellation")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("offer_id", "")) == "shop_002", "authored re-entered second offer restores the synchronized offer identity after cancellation")
+	_expect(String(_interaction_identity(root.gui_get_focus_owner()).get("action", "")) == "none", "authored re-entered second-offer rehover after cancellation leaves keyboard focus clear")
+	await _capture("19d_reentered_second_offer_rehover_after_cancel", "取消后重新悬停重进商店第二件商品", reentered_shop)
 	_finish()
 
 
