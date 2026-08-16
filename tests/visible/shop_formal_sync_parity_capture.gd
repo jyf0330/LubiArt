@@ -10,6 +10,7 @@ const THIRD_OFFER_HOVER_POSITION := Vector2(1228.0, 470.0)
 const FOURTH_EMPTY_SLOT_POSITION := Vector2(578.0, 704.0)
 const FIFTH_EMPTY_SLOT_POSITION := Vector2(1228.0, 704.0)
 const ENTRY_SECOND_EMPTY_PARTY_SLOT_POSITION := Vector2(820.0, 878.0)
+const ENTRY_FOURTH_EMPTY_PARTY_SLOT_POSITION := Vector2(1176.0, 878.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -78,6 +79,11 @@ func _run() -> void:
 	_expect(JSON.stringify(shop.call("preview_snapshot")) == entry_empty_party_snapshot_before_click, "clicking the authored entry second empty party aperture leaves the captured formal snapshot unchanged")
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "art entry second empty party aperture click leaves no occupied party identity")
 	await _capture("01b2_entry_second_empty_party_slot_click", "点击入口第二个空队伍槽", shop)
+	await _move_mouse(ENTRY_FOURTH_EMPTY_PARTY_SLOT_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "art entry fourth empty party aperture exposes no occupied party identity")
+	await _capture("01c_entry_fourth_empty_party_slot_hover", "悬停入口第四个空队伍槽", shop)
 
 	var first_offer := offers.get_node("Offer01") as Button
 	await _move_mouse(first_offer.get_global_rect().get_center())
