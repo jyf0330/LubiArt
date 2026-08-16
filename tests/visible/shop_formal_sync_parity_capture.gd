@@ -132,6 +132,16 @@ func _run() -> void:
 	var party_full_snapshot := Dictionary(shop.call("preview_snapshot"))
 	_expect(_active_roster_count(party_full_snapshot) == 4, "third captured formal purchase fills the four-member party")
 	await _capture("10_party_full_purchase", "购买第三件商品填满队伍", shop)
+	var third_party_slot := shop.get_node("RouteSharedUi/Party/Party_Container/Party_Slot3") as TextureButton
+	await _move_mouse(third_party_slot.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("10b_party_third_hover", "悬停第三名队伍宠物", shop)
+	var fourth_party_slot := shop.get_node("RouteSharedUi/Party/Party_Container/Party_Slot4") as TextureButton
+	await _move_mouse(fourth_party_slot.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("10c_party_fourth_hover", "悬停第四名队伍宠物", shop)
 
 	await _click(refresh, false)
 	await create_timer(0.18).timeout
