@@ -67,6 +67,10 @@ func _run() -> void:
 	await _capture("02_offer_hover", "悬停第一件商品", shop)
 
 	var refresh := shop.get_node("RefreshButton") as TextureButton
+	await _move_mouse(refresh.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("02b_refresh_hover", "悬停刷新铃但不点击", shop)
 	await _click(refresh, false)
 	await create_timer(0.18).timeout
 	var curtain := shop.get_node("RefreshCurtain") as TextureRect
