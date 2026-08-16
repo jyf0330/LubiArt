@@ -54,6 +54,27 @@ var _bag_buttons: Array[TextureButton] = []
 
 func _ready() -> void:
 	ensure_bag_buttons()
+	_configure_exit_click_mask()
+
+
+func _configure_exit_click_mask() -> void:
+	var button := exit_button()
+	var coin_panel := $Top/Hud/CoinIcon as Control
+	var normal_texture := button.texture_normal
+	if normal_texture == null:
+		return
+	var click_mask := BitMap.new()
+	click_mask.create_from_image_alpha(normal_texture.get_image(), 0.1)
+	var covered_global_rect := button.get_global_rect().intersection(coin_panel.get_global_rect())
+	if covered_global_rect.has_area():
+		click_mask.set_bit_rect(
+			Rect2i(
+				Vector2i(covered_global_rect.position - button.global_position),
+				Vector2i(covered_global_rect.size)
+			),
+			false
+		)
+	button.texture_click_mask = click_mask
 
 
 func party_container() -> Control:

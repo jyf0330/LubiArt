@@ -125,7 +125,7 @@ func _run() -> void:
 	await _move_mouse(COIN_EXIT_OVERLAP_POSITION)
 	await _settle(8)
 	await _release_focus()
-	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "EXIT_SHOP", "authored coin and exit overlap exposes the exit semantic action")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored coin panel blocks the covered exit edge from exposing an exit action")
 	await _capture("01f_entry_coin_exit_overlap_hover", "悬停金币牌与退出牌交叠边缘", shop)
 
 	var first_offer := offers.get_node("Offer01") as Button

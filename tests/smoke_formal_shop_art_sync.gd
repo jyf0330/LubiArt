@@ -97,6 +97,10 @@ func _run() -> void:
 
 	var shared_ui := SharedUiScene.instantiate()
 	root.add_child(shared_ui)
+	var exit_button := shared_ui.call("exit_button") as TextureButton
+	_expect(exit_button.texture_click_mask != null, "authored exit uses an art-aware click mask")
+	_expect(not exit_button.texture_click_mask.get_bitv(Vector2i(2, 440)), "coin-covered exit edge is not clickable")
+	_expect(exit_button.texture_click_mask.get_bitv(Vector2i(134, 236)), "visible exit center remains clickable")
 	var party_buttons := Array(shared_ui.call("party_buttons"))
 	var wide_texture := ResourceLoader.load(String(pet_map.get("pal_002", "")), "Texture2D") as Texture2D
 	var square_texture := ResourceLoader.load(String(pet_map.get("pal_009", "")), "Texture2D") as Texture2D
