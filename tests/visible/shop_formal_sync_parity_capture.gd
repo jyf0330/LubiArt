@@ -13,6 +13,8 @@ const ENTRY_SECOND_EMPTY_PARTY_SLOT_POSITION := Vector2(820.0, 878.0)
 const ENTRY_FOURTH_EMPTY_PARTY_SLOT_POSITION := Vector2(1176.0, 878.0)
 const ENTRY_THIRD_EMPTY_PARTY_SLOT_POSITION := Vector2(996.0, 878.0)
 const BAG_BUTTON_POSITION := Vector2(430.0, 892.0)
+const COIN_PANEL_SAFE_POSITION := Vector2(1388.0, 930.0)
+const COIN_EXIT_OVERLAP_POSITION := Vector2(1412.0, 930.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -109,6 +111,22 @@ func _run() -> void:
 	_expect(JSON.stringify(shop.call("preview_snapshot")) == entry_third_empty_party_snapshot_before_click, "clicking the authored entry third empty party aperture leaves the captured formal snapshot unchanged")
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "art entry third empty party aperture click leaves no occupied party identity")
 	await _capture("01d2_entry_third_empty_party_slot_click", "点击入口第三个空队伍槽", shop)
+	var coin_panel := shop.get_node("RouteSharedUi/Top/Hud/CoinIcon") as Control
+	var entry_exit_button := shop.get_node("RouteSharedUi/ExitButton") as BaseButton
+	_expect(coin_panel.get_global_rect().has_point(COIN_PANEL_SAFE_POSITION), "authored coin panel contains the safe parity pointer")
+	_expect(not entry_exit_button.get_global_rect().has_point(COIN_PANEL_SAFE_POSITION), "authored coin safe parity pointer stays outside the exit rectangle")
+	await _move_mouse(COIN_PANEL_SAFE_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored coin safe area exposes no semantic action")
+	await _capture("01e_entry_coin_panel_hover", "悬停金币牌安全区", shop)
+	_expect(coin_panel.get_global_rect().has_point(COIN_EXIT_OVERLAP_POSITION), "authored coin panel contains the shared overlap pointer")
+	_expect(entry_exit_button.get_global_rect().has_point(COIN_EXIT_OVERLAP_POSITION), "authored exit rectangle contains the shared overlap pointer")
+	await _move_mouse(COIN_EXIT_OVERLAP_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "EXIT_SHOP", "authored coin and exit overlap exposes the exit semantic action")
+	await _capture("01f_entry_coin_exit_overlap_hover", "悬停金币牌与退出牌交叠边缘", shop)
 
 	var first_offer := offers.get_node("Offer01") as Button
 	await _move_mouse(first_offer.get_global_rect().get_center())
