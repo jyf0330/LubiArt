@@ -210,11 +210,20 @@ func _run() -> void:
 	await _capture("02d2_entry_fifth_empty_slot_click", "点击入口第五个空货孔", shop)
 
 	var refresh := shop.get_node("RefreshButton") as TextureButton
-	await _move_mouse(refresh.get_global_rect().get_center())
+	var refresh_position := refresh.get_global_rect().get_center()
+	await _move_mouse(refresh_position)
 	await _settle(8)
 	await _release_focus()
 	await _capture("02b_refresh_hover", "悬停刷新铃但不点击", shop)
-	await _click(refresh, false)
+	var refresh_snapshot_before_press := JSON.stringify(shop.call("preview_snapshot"))
+	await _mouse_button(refresh_position, true)
+	await _settle(2)
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == refresh_snapshot_before_press, "authored refresh mouse-down does not execute ROLL_SHOP before release")
+	_expect(refresh.get_draw_mode() == BaseButton.DRAW_PRESSED, "authored refresh button exposes its pressed draw mode while held")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "ROLL_SHOP", "authored refresh remains the hovered action while held")
+	_expect(String(_interaction_identity(root.gui_get_focus_owner()).get("action", "")) == "ROLL_SHOP", "authored refresh receives focus while held")
+	await _capture("02b2_refresh_pressed", "按下刷新铃但尚未松开", shop)
+	await _mouse_button(refresh_position, false)
 	await create_timer(0.18).timeout
 	var curtain := shop.get_node("RefreshCurtain") as TextureRect
 	_expect(curtain.visible, "refresh curtain is visible during the operation")
