@@ -631,6 +631,18 @@ func _run() -> void:
 	await _release_focus()
 	_expect(String(_game.call("get_active_feature_id")) == "shop", "authored re-entry returns the public snapshot to shop")
 	await _capture("19_reenter_shop_after_exit", "退出后重新进入商店", reentered_shop)
+	var reentered_offers := reentered_shop.get_node("Offers") as Control
+	var reentered_second_offer := reentered_offers.get_node("Offer02") as Button
+	_expect(reentered_second_offer.get_global_rect().has_point(SECOND_OFFER_HOVER_POSITION), "authored re-entered second offer contains the shared parity pointer")
+	var reentered_snapshot_before_hover := JSON.stringify(reentered_shop.call("preview_snapshot"))
+	await _move_mouse(SECOND_OFFER_HOVER_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(JSON.stringify(reentered_shop.call("preview_snapshot")) == reentered_snapshot_before_hover, "hovering the authored re-entered second offer leaves the captured formal snapshot unchanged")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "BUY_OFFER", "authored re-entered second offer exposes BUY_OFFER on hover")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("offer_id", "")) == "shop_002", "authored re-entered second offer keeps the synchronized offer identity")
+	_expect(String(_interaction_identity(root.gui_get_focus_owner()).get("action", "")) == "none", "authored re-entered second-offer hover leaves keyboard focus clear")
+	await _capture("19a_reentered_second_offer_hover", "重进商店后悬停第二件商品", reentered_shop)
 	_finish()
 
 
