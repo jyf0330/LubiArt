@@ -709,7 +709,10 @@ func _run() -> void:
 	await _settle(5)
 	await _release_focus()
 	_expect(JSON.stringify(reentered_shop.call("preview_snapshot")) == reentered_snapshot_before_press, "authored re-entered second-offer repress cancellation leaves the captured formal snapshot unchanged")
+	_expect(reentered_second_offer.get_draw_mode() == BaseButton.DRAW_NORMAL, "authored re-entered second-offer repress cancellation keeps the offer in normal mode")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "authored re-entered second-offer repress cancellation leaves no purchase hover identity")
 	_expect(String(_interaction_identity(root.gui_get_focus_owner()).get("action", "")) == "none", "authored re-entered second-offer repress cancellation clears keyboard focus")
+	await _capture("19i_reentered_second_offer_repress_cancelled_after_reentry_cycle", "再次按住移出重新移入再移出后松开取消重进商店第二件商品", reentered_shop)
 	_finish()
 
 
