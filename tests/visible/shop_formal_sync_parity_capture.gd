@@ -166,6 +166,12 @@ func _run() -> void:
 	await _release_focus()
 	_expect(JSON.stringify(shop.call("preview_snapshot")) == empty_bag_snapshot_before_click, "clicking the empty authored bag slot leaves the captured formal snapshot unchanged")
 	await _capture("07c_empty_bag_slot_click", "点击空背包第一槽", shop)
+	var eighth_empty_bag_slot := shop.get_node("RouteSharedUi/Middle_Bag/Slots/Bag_Slot8") as BaseButton
+	_expect(eighth_empty_bag_slot != null and eighth_empty_bag_slot.get_global_rect() == Rect2(1106.0, 601.0, 154.0, 146.0), "the authored eighth bag slot keeps the far shared rectangle")
+	await _move_mouse(Vector2(1183.0, 674.0))
+	await _settle(8)
+	await _release_focus()
+	await _capture("07d_empty_bag_eighth_slot_hover", "悬停空背包第八槽", shop)
 	await _click(bag_button)
 	await _release_focus()
 	await _capture("08_bag_closed", "再次点击宝箱关闭背包", shop)
