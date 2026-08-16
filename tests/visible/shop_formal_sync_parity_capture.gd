@@ -262,6 +262,12 @@ func _run() -> void:
 	var mixed_bag_highlight := shop.get_node("RouteSharedUi/ItemSlotHoverHighlight") as CanvasItem
 	_expect(mixed_bag_highlight != null and not mixed_bag_highlight.visible, "the authored bag highlight clears after the pointer exits every slot")
 	await _capture("15c_bag_hover_cleared", "移出背包清除槽高亮", shop)
+	var occupied_bag_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _click(first_bag_slot)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == occupied_bag_snapshot_before_click, "clicking the occupied authored bag slot leaves the captured formal snapshot unchanged")
+	_expect(mixed_bag_highlight != null and mixed_bag_highlight.visible, "the occupied authored bag slot remains highlighted after click")
+	await _capture("15d_bag_pet_click", "点击背包第一只宠物", shop)
 	await _click(bag_button)
 	await _release_focus()
 	await _capture("16_bag_with_pet_closed", "关闭已有宠物的背包", shop)

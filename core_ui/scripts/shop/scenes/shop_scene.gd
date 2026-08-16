@@ -390,6 +390,21 @@ func _input(event: InputEvent) -> void:
 				_drag_controller.accept_release()
 				render_snapshot(snapshot)
 	_drag_controller.clear()
+	_restore_bag_hover_at_pointer((event as InputEventMouseButton).global_position)
+
+
+func _restore_bag_hover_at_pointer(pointer_position: Vector2) -> void:
+	if not _bag_open:
+		return
+	for index in range(_bag_buttons.size()):
+		var button := _bag_buttons[index]
+		if button == null or not button.is_visible_in_tree():
+			continue
+		var local_position := button.get_global_transform_with_canvas().affine_inverse() * pointer_position
+		if not Rect2(Vector2.ZERO, button.size).has_point(local_position):
+			continue
+		_on_bag_mouse_entered(index)
+		return
 
 
 func _on_offer_pressed(index: int) -> void:

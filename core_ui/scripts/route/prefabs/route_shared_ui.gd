@@ -243,8 +243,8 @@ func set_drag_source_visible(button: BaseButton, source: StringName, source_visi
 	if button is TextureButton and source == &"party":
 		button.self_modulate.a = 1.0 if source_visible else 0.0
 	elif button is TextureButton and source == &"bag":
-		var texture := button.get_meta("pet_texture") as Texture2D if source_visible and button.has_meta("pet_texture") else null
-		set_bag_texture(button as TextureButton, texture)
+		var portrait := _ensure_bag_portrait(button as TextureButton)
+		portrait.visible = source_visible and portrait.texture != null
 
 
 func set_snapshot_input_enabled(enabled: bool) -> void:

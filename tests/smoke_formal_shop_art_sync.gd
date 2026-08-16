@@ -156,6 +156,10 @@ func _run() -> void:
 	var bag_portrait := (bag_buttons[0] as TextureButton).get_node_or_null("BagPortrait") as TextureRect
 	_expect(bag_portrait != null and bag_portrait.texture == bag_texture, "synchronized bag art uses a direct texture child")
 	_expect(bag_portrait != null and bag_portrait.position == Vector2(19.0, 15.0) and bag_portrait.size == Vector2(116.0, 116.0), "square bag art preserves aspect and centers in the first authored slot")
+	shared_ui.call("set_drag_source_visible", bag_buttons[0], &"bag", false)
+	_expect(not bag_portrait.visible and (bag_buttons[0] as TextureButton).get_meta("pet_texture") == bag_texture, "hiding a dragged bag portrait preserves its synchronized texture metadata")
+	shared_ui.call("set_drag_source_visible", bag_buttons[0], &"bag", true)
+	_expect(bag_portrait.visible and bag_portrait.texture == bag_texture, "restoring a dragged bag portrait reuses the preserved synchronized texture")
 	var bag_material := (bag_buttons[0] as TextureButton).material as ShaderMaterial
 	_expect(bag_material != null and not bool(bag_material.get_shader_parameter("source_enabled")), "bag shader no longer resamples the synchronized pet source")
 	var exit := Dictionary(session.submit_command({"type": "EXIT_SHOP"}))
