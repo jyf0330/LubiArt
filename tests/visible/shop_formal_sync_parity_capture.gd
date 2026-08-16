@@ -344,6 +344,24 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("06d_bag_closed_hover", "悬停关闭态宝箱", shop)
+	var bag_snapshot_before_press := JSON.stringify(shop.call("preview_snapshot"))
+	var middle_bag := shop.get_node("RouteSharedUi/Middle_Bag") as Control
+	_expect(middle_bag != null and not middle_bag.visible, "the authored bag starts closed before the held-close probe")
+	await _mouse_button(BAG_BUTTON_POSITION, true)
+	await _settle(2)
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == bag_snapshot_before_press, "authored closed-bag mouse-down leaves the captured formal snapshot unchanged")
+	_expect(middle_bag != null and not middle_bag.visible, "authored closed-bag mouse-down does not open the bag before release")
+	_expect(bag_button.get_draw_mode() == BaseButton.DRAW_PRESSED, "the authored closed bag exposes its pressed draw mode while held")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "TOGGLE_BAG", "the authored closed bag remains the hovered action while held")
+	_expect(String(_interaction_identity(root.gui_get_focus_owner()).get("action", "")) == "TOGGLE_BAG", "the authored closed bag receives focus while held")
+	await _capture("06d2_bag_closed_pressed", "按下关闭态宝箱但尚未松开", shop)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _settle(2)
+	await _mouse_button(NEUTRAL_MOUSE_POSITION, false)
+	await _settle(4)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == bag_snapshot_before_press, "authored closed-bag cancel gesture leaves the captured formal snapshot unchanged")
+	_expect(middle_bag != null and not middle_bag.visible, "authored closed-bag cancel gesture keeps the bag closed")
 	await _click(bag_button)
 	await _release_focus()
 	await _capture("07_bag_open", "点击宝箱打开背包", shop)
@@ -697,7 +715,10 @@ func _finish() -> void:
 			"schema": "lubiart.shop-formal-sync-parity-capture.v1",
 			"side": "art_package",
 			"project_root": _project_root,
+			"expected_project_root": _expected_project_root,
 			"git_root": _git_root,
+			"project_file": _project_root.path_join("project.godot"),
+			"scene_source": "res://art/scenes/app/game.tscn",
 			"window_size": [WINDOW_SIZE.x, WINDOW_SIZE.y],
 			"selected_option_id": OPTION_ID,
 			"capture_script": "res://tests/visible/shop_formal_sync_parity_capture.gd",
