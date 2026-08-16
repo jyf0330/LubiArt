@@ -7,6 +7,8 @@ const NEUTRAL_MOUSE_POSITION := Vector2(1850.0, 1030.0)
 const FIRST_OFFER_HOVER_POSITION := Vector2(578.0, 454.0)
 const SECOND_OFFER_HOVER_POSITION := Vector2(902.0, 454.0)
 const THIRD_OFFER_HOVER_POSITION := Vector2(1228.0, 470.0)
+const FOURTH_EMPTY_SLOT_POSITION := Vector2(578.0, 704.0)
+const FIFTH_EMPTY_SLOT_POSITION := Vector2(1228.0, 704.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -78,6 +80,17 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("02_entry_third_offer_hover", "悬停入口第三件商品", shop)
+
+	await _move_mouse(FOURTH_EMPTY_SLOT_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "the authored fourth empty aperture exposes no stale purchase action")
+	await _capture("02c_entry_fourth_empty_slot_hover", "指针移入入口第四个空货孔", shop)
+	await _move_mouse(FIFTH_EMPTY_SLOT_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "the authored fifth empty aperture exposes no stale purchase action")
+	await _capture("02d_entry_fifth_empty_slot_hover", "指针移入入口第五个空货孔", shop)
 
 	var refresh := shop.get_node("RefreshButton") as TextureButton
 	await _move_mouse(refresh.get_global_rect().get_center())
@@ -377,6 +390,8 @@ func _interaction_identity(control: Control) -> Dictionary:
 	var offer_id := String(command.get("offer_id", offer.get("id", "")))
 	if action == "":
 		action = _action_from_control_name(target.name)
+	if action == "BUY_OFFER" and offer_id == "":
+		action = "none"
 	return {"action": action, "offer_id": offer_id, "control": String(target.name)}
 
 
