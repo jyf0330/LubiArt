@@ -1,0 +1,119 @@
+{
+  "schema": "ysbzs.shop-formal-resource-inventory.v1",
+  "formal_commit": "e785c568343af72dd8985c6b319fdf00a7f3438e",
+  "art_commit_before_sync": "b95f0b4505b7f63ef982ffd94f53335e0e49869f",
+  "fixed_seed": "shop-art-roundtrip-v1",
+  "formal_image_universe": {
+    "pet_identity_mappings": 278,
+    "unique_pet_png_resources": 278,
+    "merchant_identity_mappings": 141,
+    "unique_merchant_png_resources": 33
+  },
+  "fixed_seed_visible_closure": {
+    "pet_ids": [
+      "pal_002",
+      "pal_016",
+      "pal_053",
+      "pal_138",
+      "pal_009",
+      "pal_110",
+      "pal_111",
+      "pal_017",
+      "pal_027",
+      "pal_105",
+      "pal_085",
+      "pal_342",
+      "pal_097",
+      "pal_001",
+      "pal_007",
+      "pal_013"
+    ],
+    "pet_count": 16,
+    "merchant_ids": [
+      "node_shop_basic"
+    ],
+    "merchant_count": 1,
+    "outbound_png_count": 17,
+    "file_closure_complete": true,
+    "identity_art_complete": false
+  },
+  "missing_real_art": [
+    {
+      "asset_id": "pal_342",
+      "reason": "missing_formal_pet_mapping",
+      "fallback_source": "res://art/images/shared/pets/sheets/slices/pal_042.png"
+    }
+  ],
+  "art_workspace_before_sync": {
+    "all_pet_identity_mappings": 28,
+    "matching_formal_pet_png_resources": 20,
+    "missing_formal_pet_png_resources": 258,
+    "matching_formal_merchant_png_resources": 1,
+    "missing_formal_merchant_png_resources": 32,
+    "formal_sync_pet_png_ids": [
+      "pal_001",
+      "pal_002",
+      "pal_003",
+      "pal_004",
+      "pal_007",
+      "pal_009",
+      "pal_013",
+      "pal_016",
+      "pal_017",
+      "pal_027",
+      "pal_028",
+      "pal_033",
+      "pal_042",
+      "pal_053",
+      "pal_085",
+      "pal_097",
+      "pal_105",
+      "pal_110",
+      "pal_111",
+      "pal_138",
+      "pal_342"
+    ],
+    "stale_formal_sync_pet_png_ids": [
+      "pal_028",
+      "pal_033",
+      "pal_042"
+    ],
+    "stale_formal_sync_pet_mapping_ids": [
+      "pal_028",
+      "pal_033",
+      "pal_042"
+    ],
+    "protected_by_other_sync_pet_ids": [
+      "pal_001",
+      "pal_002",
+      "pal_003",
+      "pal_004"
+    ]
+  },
+  "art_to_formal_allowlist": {
+    "png_count": 15,
+    "targets": [
+      "art/images/shop/screen_shop_godot_v1/background.png",
+      "art/images/shop/screen_shop_godot_v1/shop_facade.png",
+      "art/images/shop/screen_shop_godot_v1/merchant_default.png",
+      "art/images/shop/screen_shop_godot_v1/refresh_curtain.png",
+      "art/images/shop/screen_shop_godot_v1/refresh_bell_normal.png",
+      "art/images/shop/screen_shop_godot_v1/refresh_bell_hover.png",
+      "art/images/shop/screen_shop_godot_v1/shared_party_shadow.png",
+      "art/images/shop/screen_shop_godot_v1/shared_bag_closed.png",
+      "art/images/shop/screen_shop_godot_v1/shared_bag_open.png",
+      "art/images/shop/screen_shop_godot_v1/shared_bag_inventory.png",
+      "art/images/shop/screen_shop_godot_v1/shared_bag_item_highlight.png",
+      "art/images/shop/screen_shop_godot_v1/shared_party_shelf.png",
+      "art/images/shop/screen_shop_godot_v1/shared_coin_panel.png",
+      "art/images/shop/screen_shop_godot_v1/shared_exit_normal.png",
+      "art/images/shop/screen_shop_godot_v1/shared_exit_hover.png"
+    ],
+    "copied_code_files": 0
+  },
+  "verdict": {
+    "contains_all_formal_program_images": false,
+    "contains_current_fixed_seed_file_closure": true,
+    "contains_current_fixed_seed_identity_art": false
+  }
+}

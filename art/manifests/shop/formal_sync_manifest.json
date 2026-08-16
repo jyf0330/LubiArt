@@ -1,8 +1,8 @@
 {
   "schema": "ysbzs.shop-art-workspace-sync.v1",
   "direction": "formal_to_art_then_art_to_formal",
-  "formal_commit": "b5fe8ab0217fc90dda3317132880dc66d72069d9",
-  "art_commit": "14d143d6bad09e92141f429adde334d47d655681",
+  "formal_commit": "e785c568343af72dd8985c6b319fdf00a7f3438e",
+  "art_commit": "b95f0b4505b7f63ef982ffd94f53335e0e49869f",
   "capture_sha256": "c75a3287a17939208993eecf19f53ba8b844c917af984d8cfd8d064a4a885f0c",
   "display_only": true,
   "forbidden_inbound_types": [
@@ -408,12 +408,19 @@
       "has_alpha": true
     }
   ],
+  "resource_inventory": "art/manifests/shop/formal_resource_inventory.json",
+  "resource_inventory_sha256": "cc87fe5ab77e2d3259d1f34c3d6bd96056379450974c6921a218bd5571ee1cd4",
+  "pet_map_removals": [
+    "pal_028",
+    "pal_033",
+    "pal_042"
+  ],
   "preconditions": {
-    "art_battle_capture_sha256": "ff76a4fa5ab722d38858f68994690a289cf5cd65b8ec634635573ad6d8fdbedf",
-    "art_pet_map_sha256": "9f4d62b63bf5cdc8afa28344077f2d9350c2003b3bbda427380463776c1a7932",
+    "art_pet_map_sha256": "f72f436708d82386fd258510a8996f26d9d01f58d43ab1f2bdb333a66e27c531",
     "art_merchant_map_sha256": "4b4187674057e173d21aca0765dae18916c83cfa92ac4af8ceff57520074bf82"
   },
-  "applied_art_commit_before": "14d143d6bad09e92141f429adde334d47d655681",
-  "applied_at_utc": "2026-08-16T13:29:56.168894+00:00",
-  "battle_replay_steps_preserved_sha256": "cc4d90342280ea94f61ea0a3ed09619b0dfe19cb676166625ca281b09053b00f"
+  "applied_art_commit_before": "b95f0b4505b7f63ef982ffd94f53335e0e49869f",
+  "applied_at_utc": "2026-08-16T18:18:29.303624+00:00",
+  "shop_runtime_projection": "data/formal_shop_art_runtime.json",
+  "shop_runtime_projection_sha256": "97e5a58522c94bfc7489ed82363f4a1134d107ceb79d82e8dada6115e909191d"
 }

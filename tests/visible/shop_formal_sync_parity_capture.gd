@@ -70,6 +70,9 @@ func _run() -> void:
 	_expect(_visible_offer_count(offers) == 3, "three synchronized formal offers are visible")
 	_expect(_empty_offer_count(offers) == 2, "two authored shelf slots remain intentionally empty")
 	await _capture("01_shop_entry", "进入基础商店", shop)
+	if not OS.get_cmdline_user_args().has("--diagnostic-full"):
+		await _run_compact_acceptance(shop)
+		return
 	await _move_mouse(ENTRY_SECOND_EMPTY_PARTY_SLOT_POSITION)
 	await _settle(8)
 	await _release_focus()
@@ -722,6 +725,114 @@ func _run() -> void:
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("offer_id", "")) == "shop_002", "authored re-entered second-offer rehover after repress-cycle cancellation restores synchronized offer identity")
 	_expect(String(_interaction_identity(root.gui_get_focus_owner()).get("action", "")) == "none", "authored re-entered second-offer rehover after repress-cycle cancellation leaves keyboard focus clear")
 	await _capture("19j_reentered_second_offer_rehover_after_repress_cycle_cancel", "第二次按压往返取消后重新悬停重进商店第二件商品", reentered_shop)
+	_finish()
+
+
+func _run_compact_acceptance(shop: Control) -> void:
+	var offers := shop.get_node("Offers") as Control
+	var first_offer := offers.get_node("Offer01") as Button
+	await _move_mouse(first_offer.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("02_offer_hover", "悬停第一件商品", shop)
+	var entry_snapshot := JSON.stringify(shop.call("preview_snapshot"))
+	await _mouse_button(FIRST_OFFER_HOVER_POSITION, true)
+	await _settle(2)
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == entry_snapshot, "compact authored first-offer mouse-down does not execute BUY_OFFER")
+	_expect(first_offer.get_draw_mode() == BaseButton.DRAW_PRESSED, "compact authored first offer exposes pressed draw mode")
+	await _capture("02a_entry_first_offer_pressed", "按下第一件商品但尚未松开", shop)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _mouse_button(NEUTRAL_MOUSE_POSITION, false)
+	await _settle(5)
+	await _release_focus()
+
+	var refresh := shop.get_node("RefreshButton") as TextureButton
+	var refresh_position := refresh.get_global_rect().get_center()
+	await _move_mouse(refresh_position)
+	await _mouse_button(refresh_position, true)
+	await _settle(2)
+	await _mouse_button(refresh_position, false)
+	await create_timer(0.18).timeout
+	var curtain := shop.get_node("RefreshCurtain") as TextureRect
+	_expect(curtain.visible, "compact authored free refresh curtain is visible")
+	await _release_focus()
+	await _capture("03_refresh_curtain", "点击刷新后的红帘过程", shop)
+	await create_timer(0.55).timeout
+	_expect(not curtain.visible and not refresh.disabled, "compact authored free refresh completes")
+	await _release_focus()
+	await _capture("04_refresh_complete", "刷新动画完成", shop)
+
+	first_offer = offers.get_node("Offer01") as Button
+	await _click(first_offer)
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _release_focus()
+	await _capture("05_purchase_complete", "购买第一件商品完成", shop)
+
+	var second_offer := offers.get_node("Offer02") as Button
+	await _click(second_offer)
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _release_focus()
+	await _capture("09_second_purchase", "购买第二件商品完成", shop)
+
+	var third_offer := offers.get_node("Offer03") as Button
+	await _click(third_offer)
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _release_focus()
+	var full_snapshot := Dictionary(shop.call("preview_snapshot"))
+	_expect(_active_roster_count(full_snapshot) == 4, "compact authored third purchase fills the party")
+	await _capture("10_party_full_purchase", "购买第三件商品填满队伍", shop)
+
+	await _click(refresh, false)
+	await create_timer(0.73).timeout
+	_expect(not curtain.visible and not refresh.disabled, "compact authored paid refresh completes")
+	await _release_focus()
+	await _capture("12_paid_refresh_complete", "付费刷新动画完成", shop)
+
+	first_offer = offers.get_node("Offer01") as Button
+	await _click(first_offer)
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _release_focus()
+	var bag_snapshot := Dictionary(shop.call("preview_snapshot"))
+	_expect(_active_roster_count(bag_snapshot) == 4 and _inactive_roster_count(bag_snapshot) == 1, "compact authored fifth purchase enters the bag")
+	await _capture("13_bag_pet_purchase", "购买第五只宠物进入背包", shop)
+
+	var bag_button := shop.get_node("RouteSharedUi/Bags/Bag_Button") as TextureButton
+	await _click(bag_button)
+	await _release_focus()
+	await _capture("14_bag_with_pet_open", "打开已有宠物的背包", shop)
+
+	var exit_button := shop.get_node("RouteSharedUi/ExitButton") as TextureButton
+	var exit_position := exit_button.get_global_rect().get_center()
+	await _move_mouse(exit_position)
+	await _mouse_button(exit_position, true)
+	await _settle(2)
+	_expect(exit_button.get_draw_mode() == BaseButton.DRAW_PRESSED, "compact authored exit exposes pressed draw mode")
+	await _capture("17b_exit_pressed", "按下退出牌但尚未松开", shop)
+	await _mouse_button(exit_position, false)
+	await _settle(30)
+	_expect(String(_game.call("get_active_feature_id")) == "", "compact authored exit returns to route")
+	await _capture("18_exit_to_route", "退出商店返回路线", null)
+
+	var route_button := _find_command_button(_game, "CHOOSE_ROUTE", OPTION_ID)
+	_expect(route_button != null, "compact authored route exposes shop re-entry")
+	if route_button == null:
+		_finish()
+		return
+	await _click(route_button)
+	var confirm := _game.find_child("ExitButton", true, false) as TextureButton
+	if confirm != null:
+		await _click(confirm)
+	var reentered_shop := await _wait_for_shop(_game)
+	_expect(reentered_shop != null, "compact authored route re-enters the shop")
+	if reentered_shop != null:
+		await _settle(24)
+		await _move_mouse(NEUTRAL_MOUSE_POSITION)
+		await _release_focus()
+		await _capture("19_reenter_shop_after_exit", "退出后重新进入商店", reentered_shop)
 	_finish()
 
 

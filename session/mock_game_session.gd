@@ -7,6 +7,7 @@ class_name MockGameSession
 signal snapshot_changed(snapshot: Dictionary, event: Dictionary)
 
 const CAPTURE_PATH := "res://data/mock_battle_snapshot.json"
+const SHOP_CAPTURE_PATH := "res://data/formal_shop_art_runtime.json"
 const BoardDimensionsScript := preload("res://core/battle/board_dimensions.gd")
 const DEFAULT_SKILLS := [
 	{"id": "skill_vanguard", "name": "先锋击"},
@@ -165,12 +166,26 @@ func reset(emit_change: bool = true) -> void:
 		_snapshot = {}
 		_steps = []
 		return
-	_capture_source = Dictionary(capture.get("source", {})).duplicate(true)
-	_shop_art_capture = Dictionary(capture.get("shop_art_capture", {})).duplicate(true)
+	var shop_projection: Dictionary = {}
+	if _start_phase != START_PHASE_BATTLE and FileAccess.file_exists(SHOP_CAPTURE_PATH):
+		var shop_file := FileAccess.open(SHOP_CAPTURE_PATH, FileAccess.READ)
+		var shop_parsed: Variant = JSON.parse_string(shop_file.get_as_text()) if shop_file != null else null
+		if shop_parsed is Dictionary \
+				and String(Dictionary(shop_parsed).get("schema", "")) == "ysbzs.shop-art-runtime-projection.v1":
+			shop_projection = Dictionary(shop_parsed)
+	_capture_source = Dictionary(
+		shop_projection.get("presentation_source", capture.get("source", {}))
+	).duplicate(true)
+	_shop_art_capture = Dictionary(
+		shop_projection.get("shop_art_capture", capture.get("shop_art_capture", {}))
+	).duplicate(true)
 	_shop_capture_purchase_available = not _shop_art_capture.is_empty()
 	_shop_capture_operation_index = 0
 	_presentation_bootstrap_snapshot = Dictionary(
-		capture.get("presentation_bootstrap_snapshot", {})
+		shop_projection.get(
+			"presentation_bootstrap_snapshot",
+			capture.get("presentation_bootstrap_snapshot", {})
+		)
 	).duplicate(true)
 	_battle_bootstrap_snapshot = Dictionary(capture.get("initial_snapshot", {})).duplicate(true)
 	_legacy_insertion_row_templates = _capture_legacy_insertion_row_templates(

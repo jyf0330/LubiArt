@@ -5,6 +5,7 @@ const SharedUiScene := preload("res://art/prefabs/route/route_shared_ui.tscn")
 
 const SYNC_MANIFEST_PATH := "res://art/manifests/shop/formal_sync_manifest.json"
 const PREVIEW_PATH := "res://data/formal_shop_art_preview.json"
+const SHOP_RUNTIME_PATH := "res://data/formal_shop_art_runtime.json"
 const BATTLE_CAPTURE_PATH := "res://data/mock_battle_snapshot.json"
 const PET_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
 const MERCHANT_MAP_PATH := "res://art/manifests/shop/merchant_map.json"
@@ -54,8 +55,9 @@ func _run() -> void:
 		_expect(String(returned.get("source", "")).get_extension() == "png", "art return source stays PNG-only")
 		_expect(String(returned.get("target", "")).get_extension() == "png", "formal return target stays PNG-only")
 
-	var battle_capture := _read_json(BATTLE_CAPTURE_PATH)
-	var runtime_capture := Dictionary(battle_capture.get("shop_art_capture", {}))
+	var runtime_document := _read_json(SHOP_RUNTIME_PATH)
+	_expect(String(runtime_document.get("schema", "")) == "ysbzs.shop-art-runtime-projection.v1", "shop runtime projection is independent from the battle replay document")
+	var runtime_capture := Dictionary(runtime_document.get("shop_art_capture", {}))
 	var projection_keys := Array(runtime_capture.get("runtime_projection_keys", []))
 	_expect(not projection_keys.is_empty(), "runtime capture declares its bounded presentation fields")
 	for snapshot_key in [
@@ -84,7 +86,8 @@ func _run() -> void:
 	for operation_value in Array(runtime_capture.get("operations", [])):
 		var snapshot_key := String(Dictionary(operation_value).get("snapshot_key", ""))
 		_expect(replay_snapshots.has(snapshot_key), "each formal operation resolves to an exported replay Snapshot")
-	_expect(not Array(battle_capture.get("steps", [])).is_empty(), "existing battle replay steps remain present")
+	var battle_capture := _read_json(BATTLE_CAPTURE_PATH)
+	_expect(not Array(battle_capture.get("steps", [])).is_empty(), "existing battle replay steps remain present in its independent document")
 
 	var pet_map := Dictionary(_read_json(PET_MAP_PATH).get("by_pet_id", {}))
 	for pet_id_value in Dictionary(manifest.get("pet_map_updates", {})).keys():
