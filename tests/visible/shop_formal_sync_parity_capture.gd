@@ -65,6 +65,17 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("02_offer_hover", "悬停第一件商品", shop)
+	var second_offer := offers.get_node("Offer02") as Button
+	await _move_mouse(second_offer.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("02_entry_second_offer_hover", "悬停入口第二件商品", shop)
+	var third_offer := offers.get_node("Offer03") as Button
+	_expect(third_offer.get_global_rect().has_point(PAID_THIRD_OFFER_HOVER_POSITION), "entry third offer contains the shared parity pointer")
+	await _move_mouse(PAID_THIRD_OFFER_HOVER_POSITION)
+	await _settle(8)
+	await _release_focus()
+	await _capture("02_entry_third_offer_hover", "悬停入口第三件商品", shop)
 
 	var refresh := shop.get_node("RefreshButton") as TextureButton
 	await _move_mouse(refresh.get_global_rect().get_center())
@@ -115,7 +126,7 @@ func _run() -> void:
 	await _release_focus()
 	await _capture("08_bag_closed", "再次点击宝箱关闭背包", shop)
 
-	var second_offer := offers.get_node("Offer02") as Button
+	second_offer = offers.get_node("Offer02") as Button
 	await _click(second_offer)
 	await _settle(24)
 	await _move_mouse(NEUTRAL_MOUSE_POSITION)
@@ -124,7 +135,7 @@ func _run() -> void:
 	_expect(Array(second_purchased_snapshot.get("roster", [])).size() == 3, "second captured formal purchase adds the third roster record")
 	await _capture("09_second_purchase", "购买第二件商品完成", shop)
 
-	var third_offer := offers.get_node("Offer03") as Button
+	third_offer = offers.get_node("Offer03") as Button
 	await _click(third_offer)
 	await _settle(24)
 	await _move_mouse(NEUTRAL_MOUSE_POSITION)
