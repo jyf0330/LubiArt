@@ -99,6 +99,15 @@ func _run() -> void:
 	await _release_focus()
 	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "art entry third empty party aperture exposes no occupied party identity")
 	await _capture("01d_entry_third_empty_party_slot_hover", "悬停入口第三个空队伍槽", shop)
+	var entry_third_empty_party_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _mouse_button(ENTRY_THIRD_EMPTY_PARTY_SLOT_POSITION, true)
+	await process_frame
+	await _mouse_button(ENTRY_THIRD_EMPTY_PARTY_SLOT_POSITION, false)
+	await _settle(5)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == entry_third_empty_party_snapshot_before_click, "clicking the authored entry third empty party aperture leaves the captured formal snapshot unchanged")
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "art entry third empty party aperture click leaves no occupied party identity")
+	await _capture("01d2_entry_third_empty_party_slot_click", "点击入口第三个空队伍槽", shop)
 
 	var first_offer := offers.get_node("Offer01") as Button
 	await _move_mouse(first_offer.get_global_rect().get_center())
