@@ -4,6 +4,7 @@ const MAIN_SCENE := preload("res://art/scenes/app/game.tscn")
 const WINDOW_SIZE := Vector2i(1920, 1080)
 const OPTION_ID := "node_shop_basic"
 const NEUTRAL_MOUSE_POSITION := Vector2(1850.0, 1030.0)
+const PAID_THIRD_OFFER_HOVER_POSITION := Vector2(1228.0, 470.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -132,6 +133,11 @@ func _run() -> void:
 	_expect(not curtain.visible and not refresh.disabled, "captured paid refresh completes and unlocks input")
 	await _release_focus()
 	await _capture("12_paid_refresh_complete", "付费刷新动画完成", shop)
+
+	await _move_mouse(PAID_THIRD_OFFER_HOVER_POSITION)
+	await _settle(8)
+	await _release_focus()
+	await _capture("12b_paid_refresh_third_offer_hover", "悬停付费刷新后的第三件商品", shop)
 
 	first_offer = offers.get_node("Offer01") as Button
 	await _click(first_offer)
