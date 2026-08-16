@@ -236,6 +236,11 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("10c_party_fourth_hover", "悬停第四名队伍宠物", shop)
+	var fourth_party_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _click(fourth_party_slot)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == fourth_party_snapshot_before_click, "clicking the fourth authored party slot leaves the captured formal snapshot unchanged")
+	await _capture("10c2_party_fourth_click", "点击第四名队伍宠物", shop)
 
 	await _click(refresh, false)
 	await create_timer(0.18).timeout
