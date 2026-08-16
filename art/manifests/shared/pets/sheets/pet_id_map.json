@@ -24,7 +24,10 @@
     "pal_138": "res://art/images/formal_sync/shop/pets/pal_138.png",
     "pal_110": "res://art/images/formal_sync/shop/pets/pal_110.png",
     "pal_111": "res://art/images/formal_sync/shop/pets/pal_111.png",
-    "pal_105": "res://art/images/formal_sync/shop/pets/pal_105.png"
+    "pal_105": "res://art/images/formal_sync/shop/pets/pal_105.png",
+    "pal_085": "res://art/images/formal_sync/shop/pets/pal_085.png",
+    "pal_342": "res://art/images/formal_sync/shop/pets/pal_342.png",
+    "pal_097": "res://art/images/formal_sync/shop/pets/pal_097.png"
   },
   "by_name": {
     "土石莱姆": "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png",

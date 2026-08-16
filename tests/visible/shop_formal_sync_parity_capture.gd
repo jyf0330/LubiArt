@@ -608,6 +608,29 @@ func _run() -> void:
 	await _settle(30)
 	_expect(String(_game.call("get_active_feature_id")) == "", "real exit returns to route")
 	await _capture("18_exit_to_route", "退出商店返回路线", null)
+	var reentry_route_button := _find_command_button(_game, "CHOOSE_ROUTE", OPTION_ID)
+	_expect(reentry_route_button != null, "authored route still exposes node_shop_basic after leaving the shop")
+	if reentry_route_button == null:
+		_finish()
+		return
+	await _click(reentry_route_button)
+	var reentered_shop := await _wait_for_shop(_game)
+	if reentered_shop == null:
+		var reentry_confirm := _game.find_child("ExitButton", true, false) as TextureButton
+		_expect(reentry_confirm != null, "authored route provides confirmation when shop re-entry is not immediate")
+		if reentry_confirm != null:
+			await _click(reentry_confirm)
+			reentered_shop = await _wait_for_shop(_game)
+	_expect(reentered_shop != null, "real authored route pointer flow re-enters the shop after exit")
+	if reentered_shop == null:
+		_finish()
+		return
+	await _settle(24)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _settle(2)
+	await _release_focus()
+	_expect(String(_game.call("get_active_feature_id")) == "shop", "authored re-entry returns the public snapshot to shop")
+	await _capture("19_reenter_shop_after_exit", "退出后重新进入商店", reentered_shop)
 	_finish()
 
 

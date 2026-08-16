@@ -1,9 +1,9 @@
 {
   "schema": "ysbzs.shop-art-workspace-sync.v1",
   "direction": "formal_to_art_then_art_to_formal",
-  "formal_commit": "7af3909e91c2afe6313964eef75f31cec3d20b91",
-  "art_commit": "3a0ea25bc65a98d4ce932d53fd4ae1287ee77e56",
-  "capture_sha256": "bc50369d6b9a3ef36e3347bc9052757adfc61583eead2b2c857c534f49c18418",
+  "formal_commit": "b5fe8ab0217fc90dda3317132880dc66d72069d9",
+  "art_commit": "14d143d6bad09e92141f429adde334d47d655681",
+  "capture_sha256": "c75a3287a17939208993eecf19f53ba8b844c917af984d8cfd8d064a4a885f0c",
   "display_only": true,
   "forbidden_inbound_types": [
     "gd",
@@ -23,6 +23,7 @@
       "has_alpha": true,
       "sha256": "00553fedad51c4bc8f69fe54eee00cad1f8b53fb6f2c7ff2f189543d9b4aa524",
       "asset_id": "pal_002",
+      "missing_mapping_fallback": false,
       "applied_sha256": "00553fedad51c4bc8f69fe54eee00cad1f8b53fb6f2c7ff2f189543d9b4aa524"
     },
     {
@@ -34,6 +35,7 @@
       "has_alpha": true,
       "sha256": "7d1438cf870fca3e35eb065cf2c35a5ce5a6804a363bfc620dc20e7c9ab2848e",
       "asset_id": "pal_016",
+      "missing_mapping_fallback": false,
       "applied_sha256": "7d1438cf870fca3e35eb065cf2c35a5ce5a6804a363bfc620dc20e7c9ab2848e"
     },
     {
@@ -45,6 +47,7 @@
       "has_alpha": true,
       "sha256": "11804f859ad2a5176e3abdf39516a0a9cac8d0cdbfa9ff1be64bb42b0cad7c0e",
       "asset_id": "pal_053",
+      "missing_mapping_fallback": false,
       "applied_sha256": "11804f859ad2a5176e3abdf39516a0a9cac8d0cdbfa9ff1be64bb42b0cad7c0e"
     },
     {
@@ -56,6 +59,7 @@
       "has_alpha": true,
       "sha256": "89b2558c29658b7d199a12cb4cdf0eb6593fa8680b7b8ad275ccc3f280980bf8",
       "asset_id": "pal_138",
+      "missing_mapping_fallback": false,
       "applied_sha256": "89b2558c29658b7d199a12cb4cdf0eb6593fa8680b7b8ad275ccc3f280980bf8"
     },
     {
@@ -67,6 +71,7 @@
       "has_alpha": true,
       "sha256": "7f3e7e48ce260f877757a39d487bcba61194274c3e24609e5d8fcfc1153d43af",
       "asset_id": "pal_009",
+      "missing_mapping_fallback": false,
       "applied_sha256": "7f3e7e48ce260f877757a39d487bcba61194274c3e24609e5d8fcfc1153d43af"
     },
     {
@@ -78,6 +83,7 @@
       "has_alpha": true,
       "sha256": "81592399256057afd52f84def287d3604f5cb286d860ee3a529e407b40f5cffa",
       "asset_id": "pal_110",
+      "missing_mapping_fallback": false,
       "applied_sha256": "81592399256057afd52f84def287d3604f5cb286d860ee3a529e407b40f5cffa"
     },
     {
@@ -89,6 +95,7 @@
       "has_alpha": true,
       "sha256": "09e784e3d14849183573c60d5230f02f7ddd63c1c4a449422a5b746423adc1dd",
       "asset_id": "pal_111",
+      "missing_mapping_fallback": false,
       "applied_sha256": "09e784e3d14849183573c60d5230f02f7ddd63c1c4a449422a5b746423adc1dd"
     },
     {
@@ -100,6 +107,7 @@
       "has_alpha": true,
       "sha256": "6046bf613cfd11839046b4dc3283dd54a9f2d1e9e6b20330323bd143fb3c5a7a",
       "asset_id": "pal_017",
+      "missing_mapping_fallback": false,
       "applied_sha256": "6046bf613cfd11839046b4dc3283dd54a9f2d1e9e6b20330323bd143fb3c5a7a"
     },
     {
@@ -111,6 +119,7 @@
       "has_alpha": true,
       "sha256": "0e0a24bf2929a550ce1419ac42212ea104407e9533b0503ed599f0e6ab58b0f1",
       "asset_id": "pal_027",
+      "missing_mapping_fallback": false,
       "applied_sha256": "0e0a24bf2929a550ce1419ac42212ea104407e9533b0503ed599f0e6ab58b0f1"
     },
     {
@@ -122,7 +131,44 @@
       "has_alpha": true,
       "sha256": "f2397f5b6729c16f716e4907fb6ffe42e93bdfbfb064a6cf92db018b5b69517d",
       "asset_id": "pal_105",
+      "missing_mapping_fallback": false,
       "applied_sha256": "f2397f5b6729c16f716e4907fb6ffe42e93bdfbfb064a6cf92db018b5b69517d"
+    },
+    {
+      "source": "art/images/shared/pets/generated/pal_085.png",
+      "target": "art/images/formal_sync/shop/pets/pal_085.png",
+      "owner": "formal_reference",
+      "width": 1254,
+      "height": 1254,
+      "has_alpha": true,
+      "sha256": "3981ef684ff989828226874b83fc2cd4c36214d5bcd2969eb5c34739e0df8170",
+      "asset_id": "pal_085",
+      "missing_mapping_fallback": false,
+      "applied_sha256": "3981ef684ff989828226874b83fc2cd4c36214d5bcd2969eb5c34739e0df8170"
+    },
+    {
+      "source": "art/images/shared/pets/sheets/slices/pal_042.png",
+      "target": "art/images/formal_sync/shop/pets/pal_342.png",
+      "owner": "formal_reference",
+      "width": 1024,
+      "height": 1024,
+      "has_alpha": true,
+      "sha256": "67e0e3a963ae1d3290644d9820ac61daafd43e659534a59580d04effa8695485",
+      "asset_id": "pal_342",
+      "missing_mapping_fallback": true,
+      "applied_sha256": "67e0e3a963ae1d3290644d9820ac61daafd43e659534a59580d04effa8695485"
+    },
+    {
+      "source": "art/images/shared/pets/generated/pal_097.png",
+      "target": "art/images/formal_sync/shop/pets/pal_097.png",
+      "owner": "formal_reference",
+      "width": 1386,
+      "height": 1135,
+      "has_alpha": true,
+      "sha256": "5858f62f5d8c1d0a5d34c3fef6eb14c785f9c646dfafe149e5a6de27eb77e1cf",
+      "asset_id": "pal_097",
+      "missing_mapping_fallback": false,
+      "applied_sha256": "5858f62f5d8c1d0a5d34c3fef6eb14c785f9c646dfafe149e5a6de27eb77e1cf"
     },
     {
       "source": "art/images/shared/pets/generated/pal_001.png",
@@ -133,6 +179,7 @@
       "has_alpha": true,
       "sha256": "0e7a0d699416c7a4af3f0715aa811c5bd5775d10d4f4fdb6553ccfe3f953d165",
       "asset_id": "pal_001",
+      "missing_mapping_fallback": false,
       "applied_sha256": "0e7a0d699416c7a4af3f0715aa811c5bd5775d10d4f4fdb6553ccfe3f953d165"
     },
     {
@@ -144,6 +191,7 @@
       "has_alpha": true,
       "sha256": "11605cb740f69ecfc272766b0849d849305baa21017233a2c5857f70514c07ae",
       "asset_id": "pal_007",
+      "missing_mapping_fallback": false,
       "applied_sha256": "11605cb740f69ecfc272766b0849d849305baa21017233a2c5857f70514c07ae"
     },
     {
@@ -155,40 +203,8 @@
       "has_alpha": true,
       "sha256": "3265e365de7bc2e1ee75ff2ae978a686a201aad620fd4aaf6adfbad84f84a8db",
       "asset_id": "pal_013",
+      "missing_mapping_fallback": false,
       "applied_sha256": "3265e365de7bc2e1ee75ff2ae978a686a201aad620fd4aaf6adfbad84f84a8db"
-    },
-    {
-      "source": "art/images/shared/pets/generated/pal_028.png",
-      "target": "art/images/formal_sync/shop/pets/pal_028.png",
-      "owner": "formal_reference",
-      "width": 1254,
-      "height": 1254,
-      "has_alpha": true,
-      "sha256": "49fea34ab25bb431785ee5296f3d6c1e53f5a0c4687c9b4f672e2ce229547c76",
-      "asset_id": "pal_028",
-      "applied_sha256": "49fea34ab25bb431785ee5296f3d6c1e53f5a0c4687c9b4f672e2ce229547c76"
-    },
-    {
-      "source": "art/images/shared/pets/generated/pal_033.png",
-      "target": "art/images/formal_sync/shop/pets/pal_033.png",
-      "owner": "formal_reference",
-      "width": 1254,
-      "height": 1254,
-      "has_alpha": true,
-      "sha256": "cef1534a6437aa4c18704be1620860c66e671021cf9dbd8aab819d9ad982cd91",
-      "asset_id": "pal_033",
-      "applied_sha256": "cef1534a6437aa4c18704be1620860c66e671021cf9dbd8aab819d9ad982cd91"
-    },
-    {
-      "source": "art/images/shared/pets/generated/pal_042.png",
-      "target": "art/images/formal_sync/shop/pets/pal_042.png",
-      "owner": "formal_reference",
-      "width": 1254,
-      "height": 1254,
-      "has_alpha": true,
-      "sha256": "b78330a437a0bce5f3823879039c539fd4ed3cedb425d54d6518bad68f7f4926",
-      "asset_id": "pal_042",
-      "applied_sha256": "b78330a437a0bce5f3823879039c539fd4ed3cedb425d54d6518bad68f7f4926"
     },
     {
       "source": "art/images/route/shop/characters/generated/shop_character_001.png",
@@ -213,12 +229,12 @@
     "pal_017": "res://art/images/formal_sync/shop/pets/pal_017.png",
     "pal_027": "res://art/images/formal_sync/shop/pets/pal_027.png",
     "pal_105": "res://art/images/formal_sync/shop/pets/pal_105.png",
+    "pal_085": "res://art/images/formal_sync/shop/pets/pal_085.png",
+    "pal_342": "res://art/images/formal_sync/shop/pets/pal_342.png",
+    "pal_097": "res://art/images/formal_sync/shop/pets/pal_097.png",
     "pal_001": "res://art/images/formal_sync/shop/pets/pal_001.png",
     "pal_007": "res://art/images/formal_sync/shop/pets/pal_007.png",
-    "pal_013": "res://art/images/formal_sync/shop/pets/pal_013.png",
-    "pal_028": "res://art/images/formal_sync/shop/pets/pal_028.png",
-    "pal_033": "res://art/images/formal_sync/shop/pets/pal_033.png",
-    "pal_042": "res://art/images/formal_sync/shop/pets/pal_042.png"
+    "pal_013": "res://art/images/formal_sync/shop/pets/pal_013.png"
   },
   "merchant_map_updates": {
     "node_shop_basic": "res://art/images/formal_sync/shop/merchants/shop_character_001.png",
@@ -340,8 +356,8 @@
       "source": "art/images/route/three_choice_psd/bag_item_highlight.png",
       "target": "art/images/shop/screen_shop_godot_v1/shared_bag_item_highlight.png",
       "owner": "art_owned",
-      "formal_target_existed": false,
-      "formal_baseline_sha256": "",
+      "formal_target_existed": true,
+      "formal_baseline_sha256": "97b618f90bd0ad535ffa915fa09f1dc17004853d846c26e6680c70f18770ed0b",
       "art_baseline_sha256": "97b618f90bd0ad535ffa915fa09f1dc17004853d846c26e6680c70f18770ed0b",
       "width": 181,
       "height": 174,
@@ -397,7 +413,7 @@
     "art_pet_map_sha256": "9f4d62b63bf5cdc8afa28344077f2d9350c2003b3bbda427380463776c1a7932",
     "art_merchant_map_sha256": "4b4187674057e173d21aca0765dae18916c83cfa92ac4af8ceff57520074bf82"
   },
-  "applied_art_commit_before": "3a0ea25bc65a98d4ce932d53fd4ae1287ee77e56",
-  "applied_at_utc": "2026-08-15T23:16:52.645660+00:00",
+  "applied_art_commit_before": "14d143d6bad09e92141f429adde334d47d655681",
+  "applied_at_utc": "2026-08-16T13:29:56.168894+00:00",
   "battle_replay_steps_preserved_sha256": "cc4d90342280ea94f61ea0a3ed09619b0dfe19cb676166625ca281b09053b00f"
 }

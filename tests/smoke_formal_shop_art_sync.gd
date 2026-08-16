@@ -41,6 +41,7 @@ func _run() -> void:
 		"party_full_snapshot",
 		"paid_refreshed_snapshot",
 		"bag_purchased_snapshot",
+		"reentered_snapshot",
 	]:
 		for value in Array(Dictionary(preview.get(snapshot_key, {})).get("roster", [])):
 			var visible_roster_pet_id := String(Dictionary(value).get("pet_id", Dictionary(value).get("id", "")))
@@ -67,6 +68,7 @@ func _run() -> void:
 		"paid_refreshed_snapshot",
 		"bag_purchased_snapshot",
 		"exit_snapshot",
+		"reentered_snapshot",
 	]:
 		var runtime_snapshot := Dictionary(runtime_capture.get(snapshot_key, {}))
 		var public_snapshot := Dictionary(preview.get(snapshot_key, {}))
@@ -77,7 +79,8 @@ func _run() -> void:
 	_expect(not Dictionary(runtime_capture.get("route_snapshot", {})).has("battle"), "runtime capture excludes battle authority data")
 	_expect(not Dictionary(runtime_capture.get("route_snapshot", {})).has("run_plan"), "runtime capture excludes run-plan authority data")
 	var replay_snapshots := Dictionary(runtime_capture.get("replay_snapshots", {}))
-	_expect(replay_snapshots.size() == 8, "runtime capture carries all eight ordered formal shop snapshots")
+	_expect(replay_snapshots.size() == 9, "runtime capture carries all nine ordered formal shop snapshots")
+	_expect(Array(runtime_capture.get("operations", [])).size() == 9, "runtime capture carries all nine formal shop operations")
 	for operation_value in Array(runtime_capture.get("operations", [])):
 		var snapshot_key := String(Dictionary(operation_value).get("snapshot_key", ""))
 		_expect(replay_snapshots.has(snapshot_key), "each formal operation resolves to an exported replay Snapshot")
@@ -169,6 +172,11 @@ func _run() -> void:
 	var exit := Dictionary(session.submit_command({"type": "EXIT_SHOP"}))
 	_expect(bool(exit.get("accepted", false)), "Mock accepts synchronized formal exit")
 	_expect(_matches_public_projection(Dictionary(session.current_snapshot()), Dictionary(preview.get("exit_snapshot", {})), projection_keys), "exit replays the exact formal public presentation projection")
+	var reentry := Dictionary(session.submit_command({"type": "CHOOSE_ROUTE", "option_id": "node_shop_basic"}))
+	_expect(bool(reentry.get("accepted", false)), "Mock accepts synchronized formal shop re-entry")
+	var reentered_snapshot := Dictionary(session.current_snapshot())
+	_expect(String(reentered_snapshot.get("phase", "")) == "shop", "Mock returns to shop after the synchronized route operation")
+	_expect(_matches_public_projection(reentered_snapshot, Dictionary(preview.get("reentered_snapshot", {})), projection_keys), "shop re-entry replays the exact formal public presentation projection")
 
 	if _ok:
 		print("SMOKE_FORMAL_SHOP_ART_SYNC_OK offers=3 empty_slots=2 visible_image_closure=true pets=%d merchant=1 non_empty_bag=true direct_party_texture=true code_inbound=0" % pet_reference_count)

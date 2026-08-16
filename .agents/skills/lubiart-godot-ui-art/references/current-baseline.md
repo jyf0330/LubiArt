@@ -50,6 +50,7 @@
 ## 当前活动阻塞和已知基线
 
 - 当前应用正式 Feature 为三选、独立商店和战斗三类 Scene。商店由 `art/scenes/shop/shop_scene.tscn` 独立承载，三选与商店共享 `art/prefabs/route/route_shared_ui.tscn`；旧 Bazaar prefab/脚本和三选开发工具栏已删除。Game 仍是唯一 Session、Command 与 Feature 生命周期拥有者。
+- 商店美术往返只接受正式项目经公共 `Session -> Command -> Snapshot` 导出的有序操作与有界可见图片闭包；Mock 只离线重放该投影。正式宠物图缺少批准映射时，同步清单必须明确标记 `missing_mapping_fallback` 并复制正式界面实际使用的同一缺图替代图，不得在 Mock 端伪造宠物素材。退出后的两仓路线画面只做状态/交互验证，不声称像素一致，也不得据此复制彼此的 Scene、脚本或固定卡位。
 - 右侧宠物信息栏已选择第三方案进入审批预览：保留现行完整信息量，以旧棕金卡片美术语言重做外观并减少 AI 感。使用者已确认黄金三星代表样本可继续扩展，现已在 `output/ui_preview_candidates/battle_pet_info_option3/` 形成青铜一星、白银二星、黄金三星、钻石四星四张同套概念预览；该确认只授权继续出图，不等于老板批准实装。老板正式同意前不得修改或接入 Godot prefab、脚本、Theme、正式图片、manifest、测试或运行时引用；现行工程实现保持不变。
 - 战斗元素地块死亡格补画已修复：旧槽 2 捕获虽然没有独立 `hitEnemy` / `empty` 字段，但同一公共 Trace 中 `ELEMENT_APPLIED.deferToAttackStrike` 后的匹配 `ATTACK_STRIKE.targets` 已提供命中当刻的坐标和单位 ID。Session 旧捕获适配只按这组公共事件对账：非空单位 ID 格不增加元素，空 ID 格保留元素；不读取最终死亡/移位状态，也不处理缺少匹配攻击事件的元素变化。专项三轮数据断言、真实 OpenGL 六操作回放和独立工程门禁已通过。
 - `2026-08-16` 合并后，项目级 `smoke_mock_battle_project.gd` 仍复现新单位资源、防御属性语义、旧伤害预览 ProgressBar `.text` 和 prefab 特效职责断言，并在输出后不自行退出；`smoke_battle_art_scene.gd` 仍复现 `minimal battle hierarchy mismatch`，当时为 `scene_nodes=12`、`board_children=4`、`grid_children=64`。复用该基线前必须核对完整签名和本轮影响范围，不能把不同失败笼统视为同一问题。
