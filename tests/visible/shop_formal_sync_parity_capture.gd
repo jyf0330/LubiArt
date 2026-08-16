@@ -4,9 +4,9 @@ const MAIN_SCENE := preload("res://art/scenes/app/game.tscn")
 const WINDOW_SIZE := Vector2i(1920, 1080)
 const OPTION_ID := "node_shop_basic"
 const NEUTRAL_MOUSE_POSITION := Vector2(1850.0, 1030.0)
-const PAID_FIRST_OFFER_HOVER_POSITION := Vector2(578.0, 454.0)
-const PAID_SECOND_OFFER_HOVER_POSITION := Vector2(902.0, 454.0)
-const PAID_THIRD_OFFER_HOVER_POSITION := Vector2(1228.0, 470.0)
+const FIRST_OFFER_HOVER_POSITION := Vector2(578.0, 454.0)
+const SECOND_OFFER_HOVER_POSITION := Vector2(902.0, 454.0)
+const THIRD_OFFER_HOVER_POSITION := Vector2(1228.0, 470.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -73,8 +73,8 @@ func _run() -> void:
 	await _release_focus()
 	await _capture("02_entry_second_offer_hover", "悬停入口第二件商品", shop)
 	var third_offer := offers.get_node("Offer03") as Button
-	_expect(third_offer.get_global_rect().has_point(PAID_THIRD_OFFER_HOVER_POSITION), "entry third offer contains the shared parity pointer")
-	await _move_mouse(PAID_THIRD_OFFER_HOVER_POSITION)
+	_expect(third_offer.get_global_rect().has_point(THIRD_OFFER_HOVER_POSITION), "entry third offer contains the shared parity pointer")
+	await _move_mouse(THIRD_OFFER_HOVER_POSITION)
 	await _settle(8)
 	await _release_focus()
 	await _capture("02_entry_third_offer_hover", "悬停入口第三件商品", shop)
@@ -97,6 +97,24 @@ func _run() -> void:
 	await _capture("04_refresh_complete", "刷新动画完成", shop)
 
 	first_offer = offers.get_node("Offer01") as Button
+	_expect(first_offer.get_global_rect().has_point(FIRST_OFFER_HOVER_POSITION), "refreshed first offer contains the shared parity pointer")
+	await _move_mouse(FIRST_OFFER_HOVER_POSITION)
+	await _settle(8)
+	await _release_focus()
+	await _capture("04a_refresh_first_offer_hover", "悬停首次刷新后的第一件商品", shop)
+	second_offer = offers.get_node("Offer02") as Button
+	_expect(second_offer.get_global_rect().has_point(SECOND_OFFER_HOVER_POSITION), "refreshed second offer contains the shared parity pointer")
+	await _move_mouse(SECOND_OFFER_HOVER_POSITION)
+	await _settle(8)
+	await _release_focus()
+	await _capture("04b_refresh_second_offer_hover", "悬停首次刷新后的第二件商品", shop)
+	third_offer = offers.get_node("Offer03") as Button
+	_expect(third_offer.get_global_rect().has_point(THIRD_OFFER_HOVER_POSITION), "refreshed third offer contains the shared parity pointer")
+	await _move_mouse(THIRD_OFFER_HOVER_POSITION)
+	await _settle(8)
+	await _release_focus()
+	await _capture("04c_refresh_third_offer_hover", "悬停首次刷新后的第三件商品", shop)
+
 	var purchase_id := String(Dictionary(first_offer.get_meta("offer", {})).get("id", ""))
 	var coins_before_purchase := int(Dictionary(shop.call("preview_snapshot")).get("coins", 0))
 	await _click(first_offer)
@@ -167,20 +185,20 @@ func _run() -> void:
 	await _capture("12_paid_refresh_complete", "付费刷新动画完成", shop)
 
 	first_offer = offers.get_node("Offer01") as Button
-	_expect(first_offer.get_global_rect().has_point(PAID_FIRST_OFFER_HOVER_POSITION), "paid first offer contains the shared parity pointer")
-	await _move_mouse(PAID_FIRST_OFFER_HOVER_POSITION)
+	_expect(first_offer.get_global_rect().has_point(FIRST_OFFER_HOVER_POSITION), "paid first offer contains the shared parity pointer")
+	await _move_mouse(FIRST_OFFER_HOVER_POSITION)
 	await _settle(8)
 	await _release_focus()
 	await _capture("12a_paid_refresh_first_offer_hover", "悬停付费刷新后的第一件商品", shop)
 	second_offer = offers.get_node("Offer02") as Button
-	_expect(second_offer.get_global_rect().has_point(PAID_SECOND_OFFER_HOVER_POSITION), "paid second offer contains the shared parity pointer")
-	await _move_mouse(PAID_SECOND_OFFER_HOVER_POSITION)
+	_expect(second_offer.get_global_rect().has_point(SECOND_OFFER_HOVER_POSITION), "paid second offer contains the shared parity pointer")
+	await _move_mouse(SECOND_OFFER_HOVER_POSITION)
 	await _settle(8)
 	await _release_focus()
 	await _capture("12b_paid_refresh_second_offer_hover", "悬停付费刷新后的第二件商品", shop)
 	third_offer = offers.get_node("Offer03") as Button
-	_expect(third_offer.get_global_rect().has_point(PAID_THIRD_OFFER_HOVER_POSITION), "paid third offer contains the shared parity pointer")
-	await _move_mouse(PAID_THIRD_OFFER_HOVER_POSITION)
+	_expect(third_offer.get_global_rect().has_point(THIRD_OFFER_HOVER_POSITION), "paid third offer contains the shared parity pointer")
+	await _move_mouse(THIRD_OFFER_HOVER_POSITION)
 	await _settle(8)
 	await _release_focus()
 	await _capture("12c_paid_refresh_third_offer_hover", "悬停付费刷新后的第三件商品", shop)
