@@ -1,0 +1,42 @@
+{
+  "schema": "ysbzs.battle-art-workspace-sync.v1",
+  "direction": "formal_to_art_then_art_to_formal",
+  "display_only": true,
+  "capture_scope": "full_replay_comparison_first_round",
+  "forbidden_inbound_types": ["gd", "tscn", "tres", "save", "session", "authority"],
+  "outbound_files": [
+    {
+      "asset_id": "pal_001",
+      "source": "art/images/shared/pets/generated/pal_001.png",
+      "target": "art/images/formal_sync/shop/pets/pal_001.png",
+      "sha256": "0e7a0d699416c7a4af3f0715aa811c5bd5775d10d4fdb6553ccfe3f953d165",
+      "width": 1378,
+      "height": 1141
+    },
+    {
+      "asset_id": "pal_002",
+      "source": "art/images/shared/pets/generated/pal_002.png",
+      "target": "art/images/formal_sync/shop/pets/pal_002.png",
+      "sha256": "00553fedad51c4bc8f69fe54eee00cad1f8b53fb6f2c7ff2f189543d9b4aa524",
+      "width": 1402,
+      "height": 1122
+    },
+    {
+      "asset_id": "pal_003",
+      "source": "art/images/shared/pets/generated/pal_003.png",
+      "target": "art/images/formal_sync/shop/pets/pal_003.png",
+      "sha256": "c33e6b4ab18d16b5ab58e0a1082101b9bf8e45c0c2bf76efb8a3268bf434dca3",
+      "width": 1402,
+      "height": 1122
+    },
+    {
+      "asset_id": "pal_004",
+      "source": "art/images/shared/pets/generated/pal_004.png",
+      "target": "art/images/formal_sync/shop/pets/pal_004.png",
+      "sha256": "bbbb28ff39b3b192f44f468a81102ebe9b09831b130d6a3f99ca226b530e590c",
+      "width": 1254,
+      "height": 1254
+    }
+  ],
+  "return_policy": "only confirmed image or UI-resource corrections may return to godot-latest"
+}

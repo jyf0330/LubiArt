@@ -236,12 +236,15 @@ func _start_unit_drag(grid: Vector2i) -> void:
 	if unit == null or not unit.has_method("get_unit_id"):
 		return
 	_clear_pet_hover_detail()
+	# A drag is a placement operation, not a detail request. Close any pinned
+	# card before creating the preview so it cannot obscure the target cells or
+	# survive after a cancelled drag.
+	cell_detail_requested.emit(Vector2i(-1, -1), "")
 	_drag_unit_id = String(unit.call("get_unit_id"))
 	_drag_started_on_selected_unit = (
 		_board.has_method("current_authoritative_selected_unit_id")
 		and String(_board.call("current_authoritative_selected_unit_id")) == _drag_unit_id
 	)
-	_request_pet_detail(grid, _drag_unit_id)
 	if _board.has_method("show_local_unit_selection"):
 		_board.call("show_local_unit_selection", _drag_unit_id)
 	_board.call("set_layout_drag_active", true)
