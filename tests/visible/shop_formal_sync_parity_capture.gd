@@ -363,6 +363,11 @@ func _run() -> void:
 	_expect(JSON.stringify(shop.call("preview_snapshot")) == fourth_party_snapshot_before_click, "clicking the fourth authored party slot leaves the captured formal snapshot unchanged")
 	await _capture("10c2_party_fourth_click", "点击第四名队伍宠物", shop)
 
+	await _move_mouse(refresh_position)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "ROLL_SHOP", "authored paid refresh hover exposes the refresh action")
+	await _capture("10d_paid_refresh_hover", "悬停付费刷新铃但不点击", shop)
 	await _click(refresh, false)
 	await create_timer(0.18).timeout
 	_expect(curtain.visible, "captured paid refresh curtain is visible during the operation")
