@@ -101,6 +101,11 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("06_party_hover", "悬停第一名队伍宠物", shop)
+	var second_party_slot := shop.get_node("RouteSharedUi/Party/Party_Container/Party_Slot2") as TextureButton
+	await _move_mouse(second_party_slot.get_global_rect().get_center())
+	await _settle(8)
+	await _release_focus()
+	await _capture("06b_party_second_hover", "悬停第二名队伍宠物", shop)
 
 	var bag_button := shop.get_node("RouteSharedUi/Bags/Bag_Button") as TextureButton
 	await _click(bag_button)
