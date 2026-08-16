@@ -256,6 +256,12 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("15b_bag_pet_eighth_empty_slot_hover", "已有宠物时悬停背包第八空槽", shop)
+	await _move_mouse(NEUTRAL_MOUSE_POSITION)
+	await _settle(8)
+	await _release_focus()
+	var mixed_bag_highlight := shop.get_node("RouteSharedUi/ItemSlotHoverHighlight") as CanvasItem
+	_expect(mixed_bag_highlight != null and not mixed_bag_highlight.visible, "the authored bag highlight clears after the pointer exits every slot")
+	await _capture("15c_bag_hover_cleared", "移出背包清除槽高亮", shop)
 	await _click(bag_button)
 	await _release_focus()
 	await _capture("16_bag_with_pet_closed", "关闭已有宠物的背包", shop)
