@@ -159,6 +159,13 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("07b_empty_bag_slot_hover", "悬停空背包第一槽", shop)
+	var empty_bag_slot := shop.get_node("RouteSharedUi/Middle_Bag/Slots/Bag_Slot") as BaseButton
+	_expect(empty_bag_slot != null and Dictionary(empty_bag_slot.get_meta("drag_record", {})).is_empty(), "the authored first bag slot is empty before the no-op click probe")
+	var empty_bag_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _click(empty_bag_slot)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == empty_bag_snapshot_before_click, "clicking the empty authored bag slot leaves the captured formal snapshot unchanged")
+	await _capture("07c_empty_bag_slot_click", "点击空背包第一槽", shop)
 	await _click(bag_button)
 	await _release_focus()
 	await _capture("08_bag_closed", "再次点击宝箱关闭背包", shop)
