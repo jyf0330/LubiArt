@@ -145,6 +145,11 @@ func _run() -> void:
 	await _settle(8)
 	await _release_focus()
 	await _capture("06_party_hover", "悬停第一名队伍宠物", shop)
+	var first_party_snapshot_before_click := JSON.stringify(shop.call("preview_snapshot"))
+	await _click(party_slot)
+	await _release_focus()
+	_expect(JSON.stringify(shop.call("preview_snapshot")) == first_party_snapshot_before_click, "clicking the first authored party slot leaves the captured formal snapshot unchanged")
+	await _capture("06a_party_first_click", "点击第一名队伍宠物", shop)
 	var second_party_slot := shop.get_node("RouteSharedUi/Party/Party_Container/Party_Slot2") as TextureButton
 	await _move_mouse(second_party_slot.get_global_rect().get_center())
 	await _settle(8)
