@@ -9,6 +9,7 @@ const SECOND_OFFER_HOVER_POSITION := Vector2(902.0, 454.0)
 const THIRD_OFFER_HOVER_POSITION := Vector2(1228.0, 470.0)
 const FOURTH_EMPTY_SLOT_POSITION := Vector2(578.0, 704.0)
 const FIFTH_EMPTY_SLOT_POSITION := Vector2(1228.0, 704.0)
+const ENTRY_SECOND_EMPTY_PARTY_SLOT_POSITION := Vector2(820.0, 878.0)
 
 var _output_dir := ""
 var _expected_project_root := ""
@@ -63,6 +64,11 @@ func _run() -> void:
 	_expect(_visible_offer_count(offers) == 3, "three synchronized formal offers are visible")
 	_expect(_empty_offer_count(offers) == 2, "two authored shelf slots remain intentionally empty")
 	await _capture("01_shop_entry", "进入基础商店", shop)
+	await _move_mouse(ENTRY_SECOND_EMPTY_PARTY_SLOT_POSITION)
+	await _settle(8)
+	await _release_focus()
+	_expect(String(_interaction_identity(root.gui_get_hovered_control()).get("action", "")) == "none", "art entry second empty party aperture exposes no occupied party identity")
+	await _capture("01b_entry_second_empty_party_slot_hover", "悬停入口第二个空队伍槽", shop)
 
 	var first_offer := offers.get_node("Offer01") as Button
 	await _move_mouse(first_offer.get_global_rect().get_center())
@@ -464,6 +470,8 @@ func _interaction_identity(control: Control) -> Dictionary:
 	if action == "":
 		action = _action_from_control_name(target.name)
 	if action == "BUY_OFFER" and offer_id == "":
+		action = "none"
+	if action == "PARTY_SLOT" and Dictionary(target.get_meta("drag_record", {})).is_empty():
 		action = "none"
 	return {"action": action, "offer_id": offer_id, "control": String(target.name)}
 
