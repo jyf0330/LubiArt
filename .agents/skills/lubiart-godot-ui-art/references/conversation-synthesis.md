@@ -2127,3 +2127,10 @@ Codex 工作树与用户长期打开的 checkout 可以拥有相同项目名、�
 - 用户意图与新增标准：使用者指出第三段战斗卡的红色小标与前两段普通路线小标大小、位置不一致，要求统一。现行标准是红标继续使用既有交叉武器素材，但必须在同一个 `KindIcon` authored `40×62` 矩形内等比居中显示，不得由 `80×104` 源图尺寸撑大或溢出。
 - 根因与工程变更：正式项目 `C:\Users\jyf\Documents\godot-latest-latest-20260817-103552\` 的普通路线标为 `40×62`，`three_fight_logo.png` 为 `80×104`；`KindIcon` 先前保留纹理尺寸，导致红标约两倍显示。现已只在既有 `art/prefabs/route/three_choice_card.tscn` 的 `KindIcon` 启用 `EXPAND_IGNORE_SIZE`，继续使用 authored `40×62` offsets 与等比居中模式；补强集成及可见回归，断言红标资源、矩形和缩放策略。未修改图片、节点拓扑、玩法、Snapshot、Session、manifest 或数据。
 - 验收证据与状态：已确认当前 Godot 编辑器和运行实例根目录与目标正式工程一致。Godot 4.7 Vulkan `1920×1080` 六状态真实流程通过，覆盖第一段普通路线、第二段刷新、第三段三张红标和进入 `BattleArtScene`；专项集成与 headless editor 扫描退出码均为 `0`。三操作像素矩阵通过：第一段与第二段普通路线前后各 `0` 差异，第三段差异只包围三枚顶部红标区域（RGB 差异包围盒 `(589,279)-(1318,383)`）；进入战斗由真实流程和专项断言验证，未用含动态相位的战斗帧作静态零差异依据。证据位于正式项目 `output/validation/red-battle-icon-alignment-20260817/`。独立 Mock 的 `verify_ui_mirror.sh` 通过动画批准与结构门禁，正式源比较按未提供源参数设计跳过。正式项目无 `.git` 元数据，无法提交；状态：已完成。
+
+### 2026-08-17 — 老板整合版新项目基线提交并推送
+
+- 用户意图与目标：使用者要求总结并提交、推送“新的这个项目”。目标明确为 `C:\Users\jyf\Documents\godot-latest-latest-20260817-103552`，不是旧 `C:\Users\jyf\Documents\LubiArt`工作树。
+- 工程与 Git 结果：老板整合版完整基线纳入 `4325` 个路径，包含正式核心/Session/持久化、三选与商店增量命令、路线刷新与战斗入口、战斗 UI、正式资源、测试、QA、任务卡和工具；同时移除旧 Mock 插件、过时同步副本和不再属于新项目的旧资源。主提交为 `6fd880cc`（`feat: establish formal integrated project baseline`），已以普通新分支推送到 `origin/codex/formal-integrated-20260817`，未强推也未覆盖旧分支。本地与远端 OID 一致，ahead/behind 为 `0/0`。
+- 发布边界与验证：本地 `tmp/`、Python 缓存、日志、Office 锁文件、Godot 缓存和已忽略录制未进入 Git；最大文件为 `27.7 MB` PSD，未超过 GitHub 限制。暂存格式、冲突标记、敏感信息签名、符号链接和 Godot 4.7 headless 扫描通过；路线商店战斗推进、`R / TAB / A` 按钮映射、战斗 UI 组件架构三项通过。
+- 阻塞与状态：增量命令专项连续两次仅在宠物购买 `100ms` 门槛失败，实测 `108ms` 与 `104ms`，其余命令及功能断言正常。Git 提交与推送已完成；产品全绿验收为 `BLOCKED`，本轮未改写性能阈值或顺带修改产品实现。无新美术、动画版本批准或玩法标准。
