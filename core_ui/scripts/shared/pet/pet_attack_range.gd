@@ -11,6 +11,11 @@ var _range_texture: Texture2D = ATTACK_RANGE_TEXTURE
 var _render_cell_size := Vector2.ZERO
 var _origin_grid := Vector2i(-1, -1)
 var _uses_board_canvas := false
+var _board_global_position := Vector2.ZERO
+var _board_geometry: Dictionary = {}
+var _overlay_layer: CanvasLayer = null
+var _overlay_root: Control = null
+var _overlay_markers: Array[TextureRect] = []
 
 
 func _ready() -> void:
@@ -23,9 +28,15 @@ func reset() -> void:
 	_render_cell_size = Vector2.ZERO
 	_origin_grid = Vector2i(-1, -1)
 	_uses_board_canvas = false
+	_board_global_position = Vector2.ZERO
+	_board_geometry = {}
 	for marker in _markers:
 		marker.visible = false
 		marker.modulate = ATTACK_RANGE_RED
+	for marker in _overlay_markers:
+		marker.visible = false
+	if _overlay_root != null:
+		_overlay_root.visible = false
 	visible = false
 	queue_redraw()
 
@@ -35,12 +46,14 @@ func show_action_block_ranges(
 	grid_cell_size: Vector2 = Vector2.ZERO,
 	origin_grid: Vector2i = Vector2i(-1, -1),
 	board_size: Vector2 = Vector2.ZERO,
-	_board_global_position: Vector2 = Vector2.ZERO,
-	_board_geometry: Dictionary = {}
+	board_global_position: Vector2 = Vector2.ZERO,
+	board_geometry: Dictionary = {}
 ) -> void:
 	_resolve_markers()
 	_render_cell_size = grid_cell_size if grid_cell_size.x > 0.0 and grid_cell_size.y > 0.0 else size
 	_origin_grid = origin_grid
+	_board_global_position = board_global_position
+	_board_geometry = board_geometry.duplicate(true)
 	_uses_board_canvas = (
 		origin_grid.x >= 0
 		and origin_grid.y >= 0
@@ -85,7 +98,7 @@ func snapshot() -> Dictionary:
 		"color": ATTACK_RANGE_RED,
 		"visibleCellCount": _visible_offsets.size(),
 		"overlayVisibleMarkerCount": _overlay_visible_marker_count(),
-		"renderMode": "perspective_cell_red_fill" if _uses_board_canvas else "front_target_cell_canvas",
+		"renderMode": "front_target_cell_red_overlay" if _uses_board_canvas else "front_target_cell_canvas",
 		"cells": cells,
 	}
 
@@ -134,12 +147,67 @@ func _resolve_markers() -> void:
 func _layout_markers() -> void:
 	for marker in _markers:
 		marker.visible = false
-	visible = not _uses_board_canvas and not _visible_offsets.is_empty()
+	if _uses_board_canvas:
+		_layout_board_overlay()
+	elif _overlay_root != null:
+		_overlay_root.visible = false
+	visible = not _visible_offsets.is_empty()
 	queue_redraw()
 
 
+func _layout_board_overlay() -> void:
+	_ensure_board_overlay(_visible_offsets.size())
+	for marker_index in range(_overlay_markers.size()):
+		var marker := _overlay_markers[marker_index]
+		if marker_index >= _visible_offsets.size():
+			marker.visible = false
+			continue
+		var target_grid := _origin_grid + _visible_offsets[marker_index]
+		var target_geometry := Dictionary(_board_geometry.get(_offset_key(target_grid), {}))
+		if target_geometry.is_empty():
+			marker.position = _board_global_position + Vector2(
+				target_grid.x * _render_cell_size.x,
+				target_grid.y * _render_cell_size.y
+			)
+			marker.size = _render_cell_size
+		else:
+			marker.position = Vector2(target_geometry.get("position", Vector2.ZERO))
+			marker.size = Vector2(target_geometry.get("size", _render_cell_size))
+		marker.visible = true
+	if _overlay_root != null:
+		_overlay_root.visible = not _visible_offsets.is_empty()
+
+
+func _ensure_board_overlay(required_marker_count: int) -> void:
+	if _overlay_layer == null:
+		_overlay_layer = CanvasLayer.new()
+		_overlay_layer.name = "AttackRangeCanvas"
+		_overlay_layer.layer = 35
+		add_child(_overlay_layer)
+		_overlay_root = Control.new()
+		_overlay_root.name = "RedAttackRangeOverlay"
+		_overlay_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_overlay_layer.add_child(_overlay_root)
+	while _overlay_markers.size() < required_marker_count:
+		var marker_index := _overlay_markers.size()
+		var marker := TextureRect.new()
+		marker.name = "RedTarget_%02d" % marker_index
+		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		marker.texture = _range_texture
+		marker.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		marker.stretch_mode = TextureRect.STRETCH_SCALE
+		marker.modulate = ATTACK_RANGE_RED
+		marker.visible = false
+		_overlay_root.add_child(marker)
+		_overlay_markers.append(marker)
+
+
 func _overlay_visible_marker_count() -> int:
-	return _visible_offsets.size() if _uses_board_canvas else 0
+	var count := 0
+	for marker in _overlay_markers:
+		if marker.visible:
+			count += 1
+	return count
 
 
 func _relative_offset(cell: Dictionary, origin: Dictionary) -> Vector2i:

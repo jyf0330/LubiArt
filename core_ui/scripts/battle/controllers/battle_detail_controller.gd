@@ -2,32 +2,14 @@ extends RefCounted
 
 ## Builds the stable data contract consumed by the shared pet-detail prefab.
 
+const BattlePetViewModelScript := preload("res://core_ui/scripts/battle/presenters/battle_pet_view_model.gd")
+
 
 func pet_record(unit: Dictionary, skill_description: String, attack_shape: Dictionary) -> Dictionary:
-	var max_ap := int(unit.get("ap", unit.get("max_ap", unit.get("maxAp", 0))))
-	var current_ap := int(unit.get("available_ap", unit.get("availableAp", max_ap)))
-	return {
-		"name": display_name(unit),
-		"element": element(unit),
-		"quality": quality(unit),
-		"role": String(unit.get("role", side_label(String(unit.get("side", ""))))),
-		"hp": int(unit.get("hp", 0)),
-		"max_hp": int(unit.get("max_hp", unit.get("maxHp", unit.get("hp", 0)))),
-		"ap": current_ap,
-		"max_ap": max_ap,
-		"attack": int(unit.get("atk", unit.get("attack", 0))),
-		"defense": int(unit.get("def", unit.get("defense", 0))),
-		"shield": max(0, int(unit.get("shield", 0))),
-		"max_shield": max(0, int(unit.get("max_shield", unit.get("maxShield", unit.get("shield", 0))))),
-		"regen": int(unit.get("regen", unit.get("regeneration", 0))),
-		"skill_description": skill_description,
-		"attack_shape": attack_shape,
-		"traits": unit.get("traits", unit.get("traitIds", unit.get("trait_ids", []))),
-		"quality_traits": unit.get("quality_traits", unit.get("qualityTraits", [])),
-		"quality_upgrades": unit.get("quality_upgrades", unit.get("qualityUpgrades", [])),
-		"quality_upgrade": dict_value(unit.get("quality_upgrade", unit.get("qualityUpgrade", {}))).duplicate(true),
-		"quality_progression": dict_value(unit.get("quality_progression", unit.get("qualityProgression", {}))).duplicate(true),
-	}
+	var record := BattlePetViewModelScript.from_record(unit)
+	record["skill_description"] = skill_description
+	record["attack_shape"] = attack_shape.duplicate(true)
+	return record
 
 
 func display_name(unit: Dictionary) -> String:

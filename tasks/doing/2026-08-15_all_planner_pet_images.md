@@ -1,0 +1,263 @@
+# 策划表全量宠物正式图片持续生成
+
+- status: paused
+- owner: codex-root-20260815
+- objective: 以 `/Users/ywh/Documents/ysbzs/xlsx/ysbzs_master.xlsx` 的 `PETS` 为唯一数量和身份真相，为 369 个 `pet_id` 各生成一张与三选一场景一致的正式像素美术，替换复用、错配和 fallback 占位图
+- delivery_base_commit: d6e3eee
+- source_of_truth:
+  - `/Users/ywh/Documents/ysbzs/xlsx/ysbzs_master.xlsx`：`PETS` 当前 369 条；只读，不改策划数值
+  - `art/images/route/three_choice_psd/route_portrait_{shop,event,reward}.png`：主风格基准
+  - `art/images/shared/pets/sheets/slices/*.png`：仅作既有像素边缘、构图和尺寸参考；不得把错配图片继续当正式身份素材
+- write_scopes:
+  - `art/images/shared/pets/generated/**`
+  - `art/manifests/shared/pets/pet_image_generation_manifest.json`
+  - `art/manifests/shared/pets/sheets/pet_id_map.json`
+  - `tools/art/generate_pet_image_manifest.py`
+  - `tools/art/remove_chroma_background.py`
+  - `tests/features/smoke_all_planner_pet_images.gd`
+  - `tests/features/smoke_asset_registry.gd`（仅更新已接入正式图的解析断言）
+  - `tasks/doing/2026-08-15_all_planner_pet_images.md`
+- exclusive_files:
+  - `art/images/shared/pets/generated/**`
+  - `art/manifests/shared/pets/pet_image_generation_manifest.json`
+  - `art/manifests/shared/pets/sheets/pet_id_map.json`
+  - `tools/art/generate_pet_image_manifest.py`
+  - `tools/art/remove_chroma_background.py`
+  - `tests/features/smoke_all_planner_pet_images.gd`
+  - `tests/features/smoke_asset_registry.gd`
+- existing_wip:
+  - 当前 `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`、`qa/visual_baselines/macos/*.png`、`tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 及战斗/自动摆位相关修改属于其他任务资产，本任务不覆盖、不暂存
+  - 24 小时真实窗口录制任务仍在占用独立显示与部分状态文件；本任务生图阶段不占用或关闭该槽
+- current_batch: 用户于 2026-08-15 明确要求“宠物先不弄”；`pal_279`–`pal_283` 仅保留为本 owner 的未跟踪本地草稿，未更新正式清单/映射、未暂存、未提交，恢复前不得继续推进
+- stop_conditions:
+  - 当前策划表 369 个 `pet_id` 均有唯一、身份相符、非 fallback 的正式图片
+  - 每张图片为透明背景像素美术，主体完整，无文字、水印、UI 边框或卡片背景，可直接复用于三选一、商店和战斗预制体
+  - 映射不存在一图多宠、缺文件、错误尺寸、无 alpha 或透明主体面积异常
+  - 正式入口不再为策划宠物走 `fallback_pet_texture()`；专项测试和独立真实窗口抽样验收通过
+- generation_policy:
+  - 每个宠物单独调用内置 ImageGen；不以一张拼图切片冒充多个独立生成
+  - Prompt 由 `pet_id/name/element/tier/role/body_size` 和固定风格约束组成，不写入宠物数值或玩法逻辑
+  - 每批生成后先检查主体、像素风、透明边缘和身份，再更新映射；不合格图不计入完成数
+  - `ysbzs-chibi-pixel-v1` 为强制风格契约：Q 版紧凑轮廓、可见硬像素簇、深暖外轮廓和有限阶梯明暗；写实毛发/羽毛/鳞片、平滑插画、3D 材质、电影光效和装饰画框均直接退回
+  - 图片存在不等于正式批准；身份和风格必须分别通过，`style_audit.needs_regeneration_ids` 中的草稿不得进入运行时映射
+  - 第一阶段按正式初始阵容、静态初始商店和现有敌方视觉去重后只需 13 个 ID：`pal_001/002/003/006/007/009/013/016/017/027/028/033/042`；这些现已全部通过，369 张仍是长期完整图库目标，不再用第一阶段名义追数量
+- validation:
+  - 生成清单数量/ID 与 `PETS` 逐项相等
+  - PNG 尺寸、alpha、边界透明度、内容哈希唯一性检查
+  - `godot --headless --path . --script tests/features/smoke_all_planner_pet_images.gd`
+  - `godot --headless --path . --script tests/features/smoke_asset_registry.gd`
+  - 独立虚拟屏从正式三选一入口抽样检查商店、背包和战斗显示
+- progress:
+  - 2026-08-15：当前 live smoke 为 `catalog_pets=369 mapped_pets=12 missing_pets=357`；现有 12 条映射还存在跨 ID 复用和身份错配，故全量 369 张都进入正式重制清单，旧图只作参考
+  - 2026-08-15 首批：`pal_001`–`pal_005`（棉角羊、灰尾狸、芦花鸡、青藤鼠、赤尾狐）已独立生成、透明化、逐张目视批准并接入统一 `pet_id` 映射；当前 `generated=5 approved=5 pending=364`
+  - 首次直接脚本测试因主工作区未导入新 PNG 而返回 `No loader found`；随后使用 `/tmp/godot-pet-art-import.h4YLIj` 独立项目副本完成首次导入，两项 smoke 均通过，副本已移入废纸篓，不触碰用户/其他 AI 的 `.godot` 与显示槽
+  - 2026-08-15 第二批：`pal_006`–`pal_010`（碧水鸭、雷须猫、藤甲猿、火角鹿、霜羽鹭）已完成同样流程；`pal_009`、`pal_010` 新增此前缺失的正式映射，当前 `generated=10 approved=10 pending=359`，运行时映射 `14/369`、缺口 `355`
+  - 2026-08-15 第三批：`pal_011`–`pal_015`（冰背獭、电棘鼠、苔甲龟、金钱狸、黑甲猪）已完成同样流程；当前 `generated=15 approved=15 pending=354`，运行时映射 `18/369`、缺口 `351`
+  - 2026-08-15 第四批：`pal_016`–`pal_020`（涧水象、黑角犀、竹囊鼠、夜穴鼹、沙鬃猪）已完成同样流程；雷电与火焰接近色键的源图使用保色硬色键处理并逐张检查，当前 `generated=20 approved=20 pending=349`，运行时映射 `23/369`、缺口 `346`
+  - 2026-08-15 第五批：`pal_021`–`pal_025`（暮羽鸦、岩爪鼹、墨潭鲵、幽纹猫、泉须鲶）已完成同样流程；当前 `generated=25 approved=25 pending=344`，运行时映射 `28/369`、缺口 `341`
+  - 2026-08-15 第六批：`pal_026`–`pal_030`（疾风狼、惊羽雀、药草兔、黄背牛、花刺蛛）已完成同样流程；`pal_027` 首稿因彩色杂边退回重生，`pal_028`、`pal_030` 已从旧切片切换为身份正确的新图；当前 `generated=30 approved=30 pending=339`，运行时映射 `31/369`、缺口 `338`
+  - 2026-08-15 第七批：`pal_031`–`pal_035`（青背鲵、石甲鲮、芭蕉熊、蜜纹獾、藤巢蜂）已完成同样流程；当前 `generated=35 approved=35 pending=334`，运行时映射 `36/369`、缺口 `333`
+  - 2026-08-15 第八批：`pal_036`–`pal_040`（云纹巨驼、月角白鹿、疾风苍鹰、银背巨兔、炎角黑羊）已完成同样流程；当前 `generated=40 approved=40 pending=329`，运行时映射 `41/369`、缺口 `328`
+  - 2026-08-15 第九批：`pal_041`–`pal_045`（回春彩蝶、赤焰蛮牛、泥甲巨鲶、夜羽巨鸦、墨鳞巨蜥）已完成同样流程；`pal_042` 已从旧切片切换为身份正确的新图，当前所有 `by_pet_id` 映射均指向本轮生成资产；当前 `generated=45 approved=45 pending=324`，运行时映射 `45/369`、缺口 `324`
+  - 2026-08-15 第十批：`pal_046`–`pal_050`（月镰螳螂、裂空苍鹰、木刺豪猪、铁臂黑猿、金甲蜂群）已完成同样流程；金甲蜂群按策划身份制作成一主蜂四工蜂组成的单一紧凑战斗单位，当前 `generated=50 approved=50 pending=319`，运行时映射 `50/369`、缺口 `319`
+  - 2026-08-15 第十一批：`pal_051`–`pal_055`（百花巨蜂、笑面山猫、霜尾雪貂、白眉雪猿、寒风幼螭）已完成同样流程；寒风幼螭以冷风外形与暖色火核同时表达策划名称和正式火属性，未篡改数据，当前 `generated=55 approved=55 pending=314`，运行时映射 `55/369`、缺口 `314`
+  - 2026-08-15 第十二批：`pal_056`–`pal_060`（震角雷牛、吹雪银狐、丹角火麟、冰角白鹿、霹雳战獒）已完成同样流程；震角雷牛以物理震波保持正式无属性，丹角火麟以丹红角解释名称并以冰水效果忠实表达正式属性，当前 `generated=60 approved=60 pending=309`，运行时映射 `60/369`、缺口 `309`
+  - 2026-08-15 第十三批：`pal_061`–`pal_065`（苍焰赤豺、雷纹巨猿、蜃雾白鹿、翠冠花螭、霆角龙犀）已完成同样流程；霆角龙犀以雷形巨角解释名称并以暗云缚纹忠实表达正式暗属性，当前 `generated=65 approved=65 pending=304`，运行时映射 `65/369`、缺口 `304`
+  - 2026-08-15 第十四批：`pal_066`–`pal_070`（浪鳞水蛇、沙鳞巨蟒、食梦黑貘、碎岩巨龟、猫翼夜蝠）已完成同样流程；浪鳞水蛇以浪纹外形解释名称并以岩甲、砂晶忠实表达正式地属性，当前 `generated=70 approved=70 pending=299`，运行时映射 `70/369`、缺口 `299`
+  - 2026-08-15 第十五批：`pal_071`–`pal_075`（甘露壁虎、赤巢火蚁、烽翼火龙、霜翼冥龙、赤刃螳螂）已完成同样流程；赤巢火蚁以单只巨蚁的一体化巢室腹部表达名称，烽翼火龙用钱袋、商铃明确经济定位，当前 `generated=75 approved=75 pending=294`，运行时映射 `75/369`、缺口 `294`
+  - 2026-08-15 第十六批：`pal_076`–`pal_080`（迅雷金雕、燧火黑乌、幽泉灵猫、焰尾山狐、踏春白兔）已完成同样流程；迅雷金雕以金雕外形解释名称并以水卷、地甲忠实表达正式水地属性，焰尾山狐以焰色巨尾解释名称并以岩甲、雷纹忠实表达正式雷地属性，当前 `generated=80 approved=80 pending=289`，运行时映射 `80/369`、缺口 `289`
+  - 2026-08-15 第十七批：`pal_081`–`pal_085`（药香花鹿、冰丝巨蛾、云鳞幼螭、沧浪青蛟、涌泉水獭）已完成同样流程；冰丝巨蛾以冰丝色翼表达名称并以龙鳞纹忠实表达正式龙属性，沧浪青蛟以浪形鳍表达名称并以火龙珠忠实表达正式火龙属性，当前 `generated=85 approved=85 pending=284`，运行时映射 `85/369`、缺口 `284`
+  - 2026-08-15 第十八批：`pal_086`–`pal_090`（赤炎狻猊、碧海青蛟、冰棘豪猪、狱火凶獒、三首火犬）已完成同样流程；赤炎狻猊以火形鬃表达名称但保持正式龙属性，三首火犬首稿因渐变光场退回重生，合格稿为同一犬身三首并以水卷、雷纹忠实表达正式水雷属性，当前 `generated=90 approved=90 pending=279`，运行时映射 `90/369`、缺口 `279`
+  - 2026-08-15 第十九批：`pal_091`–`pal_095`（覆水龙龟、雷泽青蛟、连理双鹿、海棠水鹿、百花灵鹿）已完成同样流程；连理双鹿按策划身份制作成恰有两只完整鹿体、由藤角和水结连接的单一双鹿单位，其余名称与正式元素反差均以外形命名和实际法术分层表达，当前 `generated=95 approved=95 pending=274`，运行时映射 `95/369`、缺口 `274`
+  - 2026-08-15 第二十批：`pal_096`–`pal_100`（熔岩巨兽、寒岩巨兽、云顶巨驼、冰峰巨驼、青林巨象）已完成同样流程；寒岩巨兽首稿因渐变光场退回重生，熔岩/寒岩只用岩体材质表达名称而保持正式雷属性，两只巨驼均为完整双峰单体，当前 `generated=100 approved=100 pending=269`，运行时映射 `100/369`、缺口 `269`
+  - 2026-08-15 第二十一批：`pal_101`–`pal_105`（白牙雪象、白绒雪猿、绿苔巨猿、铁甲巨兕、云海白鹿）已完成同样流程；雪象与雪猿以白绒外形表达雪名但不添加冰属性，绿苔巨猿只以苔色外形命名并保持正式水治疗，当前 `generated=105 approved=105 pending=264`，运行时映射 `105/369`、缺口 `264`
+  - 2026-08-15 第二十二批：`pal_106`–`pal_110`（夜幕巨蝠、天羽云螭、焰羽赤雕、冥羽黑乌、渊鳞黑蛟）已完成同样流程；夜幕/冥羽/渊鳞等名称只以外形材质表达，画面法术严格保持策划表正式元素，焰羽赤雕的焰形羽色同样未误加火属性，当前 `generated=110 approved=110 pending=259`，运行时映射 `110/369`、缺口 `259`
+  - 2026-08-15 第二十三批：`pal_111`–`pal_115`（毒甲蝎将、石猿战将、覆海蛟王、赤焰龙君、南明朱雀）已完成同样流程；毒甲只作甲壳色而保持正式雷属性，赤焰龙君与南明朱雀只用红焰形外观命名并严格使用雷系法术，石猿战将以火冰双链呈现控制定位，当前 `generated=115 approved=115 pending=254`，运行时映射 `115/369`、缺口 `254`
+  - 2026-08-15 第二十四批：`pal_116`–`pal_120`（净瓶青鸾、九霄熊王、百花鹿仙、黑月狐姬、火云鹏王）已完成同样流程；净瓶保持封口并只表达龙系，百花与黑月仅作身份装饰，火云鹏只用红金羽色命名且治疗效果严格为水雷再生盾，当前 `generated=120 approved=120 pending=249`，运行时映射 `120/369`、缺口 `249`
+  - 2026-08-15 第二十五批：`pal_121`–`pal_125`（雷泽龙王、玄羽雕尊、白象护法、混世魔猿、寒狮妖王）已完成同样流程；雷泽龙王严格保持正式暗属性而未按名称误加雷水，寒狮只以寒色鬃毛命名并使用正式水雷输出，其余身份和定位均按策划行表达，当前 `generated=125 approved=125 pending=244`，运行时映射 `125/369`、缺口 `244`
+  - 2026-08-15 第二十六批：`pal_126`–`pal_130`（幽冥獒王、九天龙君、星貂王、渊鹤王、潮甲君）已完成同样流程；幽冥只作黑獒外形且严格使用正式水雷，星貂王用实体链式捕捉环表达控制反制并保持无属性，渊鹤未误加暗冰法术，当前 `generated=130 approved=130 pending=239`，运行时映射 `130/369`、缺口 `239`
+  - 2026-08-15 第二十七批：`pal_131`–`pal_135`（碧蜂妖、烬隼童、雷貉卫、沧雀卫、赤蝎精）已完成同样流程；碧蜂以三枚封闭巢舱表达召唤而不增加生物，雷貉用商包、算盘和连缀钱牌明确经济定位，赤蝎以火冰双链表达控制与点燃，当前 `generated=135 approved=135 pending=234`，运行时映射 `135/369`、缺口 `234`
+  - 2026-08-15 第二十八批：`pal_136`–`pal_140`（沧熊童、雪貂童、烬蜂童、雷鲭王、冥雀卫）已完成同样流程；沧熊用地甲与多层水盾表达再生坦克，雪貂用冰草交织束环表达反制控制，雷鲭严格只用雷系效果，冥雀用账匣与连缀钱牌表达经济定位，当前 `generated=140 approved=140 pending=229`，运行时映射 `140/369`、缺口 `229`
+  - 2026-08-15 第二十九批：`pal_141`–`pal_145`（沧鸾仔、霆螳灵、山熊卫、沧燕侯、螭蜂妖）已完成同样流程；霆螳用逐级增大的三道雷刃表达逐回合成长，山熊用龙纹岩盾表达地龙再生坦克，螭蜂以三个封闭蜂巢符舱和递增龙鳞盾环表达召唤与护盾成长，当前 `generated=145 approved=145 pending=224`，运行时映射 `145/369`、缺口 `224`
+  - 2026-08-15 第三十批：`pal_146`–`pal_150`（沧鲤将、沙狮神、震狼君、渊鹿妖、汐蝶卫）已完成同样流程；沧鲤首稿因半透明水罩混入品红底退回重生，合格稿改为四片不透明水盾弧；汐蝶首稿因误生成人形蝶仙退回，合格稿为明确六足昆虫体蝴蝶，当前 `generated=150 approved=150 pending=219`，运行时映射 `150/369`、缺口 `219`
+  - 2026-08-15 第三十一批：`pal_151`–`pal_155`（电鹰君、鸣鳗王、震狐卫、朱蛛将、沧鲤祖）已完成同样流程；三只雷宠分别用递增雷羽、闭合反制电索和高速折线尾迹区分输出成长、控制反制与机动；朱蛛首稿因草属性不清退回，合格稿为明确八足蛛体与绿色荆棘缚索，当前 `generated=155 approved=155 pending=214`，运行时映射 `155/369`、缺口 `214`
+  - 2026-08-15 第三十二批：`pal_156`–`pal_160`（角马王、焰鹰妖、澜蜂尊、凝鳗卫、青鳗君）已完成同样流程；角马用龙鳞王甲与龙形速度尾迹保持正式龙属性，澜蜂以四片浪翼和水尾迹表达机动；凝鳗首稿因龙头身份退回，合格稿为无角圆头鳗体并使用原生透明通道，两条鳗分别以冰晶反制环和草雷荆索反制区分，当前 `generated=160 approved=160 pending=209`，运行时映射 `160/369`、缺口 `209`
+  - 2026-08-15 第三十三批：`pal_161`–`pal_165`（电鹰童、澜鲨童、石甲将、朱蛛侯、渊猿王）已完成同样流程；电鹰与澜鲨分别以递增雷羽和递增浪齿表达逐回合攻击成长，石甲将采用独立兽形穿山甲与永久岩甲表现固定护甲，朱蛛侯用圆形荆棘侯爵封印区别于此前交叉缚索，渊猿只用深蓝毛色解释名称并严格保持水雷机动，当前 `generated=165 approved=165 pending=204`，运行时映射 `165/369`、缺口 `204`
+  - 2026-08-15 第三十四批：`pal_166`–`pal_170`（焰蚌圣、渊兔妖、澜兔祖、朱鹤将、青蝎卫）已完成同样流程；焰蚌以单颗火冰对半灵珠表达双元素治疗，两只兔分别以水雷护盾与水地石基护盾区分；青蝎使用闭合荆棘环和反击电刺表达控制反制，并以更严格的硬色键清除腹下投影残色，当前 `generated=170 approved=170 pending=199`，运行时映射 `170/369`、缺口 `199`
+  - 2026-08-15 第三十五批：`pal_171`–`pal_175`（赤狼童、森蟒仔、燎鹰兽、焰狼将、电豹尊）已完成同样流程；两只火狼以幼狼轻装和成年将军甲区分，森蟒保持无足幼蟒身份并用双重闭环表达控制，燎鹰保持真实鹰体，电豹用三档递增雷爪表达逐回合攻击成长，当前 `generated=175 approved=175 pending=194`，运行时映射 `175/369`、缺口 `194`
+  - 2026-08-15 第三十六批：`pal_176`–`pal_180`（电螳精、霆狼卫、闪鲲妖、震鹰王、鸣马王）已完成同样流程；电螳保持六足昆虫体并以三档雷刃表现攻击成长，闪鲲首稿因只有两层盾弧退回，合格稿为三个空召唤印与三层递增盾弧，震鹰以三档雷羽表现成长，鸣马用雷鸣音环和折线尾迹表现机动，当前 `generated=180 approved=180 pending=189`，运行时映射 `180/369`、缺口 `189`
+  - 2026-08-15 第三十七批：`pal_181`–`pal_185`（碧兔神、渊蚁皇、垒牦灵、雷鹰将、烬鳗将）已完成同样流程；碧兔用闭合神环和四片水雷盾表现钻石治疗，渊蚁保持单只六足蚁皇并以三个封闭孵化舱和三层水盾表现召唤成长，垒牦以再生石垒表现地系坦克，雷鹰以银甲俯冲和三档雷羽区别于鹰王，烬鳗使用原生透明火冰锁链稿，当前 `generated=185 approved=185 pending=184`，运行时映射 `185/369`、缺口 `184`
+  - 2026-08-15 第三十八批：`pal_186`–`pal_190`（角豹神、雷鹰卫、岩獒精、烬鹿祖、潮鹤精）已完成同样流程；角豹保持豹纹四足体且只有一对龙角，并以三档龙爪表现成长；雷鹰卫以收翼守姿区别于俯冲将领，岩獒使用固定岩甲和单块实体岩盾，烬鹿与潮鹤分别以火草闭环和水地石基盾表达治疗，当前 `generated=190 approved=190 pending=179`，运行时映射 `190/369`、缺口 `179`
+  - 2026-08-15 第三十九批：`pal_191`–`pal_195`（焰豹将、赤鼋妖、雷狼卫、电虎侯、燎狼将）已完成同样流程；焰豹首稿背景误生为黄色后退回并换用原生透明稿，赤鼋首稿因龙角退回并重生为无角扁平软壳鼋，雷狼首稿只有两枚成长足印退回后补为严格三档；电虎保持条纹虎身份，燎狼以黑红直立将领姿与此前焰狼区分，当前 `generated=195 approved=195 pending=174`，运行时映射 `195/369`、缺口 `174`
+  - 2026-08-15 第四十批：`pal_196`–`pal_200`（凛鳗王、寒狐祖、赤虎仔、藤貂仔、烬豹侯）已完成同样流程；凛鳗保持无足鳗王体并以闭合冰链和四枚雷刺表达反击控制，寒狐用三尾与钻石冰环体现祖级身份，赤虎与藤貂首稿因黄色背景退回后改为纯洋红抠图稿，藤貂保留闭合藤环和四方向种叶节点，烬豹以暗灰豹纹与黄金侯爵披挂区别于既有豹类，当前 `generated=200 approved=200 pending=169`，运行时映射 `200/369`、缺口 `169`
+  - 2026-08-15 第四十一批：`pal_201`–`pal_205`（潮鸾卫、苔狐侯、霆熊卫、闪鲨将、雷隼卫）已完成同样流程；潮鸾首稿因半透明水盾残留大面积洋红折射退回，合格稿改用原生透明与蓝白实色水环并保留三枚递增盾滴；苔狐使用闭合藤环和四枚雷叶，霆熊使用单块石盾与三枚等规格铆钉，闪鲨保持无足完整鲨体，雷隼以黑脸游隼、尖翼俯冲和三档雷爪区别于既有鹰类，当前 `generated=205 approved=205 pending=164`，运行时映射 `205/369`、缺口 `164`
+  - 2026-08-15 第四十二批：`pal_206`–`pal_210`（霜狐卫、森蛇童、冰蛙将、夜貉精、震豹童）已完成同样流程；霜狐用单尾银甲守姿区别于三尾祖狐，森蛇保持小型无足幼蛇体，两者和冰蛙均用闭环四节点表达反击控制；夜貉作为 `none` 经济位只保留钱袋、钱币与算盘，不添加战斗机制；震豹以幼豹玫瑰斑和三档雷爪区别于虎类，5 张均为原生透明稿，当前 `generated=210 approved=210 pending=159`，运行时映射 `210/369`、缺口 `159`
+  - 2026-08-15 第四十三批：`pal_211`–`pal_215`（夜雀皇、沧鹤妖、震鹰童、角鲨兽、角隼尊）已完成同样流程；夜雀保持短喙小型雀体并只用两片影羽表达机动，沧鹤以长喙长腿鹤体、水石闭环和三块递增盾石表达治疗，震鹰使用青铜轻装和三档雷羽，角鲨保持无足完整鲨体、一对短龙角和三档角咬痕，角隼以黑脸游隼、尖翼、一对龙角与黄金轻装表达无机制机动，5 张均为原生透明稿，当前 `generated=215 approved=215 pending=154`，运行时映射 `215/369`、缺口 `154`
+  - 2026-08-15 风格纠偏：依据用户要求，以三选一路线人物、悟空战斗像、像素战斗地图和早期宠物为共同基准，对 `pal_001`–`pal_220` 制作 9 张接触表逐批复审；`pal_001`–`pal_197` 保持可见硬像素语言，`pal_198` 起出现明确平滑插画/写实材质断层。清单升级为带独立风格门禁的 v2，`pal_198`–`pal_220` 共 23 个 ID 标记为需重生并全部撤出运行时映射
+  - `pal_216`–`pal_220` 五张未提交偏风格草稿已从正式目录移至可恢复归档 `output/art_style_rejected/2026-08-15/`，未删除；`pal_198`–`pal_215` 已提交源图保留作返工证据但不再运行时映射。当前正式口径为 `generated=215 approved=197 pending=172`、运行时映射 `197/369`
+  - 2026-08-15 风格返工样板：`pal_198` 赤虎仔按早期宠物、路线人物和悟空战斗像重新生成；首轮透明化发现细品红杂边后未批准，新增可复用 `remove_chroma_background.py`，使用边界洪泛与两轮邻接杂色清理得到硬透明边。复审确认 Q 版比例、硬像素簇、有限阶梯明暗与克制火焰均符合 v1 契约，已恢复唯一运行时映射；当前 `generated=215 approved=198 pending=171`
+  - 2026-08-15 风格返工第二批：`pal_199`–`pal_203`（藤貂仔、烬豹侯、潮鸾卫、苔狐侯、霆熊卫）已按 `pal_198` 样板逐张重生；苔狐首稿因藤蔓环绕全身形成装饰画框而退回，第二稿改为脚边短藤；五张均保持 Q 版硬像素轮廓、有限色阶和局部机制符号。透明化总览发现熊体夹缝有封闭品红点，色键工具新增显式 `--remove-enclosed-key` 后清除并复审通过；当前 `generated=215 approved=203 pending=166`
+  - 2026-08-15 风格返工第三批：`pal_204`–`pal_208`（闪鲨将、雷隼卫、霜狐卫、森蛇童、冰蛙将）已逐张重生并复审通过；五张均保持 Q 版硬像素轮廓、有限色阶与克制局部特效。闪鲨和雷隼各使用严格三档递增成长符号；霜狐、冰蛙只保留局部 C 形冰链而不形成环绕画框；森蛇保持无足幼蛇体并只配脚边短荆棘。透明化统一使用 `--remove-enclosed-key` 清除封闭键色，当前 `generated=215 approved=208 pending=161`
+  - 2026-08-15 风格返工第四批：`pal_209`–`pal_213`（夜貉精、震豹童、夜雀皇、沧鹤妖、震鹰童）已逐张重生并复审通过；夜貉只以钱袋和算盘表达经济定位，不添加战斗光环；震豹首稿与第二稿均因渐变背景/光晕退回，最终色键稿透明化后保留严格三档局部雷爪；夜雀保持短喙雀体和两片局部影羽；沧鹤使用三枚递增局部水石盾牌而不闭环；震鹰保持幼鹰体和三档局部雷羽。原生透明稿还发现 `alpha=1` 的画布边缘噪点，透明化工具新增显式 `--clear-alpha-at-or-below` 后清理并复审真实包围盒，当前 `generated=215 approved=213 pending=156`
+  - 2026-08-15 风格返工第五批：`pal_214`–`pal_218`（角鲨兽、角隼尊、霆鲭将、震雀将、赤鹤皇）已逐张重生并复审通过；角鲨保持无足完整鲨体、一对龙角和三档局部角咬痕，角隼保持游隼黑脸、尖翼、一对龙角与两枚局部尾迹；霆鲭严格使用真鲭鱼体与两枚局部尾迹；震雀只以钱袋和算盘表达经济定位；赤鹤以长喙长腿鹤体、单条火带和单条水带在脚边局部汇合，未形成闭环。角鲨、霆鲭和震雀首稿均因渐变背景/光晕退回，改为色键稿后透明化；当前正式源图与批准数重新追平为 `generated=218 approved=218 pending=151`
+  - 2026-08-15 风格返工第六批：`pal_219`–`pal_223`（霆狼妖、碧雀君、霆虎神、雷猿王、燎蚌皇）已生成并复审通过；霆狼和霆虎首稿均错误生成四枚成长雷纹，退回后修正为严格三档，霆狼另去除背景光晕，霆虎编辑稿的伪透明棋盘格也被退回并改为色键；碧雀只保留两枚局部水尾迹，雷猿明确无尾无棍且只用两枚局部速度标记，燎蚌保持单一双壳与珍珠，火水带只在珍珠旁局部汇合。当前 `generated=223 approved=223 pending=146`，风格拒绝队列清空
+  - 2026-08-15 风格返工第七批：`pal_224`–`pal_228`（夜蝎卫、星隼精、潮雀妖、蛟蛙侯、凛蝎卫）已生成并复审通过；夜蝎和凛蝎首稿银阶装饰过多，退回后减为简单额甲、少量护环与局部反制链，均保持双钳、八足和单条节尾；星隼首稿在三枚成长星羽之外多画了体表星徽，去除多余徽记并把伪透明棋盘格改为色键；潮雀首稿因整张背景光晕退回，只保留两枚局部水尾迹；蛟蛙保持无尾四足蛙体、一对短蛟角与脚边局部反制绳。当前 `generated=228 approved=228 pending=141`，`pal_001`–`pal_228` 风格门禁连续通过
+  - 2026-08-15 风格返工第八批：`pal_229`–`pal_233`（闪狼侯、震隼灵、苔蛛将、汐羊王、山象王）已生成并复审通过；闪狼首稿因背景光晕、体表雷纹过多和雷纹挂坠退回，最终只保留简单金领、一枚额头小雷纹与严格三档局部雷爪；震隼与山象首稿均因背景光晕退回，分别只保留三档局部雷羽与三档局部石盾；苔蛛保持真实双节蛛体、八足和脚边单条 C 形反制蛛索；汐羊保持四足羊体、对称水卷角与三档局部水雷盾片。五张透明边缘均未触及画布，当前 `generated=233 approved=233 pending=136`，`pal_001`–`pal_233` 风格门禁连续通过
+  - 2026-08-15 风格返工第九批：`pal_234`–`pal_238`（寒蟒卫、朱鲭将、寒鹰祖、寒蝎尊、石甲兽）已生成并复审通过；寒蟒首稿银饰宝石过多，退回后改为无足无角蟒体、素银额甲和两道素银环，只保留脚边单条 C 形冰链；朱鲭保持真实鲭鱼体、单枚局部火焰与严格两道尾迹；寒鹰首稿因高耸冰冠、长晶羽和额外盔甲退回，最终只保留低冰冠、小胸扣与严格三档递增冰爪；寒蝎首稿满身冰刺、金环及双钳挂链过度，退回后恢复双钳、八足、单条节尾和一条局部冰雷反制索；石甲兽首稿整张背景光晕退回，第二稿又缺失远侧后腿，最终补齐四足并只以固定背甲表现永久护甲。五张均为无半透明像素的硬透明边，当前 `generated=238 approved=238 pending=131`，`pal_001`–`pal_238` 风格门禁连续通过
+  - 2026-08-15 风格返工第十批：`pal_239`–`pal_243`（沧鹤神、碧蚌将、墨蝎王、鸣螳仔、岩豹兽）已生成并复审通过；沧鹤首稿头冠和长须龙化，退回后恢复真实长喙、长颈、双长腿鹤体并保留严格三档水石盾；碧蚌首稿整张黑蓝光晕退回，最终保持单一双壳、单珍珠与三档水盾；墨蝎首稿爆裂碎片超过三枚，退回后保留双钳、八足、单尾和严格三枚爆裂片，透明化时又发现通用杂边门槛误伤暗紫壳色，故把工具边缘清理阈值参数化并以收紧阈值重处理，默认行为不变；鸣螳保持两只捕捉足、四只步足与三档雷刃；岩豹首稿整张棕黑光晕且带额外碎石，退回后恢复四足豹体、长尾与严格三档岩爪。当前 `generated=243 approved=243 pending=126`，`pal_001`–`pal_243` 风格门禁连续通过
+  - 2026-08-15 风格返工第十一批：`pal_244`–`pal_248`（雷蛛妖、角蛙君、燎隼精、潮羊卫、岳熊精）已生成并复审通过；雷蛛首稿体表雷纹、额饰和面部宝石过密，退回后减为单枚腹部雷纹、素银额甲和一条双端局部反制雷索，同时保持双节蛛体与严格八足；角蛙保持四足无尾蛙体、一对短龙角、素金额带和双端局部鳞索；燎隼保持真实隼体、单火焰与严格两道速度尾迹；潮羊保持四足羊体、水地双质角与严格三档水石盾；岳熊首稿因暗色光晕、巨大岩甲和偏坐骑插画的体量退回，最终改为紧凑四足熊体、小银额甲与少量固定背部石甲。五张透明化后逐张复审物种、机制数量和硬像素边缘，当前 `generated=248 approved=248 pending=121`，`pal_001`–`pal_248` 风格门禁连续通过
+  - 2026-08-15 风格返工第十二批：`pal_249`–`pal_253`（霆鲨皇、霜貂卫、霆牦王、炎蛛尊、炎鳗精）已生成并复审通过；霆鲨首稿带黑棕光晕、蓝色特效光和体表雷纹，退回后恢复无足完整鲨体、天然鱼鳍、小钻石额饰与严格三档局部雷痕；霜貂保持长身四足貂体、单长尾与双端局部冰链；霆牦首稿大面积盾牌式侧甲、鞍甲和金边压住牦牛轮廓，退回后只留三块固定背部山石甲与一道雷缝；炎蛛保持双节蛛体、严格八足和单个火叶点燃印；炎鳗首稿体表火纹、巨大火鳍和宝石额饰过度，退回后恢复无足鳗体、低矮背鳍、素银额饰与双端局部火链。五张均使用硬透明边且无半透明像素，当前 `generated=253 approved=253 pending=116`，`pal_001`–`pal_253` 风格门禁连续通过
+  - 2026-08-15 风格返工第十三批：`pal_254`–`pal_258`（赤蟒王、电蟒精、震隼将、翠隼将、汐蝶精）已生成并复审通过；赤蟒首稿全身火纹和金边过密，退回后恢复无足粗蟒体、自然暗红鞍斑、素金额带与单个火雷点燃印；电蟒保持无足蟒体、素银额甲/单体环与双端局部雷链；震隼以真实游隼体、素银护片和严格两道普通速度尾迹表达无独立机制的机动定位；翠隼保持真实游隼体与严格三档局部叶羽；汐蝶保持四翼、六足、双触角和严格三档水石盾，首个原生透明稿因主体内部含大量半透明 alpha 被废弃，重新输出不透明色键稿并硬透明化。五张最终均只有 `alpha=0/255`，当前 `generated=258 approved=258 pending=111`，`pal_001`–`pal_258` 风格门禁连续通过
+  - 2026-08-15 风格返工第十四批：`pal_259`–`pal_263`（朱雀妖、云隼兽、寒貂卫、澜象将、沙鹰仔）已生成并复审通过；朱雀首个原生透明稿因主体内部含大量半透明 alpha 被废弃，重新输出不透明色键稿，保留真实鸟体、双翼双足、短扇尾、素银脚环与严格两道普通速度尾迹；云隼保持真实游隼体、素铜脚环和严格三档云羽斩；寒貂首稿因黑色渐变、发光和项链退回，最终恢复长身四足貂体、单长尾与冰雷双端局部反制索；澜象首稿把三块局部护甲扩成整套重甲，退回后恢复裸露象体，只留三块固定水蚀石片与一道水缝；沙鹰保持幼鹰体、素铜脚环和严格三档砂岩爪痕。五张最终均只有 `alpha=0/255`，当前 `generated=263 approved=263 pending=106`，`pal_001`–`pal_263` 风格门禁连续通过
+  - 2026-08-15 风格返工第十五批：`pal_264`–`pal_268`（蛟鲨精、电狐王、沧狮将、炎鲭侯、石牦灵）已生成并复审通过；蛟鲨保持无足完整鲨体、一对短蛟角、素银额片与严格三档局部龙鳞咬痕；电狐保持四足单尾狐体、低金色额带与双端开放式局部雷索；沧狮首稿因黑蓝渐变与发光退回，合格稿恢复纯色键底、四足狮体、单银肩片与严格三档水爪；炎鲭首稿因棕黑渐变和发光尾迹退回，最终为完整鲭鱼体、火色条纹与严格两道普通速度尾迹；石牦首稿因棕黑光晕退回，最终保持四足双角牦牛体、素铜额牌和严格三块固定背石甲。五张最终均只有 `alpha=0/255`，当前 `generated=268 approved=268 pending=101`，`pal_001`–`pal_268` 风格门禁连续通过
+  - 2026-08-15 风格返工第十六批：`pal_269`–`pal_273`（焰蝎妖、芽蛛将、青蛇将、芽貂卫、燎鹰卫）已生成并复审通过；焰蝎保持双钳、严格八条步足、单条节尾与单个火叶点燃印；芽蛛保持双节蛛体和严格八足，首稿藤索仅有一个芽端而退回，最终为脚边完全可见、双端各一芽的开放式反制索；青蛇保持无足无角蛇体、素银额片/两道窄环与双叶端局部反制索；芽貂保持长身四足貂体、单长尾与双芽端局部反制索；燎鹰保持真实双翼双足鹰体、素银胸片与单个火雷融合点燃印。五张最终均只有 `alpha=0/255`，当前 `generated=273 approved=273 pending=96`，`pal_001`–`pal_273` 风格门禁连续通过
+  - 2026-08-15 风格返工第十七批：`pal_274`–`pal_278`（苔貂王、青鹿祖、焰蟾卫、克诺大兽、克诺中兽）已生成并复审通过；苔貂保持长身四足貂体、单尾、低金带与叶/雷双端开放式局部反制索；青鹿保持真实四足鹿体、单尾、成对短角、小额珠和严格四块水叶盾片；焰蟾保持四足无尾蟾体、素银额片与单个火龙融合点燃印。克诺大小兽按同族活体时间兽统一圆耳、方吻、四足、单尾及肩部时钟，不按上游商人物品包直译；大兽首稿因黑棕渐变、发光、全身甲和过多背刺退回，最终只保留三块小背石脊与两道普通尾迹；中兽首稿因渐变发光、多枚长角、时钟项链和发光尾迹退回，最终只保留一对短龙角、短鳞带、肩钟与两道普通尾迹。五张最终均只有 `alpha=0/255`，当前 `generated=278 approved=278 pending=91`，`pal_001`–`pal_278` 风格门禁连续通过
+- validation_result:
+  - `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=5 approved=5`
+  - 独立导入副本 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=5 approved=5 pending=364`
+  - 独立导入副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=12 catalog_pets=369 missing_pets=357`
+  - 第二批增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=10 approved=10 pending=359`
+  - 第二批增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=14 catalog_pets=369 missing_pets=355`
+  - 第三批增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=15 approved=15 pending=354`
+  - 第三批增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=18 catalog_pets=369 missing_pets=351`
+  - 第四批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=20 approved=20 pending=349`
+  - 第四批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=23 catalog_pets=369 missing_pets=346 enemy_keys=16`
+  - 第五批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=25 approved=25 pending=344`
+  - 第五批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=28 catalog_pets=369 missing_pets=341 enemy_keys=16`
+  - 第六批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=30 approved=30 pending=339`
+  - 第六批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=31 catalog_pets=369 missing_pets=338 enemy_keys=16`
+  - 第七批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=35 approved=35 pending=334`
+  - 第七批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=36 catalog_pets=369 missing_pets=333 enemy_keys=16`
+  - 第八批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=40 approved=40 pending=329`
+  - 第八批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=41 catalog_pets=369 missing_pets=328 enemy_keys=16`
+  - 第九批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=45 approved=45 pending=324`
+  - 第九批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=45 catalog_pets=369 missing_pets=324 enemy_keys=16`
+  - 第十批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=50 approved=50 pending=319`
+  - 第十批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=50 catalog_pets=369 missing_pets=319 enemy_keys=16`
+  - 第十一批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=55 approved=55 pending=314`
+  - 第十一批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=55 catalog_pets=369 missing_pets=314 enemy_keys=16`
+  - 第十二批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=60 approved=60 pending=309`
+  - 第十二批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=60 catalog_pets=369 missing_pets=309 enemy_keys=16`
+  - 第十三批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=65 approved=65 pending=304`
+  - 第十三批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=65 catalog_pets=369 missing_pets=304 enemy_keys=16`
+  - 第十四批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=70 approved=70 pending=299`
+  - 第十四批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=70 catalog_pets=369 missing_pets=299 enemy_keys=16`
+  - 第十五批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=75 approved=75 pending=294`
+  - 第十五批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=75 catalog_pets=369 missing_pets=294 enemy_keys=16`
+  - 第十六批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=80 approved=80 pending=289`
+  - 第十六批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=80 catalog_pets=369 missing_pets=289 enemy_keys=16`
+  - 第十七批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=85 approved=85 pending=284`
+  - 第十七批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=85 catalog_pets=369 missing_pets=284 enemy_keys=16`
+  - 第十八批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=90 approved=90 pending=279`
+  - 第十八批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=90 catalog_pets=369 missing_pets=279 enemy_keys=16`
+  - 第十九批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=95 approved=95 pending=274`
+  - 第十九批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=95 catalog_pets=369 missing_pets=274 enemy_keys=16`
+  - 第二十批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=100 approved=100 pending=269`
+  - 第二十批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=100 catalog_pets=369 missing_pets=269 enemy_keys=16`
+  - 第二十一批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=105 approved=105 pending=264`
+  - 第二十一批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=105 catalog_pets=369 missing_pets=264 enemy_keys=16`
+  - 第二十二批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=110 approved=110 pending=259`
+  - 第二十二批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=110 catalog_pets=369 missing_pets=259 enemy_keys=16`
+  - 第二十三批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=115 approved=115 pending=254`
+  - 第二十三批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=115 catalog_pets=369 missing_pets=254 enemy_keys=16`
+  - 第二十四批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=120 approved=120 pending=249`
+  - 第二十四批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=120 catalog_pets=369 missing_pets=249 enemy_keys=16`
+  - 第二十五批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=125 approved=125 pending=244`
+  - 第二十五批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=125 catalog_pets=369 missing_pets=244 enemy_keys=16`
+  - 第二十六批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=130 approved=130 pending=239`
+  - 第二十六批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=130 catalog_pets=369 missing_pets=239 enemy_keys=16`
+  - 第二十七批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=135 approved=135 pending=234`
+  - 第二十七批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=135 catalog_pets=369 missing_pets=234 enemy_keys=16`
+  - 第二十八批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=140 approved=140 pending=229`
+  - 第二十八批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=140 catalog_pets=369 missing_pets=229 enemy_keys=16`
+  - 第二十九批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=145 approved=145 pending=224`
+  - 第二十九批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=145 catalog_pets=369 missing_pets=224 enemy_keys=16`
+  - 第三十批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=150 approved=150 pending=219`
+  - 第三十批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=150 catalog_pets=369 missing_pets=219 enemy_keys=16`
+  - 第三十一批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=155 approved=155 pending=214`
+  - 第三十一批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=155 catalog_pets=369 missing_pets=214 enemy_keys=16`
+  - 第三十二批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=160 approved=160 pending=209`
+  - 第三十二批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=160 catalog_pets=369 missing_pets=209 enemy_keys=16`
+  - 第三十三批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=165 approved=165 pending=204`
+  - 第三十三批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=165 catalog_pets=369 missing_pets=204 enemy_keys=16`
+  - 第三十四批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=170 approved=170 pending=199`
+  - 第三十四批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=170 catalog_pets=369 missing_pets=199 enemy_keys=16`
+  - 第三十五批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=175 approved=175 pending=194`
+  - 第三十五批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=175 catalog_pets=369 missing_pets=194 enemy_keys=16`
+  - 第三十六批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=180 approved=180 pending=189`
+  - 第三十六批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=180 catalog_pets=369 missing_pets=189 enemy_keys=16`
+  - 第三十七批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=185 approved=185 pending=184`
+  - 第三十七批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=185 catalog_pets=369 missing_pets=184 enemy_keys=16`
+  - 第三十八批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=190 approved=190 pending=179`
+  - 第三十八批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=190 catalog_pets=369 missing_pets=179 enemy_keys=16`
+  - 第三十九批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=195 approved=195 pending=174`
+  - 第三十九批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=195 catalog_pets=369 missing_pets=174 enemy_keys=16`
+  - 第四十批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=200 approved=200 pending=169`
+  - 第四十批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=200 catalog_pets=369 missing_pets=169 enemy_keys=16`
+  - 第四十一批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=205 approved=205 pending=164`
+  - 第四十一批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=205 catalog_pets=369 missing_pets=164 enemy_keys=16`
+  - 第四十二批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=210 approved=210 pending=159`
+  - 第四十二批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=210 catalog_pets=369 missing_pets=159 enemy_keys=16`
+  - 第四十三批使用隔离副本与 Godot `--import` 完成 5 张增量导入；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=215 approved=215 pending=154`
+  - 第四十三批 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=215 catalog_pets=369 missing_pets=154 enemy_keys=16`
+  - 风格门禁修订后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=215 approved=197`
+  - 风格门禁修订后隔离副本 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=215 approved=197 pending=172`
+  - 风格门禁修订后隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=197 catalog_pets=369 missing_pets=172 enemy_keys=16`
+  - `pal_198` 返工后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=215 approved=198`
+  - `pal_198` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=215 approved=198 pending=171`
+  - `pal_198` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=198 catalog_pets=369 missing_pets=171 enemy_keys=16`
+  - `pal_199`–`pal_203` 返工后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=215 approved=203`
+  - `pal_199`–`pal_203` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=215 approved=203 pending=166`
+  - `pal_199`–`pal_203` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=203 catalog_pets=369 missing_pets=166 enemy_keys=16`
+  - `pal_204`–`pal_208` 返工后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=215 approved=208`
+  - `pal_204`–`pal_208` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=215 approved=208 pending=161`
+  - `pal_204`–`pal_208` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=208 catalog_pets=369 missing_pets=161 enemy_keys=16`
+  - `pal_209`–`pal_213` 返工后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=215 approved=213`
+  - `pal_209`–`pal_213` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=215 approved=213 pending=156`
+  - `pal_209`–`pal_213` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=213 catalog_pets=369 missing_pets=156 enemy_keys=16`
+  - `pal_214`–`pal_218` 返工后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=218 approved=218`
+  - `pal_214`–`pal_218` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=218 approved=218 pending=151`
+  - `pal_214`–`pal_218` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=218 catalog_pets=369 missing_pets=151 enemy_keys=16`
+  - `pal_219`–`pal_223` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=223 approved=223`
+  - `pal_219`–`pal_223` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=223 approved=223 pending=146`
+  - `pal_219`–`pal_223` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=223 catalog_pets=369 missing_pets=146 enemy_keys=16`
+  - `pal_224`–`pal_228` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=228 approved=228`
+  - `pal_224`–`pal_228` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=228 approved=228 pending=141`
+  - `pal_224`–`pal_228` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=228 catalog_pets=369 missing_pets=141 enemy_keys=16`
+  - `pal_229`–`pal_233` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=233 approved=233`
+  - `pal_229`–`pal_233` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=233 approved=233 pending=136`
+  - `pal_229`–`pal_233` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=233 catalog_pets=369 missing_pets=136 enemy_keys=16`
+  - `pal_234`–`pal_238` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=238 approved=238`
+  - `pal_234`–`pal_238` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=238 approved=238 pending=131`
+  - `pal_234`–`pal_238` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=238 catalog_pets=369 missing_pets=131 enemy_keys=16`
+  - `pal_239`–`pal_243` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`targets=369 generated=243 approved=243`
+  - `remove_chroma_background.py` 新增边缘阈值参数后，以沧鹤原稿按旧默认参数重跑并与修改前产物执行 `cmp`：逐字节一致，SHA-256 均为 `10dc1d13b8742242b8a31b0c86e8350627b58bf12aff286b8047b529871342ce`；`py_compile` 通过
+  - `pal_239`–`pal_243` 隔离副本增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=243 approved=243 pending=126`
+  - `pal_239`–`pal_243` 隔离副本增量导入后 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=243 catalog_pets=369 missing_pets=126 enemy_keys=16`
+  - `pal_244`–`pal_248` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check` 与透明化工具 `py_compile`：通过，`targets=369 generated=248 approved=248`
+  - `pal_244`–`pal_248` 隔离副本 `/tmp/godot-pet-style-run.Cwo7NG` 增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=248 approved=248 pending=121`；首次字体缓存导入记录 4 条环境错误，再次 `--import --quit` 为 `exit=0` 且无错误
+  - `pal_244`–`pal_248` 同一隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=248 catalog_pets=369 missing_pets=121 enemy_keys=16`
+  - `pal_249`–`pal_253` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`、透明化工具 `py_compile` 与 JSON 解析：通过，`targets=369 generated=253 approved=253`
+  - `pal_249`–`pal_253` 隔离副本 `/tmp/godot-pet-style-run.GPfKZX` 增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=253 approved=253 pending=116`；首次字体缓存导入记录 4 条环境错误，再次 `--import --quit` 为 `exit=0` 且无错误
+  - `pal_249`–`pal_253` 同一隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=253 catalog_pets=369 missing_pets=116 enemy_keys=16`
+  - `pal_254`–`pal_258` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`、透明化工具 `py_compile`、JSON 解析与五张 alpha 值枚举：通过，`targets=369 generated=258 approved=258`，每张仅有 `0/255`
+  - `pal_254`–`pal_258` 隔离副本 `/tmp/godot-pet-style-run.meUp3N` 增量导入后 `smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=258 approved=258 pending=111`；首次字体缓存导入记录 4 条环境错误，再次 `--import --quit` 为 `exit=0` 且无错误
+  - `pal_254`–`pal_258` 同一隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=258 catalog_pets=369 missing_pets=111 enemy_keys=16`
+  - `pal_259`–`pal_263` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`、透明化工具 `py_compile`、JSON 解析与五张 alpha 值枚举：通过，`targets=369 generated=263 approved=263`，每张仅有 `0/255`
+  - `pal_259`–`pal_263` 隔离副本 `/tmp/godot-pet-style-run.9uoOdy` 增量导入后再次 `--import --quit`：通过，`exit=0` 且无错误；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=263 approved=263 pending=106`
+  - `pal_259`–`pal_263` 同一隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=263 catalog_pets=369 missing_pets=106 enemy_keys=16`
+  - `pal_264`–`pal_268` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`、透明化工具 `py_compile`、JSON 解析与五张 alpha 值枚举：通过，`targets=369 generated=268 approved=268`，每张仅有 `0/255`
+  - `pal_264`–`pal_268` 隔离副本 `/tmp/godot-pet-style-run.4e0a4Y` 增量导入后再次 `--import --quit`：通过，`exit=0` 且无错误；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=268 approved=268 pending=101`
+  - `pal_264`–`pal_268` 同一隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=268 catalog_pets=369 missing_pets=101 enemy_keys=16`
+  - `pal_269`–`pal_273` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`、透明化工具 `py_compile`、JSON 解析与五张 alpha 值枚举：通过，`targets=369 generated=273 approved=273`，每张仅有 `0/255`
+  - `pal_269`–`pal_273` 隔离副本 `/tmp/godot-pet-style-run.RXWvD1` 增量导入后再次 `--import --quit`：通过，`exit=0` 且无错误；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=273 approved=273 pending=96`
+  - `pal_269`–`pal_273` 同一隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=273 catalog_pets=369 missing_pets=96 enemy_keys=16`
+  - `pal_274`–`pal_278` 完成后 `python3 tools/art/generate_pet_image_manifest.py --check`、透明化工具 `py_compile`、JSON 解析与五张 alpha/洋红残底枚举：通过，`targets=369 generated=278 approved=278`，每张仅有 `0/255` 且可见洋红像素为 `0`
+  - `pal_274`–`pal_278` 隔离副本 `/tmp/godot-pet-style-run.vENrG9` 增量导入后再次 `--import --quit`：通过，`exit=0`；`smoke_all_planner_pet_images.gd`：通过，`targets=369 generated=278 approved=278 pending=91`
+  - `pal_274`–`pal_278` 同一隔离副本 `smoke_asset_registry.gd`：通过，`runtime=43 mapped_pets=278 catalog_pets=369 missing_pets=91 enemy_keys=16`
+  - `git diff --check`：通过
+- residual_risk:
+  - 全量目标尚未完成：`pal_279`–`pal_369` 共 91 张尚无正式源图；`pal_198`–`pal_278` 风格断层返工与新风格门禁已全部通过，后续仍须逐批目视，任务不得标记完成
+  - 本轮只对明确断层 `pal_198`–`pal_220` 作硬退回；`pal_051` 之后装饰复杂度逐步上升但仍保持硬像素语言，后续批次仍需以早期基准逐批目视，不能只依赖脚本门禁
+  - 本批只完成图片级与解析级验证；正式入口真实窗口抽样在累计出可稳定展示的一组商店/背包宠物后执行，不占用当前 24 小时录制槽
+- commit: 仅当一个批次的图片、清单、映射和专项验证可独立解释时精确提交；不推送

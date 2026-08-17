@@ -1,0 +1,1 @@
+{"schema":"ysbzs.content-package.v1","package_id":"generated.player","priority":0,"order":3,"operations":[{"op":"set","path":["player"],"value":{"coins":16,"hero_hp":80,"heroMaxHp":80,"ap":3}}]}

@@ -9,7 +9,7 @@ signal attack_order_requested
 signal bag_requested
 signal auto_arrange_requested
 signal reset_requested
-signal speed_toggled(active: bool)
+signal log_requested
 signal all_out_requested
 signal shortcut_blocked(shortcut: String, button_name: String)
 
@@ -22,9 +22,6 @@ const MAP_IDS := [
 	"mountain_evening",
 	"mountain_morning",
 	"lowland_morning",
-	"forest_spring",
-	"forest_autumn",
-	"mountain_new",
 ]
 const MAP_TEXTURES := [
 	preload("res://art/images/battle/map_controls/maps/lowland_evening.png"),
@@ -35,9 +32,6 @@ const MAP_TEXTURES := [
 	preload("res://art/images/battle/map_controls/maps/mountain_evening.png"),
 	preload("res://art/images/battle/map_controls/maps/mountain_morning.png"),
 	preload("res://art/images/battle/map_controls/maps/lowland_morning.png"),
-	preload("res://art/images/battle/map_controls/maps/forest_spring.png"),
-	preload("res://art/images/battle/map_controls/maps/forest_autumn.png"),
-	preload("res://art/images/battle/map_controls/maps/mountain_new.png"),
 ]
 const SPEED_NORMAL_TEXTURE := preload(
 	"res://art/images/battle/map_controls/buttons/speed_normal.png"
@@ -74,7 +68,7 @@ const SHORTCUT_BUTTON_ACTIONS := ShortcutCatalog.BATTLE_BUTTON_ACTIONS
 var _button_tweens: Dictionary = {}
 var _held_shortcut_buttons: Dictionary = {}
 var _shortcut_pressed_at_seconds: Dictionary = {}
-var _map_index := 10
+var _map_index := 2
 var _reset_pressed_at_seconds := -1.0
 var _last_player_activity_msec := 0
 var _next_all_out_prompt_msec := 0
@@ -83,7 +77,8 @@ var _all_out_highlight_tween: Tween = null
 
 
 func _ready() -> void:
-	_apply_speed_state()
+	speed_button.toggle_mode = false
+	speed_button.tooltip_text = "战斗日志：打开或关闭战斗日志看板。（快捷键 D）"
 	bag_button.tooltip_text = ROUND_REWIND_UNAVAILABLE_TOOLTIP
 	if Engine.is_editor_hint():
 		return
@@ -94,8 +89,7 @@ func _ready() -> void:
 	_connect_button(attack_order_button, _on_attack_order_pressed)
 	_connect_button(bag_button, _on_bag_pressed)
 	_connect_button(all_out_button, _on_all_out_pressed)
-	_connect_button(speed_button, Callable())
-	speed_button.toggled.connect(_on_speed_button_toggled)
+	_connect_button(speed_button, _on_log_pressed)
 
 
 func _process(_delta: float) -> void:
@@ -153,9 +147,6 @@ func get_map_display_name() -> String:
 		"mountain_evening": "山脉（晚）",
 		"mountain_morning": "山脉（早）",
 		"lowland_morning": "洼地（早）",
-		"forest_spring": "森林（春）",
-		"forest_autumn": "森林（秋）",
-		"mountain_new": "山脉",
 	}.get(get_map_id(), get_map_id())
 
 
@@ -298,12 +289,7 @@ func _get_shortcut_button(action_id: StringName) -> TextureButton:
 
 
 func _activate_shortcut_button(button: TextureButton) -> void:
-	if button == speed_button:
-		var active := not button.button_pressed
-		button.set_pressed_no_signal(active)
-		button.toggled.emit(active)
-	else:
-		button.pressed.emit()
+	button.pressed.emit()
 
 
 func _apply_speed_state() -> void:
@@ -322,9 +308,8 @@ func _connect_button(button: TextureButton, callback: Callable) -> void:
 		button.pressed.connect(callback)
 
 
-func _on_speed_button_toggled(active: bool) -> void:
-	speed_active = active
-	speed_toggled.emit(active)
+func _on_log_pressed() -> void:
+	log_requested.emit()
 
 
 func _on_settings_pressed() -> void:

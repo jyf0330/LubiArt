@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/battle_attack_shape_grid.gd" id="1_script"]
+
+[node name="BattleAttackShapeGrid" type="GridContainer"]
+custom_minimum_size = Vector2(207, 96)
+layout_mode = 0
+offset_right = 207.0
+offset_bottom = 96.0
+mouse_filter = 2
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 3
+columns = 7
+script = ExtResource("1_script")

@@ -2,15 +2,18 @@
 
 [ext_resource type="Script" uid="uid://c8hbtec6cdfhb" path="res://core_ui/scripts/artist_flow/scenes/three_choice_scene.gd" id="1_view"]
 [ext_resource type="Texture2D" uid="uid://6up53agulsao" path="res://art/images/route/three_choice_psd/background.png" id="2_bg"]
-[ext_resource type="Texture2D" uid="uid://djpjrefssrfx8" path="res://art/images/route/three_choice_psd/building.png" id="3_building"]
+[ext_resource type="Texture2D" uid="uid://do7oqrulu6syy" path="res://art/images/route/three_choice_psd/temple_base.png" id="3_temple"]
 [ext_resource type="PackedScene" uid="uid://cqvin8txl566s" path="res://art/prefabs/route/three_choice_card.tscn" id="5_card"]
-[ext_resource type="Texture2D" uid="uid://dlde7xdl3e4qx" path="res://art/images/route/three_choice_psd/route_portrait_shop.png" id="27_route_shop"]
-[ext_resource type="Texture2D" uid="uid://b8fl6n2x628hw" path="res://art/images/route/three_choice_psd/route_icon_shop.png" id="28_route_shop_icon"]
-[ext_resource type="Texture2D" uid="uid://2qxj3mfutykr" path="res://art/images/route/three_choice_psd/route_highlight_shop.png" id="29_route_shop_highlight"]
-[ext_resource type="Texture2D" uid="uid://evtnl5oj3cn4" path="res://art/images/route/three_choice_psd/route_portrait_reward.png" id="30_route_reward"]
-[ext_resource type="Texture2D" uid="uid://dkssrxrvji7ks" path="res://art/images/route/three_choice_psd/route_icon_reward.png" id="31_route_reward_icon"]
-[ext_resource type="Texture2D" uid="uid://cla6shpebvah0" path="res://art/images/route/three_choice_psd/route_highlight_reward.png" id="32_route_reward_highlight"]
-[ext_resource type="PackedScene" path="res://art/prefabs/route/route_shared_ui.tscn" id="35_shared_ui"]
+[ext_resource type="Texture2D" uid="uid://cfjrp18nyglvw" path="res://art/images/route/three_choice_psd/item_bar_base.png" id="7_item_bar"]
+[ext_resource type="Texture2D" uid="uid://b62xv5xtrfx3i" path="res://art/images/route/three_choice_psd/bag_closed.png" id="9_bag_closed"]
+[ext_resource type="Texture2D" uid="uid://bfu1gx4qe2xdw" path="res://art/images/route/three_choice_psd/bag_storage_state_0.png" id="10_bag_storage_state"]
+[ext_resource type="Texture2D" uid="uid://d0mfwg27q361" path="res://art/images/route/three_choice_psd/coin_icon.png" id="11_coin_icon"]
+[ext_resource type="Texture2D" uid="uid://btfk51yee1q3j" path="res://art/images/route/three_choice_psd/sell_highlight.png" id="12_sell_highlight"]
+[ext_resource type="Texture2D" uid="uid://cgctglvx0brpv" path="res://art/images/route/three_choice_psd/pet_shadow.png" id="13_pet_shadow"]
+[ext_resource type="PackedScene" uid="uid://x5n33hc1dx4n" path="res://art/prefabs/pet/pet_detail.tscn" id="16_pet_detail"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shop/bazaar_info_panel.tscn" id="17_bazaar"]
+[ext_resource type="Texture2D" uid="uid://r3piis8ohdj4" path="res://art/images/route/three_choice_psd/incense_shadow.png" id="20_shadow"]
+[ext_resource type="Texture2D" uid="uid://br6jfdsfp6k3s" path="res://art/images/route/three_choice_psd/item_selected_highlight.png" id="23_item_highlight"]
 
 [node name="ThreeChoiceScene" type="Control" unique_id=1653662520]
 editor_description = "PSD-based three-choice Scene. Layers are organized by background, temple, route cards, inventory, party, coin, and top HUD."
@@ -21,6 +24,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_view")
+item_slot_highlight_offset = Vector2(-18, -23)
 
 [node name="MainBG" type="TextureRect" parent="." unique_id=340799414]
 layout_mode = 1
@@ -41,12 +45,10 @@ stretch_mode = 5
 
 [node name="Temple" type="TextureRect" parent="MainBG" unique_id=636311480]
 layout_mode = 0
-offset_left = 255.0
-offset_top = 92.0
-offset_right = 1674.0
-offset_bottom = 1037.0
+offset_right = 1920.0
+offset_bottom = 1080.0
 mouse_filter = 2
-texture = ExtResource("3_building")
+texture = ExtResource("3_temple")
 stretch_mode = 5
 
 [node name="Containers" type="Control" parent="MainBG" unique_id=1320522713]
@@ -55,8 +57,105 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
 
+[node name="Party" type="Control" parent="MainBG/Containers" unique_id=99163385]
+visible = false
+anchors_preset = 0
+offset_left = 618.0
+offset_top = 724.0
+offset_right = 1248.0
+offset_bottom = 867.0
+mouse_filter = 2
+
+[node name="PartyShadow1" type="TextureRect" parent="MainBG/Containers/Party" unique_id=1709405940]
+visible = false
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 10.0
+offset_top = 83.0
+offset_right = 125.0
+offset_bottom = 143.0
+mouse_filter = 2
+texture = ExtResource("13_pet_shadow")
+stretch_mode = 5
+
+[node name="PartyShadow2" type="TextureRect" parent="MainBG/Containers/Party" unique_id=1198189558]
+visible = false
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 166.0
+offset_top = 83.0
+offset_right = 281.0
+offset_bottom = 143.0
+mouse_filter = 2
+texture = ExtResource("13_pet_shadow")
+stretch_mode = 5
+
+[node name="PartyShadow3" type="TextureRect" parent="MainBG/Containers/Party" unique_id=1866705140]
+visible = false
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 335.0
+offset_top = 83.0
+offset_right = 450.0
+offset_bottom = 143.0
+mouse_filter = 2
+texture = ExtResource("13_pet_shadow")
+stretch_mode = 5
+
+[node name="PartyShadow4" type="TextureRect" parent="MainBG/Containers/Party" unique_id=1736089813]
+visible = false
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 493.0
+offset_top = 83.0
+offset_right = 608.0
+offset_bottom = 143.0
+mouse_filter = 2
+texture = ExtResource("13_pet_shadow")
+stretch_mode = 5
+
+[node name="Party_Container" type="Control" parent="MainBG/Containers/Party" unique_id=418723248]
+anchors_preset = 0
+offset_right = 630.0
+offset_bottom = 132.0
+mouse_filter = 2
+
+[node name="Party_Slot" type="TextureButton" parent="MainBG/Containers/Party/Party_Container" unique_id=507660907]
+custom_minimum_size = Vector2(132, 132)
+layout_mode = 0
+offset_right = 132.0
+offset_bottom = 132.0
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Party_Slot2" type="TextureButton" parent="MainBG/Containers/Party/Party_Container" unique_id=1008186302]
+custom_minimum_size = Vector2(132, 132)
+layout_mode = 0
+offset_left = 156.0
+offset_right = 288.0
+offset_bottom = 132.0
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Party_Slot3" type="TextureButton" parent="MainBG/Containers/Party/Party_Container" unique_id=36414094]
+custom_minimum_size = Vector2(132, 132)
+layout_mode = 0
+offset_left = 324.0
+offset_right = 456.0
+offset_bottom = 132.0
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Party_Slot4" type="TextureButton" parent="MainBG/Containers/Party/Party_Container" unique_id=1577635409]
+custom_minimum_size = Vector2(132, 132)
+layout_mode = 0
+offset_left = 483.0
+offset_right = 615.0
+offset_bottom = 132.0
+ignore_texture_size = true
+stretch_mode = 0
+
 [node name="Middle" type="Control" parent="MainBG/Containers" unique_id=1307585610]
-z_index = 10
 anchors_preset = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
@@ -64,55 +163,201 @@ mouse_filter = 2
 
 [node name="Middle_Three_Option" type="Control" parent="MainBG/Containers/Middle" unique_id=1925190278]
 anchors_preset = 0
-offset_left = 436.0
-offset_top = 346.0
-offset_right = 1437.0
-offset_bottom = 846.0
+offset_left = 438.0
+offset_top = 210.0
+offset_right = 1473.0
+offset_bottom = 702.0
 mouse_filter = 2
+
+[node name="IncenseShadow" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Three_Option" unique_id=213307318]
+layout_mode = 0
+offset_left = 114.0
+offset_top = 449.0
+offset_right = 886.0
+offset_bottom = 492.0
+mouse_filter = 2
+texture = ExtResource("20_shadow")
+stretch_mode = 5
 
 [node name="CardGrid" type="Control" parent="MainBG/Containers/Middle/Middle_Three_Option" unique_id=731731861]
 anchors_preset = 0
-offset_right = 1001.0
-offset_bottom = 500.0
+offset_right = 1035.0
+offset_bottom = 478.0
 mouse_filter = 2
 
 [node name="Three_Option_Slot" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid" unique_id=1843849086 instance=ExtResource("5_card")]
 layout_mode = 0
-offset_right = 365.0
-offset_bottom = 500.0
-
-[node name="KindIcon" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot" index="0" unique_id=30206432]
-texture = ExtResource("28_route_shop_icon")
-
-[node name="Portrait" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot" index="1" unique_id=2114202963]
-texture = ExtResource("27_route_shop")
-
-[node name="RouteHighlight" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot" index="2" unique_id=777777398]
-texture = ExtResource("29_route_shop_highlight")
+offset_left = 64.0
+offset_top = 69.0
+offset_right = 324.0
+offset_bottom = 461.0
 
 [node name="Three_Option_Slot2" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid" unique_id=520175123 instance=ExtResource("5_card")]
 layout_mode = 0
-offset_left = 311.0
-offset_right = 676.0
-offset_bottom = 500.0
+offset_left = 395.0
+offset_top = 69.0
+offset_right = 655.0
+offset_bottom = 461.0
 
 [node name="Three_Option_Slot3" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid" unique_id=1368601539 instance=ExtResource("5_card")]
 layout_mode = 0
-offset_left = 636.0
-offset_right = 1001.0
-offset_bottom = 500.0
+offset_left = 723.0
+offset_top = 69.0
+offset_right = 983.0
+offset_bottom = 461.0
 
-[node name="KindIcon" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot3" index="0" unique_id=30206432]
-texture = ExtResource("31_route_reward_icon")
+[node name="BagOverlayMask" type="ColorRect" parent="MainBG/Containers/Middle" unique_id=501269519]
+visible = false
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12, 0.12, 0.12, 0.38)
 
-[node name="Portrait" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot3" index="1" unique_id=2114202963]
-texture = ExtResource("30_route_reward")
+[node name="Middle_Shop" type="Control" parent="MainBG/Containers/Middle" unique_id=639674547]
+visible = false
+anchors_preset = 0
+offset_left = 138.0
+offset_top = 364.0
+offset_right = 1720.0
+offset_bottom = 891.0
+mouse_filter = 2
 
-[node name="RouteHighlight" parent="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot3" index="2" unique_id=777777398]
-texture = ExtResource("32_route_reward_highlight")
+[node name="ItemBar" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=1538022308]
+layout_mode = 0
+offset_right = 1582.0
+offset_bottom = 527.0
+mouse_filter = 2
+texture = ExtResource("7_item_bar")
+stretch_mode = 5
 
-[node name="RouteSharedUi" parent="." instance=ExtResource("35_shared_ui")]
-layout_mode = 1
+[node name="Slots" type="GridContainer" parent="MainBG/Containers/Middle/Middle_Shop" unique_id=1927969555]
+layout_mode = 0
+offset_left = 188.0
+offset_top = 210.0
+offset_right = 1418.0
+offset_bottom = 306.0
+theme_override_constants/h_separation = 66
+columns = 8
 
-[editable path="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot"]
-[editable path="MainBG/Containers/Middle/Middle_Three_Option/CardGrid/Three_Option_Slot3"]
+[node name="Middle_Bag" type="Control" parent="MainBG/Containers/Middle" unique_id=780740488]
+anchors_preset = 0
+offset_left = 138.0
+offset_top = 364.0
+offset_right = 1720.0
+offset_bottom = 891.0
+mouse_filter = 2
+
+[node name="ItemBar" type="TextureRect" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=1385984569]
+layout_mode = 0
+offset_right = 1582.0
+offset_bottom = 527.0
+mouse_filter = 2
+texture = ExtResource("7_item_bar")
+stretch_mode = 5
+
+[node name="Slots" type="GridContainer" parent="MainBG/Containers/Middle/Middle_Bag" unique_id=63077508]
+layout_mode = 0
+offset_left = 163.0
+offset_top = 203.0
+offset_right = 1421.0
+offset_bottom = 313.0
+theme_override_constants/h_separation = 54
+columns = 8
+
+[node name="Bags" type="Control" parent="MainBG/Containers" unique_id=489702172]
+anchors_preset = 0
+offset_left = 367.0
+offset_top = 693.0
+offset_right = 584.0
+offset_bottom = 979.0
+
+[node name="Bag_Button" type="TextureButton" parent="MainBG/Containers/Bags" unique_id=2022199975]
+layout_mode = 0
+offset_left = -39.0
+offset_top = 35.0
+offset_right = 201.0
+offset_bottom = 312.0
+texture_normal = ExtResource("9_bag_closed")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="BagStorageState" type="TextureRect" parent="MainBG/Containers/Bags" unique_id=704990851]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 186.0
+offset_right = 156.0
+offset_bottom = 253.0
+mouse_filter = 2
+texture = ExtResource("10_bag_storage_state")
+stretch_mode = 5
+
+[node name="Top" type="Control" parent="MainBG/Containers" unique_id=219359528]
+anchors_preset = 0
+offset_left = 1276.0
+offset_top = 730.0
+offset_right = 1527.0
+offset_bottom = 956.0
+mouse_filter = 2
+
+[node name="Hud" type="Control" parent="MainBG/Containers/Top" unique_id=1261548634]
+anchors_preset = 0
+offset_left = 87.0
+offset_top = 176.0
+offset_right = 242.0
+offset_bottom = 226.0
+mouse_filter = 2
+
+[node name="CoinIcon" type="TextureRect" parent="MainBG/Containers/Top/Hud" unique_id=218668255]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 33.0
+offset_bottom = 38.0
+mouse_filter = 2
+texture = ExtResource("11_coin_icon")
+stretch_mode = 5
+
+[node name="CoinLabel" type="Label" parent="MainBG/Containers/Top/Hud" unique_id=795170358]
+layout_mode = 0
+offset_left = 57.0
+offset_right = 155.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(0.99, 0.84, 0.36, 1)
+theme_override_font_sizes/font_size = 36
+text = "15"
+
+[node name="Top_Sell" type="TextureButton" parent="MainBG/Containers/Top" unique_id=1910126300]
+visible = false
+layout_mode = 0
+offset_right = 251.0
+offset_bottom = 149.0
+focus_mode = 0
+texture_normal = ExtResource("12_sell_highlight")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="ItemSlotHoverHighlight" type="TextureRect" parent="." unique_id=1589063937]
+visible = false
+z_index = 80
+custom_minimum_size = Vector2(155, 148)
+layout_mode = 0
+offset_right = 155.0
+offset_bottom = 148.0
+mouse_filter = 2
+texture = ExtResource("23_item_highlight")
+
+[node name="BazaarInfoPanel" parent="." unique_id=1531915873 instance=ExtResource("17_bazaar")]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 430.0
+offset_bottom = 307.0
+
+[node name="ArtistPetDetailPanel" parent="." unique_id=1126198972 instance=ExtResource("16_pet_detail")]
+visible = false
+layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1

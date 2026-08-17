@@ -3,13 +3,13 @@ extends RefCounted
 class_name BattleBoardDimensions
 
 const DEFAULT_WIDTH := 8
-const DEFAULT_HEIGHT := 8
+const DEFAULT_HEIGHT := 7
 const LEGACY_WIDTH := 8
-const LEGACY_HEIGHT := 7
-const MIN_WIDTH := 8
-const MIN_HEIGHT := 8
-const MAX_WIDTH := 8
-const MAX_HEIGHT := 8
+const LEGACY_HEIGHT := 8
+const MIN_WIDTH := 1
+const MIN_HEIGHT := 1
+const MAX_WIDTH := 16
+const MAX_HEIGHT := 16
 
 
 static func defaults() -> Vector2i:

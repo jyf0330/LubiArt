@@ -1,0 +1,44 @@
+# 战斗文字描述可读性与镜像四宠实测
+
+- status: complete
+- owner: codex-root-20260813
+- objective: 让战斗日志看板直接消费结构化 Command Result / Battle Trace，以可读文字显示自动布置坐标、移动、元素变化格、伤害前后值和复位事件，并用镜像四宠自动布置与完整回合实测
+- delivery_base_commit: 6514da8
+- write_scopes:
+  - `core_ui/scripts/battle/controllers/battle_log_readable_projection.gd`
+  - `core_ui/scripts/battle/prefabs/hud/battle_log_dashboard.gd`
+  - `tests/features/smoke_battle_log_readability.gd`
+  - `tasks/doing/2026-08-13_battle_log_readability.md`
+- exclusive_files:
+  - `core_ui/scripts/battle/controllers/battle_log_readable_projection.gd`
+  - `core_ui/scripts/battle/prefabs/hud/battle_log_dashboard.gd`
+  - `tests/features/smoke_battle_log_readability.gd`
+- existing_wip:
+  - 当前树存在战斗权威、自动摆位、UI、Bazaar、visual 基线、控制面和测试 WIP，全部视为其他任务资产
+  - 本任务不修改 `core/state/game_state.gd`、`core/battle/auto_position/**`、`tests/features/smoke_battle_ui.gd`、`tests/qa/ui_regression.gd`、`tasks/ai/QUEUE.md` 或 `tasks/ai/STATUS.md`
+  - `tasks/doing/2026-08-13_24h_visible_watch.md` 正在录制；本任务若做可见验收必须使用独立项目副本、`user://`、虚拟屏、进程和输出目录
+- stop_conditions:
+  - 看板逐只显示自动布置 `from/to/reason`
+  - 看板逐事件显示移动、元素变化格、伤害前后值和宠物复位，不以聊天补写替代代码数据
+  - 同一 Snapshot 重复渲染不重复日志，Trace 回退/新战斗能安全重建
+  - 镜像四宠 fixture 通过 `AUTO_POSITION_HEROES` 与 `RUN_COMBAT_ROUND` 产生实际可读文字
+- validation:
+  - `tests/features/smoke_battle_log_readability.gd`
+  - `tests/features/smoke_battle_art_scene.gd`
+  - `git diff --check`
+  - 独立真实窗口打开 D 战斗日志看板，目视确认坐标、元素格和伤害行可读
+- commit: 满足专项与可见验收且能与既有 WIP 隔离后精确提交；不推送
+- changes:
+  - 新增纯投影层，只从 `lastCommandResult.moves` 与 `battleTrace` 生成玩家可读文字，不拥有或改写战斗权威状态
+  - 自动布置逐宠显示起点、终点和算法理由；元素事件逐格显示层数变化；移动、技能、伤害和复位沿用 Trace 原文
+  - 双方使用同名宠物时根据 Trace 的 `side` 显示“我方/敌方”，避免“焰牙攻击焰牙”无法辨认阵营
+  - 看板按地形、站位、战斗、回合、状态着色，结构化历史保留 240 行；重复 Snapshot 不重复追加
+  - 镜像双方四宠 fixture 通过正式 `AUTO_POSITION_HEROES` 和 `RUN_COMBAT_ROUND`，测试预期从当次 Result/Trace 动态提取，不写死算法坐标
+- results:
+  - `godot --headless --path . --script tests/features/smoke_battle_log_readability.gd`：通过，输出 `SMOKE_BATTLE_LOG_READABILITY_OK`
+  - `godot --headless --path . --script tests/features/smoke_battle_art_scene.gd`：通过，输出 `SMOKE_BATTLE_ART_SCENE_OK scenes=1 prefabs=4`
+  - `git diff --check`：通过
+  - 独立虚拟屏 `Codex Battle Log QA 0813`（1920x1080、Mirror Off、非主屏）和隔离项目/`user://`：可见测试通过，随后已断开并丢弃本任务虚拟屏
+  - 目视证据：`output/validation/battle-log-readability-20260813/dashboard-final.png`；标题、分类颜色、滚动区、坐标、变化格、HP/护盾前后值均清晰可辨
+- residual_risk:
+  - 本次验证基于当前工作树中的自动站位与权威战斗 WIP；测试刻意以当次结构化结果为真相，不锁死未来算法选择的具体格子

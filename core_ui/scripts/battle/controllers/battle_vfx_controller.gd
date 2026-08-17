@@ -1,4 +1,5 @@
 extends Control
+class_name BattleVfxController
 
 signal trace_event_started(event_id: String)
 signal trace_event_finished(event_id: String)
@@ -8,7 +9,6 @@ signal pets_reset_reveal_requested(units: Array)
 signal enemy_move_projection_requested(event: Dictionary)
 
 const BattleRoundBannerScript := preload("res://core_ui/scripts/battle/prefabs/hud/battle_round_banner.gd")
-const BattleDamageNumberScript := preload("res://core_ui/scripts/battle/prefabs/effects/battle_damage_number.gd")
 const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
 const BattleVfxHandlerRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_vfx_handler_registry.gd")
 const ARTIST_ACTION_STEP_DELAY := 0.16
@@ -18,6 +18,7 @@ const DEATH_FADE_DURATION := 0.42
 const DEATH_IMPACT_HOLD_DURATION := 0.10
 const ELEMENT_SETTLEMENT_DELAY := 1.0
 const ARTIST_ROUND_BANNER_DURATION := 1.4
+const ARTIST_MOVE_DURATION := 0.22
 const ENEMY_ATTACK_TRANSLATION_OUT_DURATION := 0.18
 const ENEMY_ATTACK_TRANSLATION_HOLD_DURATION := 0.08
 const ENEMY_ATTACK_TRANSLATION_RETURN_DURATION := 0.16
@@ -104,17 +105,21 @@ func _sequence_pets_reset(event: Dictionary) -> void:
 	var reset_units := Array(reset_payload.get("units", [])).duplicate(true)
 	pets_reset_reveal_requested.emit(reset_units)
 	await get_tree().create_timer(0.42).timeout
+	if bool(reset_payload.get("showNextRoundBanner", false)):
+		var round_banner := play_round_banner(int(reset_payload.get("nextRound", int(event.get("round", 1)) + 1)), "player")
+		if round_banner != null:
+			await round_banner.tree_exited
 
 
 func _sequence_enemy_move(event: Dictionary) -> void:
 	enemy_move_projection_requested.emit(event.duplicate(true))
 	play_event(event)
-	await get_tree().create_timer(ARTIST_ACTION_STEP_DELAY).timeout
+	await get_tree().create_timer(ARTIST_MOVE_DURATION + ARTIST_ACTION_STEP_DELAY).timeout
 
 
 func _sequence_movement(event: Dictionary) -> void:
-	play_event(event)
-	await get_tree().create_timer(ARTIST_ACTION_STEP_DELAY).timeout
+	var unit := play_event(event)
+	await get_tree().create_timer(_movement_duration(unit) + ARTIST_ACTION_STEP_DELAY).timeout
 
 
 func _sequence_round_start(event: Dictionary) -> void:
@@ -155,7 +160,7 @@ func _play_damage_trace_sequence(event: Dictionary) -> void:
 	elif is_element_trap:
 		await get_tree().create_timer(0.54 + ARTIST_ACTION_STEP_DELAY).timeout
 	else:
-		await get_tree().create_timer(_damage_feedback_duration(target_visual)).timeout
+		await get_tree().create_timer(ARTIST_ACTION_STEP_DELAY).timeout
 	if target_visual != null and bool(target_visual.get_meta("trace_ghost", false)):
 		target_visual.queue_free()
 
@@ -165,12 +170,6 @@ func _play_defeated_unit_fade(unit: Control) -> void:
 		return
 	if unit.has_method("play_death_fade"):
 		await unit.call("play_death_fade", DEATH_FADE_DURATION)
-
-
-func _damage_feedback_duration(unit: Control) -> float:
-	if unit != null and unit.has_method("get_damage_feedback_duration"):
-		return maxf(ARTIST_ACTION_STEP_DELAY, float(unit.call("get_damage_feedback_duration")))
-	return ARTIST_ACTION_STEP_DELAY
 
 
 func _play_attack_strike_trace_sequence(event: Dictionary) -> void:
@@ -286,58 +285,7 @@ func _apply_damage_impact(event: Dictionary, target_visual: Control = null) -> N
 		unit = _unit_at(_dict_grid(target))
 	if unit != null and unit.has_method("play_damage_feedback"):
 		unit.call("play_damage_feedback", payload, _damage_reaction_direction(event))
-	_show_damage_number(unit, target, payload)
 	return unit
-
-
-func _show_damage_number(unit: Control, target: Dictionary, payload: Dictionary) -> void:
-	var amount := _damage_amount(payload)
-	if amount <= 0:
-		return
-	var feedback := BattleDamageNumberScript.new() as Label
-	if feedback == null:
-		return
-	feedback.name = "DamageNumber_%d" % Time.get_ticks_usec()
-	feedback.size = Vector2(120.0, 48.0)
-	feedback.z_index = 210
-	feedback.z_as_relative = false
-	feedback.set_meta("damage_amount", amount)
-	feedback.set_meta("target_unit_id", String(target.get("id", "")))
-	add_child(feedback)
-	var anchor_global := _damage_number_anchor_global(unit, target)
-	feedback.position = get_global_transform_with_canvas().affine_inverse() * anchor_global \
-		- feedback.size * 0.5
-	feedback.call("show_damage", amount)
-
-
-func _damage_number_anchor_global(unit: Control, target: Dictionary) -> Vector2:
-	if unit != null and is_instance_valid(unit):
-		var local_y := unit.size.y * 0.32
-		if unit.has_method("get_battle_sprite_actual_top_y"):
-			var sprite_top := float(unit.call("get_battle_sprite_actual_top_y"))
-			if is_finite(sprite_top):
-				local_y = maxf(8.0, sprite_top + 10.0)
-		return unit.get_global_transform_with_canvas() * Vector2(unit.size.x * 0.5, local_y)
-	var cell := _cell_at(_dict_grid(target))
-	if cell != null:
-		return cell.global_position + Vector2(cell.size.x * 0.5, cell.size.y * 0.3)
-	return get_global_transform_with_canvas() * (size * 0.5)
-
-
-func _damage_amount(payload: Dictionary) -> int:
-	if payload.has("finalDamage"):
-		return maxi(0, int(payload.get("finalDamage", 0)))
-	if payload.has("final_damage"):
-		return maxi(0, int(payload.get("final_damage", 0)))
-	var split_damage := int(payload.get("hpDamage", payload.get("hp_damage", 0))) \
-		+ int(payload.get("shieldDamage", payload.get("shield_damage", 0)))
-	if split_damage > 0:
-		return split_damage
-	var hp_from := int(payload.get("hpFrom", payload.get("hp_from", 0)))
-	var hp_to := int(payload.get("hpTo", payload.get("hp_to", hp_from)))
-	var shield_from := int(payload.get("shieldFrom", payload.get("shield_from", 0)))
-	var shield_to := int(payload.get("shieldTo", payload.get("shield_to", shield_from)))
-	return maxi(0, hp_from - hp_to + shield_from - shield_to)
 
 
 func _damage_reaction_direction(event: Dictionary) -> Vector2:
@@ -393,10 +341,28 @@ func _instant_death(event: Dictionary) -> Node:
 
 
 func play_movement(event: Dictionary) -> Node:
-	# Snapshot/board reconciliation owns position changes. Movement traces no longer
-	# drive a sprite action or positional tween.
 	var unit_id := String(event.get("unitId", Dictionary(event.get("actor", {})).get("id", "")))
-	return _unit_by_id(unit_id)
+	var unit := _unit_by_id(unit_id)
+	if unit == null:
+		return null
+	var from_grid := _dict_grid(Dictionary(event.get("from", {})))
+	var to_grid := _dict_grid(Dictionary(event.get("to", {})))
+	var from_cell := _cell_at(from_grid)
+	var to_cell := _cell_at(to_grid)
+	if from_cell != null and to_cell != null and unit.has_method("play_grid_movement"):
+		unit.call(
+			"play_grid_movement",
+			from_cell.global_position,
+			to_cell.global_position,
+			_movement_duration(unit)
+		)
+	return unit
+
+
+func _movement_duration(unit: Node) -> float:
+	if unit != null and unit.has_method("get_move_animation_duration"):
+		return maxf(float(unit.call("get_move_animation_duration", ARTIST_MOVE_DURATION)), ARTIST_MOVE_DURATION)
+	return ARTIST_MOVE_DURATION
 
 
 func play_damage_trace(event: Dictionary) -> Node:
@@ -511,14 +477,7 @@ func play_element_impact(element: String, grid: Vector2i, persist_tile: bool = t
 
 
 func play_round_banner(round_number: int, side: String) -> Node:
-	for child in get_children():
-		if child.name != &"RoundFeedback":
-			continue
-		if int(child.get_meta("round_number", -1)) == round_number:
-			return child
-		child.free()
 	var banner := _new_round_banner()
-	banner.set_meta("round_number", round_number)
 	add_child(banner)
 	banner.z_index = 100
 	var texture_resource: Texture2D = null

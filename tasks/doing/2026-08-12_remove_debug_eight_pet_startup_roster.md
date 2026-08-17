@@ -1,0 +1,54 @@
+# 移除正式启动的八宠调试阵容
+
+- status: done
+- owner: codex-root-20260812
+- delivery_base_commit: ce8a88f
+- objective: 正式新游戏按上游 `10_initial_roster.csv` 的启用行初始化，不再被首战八宠调试扩展覆盖
+- write_scopes:
+  - `data/content/extensions/formal_battle_first_eight_pets.json`
+  - `data/content/generated/004_roster.json`
+  - `tests/core/smoke_production_initial_roster.gd`
+  - `tests/core/smoke_formal_battle_eight_distinct_pets.gd`
+  - `tests/core/smoke_modular_content_pack.gd`
+  - `tests/features/smoke_load_battle_visible_roster.gd`
+  - `tasks/doing/2026-08-12_remove_debug_eight_pet_startup_roster.md`
+- exclusive_files:
+  - `data/content/extensions/formal_battle_first_eight_pets.json`
+  - `data/content/generated/004_roster.json`
+  - `tests/core/smoke_production_initial_roster.gd`
+  - `tests/core/smoke_formal_battle_eight_distinct_pets.gd`
+  - `tests/core/smoke_modular_content_pack.gd`
+  - `tests/features/smoke_load_battle_visible_roster.gd`
+- existing_wip: 工作区存在大量其他任务修改；本任务目标文件开工时均无既有修改，尤其不触碰已有修改的 `tests/integration/smoke_singleplayer_bootstrap.gd`
+- stop_conditions:
+  - 生产 `YsbzsState` 初始 roster 与上游启用行一致
+  - 八宠开发战斗仍由 developer scenario 独立提供
+  - 正式入口初始界面不再显示四上阵加四背包
+- validation:
+  - 隔离导出预演，仅允许目标 roster 生成包发生预期变化
+  - `smoke_production_initial_roster.gd`
+  - `smoke_debug_first_battle_setup.gd`
+  - 正式入口真实窗口截图验证
+  - `git diff --check`
+- changes:
+  - 删除生产内容中的 `formal_battle_first_eight_pets` 高优先级覆盖
+  - 将生成的正式 roster 同步为上游唯一启用行 `pal_002 / 灰尾狸`
+  - 把八宠身份、贴图与 4v4 验证改由隔离 developer scenario 显式启动
+  - 可见阵容 smoke 自建四宠 fixture，不再依赖生产默认阵容
+- validation_result:
+  - `smoke_production_initial_roster.gd`：通过，生产初始 roster 为唯一上游启用宠物
+  - `smoke_debug_first_battle_setup.gd`：通过，developer scenario 保留 4v4 八宠
+  - `smoke_formal_battle_eight_distinct_pets.gd`：通过，八宠身份与八张贴图均不同
+  - `smoke_load_battle_visible_roster.gd`：通过，显式四宠 fixture 在 8x7 棋盘完整显示
+  - `smoke_modular_content_pack.gd`：通过，内容新指纹为 `aa3cb731...` / `3976e6a1...`
+  - `smoke_singleplayer_bootstrap.gd`：通过，输出 `SMOKE_SINGLEPLAYER_BOOTSTRAP_OK`
+  - `smoke_art_main_scene.gd`：通过
+  - 正式入口真实窗口：隔离项目副本与 `user://`，专用 `Codex Initial Reset 0724` 虚拟屏（3200x1800、Mirror Off）；确认开场阵容栏仅 1 只灰尾狸，三张路线卡正常
+  - 截图：`output/validation/initial-roster-fix/formal-start.png`
+  - `git diff --check`：通过
+- environment_cleanup:
+  - 仅终止本任务隔离 Godot 进程
+  - `Codex Initial Reset 0724` 已恢复为断开状态
+  - 未触碰用户 Godot 编辑器和 nightly 验证进程
+- control_plane_note: `tasks/ai/STATUS.md` 与 `tasks/ai/QUEUE.md` 正由 J 快速存读档任务修改，本任务不覆盖该 WIP
+- residual_risk: 无；正式开局仍保留上游策划明确启用的 1 只初始宠物，并非空阵容

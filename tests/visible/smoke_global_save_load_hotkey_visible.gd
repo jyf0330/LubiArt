@@ -22,27 +22,30 @@ func _run() -> void:
 	await _settle()
 	await _capture("01_route_default_hidden.png")
 
-	await _press_h()
-	var menu := game.get_node_or_null("GlobalSettingsMenu") as Control
-	_expect(menu != null, "route H mounts the global menu")
-	await _capture("02_route_h_open.png")
+	await _press_j()
+	var route_view := game.get_node("ThreeChoiceScene") as Control
+	var run_tools := route_view.get_node_or_null("RunTools") as Control
+	_expect(run_tools != null and run_tools.visible, "route J opens the code-generated quick toolbar")
+	_expect(game.get_node_or_null("GlobalSettingsMenu") == null, "route J leaves the formal menu unmounted")
+	await _capture("02_route_j_quick_toolbar.png")
 
-	var buttons_root := "CompleteUISettingsButtonPrefab/01_UISettingsButtonVisual/Menu/VBoxContainer/"
-	(menu.get_node(buttons_root + "SaveGame") as Button).pressed.emit()
+	var save_button := run_tools.find_child("SaveButton", true, false) as Button
+	var load_button := run_tools.find_child("LoadButton", true, false) as Button
+	_expect(save_button != null and load_button != null, "quick toolbar exposes slot 1 save/load buttons")
+	if save_button != null:
+		save_button.pressed.emit()
 	await _settle()
-	_expect(menu.get_node_or_null("UISaveGame") != null, "existing save dialog is mounted dynamically")
-	await _capture("03_save_dialog.png")
+	await _capture("03_quick_save_complete.png")
 
-	menu.call("handle_cancel")
-	(menu.get_node(buttons_root + "LoadGame") as Button).pressed.emit()
+	if load_button != null:
+		load_button.pressed.emit()
 	await _settle()
-	_expect(menu.get_node_or_null("UILoadGame") != null, "existing load dialog is mounted dynamically")
-	await _capture("04_load_dialog.png")
+	await _capture("04_quick_load_complete.png")
 
-	await _press_h()
+	await _press_j()
 	await process_frame
-	_expect(game.get_node_or_null("GlobalSettingsMenu") == null, "second H hides and releases the menu")
-	await _capture("05_route_h_closed.png")
+	_expect(run_tools != null and not run_tools.visible, "second J hides the quick toolbar")
+	await _capture("05_route_j_closed.png")
 
 	game.queue_free()
 	await process_frame
@@ -50,16 +53,16 @@ func _run() -> void:
 	quit(1 if _failed else 0)
 
 
-func _press_h() -> void:
+func _press_j() -> void:
 	var press := InputEventKey.new()
-	press.keycode = KEY_H
-	press.physical_keycode = KEY_H
+	press.keycode = KEY_J
+	press.physical_keycode = KEY_J
 	press.pressed = true
 	Input.parse_input_event(press)
 	await process_frame
 	var release := InputEventKey.new()
-	release.keycode = KEY_H
-	release.physical_keycode = KEY_H
+	release.keycode = KEY_J
+	release.physical_keycode = KEY_J
 	release.pressed = false
 	Input.parse_input_event(release)
 	await _settle()

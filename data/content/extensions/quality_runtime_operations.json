@@ -1,0 +1,2047 @@
+{
+  "schema": "ysbzs.content-package.v1",
+  "package_id": "extension.quality_runtime_operations.v1",
+  "priority": 100,
+  "order": 14,
+  "operations": [
+    {
+      "op": "set",
+      "path": [
+        "quality",
+        "runtime_schema_version"
+      ],
+      "value": 1
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S01",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S01.round",
+        "hook": "round_start",
+        "operation": "round_grant_shield",
+        "priority": 100,
+        "params": {
+          "amount": 15
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S02.round",
+        "hook": "round_start",
+        "operation": "round_heal",
+        "priority": 100,
+        "params": {
+          "amount": 20
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S03",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S03.round",
+        "hook": "round_start",
+        "operation": "round_double_max_hp_once",
+        "priority": 100,
+        "params": {
+          "factor": 2,
+          "cap": 30,
+          "flag": "s03_applied"
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S04",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S04.element_count",
+        "hook": "element_application_count",
+        "operation": "element_apply_count_add",
+        "priority": 100,
+        "params": {
+          "amount": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S05",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S05.damage",
+        "hook": "modify_hit_damage",
+        "operation": "damage_multiply_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "last_hit": true
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S06",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S06.damage",
+        "hook": "modify_hit_damage",
+        "operation": "damage_chain_double",
+        "priority": 100,
+        "params": {
+          "when": {}
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S07",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S07.growth",
+        "hook": "after_attack",
+        "operation": "permanent_attack_per_kills",
+        "priority": 100,
+        "params": {
+          "threshold": 5,
+          "amount": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "S08",
+      "field": "runtime_operations",
+      "value": {
+        "id": "S08.element_layers",
+        "hook": "element_layers",
+        "operation": "element_layers_multiply_matching",
+        "priority": 100,
+        "params": {
+          "factor": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G01",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G01.mode",
+        "hook": "profile",
+        "operation": "mode_profile",
+        "priority": 100,
+        "params": {
+          "options": [
+            "攻",
+            "守"
+          ],
+          "aliases": {
+            "攻": [
+              "攻击",
+              "attack"
+            ],
+            "守": [
+              "防守",
+              "guard"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G01",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G01.round",
+        "hook": "round_start",
+        "operation": "round_guard_stance",
+        "priority": 100,
+        "params": {
+          "attack_mode": "攻",
+          "guard_mode": "守",
+          "amount": 8
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G01",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G01.damage",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode_is_guard": false
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G01",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G01.flags",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G02.mode",
+        "hook": "profile",
+        "operation": "mode_profile",
+        "priority": 100,
+        "params": {
+          "options": [
+            "稳",
+            "爆"
+          ],
+          "aliases": {
+            "稳": [
+              "稳定",
+              "stable"
+            ],
+            "爆": [
+              "爆发",
+              "burst"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G02.stable",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode": "稳"
+          },
+          "value": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G02.burst",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode": "爆",
+            "first_hit": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G02.default_first",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode": "",
+            "first_hit": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G02.default_follow",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode": "",
+            "first_hit": false
+          },
+          "value": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G02.flags",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G03",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G03.core",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "core_cell": true
+          },
+          "value": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G03",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G03.preview",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G04",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G04.shield",
+        "hook": "after_attack",
+        "operation": "shield_core_ally",
+        "priority": 100,
+        "params": {
+          "amount": 8
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G05",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G05.heal",
+        "hook": "after_attack",
+        "operation": "heal_core_ally",
+        "priority": 100,
+        "params": {
+          "amount": 6
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G06",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G06.core",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "core_cell": true
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G07",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G07.farthest",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "farthest_cell": true
+          },
+          "value": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G08",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G08.shield_behind",
+        "hook": "before_attack",
+        "operation": "shield_behind",
+        "priority": 100,
+        "params": {
+          "amount": 10
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G09",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G09.off_axis",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "off_axis": true
+          },
+          "value": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G10",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G10.farthest",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "farthest_cell": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G11",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G11.single",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count": 1
+          },
+          "value": 5
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G12",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G12.incoming",
+        "hook": "after_attack",
+        "operation": "incoming_bonus_all_targets",
+        "priority": 100,
+        "params": {
+          "amount": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G13",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G13.distance",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "distance_min": 2
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G14",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G14.mode",
+        "hook": "profile",
+        "operation": "mode_profile",
+        "priority": 100,
+        "params": {
+          "options": [
+            "稳",
+            "重"
+          ],
+          "aliases": {
+            "稳": [
+              "稳定",
+              "稳击",
+              "stable"
+            ],
+            "重": [
+              "重击",
+              "heavy"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G14",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G14.stable",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode": "稳"
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G14",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G14.heavy",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode_is_stable": false
+          },
+          "value": 6
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G14",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G14.narrow",
+        "hook": "attack_option_for_target",
+        "operation": "narrow_to_target_mode",
+        "priority": 100,
+        "params": {
+          "mode": "重"
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G14",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G14.preview",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G15",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G15.low_hp",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_hp_max": 8
+          },
+          "value": 8
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G16",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G16.chase",
+        "hook": "after_hit",
+        "operation": "kill_chase",
+        "priority": 100,
+        "params": {
+          "amount": 3,
+          "verb": "追击"
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G17",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G17.marked",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "has_mark": true,
+            "marked_match": true
+          },
+          "value": 5
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G17",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G17.fallback",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "has_mark": false,
+            "core_or_single": true
+          },
+          "value": 5
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G17",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G17.flags",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true,
+          "supports_mark": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G18",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G18.second",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count_min": 2,
+            "hit_index": 1
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G19",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G19.multi",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count_min": 2
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G20",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G20.farthest",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "farthest_cell": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G21",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G21.first",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "first_cell": true
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G21",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G21.shield_behind",
+        "hook": "before_attack",
+        "operation": "shield_behind",
+        "priority": 100,
+        "params": {
+          "amount": 8
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G22",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G22.marked",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "has_mark": true,
+            "marked_match": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G22",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G22.fallback",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "has_mark": false,
+            "core_or_first": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G22",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G22.shield",
+        "hook": "after_attack",
+        "operation": "shield_marked_ally",
+        "priority": 100,
+        "params": {
+          "amount": 8
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G22",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G22.flags",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true,
+          "supports_mark": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G23",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G23.second",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count_min": 2,
+            "hit_index": 1
+          },
+          "value": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G23",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G23.incoming",
+        "hook": "after_attack",
+        "operation": "incoming_bonus_first_target",
+        "priority": 100,
+        "params": {
+          "amount": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G24",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G24.mode",
+        "hook": "profile",
+        "operation": "mode_profile",
+        "priority": 100,
+        "params": {
+          "options": [
+            "同",
+            "主副"
+          ],
+          "aliases": {
+            "同": [
+              "同伤",
+              "same",
+              "sameDamage"
+            ],
+            "主副": [
+              "主",
+              "main",
+              "mainSub",
+              "main-sub"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G24",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G24.same",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode": "同"
+          },
+          "value": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G24",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G24.main",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "mode_is_same": false,
+            "first_hit": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G24",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G24.preview",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G25",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G25.core",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "core_cell": true
+          },
+          "value": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G25",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G25.preview",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G26",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G26.multi",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count_min": 2
+          },
+          "value": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G26",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G26.preview",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G27",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G27.farthest",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "farthest_cell": true
+          },
+          "value": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G28",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G28.formation",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "g28_active": true
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G28",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G28.shield",
+        "hook": "before_attack",
+        "operation": "formation_shield",
+        "priority": 100,
+        "params": {
+          "amount": 5
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G29",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G29.farthest",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "farthest_positive": true,
+            "farthest_cell": true,
+            "first_target_exists": true
+          },
+          "value": 4
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G30",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G30.marked",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "has_mark": true,
+            "marked_match": true
+          },
+          "value": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G30",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G30.fallback",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "has_mark": false,
+            "core_cell": true
+          },
+          "value": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "G30",
+      "field": "runtime_operations",
+      "value": {
+        "id": "G30.flags",
+        "hook": "profile",
+        "operation": "boolean_profile",
+        "priority": 100,
+        "params": {
+          "preview_damage": true,
+          "supports_mark": true
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D01",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D01.extend",
+        "hook": "mutate_shape",
+        "operation": "shape_extend_end",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D02",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D02.back_sweep",
+        "hook": "mutate_shape",
+        "operation": "shape_back_sweep",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D03",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D03.mirror",
+        "hook": "mutate_shape",
+        "operation": "shape_mirror",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D04",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D04.diagonal",
+        "hook": "mutate_shape",
+        "operation": "shape_diagonal_copy",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D05",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D05.splash",
+        "hook": "after_hit",
+        "operation": "adjacent_splash",
+        "priority": 100,
+        "params": {
+          "amount": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D06",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D06.double_ends",
+        "hook": "mutate_shape",
+        "operation": "shape_double_ends",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D07",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D07.single",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count": 1
+          },
+          "value": 6
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D08",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D08.multi",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count_min": 2
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D09",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D09.corner",
+        "hook": "mutate_shape",
+        "operation": "shape_fill_corner",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D10",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D10.pierce",
+        "hook": "mutate_shape",
+        "operation": "shape_pierce_end",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D11",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D11.order",
+        "hook": "profile",
+        "operation": "actor_order_profile",
+        "priority": 100,
+        "params": {
+          "order": -1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D12",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D12.last",
+        "hook": "modify_hit_damage",
+        "operation": "damage_add_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "last_hit": true
+          },
+          "value": 5
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D12",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D12.order",
+        "hook": "profile",
+        "operation": "actor_order_profile",
+        "priority": 100,
+        "params": {
+          "order": 1
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D13",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D13.chase",
+        "hook": "after_attack",
+        "operation": "chase_low_hp",
+        "priority": 100,
+        "params": {
+          "amount": 5
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D14",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D14.chain",
+        "hook": "after_hit",
+        "operation": "kill_chase",
+        "priority": 100,
+        "params": {
+          "amount": 4,
+          "verb": "连锁"
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D15",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D15.repeat",
+        "hook": "after_attack",
+        "operation": "repeat_core_if_covered",
+        "priority": 100,
+        "params": {
+          "minimum_units": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D16",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D16.single",
+        "hook": "modify_hit_damage",
+        "operation": "damage_multiply_when",
+        "priority": 100,
+        "params": {
+          "when": {
+            "target_count": 1
+          },
+          "value": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D17",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D17.scale",
+        "hook": "modify_hit_damage",
+        "operation": "damage_scale_ceil_when",
+        "priority": 100,
+        "params": {
+          "when": {},
+          "numerator": 3,
+          "denominator": 2
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D18",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D18.burst",
+        "hook": "before_hit",
+        "operation": "immediate_element_burst",
+        "priority": 100,
+        "params": {
+          "minimum_layers": 3
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D19",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D19.sort",
+        "hook": "sort_targets",
+        "operation": "sort_lowest_hp",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D20",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D20.reverse",
+        "hook": "mutate_shape",
+        "operation": "shape_reverse",
+        "priority": 100,
+        "params": {}
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D21",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D21.trace",
+        "hook": "after_attack",
+        "operation": "fire_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D22",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D22.trace",
+        "hook": "after_attack",
+        "operation": "water_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D23",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D23.trace",
+        "hook": "after_attack",
+        "operation": "wind_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D24",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D24.trace",
+        "hook": "after_attack",
+        "operation": "earth_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D25",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D25.trace",
+        "hook": "after_attack",
+        "operation": "metal_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D26",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D26.trace",
+        "hook": "after_attack",
+        "operation": "wood_trace",
+        "priority": 100,
+        "params": {
+          "duration": 2,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D27",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D27.trace",
+        "hook": "after_attack",
+        "operation": "buddha_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D28",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D28.trace",
+        "hook": "after_attack",
+        "operation": "sand_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D29",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D29.trace",
+        "hook": "after_attack",
+        "operation": "demon_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": false
+        }
+      }
+    },
+    {
+      "op": "append_to",
+      "path": [
+        "quality",
+        "upgrades"
+      ],
+      "match_key": "id",
+      "match_value": "D30",
+      "field": "runtime_operations",
+      "value": {
+        "id": "D30.trace",
+        "hook": "after_attack",
+        "operation": "talisman_trace",
+        "priority": 100,
+        "params": {
+          "duration": 1,
+          "persistent": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+# 正式商店美术接入与多状态截图对照
+
+- status: completed
+- owner: codex-root-20260816-shop-art-visual
+- user_authorization: 2026-08-16 用户要求“要多个截屏对照，但是代码方面不要照抄”
+- objective: 以已合并商店 PNG 为美术与构图参考，在正式项目现有动态商店表现层中独立实现接入；不复制 Mock Scene、脚本或固定五格逻辑，并用同一正式入口、同一尺寸和同一操作序列产出多组改前/改后截图
+- write_scopes:
+  - `core_ui/scripts/shop/views/legacy_code_shop_view.gd`
+  - `core_ui/scripts/shop/views/shop_art_backdrop.gd`
+  - `tests/features/smoke_shop_art_visual_integration.gd`
+  - `tests/visible/capture_shop_art_comparison.gd`
+  - `tasks/doing/2026-08-16_shop_art_visual_integration.md`
+  - `output/validation/shop-art-comparison/**`（验证产物，不提交）
+- exclusive_files:
+  - `core_ui/scripts/shop/views/legacy_code_shop_view.gd`
+  - `core_ui/scripts/shop/views/shop_art_backdrop.gd`
+  - `tests/features/smoke_shop_art_visual_integration.gd`
+  - `tests/visible/capture_shop_art_comparison.gd`
+  - `tasks/doing/2026-08-16_shop_art_visual_integration.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md`、`tasks/doing/2026-08-15_background_patrol_2249.md` 和执行期间新出现的 `tasks/doing/2026-08-16_background_patrol_0054.md` 为其他巡检 WIP；本任务不改写、不暂存、不提交
+  - 若本任务独占文件出现非本轮并发修改，立即执行 `FILE_CONFLICT_STOP`
+- implementation_contract:
+  - 只复用正式项目已合并的 PNG 资源；不复制 Mock `ShopScene`、脚本、坐标常量、Session/预览状态或固定五格布局
+  - 保留正式 `LegacyCodeShopView` 的动态商品数量、33 位商人映射、语义命令和 `GameSession -> Command -> YsbzsState -> Result/Trace/Snapshot` 边界
+  - 新背景/建筑/刷新视觉封装为纯表现模块，不读取或修改权威状态；商店 View 仍只渲染 Snapshot 并发出语义意图
+  - 改前与改后均使用同一采集脚本、1920x1080 窗口、固定正式商店 fixture 和相同五个状态；禁止用 Mock 运行图冒充基线
+- screenshot_matrix:
+  - `01_initial`: 正式商店初始状态，10 件商品
+  - `02_frozen`: 冻结首件商品
+  - `03_refresh_transition`: 正式刷新命令触发的揭幕瞬间
+  - `04_refreshed`: 正式刷新命令后的商品状态
+  - `05_purchased`: 正式购买命令后的背包/金币状态
+  - `06_scrolled`: 商品列表滚动到底部，验证动态 10 件商品与可读性
+- validation:
+  - 先在产品代码改动前生成五张 baseline；改后由同一脚本生成五张 after，并生成逐对差异指标与总览图
+  - 运行商店美术接入专项 smoke、既有正式商店操作 smoke、商人人物生产接入 smoke
+  - 在本 AI 独立虚拟屏、项目副本、`.godot`、`user://`、进程和输出目录完成正式入口真实窗口采集
+  - `git diff --check`；精确暂存和提交本任务文件，不推送
+- stop_conditions:
+  - 六组同状态改前/改后截图齐全且可人工对照，正式入口可见新美术，10 商品滚动和所有公开命令不退化
+  - 无 Mock 代码或固定五格约束进入正式实现，专项测试和真实窗口验证通过
+  - 如无法获得隔离虚拟屏或截图证据不足，不标记完成、不宣称视觉验收通过
+- implementation:
+  - 新增纯表现 `ShopArtBackdrop`，独立组合森林背景、商铺建筑、可读性遮罩和顶部暗带；模块不接触 Snapshot、金币、商品、Session 或 Command。
+  - 正式动态商店继续渲染 Snapshot，并只通过原有 `command_requested` 发出语义意图；商品卡生成、冻结/解锁、购买、刷新和退出链路没有迁移 Mock 控制器或固定五格状态。
+  - 正式 33 商人映射仍优先；只有映射解析为空时才使用交付包默认商人图，未覆盖正式商人身份。
+  - 刷新按钮接入交付铃铛普通/高亮态；红帘动画由新模块以纵向缩放揭幕独立实现，没有使用 Mock Scene 节点路径、Session、固定坐标表或淡入淡出实现。
+  - 商品面板改为半透明并为队伍/事件侧栏增加独立描边容器，使美术可见同时维持文字与按钮对比度；正式 Curio 的 10 件商品仍由滚动容器动态承载。
+- validation_evidence:
+  - 产品代码改动前，在隔离项目副本中使用正式 `Game` 入口、固定种子 `shop-art-comparison-v1`、正式 Curio 摊位和 1920x1080 窗口生成 baseline；改后使用同一采集脚本与操作序列生成 after。
+  - 最终六组：初始、冻结、刷新揭幕瞬间、刷新完成、购买完成、滚动到底；baseline/after manifest 除标签外完全一致，均为 10 件正式商品。
+  - 总览：`output/validation/shop-art-comparison/comparison-v2/comparison_overview.png`；六张逐组并排图位于同目录；指标为 `output/validation/shop-art-comparison/comparison_metrics_v2.json`。
+  - 独立真实窗口使用 `Codex Shop Art 0816` 虚拟屏（1920x1080、Mirror Off、非主屏，采集时 display ID 24），以 `--screen 1` 启动独立项目、`.godot`、`GODOT_USER_HOME`、进程和输出；没有操作用户 Godot PID 5112。
+  - 采集完成后已按精确 tag ID 131 断开并丢弃本轮虚拟屏；`system_profiler` 复核只剩用户实体主屏在线。
+  - `smoke_shop_art_visual_integration.gd`：`layers=5 bell=normal+hover curtain=refresh fallback_merchant=true dynamic_offers=10 independent=true`。
+  - `smoke_legacy_code_shop_view.gd`：冻结、解锁、刷新、购买、退出全部通过正式命令链。
+  - `smoke_shop_character_production_integration.gd`：路线和正式商店继续消费同一正式映射商人纹理。
+  - 隔离 fast QA：19/19 通过，输出 `/tmp/codex-shop-art-visual-20260816/after_project/output/validation/qa/20260816-010321-fast`。
+  - 新 `ShopArtBackdrop` 与 Mock `shop_scene.gd` 去空白/注释后精确三行块重合数 0，序列相似度 0.013453；正式实现仅共享交付资源语义，不复制 Mock 代码。
+  - `git diff --check` 通过；截图逐组人工检查未见文字裁切、按钮遮挡、刷新完成后红帘残留或 10 商品滚动退化。
+- residual_risk:
+  - 当前视觉方案在 1920x1080 正式入口完成验收；更窄窗口仍依赖现有容器自适应和滚动，不在本轮截图矩阵内。
+  - 对照图片位于已忽略的 `output/validation/**`，不进入产品提交，但保留在本工作区供用户直接查看。
+- commit: 本任务达到独立验收条件，精确提交上述四个源码/测试文件与本任务卡；不推送，不混入巡检 WIP

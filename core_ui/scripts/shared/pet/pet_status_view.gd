@@ -31,8 +31,6 @@ const DAMAGE_CAP_COLOR := Color("ffffff")
 @onready var psd_shield_value: Label = get_node_or_null(psd_shield_value_path) as Label
 @onready var psd_attack_value: Label = get_node_or_null(psd_attack_value_path) as Label
 @onready var psd_damage_cap_value: Label = get_node_or_null(psd_damage_cap_value_path) as Label
-@onready var health_bar: ProgressBar = psd_health_value.get_parent() as ProgressBar \
-	if psd_health_value != null else null
 
 var _data: Dictionary = {}
 var _battle_mode_enabled := false
@@ -61,13 +59,6 @@ func set_mode(mode: StringName) -> void:
 	_battle_mode_enabled = battle_visible
 	for label in _psd_value_labels():
 		label.visible = battle_visible
-	# Battle health and shield use stacked bars in the shared unit frame.
-	# Keep their authored labels available for data binding, but never render
-	# duplicate numeric text over the unit.
-	if psd_health_value != null:
-		psd_health_value.visible = false
-	if psd_shield_value != null:
-		psd_shield_value.visible = false
 	_set_damage_cap_visible(battle_visible and _damage_cap(_data) >= 0)
 
 
@@ -79,7 +70,6 @@ func update_hp(value: int) -> void:
 	_data["hp"] = value
 	if psd_health_value != null:
 		psd_health_value.text = _stat_text(HEALTH_PREFIX, value)
-	_refresh_health_bar()
 
 
 func update_shield(value: int) -> void:
@@ -106,22 +96,6 @@ func _refresh_psd_values() -> void:
 		var cap := _damage_cap(_data)
 		psd_damage_cap_value.text = _stat_text(DAMAGE_CAP_PREFIX, cap) if cap >= 0 else ""
 		_set_damage_cap_visible(_battle_mode_enabled and cap >= 0)
-	_refresh_health_bar()
-
-
-func _refresh_health_bar() -> void:
-	if health_bar == null:
-		return
-	var current_hp := maxi(0, int(_data.get("hp", 0)))
-	var max_hp := current_hp
-	for key in ["max_hp", "maxHp", "hp_max", "hpMax"]:
-		if _data.has(key):
-			max_hp = maxi(0, int(_data.get(key, current_hp)))
-			break
-	max_hp = maxi(current_hp, max_hp)
-	health_bar.min_value = 0.0
-	health_bar.max_value = float(maxi(1, max_hp))
-	health_bar.value = float(mini(current_hp, max_hp))
 
 
 func _stat_text(prefix: String, value: int) -> String:

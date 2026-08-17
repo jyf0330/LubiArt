@@ -1,0 +1,47 @@
+name: QA PR
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install official Godot 4.7
+        shell: bash
+        run: |
+          godot_bin="$(bash tools/qa/install_godot_ci.sh "${RUNNER_TEMP}/godot")"
+          echo "GODOT_BIN=${godot_bin}" >> "${GITHUB_ENV}"
+
+      - name: Import project
+        run: '"${GODOT_BIN}" --headless --editor --path . --import --quit'
+
+      - name: Run fast QA
+        run: >-
+          python3 tools/qa/run_qa.py
+          --suite fast
+          --skip-import
+          --run-id ci-pr-${{ github.run_id }}-${{ github.run_attempt }}
+          --output output/validation/qa/ci-pr
+
+      - name: Upload QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-pr-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/validation/qa/ci-pr
+          if-no-files-found: warn
+          retention-days: 14

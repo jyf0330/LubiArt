@@ -13,27 +13,13 @@ const ROUTE_ICON_BY_KIND := {
 	"shop": "res://art/images/route/three_choice_psd/route_icon_shop.png",
 	"event": "res://art/images/route/three_choice_psd/route_icon_event.png",
 	"reward": "res://art/images/route/three_choice_psd/route_icon_reward.png",
-	"battle": "res://art/images/route/three_choice_psd/route_icon_event.png",
+	"battle": "res://art/images/debug/artist_ui/three_fight_logo.png",
 	"rest": "res://art/images/route/three_choice_psd/route_icon_event.png",
 }
-const ROUTE_SLOT_IMAGE_POOLS := [
-	[
-		"res://art/images/route/three_choice_psd/route_portrait_shop.png",
-		"res://art/images/route/three_choice_psd/route_portrait_shop_bai_xiaochang.png",
-		"res://art/images/route/three_choice_psd/route_portrait_shop_variant_3.png",
-		"res://art/images/route/three_choice_psd/route_portrait_shop_variant_5.png",
-	],
-	[
-		"res://art/images/route/three_choice_psd/route_portrait_event.png",
-		"res://art/images/route/three_choice_psd/route_portrait_event_herb_merchant.png",
-		"res://art/images/route/three_choice_psd/route_portrait_event_fish_merchant.png",
-		"res://art/images/route/three_choice_psd/route_portrait_event_ox_merchant.png",
-	],
-	[
-		"res://art/images/route/three_choice_psd/route_portrait_reward.png",
-		"res://art/images/route/three_choice_psd/route_portrait_reward_short_samurai.png",
-		"res://art/images/route/three_choice_psd/route_portrait_reward_variant_4.png",
-	],
+const ROUTE_SLOT_IMAGE_PATHS := [
+	"res://art/images/route/three_choice_psd/route_portrait_shop.png",
+	"res://art/images/route/three_choice_psd/route_portrait_event.png",
+	"res://art/images/route/three_choice_psd/route_portrait_reward.png",
 ]
 const ROUTE_SLOT_ICON_PATHS := [
 	"res://art/images/route/three_choice_psd/route_icon_shop.png",
@@ -41,14 +27,14 @@ const ROUTE_SLOT_ICON_PATHS := [
 	"res://art/images/route/three_choice_psd/route_icon_reward.png",
 ]
 const ROUTE_SLOT_HIGHLIGHT_PATHS := [
-	"res://art/images/route/three_choice_psd/route_highlight_shop.png",
-	"res://art/images/route/three_choice_psd/route_highlight_event.png",
-	"res://art/images/route/three_choice_psd/route_highlight_reward.png",
+	"res://art/images/route/three_choice_psd/route_highlight_1.png",
+	"res://art/images/route/three_choice_psd/route_highlight_2.png",
+	"res://art/images/route/three_choice_psd/route_highlight_3.png",
 ]
 const PET_IMAGE_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
 const PET_SHEET_SLICE_DIR := "res://art/images/shared/pets/sheets/slices"
 const PET_EXPLICIT_IMAGE_DIR := "res://art/images/shared/pets/sheets/slices"
-const PET_FALLBACK_IMAGE_PATH := "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png"
+const PET_FALLBACK_IMAGE_PATH := "res://art/images/shared/pets/sheets/slices/pal_042.png"
 const SHOP_CHARACTER_MAP_PATH := "res://art/manifests/route/shop/characters/shop_character_map.json"
 const REWARD_NODE_MAP_PATH := "res://art/manifests/route/rewards/reward_node_map.json"
 
@@ -56,13 +42,9 @@ var _missing_images := {}
 var _pet_asset_resolver: RefCounted = null
 var _shop_character_by_id := {}
 var _reward_node_by_id := {}
-var _route_portrait_path_by_key := {}
-var _route_rng := RandomNumberGenerator.new()
 
 
 func reload() -> void:
-	_route_rng.randomize()
-	_route_portrait_path_by_key.clear()
 	_pet_asset_resolver = PetAssetResolverScript.new()
 	_pet_asset_resolver.call("configure", PET_SHEET_SLICE_DIR, PET_EXPLICIT_IMAGE_DIR)
 	_pet_asset_resolver.call("load_map", PET_IMAGE_MAP_PATH)
@@ -89,23 +71,9 @@ func route_texture(option: Dictionary, kind: String) -> Texture2D:
 	return load(path) as Texture2D
 
 
-func route_slot_texture(index: int, option: Dictionary = {}) -> Texture2D:
-	var safe_index := clampi(index, 0, ROUTE_SLOT_IMAGE_POOLS.size() - 1)
-	var pool := Array(ROUTE_SLOT_IMAGE_POOLS[safe_index])
-	if pool.is_empty():
-		return null
-	var cache_key := "%d:%s" % [safe_index, _route_option_identity(option)]
-	if not _route_portrait_path_by_key.has(cache_key):
-		_route_portrait_path_by_key[cache_key] = String(pool[_route_rng.randi_range(0, pool.size() - 1)])
-	return load(String(_route_portrait_path_by_key[cache_key])) as Texture2D
-
-
-func _route_option_identity(option: Dictionary) -> String:
-	for key in ["route_id", "routeId", "node_id", "nodeId", "option_id", "optionId", "id", "kind", "type"]:
-		var value := String(option.get(key, "")).strip_edges()
-		if value != "":
-			return value
-	return "default"
+func route_slot_texture(index: int) -> Texture2D:
+	var safe_index := clampi(index, 0, ROUTE_SLOT_IMAGE_PATHS.size() - 1)
+	return load(String(ROUTE_SLOT_IMAGE_PATHS[safe_index])) as Texture2D
 
 
 func route_icon_texture(kind: String) -> Texture2D:
@@ -186,11 +154,17 @@ func _normalize_reward_node_id(value: String) -> String:
 	return "reward_node_%03d" % int(value) if value.is_valid_int() else value
 
 
-func _shop_character_texture(record: Dictionary) -> Texture2D:
+func shop_character_texture(record: Dictionary) -> Texture2D:
 	var character_id := _shop_character_id(record)
 	if character_id == "" or not _shop_character_by_id.has(character_id):
 		return null
 	return _load_texture_if_exists(String(_shop_character_by_id[character_id]))
+
+
+func _shop_character_texture(record: Dictionary) -> Texture2D:
+	# Compatibility for existing focused asset audits. Production callers use
+	# the public presentation-facing method above.
+	return shop_character_texture(record)
 
 
 func _shop_character_id(record: Dictionary) -> String:

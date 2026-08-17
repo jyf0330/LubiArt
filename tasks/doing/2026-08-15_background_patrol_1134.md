@@ -1,0 +1,49 @@
+# 2026-08-15 11:34 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260815-patrol-1134
+- delivery_base_commit: `ab65604`
+- objective: 复核当前测试、CI、确定性运行证据、未完成任务卡与文件租约，只同步可确认的新巡检事实；不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-15_background_patrol_1134.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-15_background_patrol_1134.md`
+  - `tasks/ai/QUEUE.md`（仅刷新当前 HEAD、WIP 计数、图片任务进度和巡检证据）
+  - `tasks/ai/STATUS.md`（仅刷新当前 HEAD、WIP 计数、图片任务进度和巡检证据）
+- existing_wip:
+  - `tasks/ai/QUEUE.md` 与 `tasks/ai/STATUS.md` 开工前已有前两轮巡检的未提交修改；本轮完整保留既有结论，只做最小事实更新
+  - 开工时共有 25 个已跟踪修改及 197 个未跟踪路径；除控制面和活跃图片任务卡外，战斗权威、自动摆位、UI、测试、五张 visual 基线、审计依赖和临时图均视为其他任务资产
+  - `tasks/doing/2026-08-15_all_planner_pet_images.md` 为活跃独占任务，当前声明 `pal_224`–`pal_228` 批次；本轮不编辑其图片、映射、清单、工具、测试或任务卡
+- stop_conditions:
+  - 若失败指向现有 WIP、活跃任务卡或需玩法/视觉决策，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+  - 远端 CI 无法查询时记录为未验证，不推断通过或失败
+- validation:
+  - `python3 tools/art/generate_pet_image_manifest.py --check`
+  - 读取 24 小时 `completion-audit.json`
+  - `gh run list --repo jyf0330/xyxsj --limit 10`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-15_background_patrol_1134.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 本地不存在 `output/validation/qa` 目录，没有新的 QA `summary.json` 或确定性失败可供晋级
+  - 24 小时 `completion-audit.json` 仍为 `complete=true`、`31/31`、`failedCheckIds=[]`；已确认的状态文字遮挡仍需视觉方向，且验证文件与既有 WIP 重叠
+  - `gh run list --repo jyf0330/xyxsj --limit 10` 因代理 `127.0.0.1:7897` 被网络沙箱拒绝，远端 CI 未验证
+  - 开工 HEAD `ab65604` 已包含 `pal_219`–`pal_223`；图片清单为 `223/369 approved`、`146 pending`，下一批由原 owner 声明为 `pal_224`–`pal_228`
+  - 收尾复核时原 owner 已写入未跟踪的 `pal_224`–`pal_228` 五张源图，但清单/映射尚未同步；当前 `PET_IMAGE_MANIFEST_STALE` 是活跃批次中间态，按 `FILE_CONFLICT_STOP` 不接管、不验收
+  - 随后原 owner 同步清单与映射，最终只读检查恢复为 `228/369 approved`；该批仍未提交，巡检未接管专项 Godot smoke 或批次验收
+- validation_result:
+  - 首次 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`PET_IMAGE_MANIFEST_OK targets=369 generated=223 approved=223`
+  - 收尾复跑同一命令：因原 owner 已开始下一批而返回 1/`PET_IMAGE_MANIFEST_STALE`；未修改活跃任务文件，不能将中间态写成验收失败或已完成
+  - 原 owner 同步清单与映射后再次只读复跑：通过，`PET_IMAGE_MANIFEST_OK targets=369 generated=228 approved=228`
+  - 24 小时完成审计：`complete=true`、`passedChecks=31`、`totalChecks=31`、`failedCheckIds=[]`
+  - 最近五次已完成巡检的 `stderr.log` 均为 0 字节
+  - `git diff --check`：通过；控制面只更新当前证据与优先级，未修改产品、测试、正式数据或美术
+- residual_risk:
+  - 远端 CI 当前不可验证
+  - 控制面文件含开工前未提交修改，不能与本轮归属安全隔离
+  - 生图任务、战斗权威、UI、测试和 visual 基线 WIP 均未释放
+- next_step: 由现有 owner 继续图片任务；状态文字布局方向与 UI/visual 文件归属释放后，再建立独立 P1 修复任务
+- commit: 控制面含开工前未提交修改且工作区有活跃 owner；本轮不提交

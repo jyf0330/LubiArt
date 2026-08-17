@@ -1,0 +1,88 @@
+# 正式商店人物像素美术补齐
+
+- status: art_complete_integration_pending
+- owner: codex-root-20260815-shop-characters
+- objective: 为运行时 33 个正式商店节点提供唯一、可复用、与三选一路线入口一致的硬边 Q 版像素人物，替换旧平滑插画拼图切片并补齐最新 4 个 Day 1 动态商店节点
+- delivery_base_commit: 2b276e0
+- source_of_truth:
+  - `data/content/generated/013_route.json`：运行时正式 `node_type=shop` 节点及其 `node_id/name/shop_pool_id`
+  - `art/manifests/route/shop/characters/shop_character_node_map_manifest.json`：由正式路线数据自动重建的 33 节点映射审计产物
+  - `art/images/route/three_choice_psd/route_portrait_shop.png`：人物构图与硬像素风主基准
+- confirmed_gap:
+  - 当前 `shop_characters.png` 是 5×5 平滑 Q 版插画拼图，切片虽互不重复，但不符合正式路线人物的硬像素语言
+  - 现有映射只覆盖前 25 个正式商店节点；`node_d09_fire_shop`、`node_d10_tier3_shop`、`node_d10_output_shop`、`node_d10_fire_shop` 无人物映射
+  - 运行时 `ArtistFlowAssetRegistry._shop_character_id()` 优先按 `nodeId/node_id/name/shopPoolId` 解析，因此本任务画本地正式商店节点人物，不把上游外部商人/训练师来源列表误当成当前界面人物数量
+  - 最新 `013_route.json` 已新增 `node_shop_element_day1`、`node_shop_role_day1`、`node_shop_growth_day1`、`node_shop_skill_day1` 四个正式商店节点；现有 29 项生成清单和映射均未覆盖
+- write_scopes:
+  - `art/images/route/shop/characters/generated/**`
+  - `art/manifests/route/shop/characters/shop_character_generation_manifest.json`
+  - `art/manifests/route/shop/characters/shop_character_map.json`
+  - `art/manifests/route/shop/characters/shop_character_node_map_manifest.json`
+  - `tools/art/generate_shop_character_manifest.py`
+  - `tests/features/smoke_shop_character_images.gd`
+  - `tests/helpers/artist_ui_smoke_suite.gd`（仅商店人物数量/解析断言；该文件当前无 WIP 时才可写）
+  - `tasks/doing/2026-08-15_shop_character_pixel_art.md`
+- exclusive_files:
+  - `art/images/route/shop/characters/generated/**`
+  - `art/manifests/route/shop/characters/shop_character_generation_manifest.json`
+  - `art/manifests/route/shop/characters/shop_character_map.json`
+  - `art/manifests/route/shop/characters/shop_character_node_map_manifest.json`
+  - `tools/art/generate_shop_character_manifest.py`
+  - `tests/features/smoke_shop_character_images.gd`
+- existing_wip:
+  - 当前战斗权威、UI、visual 基线、`tasks/ai/QUEUE.md` 与 `tasks/ai/STATUS.md` 修改均属其他任务资产，本任务不覆盖、不暂存
+  - `tests/helpers/artist_ui_smoke_suite.gd` 当前干净，但只有在提交前再次确认无并发修改时才更新；发生重叠即 `FILE_CONFLICT_STOP`
+  - 已暂停的宠物任务保留 `pal_279`–`pal_283` 未跟踪草稿，本任务不暂存或改写
+- current_batch:
+  - `shop_character_010` 已随当前正式身份从风系补货商人更正为雷系补货商人
+  - `shop_character_023` 已随当前正式身份从风系连锁商人更正为雷系连锁商人
+  - `shop_character_030` 元素巡商 / `node_shop_element_day1` / `day1_element_dynamic`
+  - `shop_character_031` 定位经纪人 / `node_shop_role_day1` / `day1_role_dynamic`
+  - `shop_character_032` 成长工坊 / `node_shop_growth_day1` / `day1_growth`
+  - `shop_character_033` 技能训练师 / `node_shop_skill_day1` / `day1_skill`
+- progress:
+  - 2026-08-15 首批 `shop_character_001`–`shop_character_005` 已完成逐张视觉审核，均为透明背景硬边 Q 版像素人物；曾拒绝一张与夜市商人同脸的火系女性草稿，改为短发男性铁匠，避免角色同质化
+  - 5 张正式图已接入 `character_id`、数字索引、`node_id` 和中文商店名映射；其余 20 个旧节点仍临时保留旧切片，待对应新人物逐批替换，4 个原缺失节点仍只在 29 项生成清单中占位
+  - 2026-08-15 第二批 `shop_character_006`–`shop_character_010` 已完成：白银预备商人、火系强化商人、召唤强化商人、白银商会和风系补货商人；5 人均有独立年龄、性别、发型、轮廓与单件职业道具，并通过硬透明边复审
+  - 2026-08-15 第三批 `shop_character_011`–`shop_character_015` 已完成：控制补强、白银精选、水系治疗、治疗补强和黄金商会；水系治疗首稿因黑色渐变背景被拒绝，重做为可复用硬透明人物后才批准
+  - 2026-08-15 第四批 `shop_character_016`–`shop_character_020` 已完成：输出补强、火系爆发、黄金精选、前排补强和土系防线；避免复用前批的盾、锤、钳、账册等强识别道具
+  - 2026-08-15 收尾批 `shop_character_021`–`shop_character_029` 已完成：黄金连锁、经济补强、风系连锁、终局前黄金、召唤终局、火系终局、终局黄金、终局输出与终局火系；9 人继续使用互异年龄、性别、轮廓和单件职业道具
+  - 正式美术进度 `29/29`：29 个正式节点全部切换独立生成图，旧 `slices/` 映射为 `0`，4 个原缺失节点已补齐；生成清单 `generated=29 approved=29 pending=0`
+  - 2026-08-15 最新策划审计把正式节点总数提升为 `33`；新增 4 个 Day 1 商店节点尚无图片、清单目标或映射，本批完成前当前真实进度应按 `29/33` 计算
+  - 2026-08-15 新增 `shop_character_030`–`033` 已完成：元素巡商、定位经纪人、成长工坊、技能训练师；同时重做 `010`、`023` 以匹配当前雷系身份，`020` 仅按当前“地系”名称修正映射
+  - 正式美术进度 `33/33`：生成清单 `generated=33 approved=33 pending=0`，全部节点均使用独立硬边透明人物，旧 `slices/` 映射为 `0`
+  - 映射生成器现直接读取 `013_route.json` 的正式商店节点，并同时重建节点清单、人物映射与生成清单；唯一商品池可直接解析，共享商品池保持由不歧义的 `node_id/name` 解析
+  - 宠物图保持暂停，`pal_279`–`pal_283` 草稿未被本任务触碰或暂存
+  - 运行时审计发现 `ArtistFlowAssetRegistry._shop_character_texture()` 目前没有生产调用方，正式界面尚不会消费这些人物图；`core_ui/scripts/artist_flow/scenes/three_choice_scene.gd` 同时存在其他任务 WIP，因此本轮不越界接线，另列独立表现层后续
+- generation_policy:
+  - 每个人物单独生成，不以拼图切片冒充独立源图
+  - 强制沿用 `route_portrait_shop.png` 的硬像素簇、阶梯轮廓、有限色阶、深暖描边和紧凑 Q 版比例
+  - 人物身份由节点名称和商品池表达；只使用一件清晰职业道具，不堆叠发光、法阵、画框、文字或卡片背景
+  - 输出透明背景、完整人物、无 UI/文字/水印，可供三选一、商店面板和后续其他游戏模块复用
+- stop_conditions:
+  - 33 个正式商店节点均有唯一、身份相符、硬像素风人物，并由 `node_id/name/shop_pool_id` 正确解析
+  - 正式映射不再指向旧 5×5 平滑插画切片；4 个原缺失节点全部补齐
+  - PNG alpha、尺寸、主体包围盒、内容哈希唯一性、Godot 导入和专项解析测试全部通过
+  - 从正式入口完成独立真实窗口抽样，确认人物在三选一与商店界面不裁切、不糊化、不被错误 fallback
+- validation:
+  - `python3 tools/art/generate_shop_character_manifest.py --check`
+  - `godot --headless --path . --script tests/features/smoke_shop_character_images.gd`
+  - `godot --headless --path . --script tests/features/smoke_asset_registry.gd`
+  - 累计出稳定首批后，在本 AI 独立虚拟屏从正式入口目视抽样
+- validation_evidence:
+  - `python3 tools/art/generate_shop_character_manifest.py --check` → `SHOP_CHARACTER_MANIFEST_OK targets=29 generated=5 approved=5 pending=24`
+  - 隔离副本 `/tmp/codex-shop-characters.D5Lk8f`、独立 `.godot` 与 `GODOT_USER_HOME`，Godot 4.7.1 两次导入后执行 `tests/features/smoke_shop_character_images.gd` → `SMOKE_SHOP_CHARACTER_IMAGES_OK targets=29 generated=5 approved=5 pending=24`
+  - 同一隔离槽执行 `tests/features/smoke_asset_registry.gd` → `SMOKE_ASSET_REGISTRY_OK runtime=43 mapped_pets=278 catalog_pets=369 missing_pets=91 enemy_keys=16`
+  - 最新隔离副本 `/tmp/codex-shop-characters-33.A7drIV`、独立 `.godot`、`HOME` 与 `GODOT_USER_HOME` 完成 Godot 4.7.1 全量导入；专项测试 → `SMOKE_SHOP_CHARACTER_IMAGES_OK targets=33 generated=33 approved=33 pending=0`
+  - 同一隔离槽执行注册表测试 → `SMOKE_ASSET_REGISTRY_OK runtime=43 mapped_pets=278 catalog_pets=369 missing_pets=91 enemy_keys=16`
+  - `python3 tools/art/generate_shop_character_manifest.py --check` → `SHOP_CHARACTER_MANIFEST_OK targets=33 generated=33 approved=33 pending=0`；附加覆盖检查确认 33 节点、当前雷/地名称、4 个 Day 1 节点及唯一商品池键全部存在
+  - `010`、`023`、`030`–`033` 已逐张源图复审；最终 PNG 均为完整人物、硬像素轮廓、无背景/UI/文字，alpha 仅含 `0/255` 且主体四周保留透明边距
+  - 首批已做源图层视觉审核；正式入口独立真实窗口抽样仍保留为后续累计批次的阶段验收，不作为 `5/29` 首批提交已完成全部商店人物的声明
+  - 第二批隔离副本 `/tmp/codex-shop-characters-b2.V82Sah` 两次导入后，专项测试 → `SMOKE_SHOP_CHARACTER_IMAGES_OK targets=29 generated=10 approved=10 pending=19`；通用注册测试再次通过
+  - 第三批隔离副本 `/tmp/codex-shop-characters-b3.3mg2nT` 两次导入后，专项测试 → `SMOKE_SHOP_CHARACTER_IMAGES_OK targets=29 generated=15 approved=15 pending=14`；通用注册测试再次通过
+  - 第四批隔离副本 `/tmp/codex-shop-characters-b4.6g5BMg` 两次导入后，专项测试 → `SMOKE_SHOP_CHARACTER_IMAGES_OK targets=29 generated=20 approved=20 pending=9`；通用注册测试再次通过
+  - 收尾隔离副本 `/tmp/codex-shop-characters-final.cphMUQ` 两次导入后，专项测试 → `SMOKE_SHOP_CHARACTER_IMAGES_OK targets=29 generated=29 approved=29 pending=0`
+  - 同一隔离槽执行 `tests/features/smoke_asset_registry.gd` → `SMOKE_ASSET_REGISTRY_OK runtime=43 mapped_pets=278 catalog_pets=369 missing_pets=91 enemy_keys=16`
+  - 独立真实 Godot 窗口在独立虚拟屏渲染全部 29 张导入纹理，截图 `/tmp/codex-shop-characters-final.cphMUQ/output/shop-visible/shop-character-grid.png`；目视确认人物完整、透明背景、硬像素边缘清晰、无裁切或平滑模糊
+  - 正式入口人物显示验收暂不可执行：生产代码尚无 `_shop_character_texture()` 调用方；这属于表现层接线缺口，不影响 33 张源图、映射和注册表专项验收，但在接线完成前不得声称人物已在三选一/商店面板正式显示
+- commit: 每批人物、清单、映射和专项验证可独立解释时精确提交；不推送

@@ -2,7 +2,6 @@ extends TextureRect
 
 const SOURCE_TEXTURE_SIZE := Vector2(1672.0, 941.0)
 const SOURCE_VISIBLE_REGION := Rect2(18.0, 276.0, 1636.0, 460.0)
-const ROUND_FONT := preload("res://art/images/shared/pets/info_card/fonts/fusion_pixel_zh_hans.ttf")
 
 @onready var title_label: Label = $Title
 @onready var subtitle_label: Label = $Subtitle
@@ -12,11 +11,8 @@ func show_round(round_number: int, side: String, texture_resource: Texture2D, du
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if texture_resource != null:
 		texture = _visible_texture(texture_resource)
-	title_label.add_theme_font_override("font", ROUND_FONT)
-	subtitle_label.add_theme_font_override("font", ROUND_FONT)
 	title_label.text = "第%d回合" % round_number
 	subtitle_label.text = "我方回合" if side == "player" else "敌方回合"
-	subtitle_label.visible = false
 	pivot_offset = size * 0.5
 	modulate.a = 0.0
 	scale = Vector2.ONE * 0.96

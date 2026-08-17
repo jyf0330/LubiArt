@@ -1,0 +1,45 @@
+# Debug 战斗过程本地文本文件
+
+- status: complete
+- owner: codex-root-20260813
+- objective: Debug 运行时将普通玩家版战斗过程同步写入本地文本文件，正式 Release 构建始终不写
+- delivery_base_commit: 6dc8a17
+- write_scopes:
+  - `core_ui/scripts/battle/controllers/battle_log_local_writer.gd`
+  - `core_ui/scripts/battle/prefabs/hud/battle_log_dashboard.gd`
+  - `tests/features/smoke_battle_log_local_file.gd`
+  - `tests/features/smoke_battle_log_readability.gd`
+  - `tasks/doing/2026-08-13_debug_battle_text_file.md`
+- exclusive_files:
+  - `core_ui/scripts/battle/controllers/battle_log_local_writer.gd`
+  - `core_ui/scripts/battle/prefabs/hud/battle_log_dashboard.gd`
+  - `tests/features/smoke_battle_log_local_file.gd`
+  - `tests/features/smoke_battle_log_readability.gd`
+- existing_wip:
+  - 当前自动摆位、权威状态、其他 UI、visual 基线与控制面修改均为其他任务资产，不读取、不覆盖、不暂存
+  - 本任务只消费已生成的展示文字，不增加第二套战斗状态或日志解释逻辑
+- stop_conditions:
+  - Debug 默认写入 `user://battle_logs/latest_battle.txt`
+  - 文件按事件发生顺序保存普通中文，并覆盖更新为最近一场战斗
+  - Release 构建在任何开关值下均不创建文件
+  - 可通过 `YSBZS_BATTLE_TEXT_LOG=off` 关闭 Debug 文件输出
+- validation:
+  - `tests/features/smoke_battle_log_local_file.gd`
+  - `tests/features/smoke_battle_log_readability.gd`
+  - `tests/features/smoke_battle_art_scene.gd`
+  - `git diff --check`
+- commit: 完成后精确提交本任务文件；不推送
+- changes:
+  - 新增独立本地文件记录器，只接收看板已经生成的普通中文，不接触 `GameSession` 或权威状态
+  - Debug 默认覆盖写入 `user://battle_logs/latest_battle.txt`，按实际发生顺序保存最近一场的最多 240 条结构化事件
+  - Release 构建在代码入口硬关闭；`YSBZS_BATTLE_TEXT_LOG=off` 可在 Debug 临时关闭
+  - 看板仍按“最新在上”显示，本地文件则按“最早到最新”排列，便于逐行分析
+  - 镜像四宠实测支持 `--keep-local-battle-file`，可将当次代码实际过程保留到正式 Debug 文件路径供后续讨论
+- validation_result:
+  - `smoke_battle_log_local_file.gd`：通过，覆盖 Debug/Release 开关、关闭时无文件、中文内容和时间顺序
+  - `smoke_battle_log_readability.gd`：通过，镜像四宠完整回合同时验证本地文件含真实布置与伤害
+  - `smoke_battle_art_scene.gd`：通过，既有看板兼容回归正常
+  - `git diff --check`：通过
+  - 本次镜像四宠过程已实跑并保留：`latest_battle.txt` 共 69 行，路径为 macOS `Godot/app_userdata/YSBZS Godot Singleplayer/battle_logs/`
+- residual_risk:
+  - 文件只保留最近一场且最多 240 条，避免开发期间无限增长；若以后需要批量平衡统计，应另做结构化数据导出，不扩张此玩家文字文件

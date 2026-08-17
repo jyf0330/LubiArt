@@ -1,0 +1,45 @@
+# 2026-08-15 09:25 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260815-patrol-0925
+- delivery_base_commit: `00efae0`
+- objective: 复核当前测试、CI、确定性运行证据与任务租约，只同步可确认的新巡检事实；不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-15_background_patrol_0925.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-15_background_patrol_0925.md`
+  - `tasks/ai/QUEUE.md`（仅更新本轮巡检时间、Git/WIP 计数和现有图片任务进度）
+  - `tasks/ai/STATUS.md`（仅更新本轮巡检时间、Git/WIP 计数和现有图片任务进度）
+- existing_wip:
+  - `tasks/ai/QUEUE.md` 与 `tasks/ai/STATUS.md` 开工前已有未提交巡检内容；本轮保留其全部结论，只对已过时的时间、HEAD、任务进度和路径计数做最小更新
+  - 开工时另有 22 个非控制面的已跟踪修改和 190 个非本任务卡的未跟踪路径，涵盖战斗权威、自动摆位、UI、测试、visual 基线、宠物图片临时图和审计依赖；全部视为其他任务资产
+  - `tasks/doing/2026-08-15_all_planner_pet_images.md` 为活跃独占任务；本轮只读取已提交进度，不编辑其图片、映射、清单、工具、测试或任务卡
+- stop_conditions:
+  - 若发现失败指向现有 WIP、活跃任务卡或需玩法/视觉决策，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+  - 远端 CI 无法查询时明确记录为未验证，不推断通过或失败
+- validation:
+  - `python3 tools/art/generate_pet_image_manifest.py --check`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-15_background_patrol_0925.md`
+  - `git diff -- tasks/ai/QUEUE.md tasks/ai/STATUS.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 本地 `output/validation/qa` 仍无新的 `summary.json`；没有新的确定性测试失败可供晋级
+  - 24 小时最终 `completion-audit.json` 仍为 `complete=true`、`31/31`、`failedCheckIds=[]`；已确认的状态文字遮挡仍需视觉方向，且验证文件与既有 WIP 重叠
+  - `gh run list --repo jyf0330/xyxsj` 因代理 `127.0.0.1:7897` 被网络沙箱拒绝，远端 CI 未验证
+  - 开工 HEAD `00efae0` 对应宠物图片第 42 批；巡检期间第 43 批开始活跃写入，两份清单/映射和五张新图片均属于原 owner，因此执行 `FILE_CONFLICT_STOP`
+  - 原 owner 随后完成两项隔离 smoke 并提交第 43 批为 `fcebc68`；本轮只同步最终只读事实，没有接管验收或提交
+- validation_result:
+  - 最终 `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`PET_IMAGE_MANIFEST_OK targets=369 generated=215 approved=215`
+  - 三份控制面文件的 `git diff --check` 与尾随空白检查均通过
+  - 最近六次已完成巡检的 `stderr.log` 均为 0 字节；当前巡检没有产品运行错误证据
+  - 控制面只更新现有任务进度、Git/WIP 计数与 CI 查询事实；未修改产品、测试、正式数据或美术
+- residual_risk:
+  - 远端 CI 当前不可验证
+  - 控制面文件含开工前未提交修改，不能与本轮归属安全隔离
+  - 生图全量任务仍有 154 张待生成，继续由原 owner 独占
+- next_step: 由现有 owner 继续后续生图批次；状态文字布局方向与 UI/visual 文件归属释放后，再建立独立 P1 修复任务
+- commit: 控制面含开工前未提交修改且工作区有活跃 owner 写入；本轮不提交

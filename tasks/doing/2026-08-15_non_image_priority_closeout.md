@@ -1,0 +1,73 @@
+# 非生图优先任务收口
+
+- status: completed
+- owner: codex-root-20260815-non-image-closeout
+- objective: 在不生成、删除或改写任何宠物/人物图片的前提下，完成商店人物正式 UI 接线、战斗状态文字遮挡修复、独立真实窗口验收与 visual 门禁收口
+- user_authorization: 2026-08-15 用户明确要求“不生成图片先 其他做完”
+- delivery_base_commit: 700bf46
+- write_scopes:
+  - `core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd`
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`
+  - `core_ui/scripts/shop/views/legacy_code_shop_view.gd`
+  - `art/scenes/three_choice/three_choice_scene.tscn`
+  - `core_ui/scripts/shared/pet/pet_visual.gd`
+  - `tests/features/smoke_shop_character_production_integration.gd`
+  - `tests/visible/smoke_shop_character_visible_integration.gd`
+  - `tests/features/smoke_battle_display_readability.gd`
+  - `tests/visible/smoke_battle_visible_unit_layout.gd`
+  - `qa/visual_baselines/macos/*.png`（只在独立虚拟屏同槽迁移与复验成功后精确接续现有 WIP）
+  - `tests/qa/ui_regression.gd`（优先只读复用；仅验证证明必须时才接续现有 WIP）
+  - `tasks/doing/2026-08-15_non_image_priority_closeout.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tests/features/smoke_shop_character_production_integration.gd`
+  - `core_ui/scripts/shared/pet/pet_visual.gd`
+  - `tests/features/smoke_battle_display_readability.gd`
+  - `tests/visible/smoke_battle_visible_unit_layout.gd`
+  - `tasks/doing/2026-08-15_non_image_priority_closeout.md`
+- adopted_existing_wip:
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd` 开工前仅有背包分页 `_apply_bag_page()` 抽取；完整保留，不覆盖、不回退
+  - 五张 `qa/visual_baselines/macos/*.png` 与 `tests/qa/ui_regression.gd` 已有其他工作槽改动；先记录并复验，只有独立虚拟屏证据证明需要时才精确接续
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 为巡检控制面 WIP；完成验证后只追加当前任务结论，不改写既有历史
+  - 其余 24 个已跟踪修改及未跟踪路径均为用户/其他任务资产，不触碰、不暂存
+- forbidden_scopes:
+  - `art/images/shared/pets/**`
+  - `art/images/route/shop/characters/generated/**`
+  - `tmp/imagegen/**`
+  - 宠物与商店人物生成清单、映射和生成工具
+- implementation_contract:
+  - 商店人物由现有 `ArtistFlowAssetRegistry` 解析，UI 只投影 Snapshot 中的路线节点或 `active_stall`，不新增权威状态
+  - 三选一路线卡与进入后的商店面板均显示同一正式人物纹理；解析失败时保持现有路线占位图，不阻断玩法
+  - 战斗状态采用单元格顶部独立 HUD 区，宠物美术缩放到 HUD 下方，状态层与 `_battle_sprite_visible_rect` 不得相交
+  - 不改变玩法、数值、Command/Result/Trace/Snapshot 或正式策划数据
+- validation:
+  - 商店人物专项生产接线 smoke
+  - 战斗状态布局专项 smoke，断言全部可见状态矩形与宠物可见矩形不相交
+  - 相关现有 feature/integration smoke
+  - `python3 tools/qa/run_qa.py --suite fast`
+  - 独立项目副本、独立 `.godot`、`user://`、进程和输出目录，在本 AI 独立虚拟屏从正式入口完成商店与战斗目视验收
+  - visual 基线在同一独立虚拟屏迁移后再次以“不更新基线”模式通过
+  - `git diff --check`
+- stop_conditions:
+  - 33 个现有商店人物被正式三选一路线卡和商店界面消费，专项测试及真实窗口均可证明
+  - 战斗状态文字不再覆盖单位美术，专项几何断言及真实窗口均通过
+  - visual 门禁在同一隔离虚拟屏完成干净基线与复验；若外部环境无法提供独立屏，必须保留证据并明确阻断，不得伪称通过
+  - 未生成或改写任何图片资产；仅允许验证阶段在明确范围内更新五张 visual PNG 基线
+- implementation:
+  - 现有商店人物解析器提升为公开表现接口；三选一路线卡直接消费节点对应人物，缺失时仍回退原路线占位图。
+  - 正式运行时实际覆盖在美术商店之上的 `LegacyCodeShopView` 新增独立商人摘要位，消费同一 `active_stall` 人物映射；首轮实窗发现“节点有贴图但被覆盖”后已改到真正玩家可见层。
+  - `PetVisual` 将四项状态改为单元格顶部二列二行 HUD，并按 HUD 下边界约束单位美术；新增可见矩形接口和几何无相交断言。
+  - 五张 macOS visual 基线只在同一独立虚拟屏迁移一次，并连续两轮无更新通过；没有修改任何宠物/商店人物图片、清单、映射或生成工具。
+- validation_evidence:
+  - 隔离根目录：`/tmp/codex-non-image-closeout.qrAek0`；独立项目、`.godot`、`user://`、HOME、进程和输出目录，Godot 4.7.1 全量导入 854 个资产。
+  - 专项 headless：`smoke_asset_registry.gd`、`smoke_shop_character_images.gd`、`smoke_shop_character_production_integration.gd`、`smoke_battle_display_readability.gd`、`smoke_battle_board_pet_three_stats.gd`、`smoke_architecture_boundaries.gd` 全部通过；商店人物为 `33/33 approved`，生产接线 route/shop 均为 true。
+  - 独立虚拟屏 `Codex NonImage QA 0815`（UUID `59D920A4-8B45-4CC1-BF0D-4D75858BF339`）真实窗口：`smoke_shop_character_visible_integration.gd` 通过，路线卡与商店面板均显示人物；`smoke_battle_visible_unit_layout.gd` 通过，10 个单位、8 个技能条目且状态 HUD 与单位美术无相交。
+  - visual：迁移轮 `non-image-visual-migrate-20260815` 通过；无更新复验轮 `non-image-visual-verify-20260815` 与最终轮 `non-image-visual-final-20260815` 均通过。基线 SHA-256 与迁移轮 actual 五张逐一一致。
+  - 证据：`output/validation/non-image-closeout-20260815/contact-sheet.png`、`battle-stats.png`、`shop-route.png`、`shop-panel.png`、`visual-summary.json`。
+  - fast：`non-image-fast-20260815` 为 18/19 通过；唯一失败是既有 `smoke_battle_ui.gd:266`“拖拽后旧宠物详情仍可见”。失败涉及当前其他任务 WIP 的 `smoke_battle_ui.gd`/宠物详情链，不由本任务改动触发，本任务不覆盖或暂存这些文件。
+  - 暂存区精确复验：将 Git index tree `d86c0b0bbc151c17029e7ee78a3776d7c9e0e5d9` 导出到 `/tmp/codex-non-image-index.o7o3sU` 并重新全量导入；商店生产接线、状态几何、独立实窗商店、独立实窗 10 单位战斗和 visual 1/1 均通过，证明提交不依赖未暂存 WIP。HEAD 版 `smoke_architecture_boundaries.gd` 在该树仍有既有职责清单断言失败，当前工作区对应测试已有其他任务修订，未混入本提交。
+  - `git diff --check` 通过。
+- residual_risks:
+  - 快速套件仍有上述 1 项独立既有失败；按文件归属保护记录为 `FILE_CONFLICT_STOP`，不计入本任务两个产品表现目标的验收失败。
+- commit: 本卡与实现、测试和经复验的 visual 基线形成同一精确提交；不推送

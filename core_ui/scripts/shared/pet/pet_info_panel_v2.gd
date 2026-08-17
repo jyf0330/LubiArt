@@ -5,23 +5,21 @@ class_name PetInfoPanelV2
 signal info_updated(snapshot: Dictionary)
 signal confirm_requested(command: Dictionary)
 
-const SOURCE_PSD := "component_pet_info_hover_godot_v1.psd"
-const SOURCE_CANVAS_SIZE := Vector2(360.0, 460.0)
+const SOURCE_PSD := "宠物信息栏实装(修改).psd"
+const SOURCE_CANVAS_SIZE := Vector2(476.0, 539.0)
 const COMPONENT_SOURCE := "res://art/prefabs/pet/sprite_info_card.tscn"
 const ATTACK_COLUMNS := 7
 const ATTACK_ROWS := 3
 const ATTACK_ORIGIN_INDEX := 10
-const ATTACK_CELL_SIZE := Vector2(303.0 / 7.0, 98.0 / 3.0)
+const ATTACK_CELL_SIZE := Vector2(383.0 / 7.0, 152.0 / 3.0)
 const ATTACK_CELL_INSET := Vector2.ZERO
-const ORIGIN_MARKER_SIZE := Vector2(34.0, 34.0)
-const TARGET_MARKER_SIZE := Vector2(42.0, 31.0)
-const ATTACK_FORMAT_ART_SIZE := Vector2(303.0, 98.0)
-const BASE_ART_SIZE := Vector2(360.0, 459.0)
-const STAT_SLOT_ART_SIZE := Vector2(259.0, 72.0)
-const ELEMENT_ART_SIZE := Vector2(44.0, 56.0)
+const ORIGIN_MARKER_SIZE := Vector2(43.0, 42.0)
+const TARGET_MARKER_SIZE := Vector2(54.0, 48.0)
+const ATTACK_FORMAT_ART_SIZE := Vector2(383.0, 152.0)
+const BASE_ART_SIZE := Vector2(472.0, 540.0)
+const STAT_SLOT_ART_SIZE := Vector2(322.0, 174.0)
+const ELEMENT_ART_SIZE := Vector2(93.0, 115.0)
 const SILVER_TRAIT_ART_SIZE := Vector2(48.0, 48.0)
-const TRAIT_LOCK_ART_SIZE := Vector2(50.0, 50.0)
-const TRAIT_LOCK_NODE_NAMES := ["TraitLockSilver", "TraitLockGold", "TraitLockCrystal"]
 const BASE_ART_ORDER := ["bronze", "silver", "gold", "crystal"]
 const BASE_ART_NAMES := ["青铜", "白银", "黄金", "水晶"]
 const ELEMENT_ORDER := ["dark", "water", "ice", "grass", "electric", "wind", "fire", "dragon", "earth"]
@@ -47,12 +45,35 @@ const SILVER_TRAIT_TEXTURES := {
 	"battle_growth": preload("res://art/images/shared/pets/info_panel/trait_silver_battle_growth.png"),
 	"vitality": preload("res://art/images/shared/pets/info_panel/trait_silver_vitality.png"),
 }
-const FIXED_BASE_TEXTURE := preload("res://art/images/shared/pets/info_panel/hover_panel/panel_base.png")
-const FIXED_ATTACK_TEXTURE := preload("res://art/images/shared/pets/info_panel/hover_panel/attack_grid.png")
-const FIXED_STAT_TEXTURE := preload("res://art/images/shared/pets/info_panel/hover_panel/stat_icons_static.png")
-const FIXED_ELEMENT_TEXTURE := preload("res://art/images/shared/pets/info_panel/hover_panel/element_dark_visible.png")
-const ORIGIN_MARKER_TEXTURE := preload("res://art/images/shared/pets/info_panel/hover_panel/attack_origin_marker.png")
-const TARGET_MARKER_TEXTURE := preload("res://art/images/shared/pets/info_panel/hover_panel/attack_target_marker.png")
+const ELEMENT_LAYERS := {
+	"dark": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_dark.png"),
+	},
+	"water": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_water.png"),
+	},
+	"ice": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_ice.png"),
+	},
+	"grass": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_grass.png"),
+	},
+	"electric": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_electric.png"),
+	},
+	"fire": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_fire.png"),
+	},
+	"wind": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_wind.png"),
+	},
+	"dragon": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_dragon.png"),
+	},
+	"earth": {
+		"texture": preload("res://art/images/shared/pets/info_panel/element_earth.png"),
+	},
+}
 const ELEMENT_ALIASES := {
 	"dark": "dark",
 	"darkness": "dark",
@@ -84,6 +105,33 @@ const ELEMENT_ALIASES := {
 	"soil": "earth",
 	"土": "earth",
 }
+const QUALITY_LAYERS := {
+	"bronze": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_bronze.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_bronze.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_bronze.png"),
+		"base_position": Vector2(14.0, 22.0),
+	},
+	"silver": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_silver.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_silver.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_silver.png"),
+		"base_position": Vector2(7.0, 11.0),
+	},
+	"gold": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_gold.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_gold.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_gold.png"),
+		"base_position": Vector2(10.0, 22.0),
+	},
+	"crystal": {
+		"base": preload("res://art/images/shared/pets/info_panel/panel_base_crystal.png"),
+		"attack": preload("res://art/images/shared/pets/info_panel/attack_grid_crystal.png"),
+		"stats": preload("res://art/images/shared/pets/info_panel/stat_slots_crystal.png"),
+		"base_position": Vector2(2.0, 0.0),
+	},
+}
+
 @export_enum("跟随宠物品质", "青铜", "白银", "黄金", "水晶")
 var base_art_selection := 0:
 	set(value):
@@ -134,25 +182,6 @@ func _ready() -> void:
 		_close_button.pressed.connect(close)
 	if _confirm_button != null and not _confirm_button.pressed.is_connected(_on_confirm_pressed):
 		_confirm_button.pressed.connect(_on_confirm_pressed)
-	set_info({
-		"name": "宠物名字",
-		"element": "水",
-		"quality": "水晶",
-		"hp": 24,
-		"max_hp": 24,
-		"attack": 4,
-		"ap": 3,
-		"max_ap": 5,
-		"defense": 2,
-		"shield": 3,
-		"regen": 1,
-		"attack_shape": {
-			"offsets": [
-				{"dr": 0, "dc": 2},
-				{"dr": 0, "dc": 3},
-			]
-		},
-	})
 
 
 func _process(_delta: float) -> void:
@@ -404,25 +433,23 @@ func _apply_base_art() -> void:
 	if base_art == null or attack_format_plate == null or stat_slot_art == null:
 		return
 	var tier := _selected_base_art_tier()
-	base_art.texture = FIXED_BASE_TEXTURE
+	var layers: Dictionary = QUALITY_LAYERS[tier]
+	base_art.texture = layers["base"] as Texture2D
 	base_art.visible = true
-	attack_format_plate.texture = FIXED_ATTACK_TEXTURE
+	base_art.position = Vector2(2.0, 0.0)
+	base_art.size = BASE_ART_SIZE
+	attack_format_plate.texture = layers["attack"] as Texture2D
 	attack_format_plate.visible = true
-	stat_slot_art.texture = FIXED_STAT_TEXTURE
+	attack_format_plate.position = Vector2(46.0, 145.0)
+	attack_format_plate.size = ATTACK_FORMAT_ART_SIZE
+	stat_slot_art.texture = layers["stats"] as Texture2D
 	stat_slot_art.visible = true
-	_apply_trait_lock_art(tier)
+	stat_slot_art.position = Vector2(49.0, 308.0)
+	stat_slot_art.size = STAT_SLOT_ART_SIZE
 	base_art.set_meta("quality_tier", tier)
 	attack_format_plate.set_meta("quality_tier", tier)
 	stat_slot_art.set_meta("quality_tier", tier)
 	_editor_base_art_selection = base_art_selection
-
-
-func _apply_trait_lock_art(tier: String) -> void:
-	for node_name in TRAIT_LOCK_NODE_NAMES:
-		var lock_art := get_node_or_null(node_name) as TextureRect
-		if lock_art == null:
-			continue
-		lock_art.set_meta("quality_tier", tier)
 
 
 func _selected_base_art_tier() -> String:
@@ -440,9 +467,13 @@ func _apply_element_art() -> void:
 	var element_art := get_node_or_null("ElementArt") as TextureRect
 	if element_art == null:
 		return
-	element_art.visible = true
-	element_art.texture = FIXED_ELEMENT_TEXTURE
-	element_art.set_meta("source_element", _selected_element_key())
+	var key := _selected_element_key()
+	element_art.visible = ELEMENT_LAYERS.has(key)
+	if element_art.visible:
+		var layer: Dictionary = ELEMENT_LAYERS[key]
+		element_art.texture = layer["texture"] as Texture2D
+		element_art.position = Vector2(370.0, 20.0)
+		element_art.size = ELEMENT_ART_SIZE
 	_editor_element_art_selection = element_art_selection
 
 
@@ -458,6 +489,8 @@ func _apply_silver_trait_art() -> void:
 		return
 	var key := String(SILVER_TRAIT_ORDER[silver_trait_selection])
 	trait_art.texture = SILVER_TRAIT_TEXTURES[key] as Texture2D
+	trait_art.position = Vector2(378.0, 315.0)
+	trait_art.size = SILVER_TRAIT_ART_SIZE
 	_editor_silver_trait_selection = silver_trait_selection
 
 
@@ -472,7 +505,7 @@ func _render_attack_shape(shape: Dictionary) -> void:
 
 	var origin := TextureRect.new()
 	origin.name = "OriginMarker"
-	origin.texture = _portrait_texture if _portrait_texture != null else ORIGIN_MARKER_TEXTURE
+	origin.texture = _portrait_texture if _portrait_texture != null else preload("res://art/images/shared/pets/info_panel/attack_origin.png")
 	origin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	origin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	origin.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -495,7 +528,7 @@ func _render_attack_shape(shape: Dictionary) -> void:
 	for index in _target_cell_indices:
 		var target := TextureRect.new()
 		target.name = "TargetCell%02d" % index
-		target.texture = TARGET_MARKER_TEXTURE
+		target.texture = preload("res://art/images/shared/pets/info_panel/attack_target.png")
 		target.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		target.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		target.mouse_filter = Control.MOUSE_FILTER_IGNORE

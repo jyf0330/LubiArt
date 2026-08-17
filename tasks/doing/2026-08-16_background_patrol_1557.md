@@ -1,0 +1,45 @@
+# 2026-08-16 15:57 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-1557
+- delivery_base_commit: `c282239c`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与可复现玩家问题；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_1557.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_1557.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与八张旧巡检卡为累计未提交控制面 WIP；本轮保留全部既有证据，只接续当前事实，不提交
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 仍为 `in_progress`，独占商店 View、表现模块、专项/可见测试、同步工具、共享图片和自身任务卡
+  - 开工时 HEAD 为 `c282239c`，roundtrip owner 正在未提交地扩展 round-093 刷新铃按下态对照；本轮不编辑、不运行或提交其租约内文件
+- stop_conditions:
+  - 核对最新稳定 fast、roundtrip 最新确定性对照/几何证据、自动巡检日志、远端 CI 可达性和当前文件租约
+  - 若原 owner 持续写入，或失败/验收缺口仍位于其租约内，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取当前 HEAD `c282239c`、round-092 的 59 步操作对照与几何审计，以及最新完整 fast summary
+  - 对比 fast 隔离副本与当前树四个正式商店运行时文件的 SHA-256
+  - 扫描现有 QA summary、自动巡检输出、未完成任务卡和当前 Git 状态
+  - `gh run list --repo jyf0330/xyxsj --limit 15`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_1557.md`
+  - `git status --short --untracked-files=all`
+- findings:
+  - 当前无 P0，`Ready` 仍为空；没有新增可复现玩家问题或本地确定性产品失败
+  - roundtrip 当前 HEAD `c282239c`，本地领先 origin 72 个提交；任务卡仍为 `in_progress`，并有 round-093 采集/比较/几何测试 WIP，执行 `FILE_CONFLICT_STOP`
+  - round-092 已把真实入口操作矩阵扩展至 59 步；稳定轮状态/交互比较通过，几何审计为 33 项资源、2 项层级、109 项精确像素、1 项容差和 9 项效果，`passed=true`、`errors=[]`
+  - `33184a0f` 修复正式退出牌命中遮罩后，隔离 fast 为 19/19、0 失败、348.123 秒；隔离副本的 `shop_shared_rail.gd`、`legacy_code_shop_view.gd`、`shop_art_backdrop.gd`、`shop_shelf_layout.gd` 与当前树 SHA-256 一致，关闭上一轮“运行时修复后缺完整 fast”的验证缺口
+  - round-090 至 round-092 均只扩展交互采集与门禁，没有再修改运行时代码；当前未提交 round-093 也只位于原 owner 已声明的采集/QA 范围
+  - 未完成事项仍为 active roundtrip、拖拽详情独立实窗验收、暂停宠物图和若干旧状态滞后任务卡；都不构成本轮可安全接管的 P0/P1
+  - `gh run list` 因代理 `127.0.0.1:7897` 被沙箱拒绝；当前分支有 72 个未推送提交，远端 CI 即使可见也不能代表本地 HEAD
+- validation_result:
+  - 最新完整 fast：19/19、0 失败、348.123 秒；playable flow 172.166 秒、battle UI 15.746 秒、seed bot 103.652 秒，均通过
+  - round-092 `geometry_audit.json`：`passed=true`、`errors=[]`；33 项资源、2 项层级、109 项精确像素、1 项容差和 9 项效果全部通过
+  - 未修改产品代码、测试、玩法、美术或正式数据，未推送、部署或发布
+- residual_risk:
+  - roundtrip 任务仍未释放租约，round-093 正在形成未提交 WIP；巡检不能替原 owner 接管、运行或提交
+  - 远端 CI 与战斗拖拽详情的独立真实窗口验收仍不可见
+  - 控制面包含开工前累计巡检 WIP，不能安全形成独立提交
+- next_step: 由现有 owner 完成 round-093 及 roundtrip 最终收口并释放租约，再由巡检复核；另待独立虚拟屏完成拖拽详情正式入口验收。除此之外无可安全推进事项
+- commit: 未提交；控制面含既有未提交巡检 WIP，且活跃 roundtrip 任务仍未释放，不推送

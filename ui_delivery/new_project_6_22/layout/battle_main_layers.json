@@ -1,0 +1,1908 @@
+{
+  "source_psd": "/Users/ywh/Documents/godot/ui_delivery/new_project_6_22/source/new_project_6_22.psd",
+  "screen_name": "battle_main",
+  "canvas": {
+    "width": 1080,
+    "height": 1920
+  },
+  "preview": "preview/battle_main_ref.png",
+  "summary": {
+    "leaf_layers": 85,
+    "visible_leaf_layers": 83,
+    "exported_assets": 41,
+    "roles": {
+      "background": 1,
+      "godot_label": 42,
+      "image_asset": 42
+    },
+    "skipped": {
+      "godot_label": 42,
+      "hidden": 2
+    }
+  },
+  "layers": [
+    {
+      "index": 1,
+      "source_name": "Background",
+      "export_name": "bg_battle_main",
+      "kind": "pixel",
+      "role": "background",
+      "visible": true,
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 1080,
+        "height": 1920,
+        "x2": 1080,
+        "y2": 1920
+      },
+      "parent_path": [
+        "Root"
+      ],
+      "export_path": "export/ui/battle_main/bg_battle_main.png",
+      "suggested_godot_node": "BgBattleMainTextureRect"
+    },
+    {
+      "index": 2,
+      "source_name": "asset_37_940_805_253x118",
+      "export_name": "asset_37_940_805_253x118",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": -166,
+        "y": -204,
+        "width": 1359,
+        "height": 2369,
+        "x2": 1193,
+        "y2": 2165
+      },
+      "parent_path": [
+        "Root"
+      ],
+      "export_path": "export/ui/battle_main/asset_37_940_805_253x118.png",
+      "suggested_godot_node": "Asset37940805253x118TextureRect"
+    },
+    {
+      "index": 3,
+      "source_name": "asset_01_28_20_297x684",
+      "export_name": "asset_01_28_20_297x684",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 27,
+        "y": 21,
+        "width": 1026,
+        "height": 1878,
+        "x2": 1053,
+        "y2": 1899
+      },
+      "parent_path": [
+        "Root"
+      ],
+      "export_path": "export/ui/battle_main/asset_01_28_20_297x684.png",
+      "suggested_godot_node": "Asset012820297x684TextureRect"
+    },
+    {
+      "index": 4,
+      "source_name": "图层 1 copy",
+      "export_name": "root_layer_004",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": false,
+      "bbox": {
+        "x": -2047,
+        "y": -446,
+        "width": 5120,
+        "height": 2915,
+        "x2": 3073,
+        "y2": 2469
+      },
+      "parent_path": [
+        "Root"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "RootLayer004TextureRect"
+    },
+    {
+      "index": 5,
+      "source_name": "图层 1",
+      "export_name": "action_panel_layer_005",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 367,
+        "y": 1749,
+        "width": 54,
+        "height": 57,
+        "x2": 421,
+        "y2": 1806
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": "export/ui/battle_main/action_panel_layer_005.png",
+      "suggested_godot_node": "ActionPanelLayer005TextureRect"
+    },
+    {
+      "index": 6,
+      "source_name": "图层 1 copy 3",
+      "export_name": "action_panel_layer_006",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 432,
+        "y": 1748,
+        "width": 54,
+        "height": 57,
+        "x2": 486,
+        "y2": 1805
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": "export/ui/battle_main/action_panel_layer_006.png",
+      "suggested_godot_node": "ActionPanelLayer006TextureRect"
+    },
+    {
+      "index": 7,
+      "source_name": "图层 1 copy 4",
+      "export_name": "action_panel_layer_007",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 499,
+        "y": 1749,
+        "width": 54,
+        "height": 57,
+        "x2": 553,
+        "y2": 1806
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": "export/ui/battle_main/action_panel_layer_007.png",
+      "suggested_godot_node": "ActionPanelLayer007TextureRect"
+    },
+    {
+      "index": 8,
+      "source_name": "asset_34_127_786_140x135",
+      "export_name": "asset_34_127_786_140x135",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 148,
+        "y": 1724,
+        "width": 101,
+        "height": 97,
+        "x2": 249,
+        "y2": 1821
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": "export/ui/battle_main/asset_34_127_786_140x135.png",
+      "suggested_godot_node": "Asset34127786140x135TextureRect"
+    },
+    {
+      "index": 9,
+      "source_name": "方向",
+      "export_name": "label_direction",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 168,
+        "y": 1682,
+        "width": 61,
+        "height": 30,
+        "x2": 229,
+        "y2": 1712
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelDirectionLabel"
+    },
+    {
+      "index": 10,
+      "source_name": "消耗AP",
+      "export_name": "label_ap_cost",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 451,
+        "y": 1682,
+        "width": 110,
+        "height": 32,
+        "x2": 561,
+        "y2": 1714
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelApCostLabel"
+    },
+    {
+      "index": 11,
+      "source_name": "asset_20_848_347_143x88",
+      "export_name": "asset_20_848_347_143x88",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 680,
+        "y": 1685,
+        "width": 296,
+        "height": 183,
+        "x2": 976,
+        "y2": 1868
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": "export/ui/battle_main/asset_20_848_347_143x88.png",
+      "suggested_godot_node": "Asset20848347143x88TextureRect"
+    },
+    {
+      "index": 12,
+      "source_name": "行动",
+      "export_name": "label_action",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 789,
+        "y": 1740,
+        "width": 80,
+        "height": 39,
+        "x2": 869,
+        "y2": 1779
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelActionLabel"
+    },
+    {
+      "index": 13,
+      "source_name": "不可用",
+      "export_name": "label_unavailable",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 782,
+        "y": 1805,
+        "width": 96,
+        "height": 30,
+        "x2": 878,
+        "y2": 1835
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelUnavailableLabel"
+    },
+    {
+      "index": 14,
+      "source_name": "3",
+      "export_name": "txt_value_014",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 581,
+        "y": 1751,
+        "width": 32,
+        "height": 51,
+        "x2": 613,
+        "y2": 1802
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtValue014Label"
+    },
+    {
+      "index": 15,
+      "source_name": "向右",
+      "export_name": "label_move_right",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 171,
+        "y": 1827,
+        "width": 60,
+        "height": 30,
+        "x2": 231,
+        "y2": 1857
+      },
+      "parent_path": [
+        "Root",
+        "8"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelMoveRightLabel"
+    },
+    {
+      "index": 16,
+      "source_name": "asset_33_820_710_675x85",
+      "export_name": "asset_33_820_710_675x85",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 84,
+        "y": 1520,
+        "width": 914,
+        "height": 109,
+        "x2": 998,
+        "y2": 1629
+      },
+      "parent_path": [
+        "Root",
+        "7"
+      ],
+      "export_path": "export/ui/battle_main/asset_33_820_710_675x85.png",
+      "suggested_godot_node": "Asset33820710675x85TextureRect"
+    },
+    {
+      "index": 17,
+      "source_name": "图层 5",
+      "export_name": "target_hint_layer_017",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 341,
+        "y": 1550,
+        "width": 61,
+        "height": 60,
+        "x2": 402,
+        "y2": 1610
+      },
+      "parent_path": [
+        "Root",
+        "7"
+      ],
+      "export_path": "export/ui/battle_main/target_hint_layer_017.png",
+      "suggested_godot_node": "TargetHintLayer017TextureRect"
+    },
+    {
+      "index": 18,
+      "source_name": "暂无可用目标",
+      "export_name": "label_no_target",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 437,
+        "y": 1559,
+        "width": 272,
+        "height": 43,
+        "x2": 709,
+        "y2": 1602
+      },
+      "parent_path": [
+        "Root",
+        "7"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelNoTargetLabel"
+    },
+    {
+      "index": 19,
+      "source_name": "asset_04_605_149_100x96",
+      "export_name": "asset_04_605_149_100x96",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 106,
+        "y": 1261,
+        "width": 280,
+        "height": 224,
+        "x2": 386,
+        "y2": 1485
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块"
+      ],
+      "export_path": "export/ui/battle_main/asset_04_605_149_100x96.png",
+      "suggested_godot_node": "Asset04605149100x96TextureRect"
+    },
+    {
+      "index": 20,
+      "source_name": "图层 4",
+      "export_name": "card_wind_slot_01_layer_020",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 164,
+        "y": 1401,
+        "width": 161,
+        "height": 53,
+        "x2": 325,
+        "y2": 1454
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块"
+      ],
+      "export_path": "export/ui/battle_main/card_wind_slot_01_layer_020.png",
+      "suggested_godot_node": "CardWindSlot01Layer020TextureRect"
+    },
+    {
+      "index": 21,
+      "source_name": "asset_31_579_688_81x82",
+      "export_name": "asset_31_579_688_81x82",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 154,
+        "y": 1296,
+        "width": 58,
+        "height": 59,
+        "x2": 212,
+        "y2": 1355
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块"
+      ],
+      "export_path": "export/ui/battle_main/asset_31_579_688_81x82.png",
+      "suggested_godot_node": "Asset3157968881x82TextureRect"
+    },
+    {
+      "index": 22,
+      "source_name": "风槽1",
+      "export_name": "label_wind_slot_01",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 217,
+        "y": 1299,
+        "width": 108,
+        "height": 39,
+        "x2": 325,
+        "y2": 1338
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelWindSlot01Label"
+    },
+    {
+      "index": 23,
+      "source_name": "3层",
+      "export_name": "txt_stack_count",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 227,
+        "y": 1354,
+        "width": 50,
+        "height": 30,
+        "x2": 277,
+        "y2": 1384
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtStackCountLabel"
+    },
+    {
+      "index": 24,
+      "source_name": "未用",
+      "export_name": "label_unused",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 215,
+        "y": 1410,
+        "width": 69,
+        "height": 34,
+        "x2": 284,
+        "y2": 1444
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelUnusedLabel"
+    },
+    {
+      "index": 25,
+      "source_name": "asset_04_605_149_100x96",
+      "export_name": "asset_04_605_149_100x96_02",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 400,
+        "y": 1260,
+        "width": 280,
+        "height": 224,
+        "x2": 680,
+        "y2": 1484
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy"
+      ],
+      "export_path": "export/ui/battle_main/asset_04_605_149_100x96_02.png",
+      "suggested_godot_node": "Asset04605149100x9602TextureRect"
+    },
+    {
+      "index": 26,
+      "source_name": "图层 4",
+      "export_name": "card_wind_slot_02_layer_026",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 458,
+        "y": 1400,
+        "width": 161,
+        "height": 53,
+        "x2": 619,
+        "y2": 1453
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy"
+      ],
+      "export_path": "export/ui/battle_main/card_wind_slot_02_layer_026.png",
+      "suggested_godot_node": "CardWindSlot02Layer026TextureRect"
+    },
+    {
+      "index": 27,
+      "source_name": "asset_31_579_688_81x82",
+      "export_name": "asset_31_579_688_81x82_02",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 448,
+        "y": 1295,
+        "width": 58,
+        "height": 59,
+        "x2": 506,
+        "y2": 1354
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy"
+      ],
+      "export_path": "export/ui/battle_main/asset_31_579_688_81x82_02.png",
+      "suggested_godot_node": "Asset3157968881x8202TextureRect"
+    },
+    {
+      "index": 28,
+      "source_name": "风槽2",
+      "export_name": "label_wind_slot_02",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 511,
+        "y": 1297,
+        "width": 108,
+        "height": 40,
+        "x2": 619,
+        "y2": 1337
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelWindSlot02Label"
+    },
+    {
+      "index": 29,
+      "source_name": "3层",
+      "export_name": "txt_stack_count_02",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 521,
+        "y": 1353,
+        "width": 50,
+        "height": 30,
+        "x2": 571,
+        "y2": 1383
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtStackCount02Label"
+    },
+    {
+      "index": 30,
+      "source_name": "未用",
+      "export_name": "label_unused_02",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 509,
+        "y": 1409,
+        "width": 69,
+        "height": 34,
+        "x2": 578,
+        "y2": 1443
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelUnused02Label"
+    },
+    {
+      "index": 31,
+      "source_name": "asset_04_605_149_100x96",
+      "export_name": "asset_04_605_149_100x96_03",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 697,
+        "y": 1261,
+        "width": 280,
+        "height": 224,
+        "x2": 977,
+        "y2": 1485
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy 2"
+      ],
+      "export_path": "export/ui/battle_main/asset_04_605_149_100x96_03.png",
+      "suggested_godot_node": "Asset04605149100x9603TextureRect"
+    },
+    {
+      "index": 32,
+      "source_name": "图层 4",
+      "export_name": "card_wind_slot_03_layer_032",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 755,
+        "y": 1401,
+        "width": 161,
+        "height": 53,
+        "x2": 916,
+        "y2": 1454
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy 2"
+      ],
+      "export_path": "export/ui/battle_main/card_wind_slot_03_layer_032.png",
+      "suggested_godot_node": "CardWindSlot03Layer032TextureRect"
+    },
+    {
+      "index": 33,
+      "source_name": "asset_31_579_688_81x82",
+      "export_name": "asset_31_579_688_81x82_03",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 745,
+        "y": 1296,
+        "width": 58,
+        "height": 59,
+        "x2": 803,
+        "y2": 1355
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy 2"
+      ],
+      "export_path": "export/ui/battle_main/asset_31_579_688_81x82_03.png",
+      "suggested_godot_node": "Asset3157968881x8203TextureRect"
+    },
+    {
+      "index": 34,
+      "source_name": "风槽3",
+      "export_name": "label_wind_slot_03",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 808,
+        "y": 1298,
+        "width": 109,
+        "height": 40,
+        "x2": 917,
+        "y2": 1338
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy 2"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelWindSlot03Label"
+    },
+    {
+      "index": 35,
+      "source_name": "3层",
+      "export_name": "txt_stack_count_03",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 818,
+        "y": 1354,
+        "width": 50,
+        "height": 30,
+        "x2": 868,
+        "y2": 1384
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy 2"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtStackCount03Label"
+    },
+    {
+      "index": 36,
+      "source_name": "未用",
+      "export_name": "label_unused_03",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 806,
+        "y": 1410,
+        "width": 69,
+        "height": 34,
+        "x2": 875,
+        "y2": 1444
+      },
+      "parent_path": [
+        "Root",
+        "6",
+        "方块 copy 2"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelUnused03Label"
+    },
+    {
+      "index": 37,
+      "source_name": "asset_23_344_520_459x130",
+      "export_name": "asset_23_344_520_459x130",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 123,
+        "y": 1001,
+        "width": 477,
+        "height": 185,
+        "x2": 600,
+        "y2": 1186
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": "export/ui/battle_main/asset_23_344_520_459x130.png",
+      "suggested_godot_node": "Asset23344520459x130TextureRect"
+    },
+    {
+      "index": 38,
+      "source_name": "图层 3",
+      "export_name": "current_shape_panel_layer_038",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 508,
+        "y": 1081,
+        "width": 63,
+        "height": 62,
+        "x2": 571,
+        "y2": 1143
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": "export/ui/battle_main/current_shape_panel_layer_038.png",
+      "suggested_godot_node": "CurrentShapePanelLayer038TextureRect"
+    },
+    {
+      "index": 39,
+      "source_name": "图层 2",
+      "export_name": "current_shape_panel_layer_039",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 165,
+        "y": 1080,
+        "width": 61,
+        "height": 63,
+        "x2": 226,
+        "y2": 1143
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": "export/ui/battle_main/current_shape_panel_layer_039.png",
+      "suggested_godot_node": "CurrentShapePanelLayer039TextureRect"
+    },
+    {
+      "index": 40,
+      "source_name": "当前形状",
+      "export_name": "label_current_shape",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 145,
+        "y": 962,
+        "width": 180,
+        "height": 44,
+        "x2": 325,
+        "y2": 1006
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelCurrentShapeLabel"
+    },
+    {
+      "index": 41,
+      "source_name": "asset_09_909_156_252x89",
+      "export_name": "asset_09_909_156_252x89",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 562,
+        "y": 946,
+        "width": 271,
+        "height": 71,
+        "x2": 833,
+        "y2": 1017
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": "export/ui/battle_main/asset_09_909_156_252x89.png",
+      "suggested_godot_node": "Asset09909156252x89TextureRect"
+    },
+    {
+      "index": 42,
+      "source_name": "asset_20_848_347_143x88",
+      "export_name": "asset_20_848_347_143x88_02",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 857,
+        "y": 950,
+        "width": 113,
+        "height": 64,
+        "x2": 970,
+        "y2": 1014
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": "export/ui/battle_main/asset_20_848_347_143x88_02.png",
+      "suggested_godot_node": "Asset20848347143x8802TextureRect"
+    },
+    {
+      "index": 43,
+      "source_name": "效果",
+      "export_name": "label_effect",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 633,
+        "y": 1063,
+        "width": 65,
+        "height": 31,
+        "x2": 698,
+        "y2": 1094
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelEffectLabel"
+    },
+    {
+      "index": 44,
+      "source_name": "：",
+      "export_name": "layer_044",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 703,
+        "y": 1073,
+        "width": 5,
+        "height": 20,
+        "x2": 708,
+        "y2": 1093
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "Layer044Label"
+    },
+    {
+      "index": 45,
+      "source_name": "右侧隔两格",
+      "export_name": "label_right_two_cells",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 728,
+        "y": 1063,
+        "width": 159,
+        "height": 30,
+        "x2": 887,
+        "y2": 1093
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelRightTwoCellsLabel"
+    },
+    {
+      "index": 46,
+      "source_name": "形状03/一格",
+      "export_name": "label_shape_03_one_cell",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 584,
+        "y": 963,
+        "width": 224,
+        "height": 37,
+        "x2": 808,
+        "y2": 1000
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelShape03OneCellLabel"
+    },
+    {
+      "index": 47,
+      "source_name": "阻挡",
+      "export_name": "label_block",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 878,
+        "y": 966,
+        "width": 67,
+        "height": 34,
+        "x2": 945,
+        "y2": 1000
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelBlockLabel"
+    },
+    {
+      "index": 48,
+      "source_name": "结算3次",
+      "export_name": "label_resolve_three_times",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 729,
+        "y": 1109,
+        "width": 129,
+        "height": 34,
+        "x2": 858,
+        "y2": 1143
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelResolveThreeTimesLabel"
+    },
+    {
+      "index": 49,
+      "source_name": "技能",
+      "export_name": "label_skill",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 631,
+        "y": 1167,
+        "width": 65,
+        "height": 32,
+        "x2": 696,
+        "y2": 1199
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelSkillLabel"
+    },
+    {
+      "index": 50,
+      "source_name": "：",
+      "export_name": "layer_050",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 703,
+        "y": 1179,
+        "width": 5,
+        "height": 20,
+        "x2": 708,
+        "y2": 1199
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "Layer050Label"
+    },
+    {
+      "index": 51,
+      "source_name": "castleReduce",
+      "export_name": "label_skill_castle_reduce",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 729,
+        "y": 1172,
+        "width": 192,
+        "height": 24,
+        "x2": 921,
+        "y2": 1196
+      },
+      "parent_path": [
+        "Root",
+        "5"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelSkillCastleReduceLabel"
+    },
+    {
+      "index": 52,
+      "source_name": "asset_20_848_347_143x88",
+      "export_name": "asset_20_848_347_143x88_03",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": false,
+      "bbox": {
+        "x": 67,
+        "y": 531,
+        "width": 926,
+        "height": 389,
+        "x2": 993,
+        "y2": 920
+      },
+      "parent_path": [
+        "Root"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "Asset20848347143x8803TextureRect"
+    },
+    {
+      "index": 53,
+      "source_name": "asset_19_694_348_82x80",
+      "export_name": "asset_19_694_348_82x80",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 580,
+        "y": 575,
+        "width": 77,
+        "height": 76,
+        "x2": 657,
+        "y2": 651
+      },
+      "parent_path": [
+        "Root",
+        "4"
+      ],
+      "export_path": "export/ui/battle_main/asset_19_694_348_82x80.png",
+      "suggested_godot_node": "Asset1969434882x80TextureRect"
+    },
+    {
+      "index": 54,
+      "source_name": "14",
+      "export_name": "txt_value_054",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 759,
+        "y": 595,
+        "width": 50,
+        "height": 33,
+        "x2": 809,
+        "y2": 628
+      },
+      "parent_path": [
+        "Root",
+        "4"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtValue054Label"
+    },
+    {
+      "index": 55,
+      "source_name": "机制",
+      "export_name": "label_mechanic",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 687,
+        "y": 696,
+        "width": 84,
+        "height": 40,
+        "x2": 771,
+        "y2": 736
+      },
+      "parent_path": [
+        "Root",
+        "4"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelMechanicLabel"
+    },
+    {
+      "index": 56,
+      "source_name": "首击免疫",
+      "export_name": "label_first_hit_immunity",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 687,
+        "y": 759,
+        "width": 167,
+        "height": 39,
+        "x2": 854,
+        "y2": 798
+      },
+      "parent_path": [
+        "Root",
+        "4"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelFirstHitImmunityLabel"
+    },
+    {
+      "index": 57,
+      "source_name": "移",
+      "export_name": "label_move",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 689,
+        "y": 593,
+        "width": 40,
+        "height": 42,
+        "x2": 729,
+        "y2": 635
+      },
+      "parent_path": [
+        "Root",
+        "4"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelMoveLabel"
+    },
+    {
+      "index": 58,
+      "source_name": "asset_05_1194_150_89x88",
+      "export_name": "asset_05_1194_150_89x88",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 586,
+        "y": 696,
+        "width": 59,
+        "height": 61,
+        "x2": 645,
+        "y2": 757
+      },
+      "parent_path": [
+        "Root",
+        "4"
+      ],
+      "export_path": "export/ui/battle_main/asset_05_1194_150_89x88.png",
+      "suggested_godot_node": "Asset05119415089x88TextureRect"
+    },
+    {
+      "index": 59,
+      "source_name": "asset_16_359_347_83x86",
+      "export_name": "asset_16_359_347_83x86",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 137,
+        "y": 569,
+        "width": 83,
+        "height": 86,
+        "x2": 220,
+        "y2": 655
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": "export/ui/battle_main/asset_16_359_347_83x86.png",
+      "suggested_godot_node": "Asset1635934783x86TextureRect"
+    },
+    {
+      "index": 60,
+      "source_name": "asset_17_477_349_74x83",
+      "export_name": "asset_17_477_349_74x83",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 138,
+        "y": 673,
+        "width": 83,
+        "height": 93,
+        "x2": 221,
+        "y2": 766
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": "export/ui/battle_main/asset_17_477_349_74x83.png",
+      "suggested_godot_node": "Asset1747734974x83TextureRect"
+    },
+    {
+      "index": 61,
+      "source_name": "asset_18_582_344_78x89",
+      "export_name": "asset_18_582_344_78x89",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 142,
+        "y": 780,
+        "width": 74,
+        "height": 85,
+        "x2": 216,
+        "y2": 865
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": "export/ui/battle_main/asset_18_582_344_78x89.png",
+      "suggested_godot_node": "Asset1858234478x89TextureRect"
+    },
+    {
+      "index": 62,
+      "source_name": "攻",
+      "export_name": "label_attack",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 252,
+        "y": 594,
+        "width": 43,
+        "height": 38,
+        "x2": 295,
+        "y2": 632
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelAttackLabel"
+    },
+    {
+      "index": 63,
+      "source_name": "3",
+      "export_name": "txt_value_063",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 338,
+        "y": 595,
+        "width": 26,
+        "height": 36,
+        "x2": 364,
+        "y2": 631
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtValue063Label"
+    },
+    {
+      "index": 64,
+      "source_name": "防",
+      "export_name": "label_defense",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 252,
+        "y": 695,
+        "width": 42,
+        "height": 44,
+        "x2": 294,
+        "y2": 739
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelDefenseLabel"
+    },
+    {
+      "index": 65,
+      "source_name": "0",
+      "export_name": "txt_value_065",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 339,
+        "y": 696,
+        "width": 26,
+        "height": 39,
+        "x2": 365,
+        "y2": 735
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtValue065Label"
+    },
+    {
+      "index": 66,
+      "source_name": "0",
+      "export_name": "txt_value_066",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 339,
+        "y": 803,
+        "width": 26,
+        "height": 38,
+        "x2": 365,
+        "y2": 841
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtValue066Label"
+    },
+    {
+      "index": 67,
+      "source_name": "盾",
+      "export_name": "label_shield",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 252,
+        "y": 803,
+        "width": 43,
+        "height": 43,
+        "x2": 295,
+        "y2": 846
+      },
+      "parent_path": [
+        "Root",
+        "3"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelShieldLabel"
+    },
+    {
+      "index": 68,
+      "source_name": "asset_11_657_263_366x54",
+      "export_name": "asset_11_657_263_366x54",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 431,
+        "y": 336,
+        "width": 574,
+        "height": 60,
+        "x2": 1005,
+        "y2": 396
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": "export/ui/battle_main/asset_11_657_263_366x54.png",
+      "suggested_godot_node": "Asset11657263366x54TextureRect"
+    },
+    {
+      "index": 69,
+      "source_name": "asset_13_1130_257_65x66",
+      "export_name": "asset_13_1130_257_65x66",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 431,
+        "y": 459,
+        "width": 65,
+        "height": 66,
+        "x2": 496,
+        "y2": 525
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": "export/ui/battle_main/asset_13_1130_257_65x66.png",
+      "suggested_godot_node": "Asset13113025765x66TextureRect"
+    },
+    {
+      "index": 70,
+      "source_name": "asset_13_1130_257_65x66 copy",
+      "export_name": "asset_13_1130_257_65x66_copy",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 500,
+        "y": 459,
+        "width": 65,
+        "height": 66,
+        "x2": 565,
+        "y2": 525
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": "export/ui/battle_main/asset_13_1130_257_65x66_copy.png",
+      "suggested_godot_node": "Asset13113025765x66CopyTextureRect"
+    },
+    {
+      "index": 71,
+      "source_name": "asset_13_1130_257_65x66 copy 2",
+      "export_name": "asset_13_1130_257_65x66_copy_2",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 571,
+        "y": 460,
+        "width": 65,
+        "height": 66,
+        "x2": 636,
+        "y2": 526
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": "export/ui/battle_main/asset_13_1130_257_65x66_copy_2.png",
+      "suggested_godot_node": "Asset13113025765x66Copy2TextureRect"
+    },
+    {
+      "index": 72,
+      "source_name": "asset_10_587_252_76x70",
+      "export_name": "asset_10_587_252_76x70",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 440,
+        "y": 295,
+        "width": 54,
+        "height": 50,
+        "x2": 494,
+        "y2": 345
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": "export/ui/battle_main/asset_10_587_252_76x70.png",
+      "suggested_godot_node": "Asset1058725276x70TextureRect"
+    },
+    {
+      "index": 73,
+      "source_name": "asset_12_1042_249_81x81",
+      "export_name": "asset_12_1042_249_81x81",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 427,
+        "y": 392,
+        "width": 81,
+        "height": 81,
+        "x2": 508,
+        "y2": 473
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": "export/ui/battle_main/asset_12_1042_249_81x81.png",
+      "suggested_godot_node": "Asset12104224981x81TextureRect"
+    },
+    {
+      "index": 74,
+      "source_name": "20/20",
+      "export_name": "txt_value_074",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 510,
+        "y": 302,
+        "width": 115,
+        "height": 36,
+        "x2": 625,
+        "y2": 338
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtValue074Label"
+    },
+    {
+      "index": 75,
+      "source_name": "3/3",
+      "export_name": "txt_value_075",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 522,
+        "y": 416,
+        "width": 68,
+        "height": 39,
+        "x2": 590,
+        "y2": 455
+      },
+      "parent_path": [
+        "Root",
+        "2"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "TxtValue075Label"
+    },
+    {
+      "index": 76,
+      "source_name": "asset_02_330_35_233x286",
+      "export_name": "asset_02_330_35_233x286",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 83,
+        "y": 130,
+        "width": 274,
+        "height": 341,
+        "x2": 357,
+        "y2": 471
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": "export/ui/battle_main/asset_02_330_35_233x286.png",
+      "suggested_godot_node": "Asset0233035233x286TextureRect"
+    },
+    {
+      "index": 77,
+      "source_name": "捣蛋猫",
+      "export_name": "label_enemy_name",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 437,
+        "y": 106,
+        "width": 200,
+        "height": 64,
+        "x2": 637,
+        "y2": 170
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelEnemyNameLabel"
+    },
+    {
+      "index": 78,
+      "source_name": "asset_20_848_347_143x88",
+      "export_name": "asset_20_848_347_143x88_04",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 438,
+        "y": 190,
+        "width": 127,
+        "height": 69,
+        "x2": 565,
+        "y2": 259
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": "export/ui/battle_main/asset_20_848_347_143x88_04.png",
+      "suggested_godot_node": "Asset20848347143x8804TextureRect"
+    },
+    {
+      "index": 79,
+      "source_name": "asset_20_848_347_143x88 copy",
+      "export_name": "asset_20_848_347_143x88_copy",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 589,
+        "y": 191,
+        "width": 113,
+        "height": 68,
+        "x2": 702,
+        "y2": 259
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": "export/ui/battle_main/asset_20_848_347_143x88_copy.png",
+      "suggested_godot_node": "Asset20848347143x88CopyTextureRect"
+    },
+    {
+      "index": 80,
+      "source_name": "asset_08_713_154_189x91",
+      "export_name": "asset_08_713_154_189x91",
+      "kind": "smartobject",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 722,
+        "y": 192,
+        "width": 194,
+        "height": 67,
+        "x2": 916,
+        "y2": 259
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": "export/ui/battle_main/asset_08_713_154_189x91.png",
+      "suggested_godot_node": "Asset08713154189x91TextureRect"
+    },
+    {
+      "index": 81,
+      "source_name": "青铜",
+      "export_name": "label_rank_bronze",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 609,
+        "y": 209,
+        "width": 74,
+        "height": 34,
+        "x2": 683,
+        "y2": 243
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelRankBronzeLabel"
+    },
+    {
+      "index": 82,
+      "source_name": "小型坦克",
+      "export_name": "label_enemy_type_tank",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 740,
+        "y": 207,
+        "width": 155,
+        "height": 36,
+        "x2": 895,
+        "y2": 243
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelEnemyTypeTankLabel"
+    },
+    {
+      "index": 83,
+      "source_name": "风",
+      "export_name": "label_element_wind",
+      "kind": "type",
+      "role": "godot_label",
+      "visible": true,
+      "bbox": {
+        "x": 512,
+        "y": 210,
+        "width": 37,
+        "height": 33,
+        "x2": 549,
+        "y2": 243
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": null,
+      "suggested_godot_node": "LabelElementWindLabel"
+    },
+    {
+      "index": 84,
+      "source_name": "形状 1",
+      "export_name": "enemy_area_layer_084",
+      "kind": "shape",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 1080,
+        "height": 1920,
+        "x2": 1080,
+        "y2": 1920
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": "export/ui/battle_main/enemy_area_layer_084.png",
+      "suggested_godot_node": "EnemyAreaLayer084TextureRect"
+    },
+    {
+      "index": 85,
+      "source_name": "asset_05_1194_150_89x88",
+      "export_name": "asset_05_1194_150_89x88_02",
+      "kind": "pixel",
+      "role": "image_asset",
+      "visible": true,
+      "bbox": {
+        "x": 456,
+        "y": 205,
+        "width": 41,
+        "height": 42,
+        "x2": 497,
+        "y2": 247
+      },
+      "parent_path": [
+        "Root",
+        "1"
+      ],
+      "export_path": "export/ui/battle_main/asset_05_1194_150_89x88_02.png",
+      "suggested_godot_node": "Asset05119415089x8802TextureRect"
+    }
+  ]
+}

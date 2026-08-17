@@ -8,14 +8,12 @@ const PEAK_SCALE := 1.16
 
 
 func show_damage(amount: int, color: Color = Color(1.0, 0.22, 0.14), duration: float = 0.55, damage_label: String = "") -> void:
-	text = "%s-%d" % ["%s " % damage_label if damage_label != "" else "", maxi(0, amount)]
+	text = "%s-%d" % ["%s " % damage_label if damage_label != "" else "", max(0, amount)]
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	add_theme_color_override("font_color", color)
 	add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.9))
-	add_theme_color_override("font_outline_color", Color(0.18, 0.025, 0.02, 1.0))
-	add_theme_constant_override("outline_size", 4)
 	add_theme_constant_override("shadow_offset_x", 2)
 	add_theme_constant_override("shadow_offset_y", 2)
 	add_theme_font_size_override("font_size", 28)

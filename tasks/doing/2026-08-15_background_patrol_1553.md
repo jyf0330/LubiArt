@@ -1,0 +1,51 @@
+# 2026-08-15 15:53 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260815-patrol-1553
+- delivery_base_commit: `85b6ee5`
+- objective: 复核当前测试、CI、确定性运行证据、未完成任务卡与文件租约，只同步可确认的新巡检事实；不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-15_background_patrol_1553.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-15_background_patrol_1553.md`
+  - `tasks/ai/QUEUE.md`（仅刷新当前任务状态、HEAD、WIP 计数和巡检证据）
+  - `tasks/ai/STATUS.md`（仅刷新当前任务状态、HEAD、WIP 计数和巡检证据）
+- existing_wip:
+  - `tasks/ai/QUEUE.md` 与 `tasks/ai/STATUS.md` 开工前已有四轮巡检的未提交修改；本轮完整保留既有结论，只做最小事实更新
+  - 开工时共有 24 个已跟踪修改及 204 个未跟踪路径；除控制面外，战斗权威、自动摆位、UI、测试、五张 visual 基线、暂停宠物草稿、审计依赖和临时图均视为其他任务资产
+  - `tasks/doing/2026-08-15_all_planner_pet_images.md` 已由原 owner 标记 `paused`，其 `pal_279`–`pal_283` 草稿不得接管、验收或改写
+  - `tasks/doing/2026-08-15_shop_character_pixel_art.md` 为 `art_complete_integration_pending`；本轮只读复核其清单与生产调用链，不编辑人物图、映射、测试或接线文件
+- stop_conditions:
+  - 若失败指向现有 WIP、活跃任务卡或需玩法/视觉决策，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+  - 远端 CI 无法查询时记录为未验证，不推断通过或失败
+- validation:
+  - `python3 tools/art/generate_pet_image_manifest.py --check`
+  - `python3 tools/art/generate_shop_character_manifest.py --check`
+  - 读取 24 小时 `completion-audit.json` 与最近已完成巡检状态
+  - `gh run list --repo jyf0330/xyxsj --limit 10`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-15_background_patrol_1553.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 本地 `output/validation/qa` 目录仍不存在，没有新的 QA `summary.json` 或确定性测试失败可供晋级
+  - 最近五次已完成巡检均 `exit_code=0`，五份 `stderr.log` 均为 0 字节；`20260815-155005` 是本轮仍在运行的记录，不作为已完成证据
+  - 24 小时 `completion-audit.json` 仍为 `complete=true`、`31/31`、`failedCheckIds=[]`；已确认状态文字遮挡仍需视觉方向且验证文件与既有 WIP 重叠
+  - HEAD `85b6ee5` 已完成 29/29 正式商店人物；清单检查通过，但 `_shop_character_texture()` 只有专项测试调用，正式 `ThreeChoiceScene` 没有消费该接口
+  - 商店人物最直接接线文件 `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd` 已有其他任务未提交修改，因此对该确认 P1 执行 `FILE_CONFLICT_STOP`
+  - 宠物任务已由原 owner 标记 `paused`；正式清单为 278/369，未跟踪 `pal_279`–`pal_283` 是任务卡明确保留的草稿，当前清单 STALE 属于已知暂停中间态
+  - `gh run list --repo jyf0330/xyxsj --limit 10` 因代理 `127.0.0.1:7897` 被网络沙箱拒绝，远端 CI 未验证
+- validation_result:
+  - `python3 tools/art/generate_shop_character_manifest.py --check`：通过，`SHOP_CHARACTER_MANIFEST_OK targets=29 generated=29 approved=29 pending=0`
+  - `python3 tools/art/generate_pet_image_manifest.py --check`：返回 1/`PET_IMAGE_MANIFEST_STALE`；与暂停任务卡声明的五张未接入草稿一致，未修改或接管该任务
+  - 24 小时完成审计：`complete=true`、`passedChecks=31`、`totalChecks=31`、`failedCheckIds=[]`
+  - `QUEUE.md` / `STATUS.md` 的 `git diff --check` 通过；三份控制面文件尾随空白检查无命中
+  - 控制面只更新任务状态、当前 HEAD、调用链证据、WIP 计数和 CI 查询事实；未修改产品、测试、正式数据或美术
+- residual_risk:
+  - 远端 CI 当前不可验证
+  - 控制面文件包含开工前四轮巡检的未提交修改，不能与本轮归属安全隔离
+  - 商店人物接线、战斗权威、UI、测试和 visual 基线 WIP 均未释放；宠物草稿由暂停任务 owner 保留
+- next_step: 释放 `three_choice_scene.gd` 归属后优先建立商店人物生产接线 P1；另行确定状态文字布局方向并释放 UI/visual 验证文件后，再建立布局修复任务
+- commit: 控制面含开工前未提交修改，且任务卡单独提交不能完整表达本轮控制面更新；本轮不提交

@@ -17,11 +17,13 @@ BattleArtScene
 │   ├── CellHost（56 个 terrain.tscn 运行时实例）
 │   ├── UnitHost（按 unitId 复用的 pet.tscn 实例）
 │   └── VfxHost（事件表现协调）
+├── MapControls（地图按钮、快捷键反馈与操作提示）
 ├── Hud（battle_hud.tscn）
 └── OverlayHost（详情 prefab 与全屏覆盖层）
+    └── SettingsMenu（设置、存读档与快捷键配置）
 ```
 
-- 正式 Scene 固定为 8 个节点：根、`Board`、四个 Board 容器、`Hud` 和 `OverlayHost`。根展示脚本只对接 Snapshot 与 Command 请求。
+- 正式 Scene 保持 `Board`、`MapControls`、`Hud` 和 `OverlayHost` 四个顶层职责根。根展示脚本只对接 Snapshot 与 Command 请求，不以固定节点总数作为架构契约。
 - `CellHost` 根据 Snapshot 的棋盘尺寸创建 8×7 个地形 prefab；格子本身只处理地形、元素和输入，不持有宠物节点。
 - `UnitHost` 以 `unitId` 为键挂载宠物 prefab；离场实例进入对象池，下一次需要时复用并重置展示数据。
 - `Hud` 是独立可编辑的完整美术 prefab，内部维护自动布置、开始行动和左侧行动面板；调试地图与摆位难度集中在该面板中，面板可通过边缘按钮横向收起和展开。攻击方向抽屉不再挂载到正式战斗界面。

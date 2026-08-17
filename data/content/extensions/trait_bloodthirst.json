@@ -1,0 +1,38 @@
+{
+  "schema": "ysbzs.content-package.v1",
+  "package_id": "extension.trait_bloodthirst",
+  "priority": 100,
+  "order": 0,
+  "operations": [
+    {
+      "op": "set",
+      "path": ["trait_catalog", "trait_bloodthirst"],
+      "value": {
+        "id": "trait_bloodthirst",
+        "name": "嗜血",
+        "order_index": 4,
+        "effects": [
+          {
+            "hook": "always",
+            "type": "modify_stat",
+            "stat": "lifesteal_permille",
+            "operation": "flat_add",
+            "value": 100,
+            "phase": "trait",
+            "priority": 100
+          }
+        ],
+        "description": "造成生命伤害后，回复实际生命伤害的 10%。",
+        "note": "JSON 先行；待手动同步总表与特性 CSV"
+      }
+    },
+    {
+      "op": "attach_unique",
+      "path": ["economy", "shop_items"],
+      "match_key": "id",
+      "match_value": "pal_005",
+      "field": "traits",
+      "value": "trait_bloodthirst"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+# 2026-08-16 20:12 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-2012
+- delivery_base_commit: `dd569fb9`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与可复现玩家问题；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_2012.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_2012.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与十张旧巡检卡为累计未提交控制面 WIP；本轮保留全部既有证据，只接续当前事实，不提交
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 仍为 `in_progress`，独占商店 View、表现模块、专项/可见测试、同步工具、共享图片和自身任务卡
+  - 开工 HEAD 为 `dd569fb9`；巡检期间原 owner 正在任务卡、正式可见采集和五个 Python 对照/几何文件中扩展 round-106，全部视为其资产，不编辑、不运行、不暂存、不提交
+- stop_conditions:
+  - 核对最新稳定 fast、roundtrip 最新确定性对照/几何证据、自动巡检日志、远端 CI 可达性和当前文件租约
+  - 若当前失败或验收缺口位于活跃 owner 租约内，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取当前 HEAD、round-105 稳定审计、最新 fast summary、现有任务卡和当前 Git 状态
+  - 比对最新 fast 隔离副本与当前树四个正式商店运行时文件的 SHA-256
+  - 扫描最近自动巡检 `status.txt` / `stderr.log`
+  - `gh run list --repo jyf0330/xyxsj --limit 10 --json databaseId,status,conclusion,workflowName,headSha,createdAt`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_2012.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 当前无 P0，`Ready` 仍为空；没有新增可复现玩家问题或本地确定性产品失败
+  - HEAD 为 `dd569fb9`，当前分支领先跟踪分支 85 个提交；round-105 双边 72 步真实入口采集完成，稳定审计为 `passed=true`、`errors=[]`
+  - round-105 稳定审计覆盖 33 项资源、2 项层级、138 项精确像素、1 项容差和 9 项效果；任务卡另记录 88 项 Python 测试、四项正式商店 smoke、美术同步 smoke 与 Mock 独立门禁通过
+  - `9ca03359` 修复正式退出牌按压期间 Tooltip 后，隔离 fast 为 19/19、0 失败、349.261 秒；四个正式商店运行时文件与当前树逐文件 SHA-256 一致
+  - 原 owner 于巡检期间继续写入任务卡、正式可见采集和五个 Python 对照/几何文件，新增 round-106 取消后再次按住退出牌计划；任务仍为 `in_progress`，执行 `FILE_CONFLICT_STOP`
+  - 最近已完成自动巡检均退出码 0；非空 stderr 只包含补丁上下文失配或 Codex WebSocket 错误，没有游戏或测试失败日志
+  - `gh run list` 仍因代理 `127.0.0.1:7897` 被沙箱拒绝；本地另有 85 个未推送提交，远端 CI 即使可见也不能代表当前 HEAD
+- validation_result:
+  - round-105 `geometry_audit.json`：`passed=true`、`errors=[]`；33 项资源、2 项层级、138 项精确像素、1 项容差和 9 项效果全部通过
+  - 最新完整 fast：19/19、0 失败、349.261 秒；playable flow 173.587 秒、battle UI 15.729 秒，均通过
+  - 当前树与 fast 隔离副本的 `shop_shared_rail.gd`、`legacy_code_shop_view.gd`、`shop_art_backdrop.gd`、`shop_shelf_layout.gd` 哈希全部一致
+  - 未修改产品代码、测试、玩法、美术或正式数据，未推送、部署或发布
+- residual_risk:
+  - roundtrip 任务仍未释放租约，round-106 正在形成未提交 WIP；巡检不能替原 owner 接管、运行或提交
+  - 远端 CI 与战斗拖拽详情的独立真实窗口验收仍不可见
+  - 控制面包含开工前累计巡检 WIP，不能安全形成独立提交
+- next_step: 由现有 owner 完成 round-106、最终收口并释放租约，再由巡检复核；另待独立虚拟屏完成拖拽详情正式入口验收。除此之外无可安全推进事项
+- commit: 未提交；控制面含既有未提交巡检 WIP，且活跃 roundtrip 任务仍未释放，不推送

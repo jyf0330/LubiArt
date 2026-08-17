@@ -1,0 +1,49 @@
+# 2026-08-15 13:43 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260815-patrol-1343
+- delivery_base_commit: `d79b629`
+- objective: 复核当前测试、CI、确定性运行证据、未完成任务卡与文件租约，只同步可确认的新巡检事实；不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-15_background_patrol_1343.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-15_background_patrol_1343.md`
+  - `tasks/ai/QUEUE.md`（仅刷新当前 HEAD、WIP 计数、图片任务进度和巡检证据）
+  - `tasks/ai/STATUS.md`（仅刷新当前 HEAD、WIP 计数、图片任务进度和巡检证据）
+- existing_wip:
+  - `tasks/ai/QUEUE.md` 与 `tasks/ai/STATUS.md` 开工前已有前三轮巡检的未提交修改；本轮完整保留既有结论，只做最小事实更新
+  - 开工时共有 25 个已跟踪修改及 198 个未跟踪路径；战斗权威、自动摆位、UI、测试、五张 visual 基线、审计依赖和临时图均视为其他任务资产
+  - `tasks/doing/2026-08-15_all_planner_pet_images.md` 为活跃独占任务，已声明下一批 `pal_269`–`pal_273`；本轮不编辑其图片、映射、清单、工具、测试或任务卡
+- stop_conditions:
+  - 若失败指向现有 WIP、活跃任务卡或需玩法/视觉决策，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+  - 远端 CI 无法查询时记录为未验证，不推断通过或失败
+- validation:
+  - `python3 tools/art/generate_pet_image_manifest.py --check`
+  - 读取 24 小时 `completion-audit.json` 与最终报告
+  - 读取最近四次已完成巡检的 `status.txt` 与 `stderr.log`
+  - `gh run list --repo jyf0330/xyxsj --limit 10`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-15_background_patrol_1343.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 本地 `output/validation/qa` 目录仍不存在，没有新的 QA `summary.json` 或确定性测试失败可供晋级
+  - 24 小时 `completion-audit.json` 仍为 `complete=true`、`31/31`、`failedCheckIds=[]`；最终报告未发现战斗权威不变量、随机崩溃、黑屏、未解释长冻结或命令拒绝
+  - 已确认的 P1 状态文字遮挡仍需视觉方向选择，且 `smoke_battle_ui.gd`、五张 visual 基线和 `ui_regression.gd` 与既有 WIP 重叠
+  - 最近四次已完成巡检均 `exit_code=0`，四份 `stderr.log` 均为 0 字节，没有新的确定性运行日志失败
+  - `gh run list --repo jyf0330/xyxsj --limit 10` 因代理 `127.0.0.1:7897` 被网络沙箱拒绝，远端 CI 未验证
+  - 生图 owner 已连续提交至 HEAD `d79b629`；当前清单为 `268/369 approved`、`101 pending`，下一批 `pal_269`–`pal_273` 已被其任务卡领取
+- validation_result:
+  - `python3 tools/art/generate_pet_image_manifest.py --check`：通过，`PET_IMAGE_MANIFEST_OK targets=369 generated=268 approved=268`
+  - 24 小时完成审计：`complete=true`、`passedChecks=31`、`totalChecks=31`、`failedCheckIds=[]`
+  - 最近四次已完成巡检：四次 `exit_code=0`，四份 `stderr.log` 合计 0 字节
+  - `git diff --check` 与本任务卡尾随空白检查：通过
+  - 收尾 Git 状态为 25 个已跟踪修改、199 个未跟踪路径；相较开工只增加本巡检任务卡，未修改产品、测试、正式数据或美术
+- residual_risk:
+  - 远端 CI 当前不可验证
+  - 控制面文件包含开工前未提交修改，无法与本轮归属安全隔离
+  - 生图任务、战斗权威、UI、测试和 visual 基线 WIP 均未释放
+- next_step: 由现有 owner 继续图片任务；状态文字布局方向与 UI/visual 文件归属释放后，再建立独立 P1 修复任务
+- commit: 控制面含开工前未提交修改，且任务卡单独提交不能完整表达本轮控制面更新；本轮不提交

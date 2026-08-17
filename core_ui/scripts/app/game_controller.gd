@@ -6,16 +6,18 @@ extends Control
 ## never own gameplay state or create sessions of their own.
 
 const SessionFactoryScript := preload("res://session/session_factory.gd")
+const DefaultTimepointThreeSaveBootstrapScript := preload("res://core/startup/default_timepoint_three_save_bootstrap.gd")
 const SessionBridgeScript := preload("res://core_ui/scripts/artist_flow/controllers/artist_flow_session_bridge.gd")
 const FeatureRegistryScript := preload("res://core_ui/scripts/app/feature_registry.gd")
 const SceneRouterScript := preload("res://core_ui/scripts/app/scene_router.gd")
 const SettingsMenuScene := preload("res://art/prefabs/battle/settings/settings_menu.tscn")
+const PresentationCoordinatorScript := preload("res://core_ui/scripts/app/presentation_coordinator.gd")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 const ShortcutCatalog := preload("res://core_ui/scripts/shared/shortcut_catalog.gd")
 const UiPreferencesScript := preload("res://core_ui/scripts/app/ui_preferences.gd")
+const RuntimeDiagnosticsScript := preload("res://diagnostics/runtime_diagnostics.gd")
 const DEFAULT_RUN_SEED := "ysbzs-test-play-20260715-v1"
-
-@export_enum("route", "shop", "battle") var mock_start_phase := "battle"
+const TIMEPOINT_THREE_STARTUP_ARGUMENT := "--startup-save=timepoint-three"
 
 @onready var three_choice_view: Control = $ThreeChoiceScene
 @onready var feature_host: Control = $FeatureHost
@@ -33,13 +35,19 @@ var game_session: RefCounted = null
 var feature_registry: RefCounted = null
 var _feature_router: RefCounted = null
 var _session_bridge := SessionBridgeScript.new()
+var _presentation_coordinator := PresentationCoordinatorScript.new()
 var _visible_auto_battle_running := false
 var _global_settings_menu: Control = null
 var _button_shortcut_hints_visible := true
 var _ui_preferences: RefCounted = UiPreferencesScript.new()
+var _runtime_diagnostics: Node = null
 
 
 func _ready() -> void:
+	_runtime_diagnostics = RuntimeDiagnosticsScript.new()
+	_runtime_diagnostics.name = "RuntimeDiagnostics"
+	add_child(_runtime_diagnostics)
+	_runtime_diagnostics.call("start")
 	RuntimeUiPolicy.install()
 	ShortcutCatalog.load_bindings(_ui_preferences.call("load_shortcut_bindings"))
 	_button_shortcut_hints_visible = bool(
@@ -48,26 +56,63 @@ func _ready() -> void:
 	if feature_registry == null:
 		feature_registry = FeatureRegistryScript.new()
 	if game_session == null:
-		game_session = SessionFactoryScript.create_local({
-			"start_phase": mock_start_phase,
+		var creation := Dictionary(SessionFactoryScript.create_local_result({
+			"run_seed": DEFAULT_RUN_SEED,
+			"start_phase": "route",
 			"board_dimensions": SessionFactoryScript.command_line_board_dimensions()
-		})
+		}))
+		if not bool(creation.get("ok", false)):
+			_runtime_diagnostics.call("record_error", "GAME_SESSION_INIT_FAILED", Dictionary(creation.get("initialization", {})))
+			push_error("GAME_SESSION_INIT_FAILED:%s" % JSON.stringify(creation.get("initialization", {})))
+			return
+		game_session = creation.get("session") as RefCounted
+		if _should_prepare_direct_startup_save():
+			var startup_result := Dictionary(DefaultTimepointThreeSaveBootstrapScript.prepare_and_load(
+				game_session,
+				DEFAULT_RUN_SEED
+			))
+			if not bool(startup_result.get("ok", false)):
+				_runtime_diagnostics.call("record_error", "GAME_STARTUP_SAVE_FAILED", startup_result)
+				push_error("GAME_STARTUP_SAVE_FAILED:%s" % JSON.stringify(startup_result))
+				return
 	_session_bridge.bind_session(game_session)
 	_feature_router = SceneRouterScript.new(feature_host, feature_registry)
+	_presentation_coordinator.configure(
+		_session_bridge,
+		three_choice_view,
+		Callable(self, "_prepare_feature_for_snapshot"),
+		Callable(self, "_release_features_not_required"),
+		Callable(self, "_active_battle_view")
+	)
 	_connect_three_choice_view()
 	_connect_session_bridge()
 	var snapshot := _session_bridge.current_snapshot()
 	_prepare_feature_for_snapshot(snapshot)
 	_configure_three_choice_view(snapshot)
+	_presentation_coordinator.adopt_presented_snapshot(snapshot)
+
+
+func _should_prepare_direct_startup_save(
+	arguments: PackedStringArray = PackedStringArray()
+) -> bool:
+	var resolved_arguments := arguments if not arguments.is_empty() else OS.get_cmdline_user_args()
+	for argument_value in resolved_arguments:
+		if String(argument_value).strip_edges().to_lower() == TIMEPOINT_THREE_STARTUP_ARGUMENT:
+			return true
+	return false
 
 
 func _exit_tree() -> void:
+	_presentation_coordinator.dispose()
 	_session_bridge.dispose()
+	if is_instance_valid(_runtime_diagnostics):
+		_runtime_diagnostics.call("finish")
 
 
 func set_game_session(session: RefCounted) -> void:
 	if session == null:
 		return
+	_presentation_coordinator.reset_for_session()
 	game_session = session
 	_session_bridge.bind_session(game_session)
 	if not is_node_ready():
@@ -76,6 +121,7 @@ func set_game_session(session: RefCounted) -> void:
 	var snapshot := _session_bridge.current_snapshot()
 	_prepare_feature_for_snapshot(snapshot)
 	_configure_three_choice_view(snapshot)
+	_presentation_coordinator.adopt_presented_snapshot(snapshot)
 
 
 func set_feature_registry(registry: RefCounted) -> void:
@@ -89,8 +135,6 @@ func set_feature_registry(registry: RefCounted) -> void:
 func mount_feature(feature_id: StringName) -> Node:
 	if feature_id == FeatureRegistryScript.THREE_CHOICE_FEATURE:
 		return three_choice_view
-	if feature_id == FeatureRegistryScript.SHOP_FEATURE:
-		return _mount_shop()
 	if feature_id == FeatureRegistryScript.BATTLE_FEATURE:
 		return _mount_battle()
 	return null
@@ -117,11 +161,6 @@ func get_active_feature_id() -> StringName:
 
 
 func get_feature_controller(feature_name: StringName) -> Variant:
-	var active := get_active_feature_view()
-	if is_instance_valid(active) and active.has_method("get_feature_controller"):
-		var controller: Variant = active.call("get_feature_controller", feature_name)
-		if controller != null:
-			return controller
 	if three_choice_view != null and three_choice_view.has_method("get_feature_controller"):
 		return three_choice_view.call("get_feature_controller", feature_name)
 	return null
@@ -129,29 +168,31 @@ func get_feature_controller(feature_name: StringName) -> Variant:
 
 func render_current_view() -> void:
 	var snapshot := _session_bridge.current_snapshot()
-	_prepare_feature_for_snapshot(snapshot)
-	var active := get_active_feature_view()
-	if is_instance_valid(active) and active.has_method("render_snapshot"):
-		active.call("render_snapshot", snapshot)
-	elif three_choice_view != null and three_choice_view.has_method("render_snapshot"):
-		three_choice_view.call("render_snapshot", snapshot, false)
-	_release_features_not_required(snapshot)
+	_presentation_coordinator.enqueue_external_snapshot(snapshot, {
+		"reason": "manual_refresh",
+		"asynchronous": true,
+		"force": true,
+		"animate_transition": false,
+		"stateVersion": int(snapshot.get("stateVersion", -1)),
+		"stateHash": String(snapshot.get("stateHash", "")),
+	})
 
 
 func get_missing_image_report() -> Array:
-	var active := get_active_feature_view()
-	if is_instance_valid(active) and active.has_method("get_missing_image_report"):
-		return Array(active.call("get_missing_image_report"))
 	if three_choice_view != null and three_choice_view.has_method("get_missing_image_report"):
 		return Array(three_choice_view.call("get_missing_image_report"))
 	return []
 
 
 func get_battle_missing_mapping_report() -> Array:
-	var active := get_active_feature_view()
-	if is_instance_valid(active) and active.has_method("get_missing_mapping_report"):
-		return Array(active.call("get_missing_mapping_report"))
+	if three_choice_view != null and three_choice_view.has_method("get_battle_missing_mapping_report"):
+		return Array(three_choice_view.call("get_battle_missing_mapping_report"))
 	return []
+
+
+func set_developer_tools_enabled(enabled: bool) -> void:
+	if three_choice_view != null and three_choice_view.has_method("set_developer_tools_enabled"):
+		three_choice_view.call("set_developer_tools_enabled", enabled)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -160,7 +201,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _text_input_has_focus():
 		return
-	_toggle_global_save_load_menu()
+	_toggle_quick_save_load_toolbar()
 	get_viewport().set_input_as_handled()
 
 
@@ -176,6 +217,11 @@ func _is_shortcut_press(event: InputEvent) -> bool:
 func _text_input_has_focus() -> bool:
 	var focused := get_viewport().gui_get_focus_owner()
 	return focused is LineEdit or focused is TextEdit
+
+
+func _toggle_quick_save_load_toolbar() -> void:
+	if three_choice_view != null and three_choice_view.has_method("toggle_quick_save_load_toolbar"):
+		three_choice_view.call("toggle_quick_save_load_toolbar")
 
 
 func _toggle_global_save_load_menu() -> void:
@@ -254,12 +300,10 @@ func _connect_three_choice_view() -> void:
 	if three_choice_view.has_signal("command_requested") \
 			and not three_choice_view.is_connected("command_requested", command_callback):
 		three_choice_view.connect("command_requested", command_callback)
-	var settled_callback := Callable(self, "_on_three_choice_presentation_settled")
-	if three_choice_view.has_signal("presentation_settled") \
-			and not three_choice_view.is_connected("presentation_settled", settled_callback):
-		three_choice_view.connect("presentation_settled", settled_callback)
-
-
+	var session_operation_callback := Callable(self, "_on_session_operation_requested")
+	if three_choice_view.has_signal("session_operation_requested") \
+			and not three_choice_view.is_connected("session_operation_requested", session_operation_callback):
+		three_choice_view.connect("session_operation_requested", session_operation_callback)
 func _connect_session_bridge() -> void:
 	var callback := Callable(self, "_on_asynchronous_snapshot_received")
 	if not _session_bridge.asynchronous_snapshot_received.is_connected(callback):
@@ -269,34 +313,24 @@ func _connect_session_bridge() -> void:
 func _configure_three_choice_view(snapshot: Dictionary = {}) -> void:
 	if three_choice_view == null:
 		return
+	if three_choice_view.has_method("configure_session_capabilities"):
+		three_choice_view.call(
+			"configure_session_capabilities",
+			_session_bridge.supports_persistence(),
+			_session_bridge.persistence_slot_count()
+		)
 	if three_choice_view.has_method("render_snapshot"):
 		var current := snapshot if not snapshot.is_empty() else _session_bridge.current_snapshot()
-		var phase := String(current.get("phase", "route"))
-		three_choice_view.visible = phase != "shop" and phase != "battle"
-		three_choice_view.mouse_filter = Control.MOUSE_FILTER_PASS if three_choice_view.visible else Control.MOUSE_FILTER_IGNORE
-		if three_choice_view.visible:
-			three_choice_view.call("render_snapshot", current, false)
+		three_choice_view.call("render_snapshot", current, false)
 
 
 func _on_command_requested(command: Dictionary, request_id: int) -> void:
-	var response := Dictionary(await _session_bridge.submit_command(command))
-	var snapshot := _snapshot_from_response(response)
-	_prepare_feature_for_snapshot(snapshot)
-	_configure_three_choice_view(snapshot)
-	if is_instance_valid(three_choice_view) and three_choice_view.has_method("complete_command_request"):
-		three_choice_view.call("complete_command_request", request_id, response)
-	_release_features_not_required(snapshot)
+	_presentation_coordinator.submit_command_request(command, request_id)
 
 
-func _on_shop_command_requested(command: Dictionary, request_id: int) -> void:
-	var response := Dictionary(await _session_bridge.submit_command(command))
-	var snapshot := _snapshot_from_response(response)
-	_prepare_feature_for_snapshot(snapshot)
-	_configure_three_choice_view(snapshot)
-	var active := get_active_feature_view()
-	if is_instance_valid(active) and active.has_method("complete_command_request"):
-		active.call("complete_command_request", request_id, response)
-	_release_features_not_required(snapshot)
+func _on_session_operation_requested(operation: StringName, arguments: Dictionary, request_id: int) -> void:
+	var result := _perform_session_operation(operation, arguments)
+	_presentation_coordinator.complete_session_operation(request_id, result, operation)
 
 
 func _perform_session_operation(operation: StringName, arguments: Dictionary) -> Dictionary:
@@ -314,7 +348,6 @@ func _perform_session_operation(operation: StringName, arguments: Dictionary) ->
 		"ok": ok,
 		"snapshot": _session_bridge.current_snapshot()
 	}
-	_prepare_feature_for_snapshot(Dictionary(result["snapshot"]))
 	return result
 
 
@@ -324,11 +357,14 @@ func _on_battle_session_operation_requested(
 ) -> void:
 	var result := _perform_session_operation(operation, arguments)
 	var snapshot := Dictionary(result.get("snapshot", {}))
-	_configure_three_choice_view(snapshot)
-	var active_view: Node = _feature_router.active_view() if _feature_router != null else null
-	if is_instance_valid(active_view) and active_view.has_method("render_snapshot"):
-		active_view.call("render_snapshot", snapshot)
-	_release_features_not_required(snapshot)
+	_presentation_coordinator.enqueue_external_snapshot(snapshot, {
+		"reason": "battle_session_operation:%s" % String(operation),
+		"asynchronous": true,
+		"force": true,
+		"animate_transition": false,
+		"stateVersion": int(snapshot.get("stateVersion", -1)),
+		"stateHash": String(snapshot.get("stateHash", "")),
+	})
 
 
 func _on_button_shortcut_hints_visibility_changed(hints_visible: bool) -> void:
@@ -347,21 +383,8 @@ func _on_shortcut_bindings_changed(bindings: Dictionary) -> void:
 	_ui_preferences.call("save_shortcut_bindings", ShortcutCatalog.serialized_bindings())
 
 
-func _on_asynchronous_snapshot_received(snapshot: Dictionary) -> void:
-	if not is_instance_valid(three_choice_view) or snapshot.is_empty():
-		return
-	_prepare_feature_for_snapshot(snapshot)
-	_configure_three_choice_view(snapshot)
-	var active := get_active_feature_view()
-	if is_instance_valid(active) and active.has_method("render_snapshot"):
-		active.call("render_snapshot", snapshot)
-	elif three_choice_view.has_method("render_snapshot"):
-		await three_choice_view.call("render_snapshot", snapshot, true)
-	_release_features_not_required(snapshot)
-
-
-func _on_three_choice_presentation_settled() -> void:
-	_release_features_not_required(_session_bridge.current_snapshot())
+func _on_asynchronous_snapshot_received(snapshot: Dictionary, metadata: Dictionary) -> void:
+	_presentation_coordinator.enqueue_external_snapshot(snapshot, metadata)
 
 
 func _on_battle_command_requested(command: Dictionary) -> void:
@@ -378,29 +401,7 @@ func _dispatch_battle_command(command: Dictionary) -> void:
 
 
 func _submit_battle_command(command: Dictionary) -> bool:
-	var response := Dictionary(await _session_bridge.submit_command(command))
-	var snapshot := _snapshot_from_response(response)
-	_prepare_feature_for_snapshot(snapshot)
-	var battle_view := get_active_feature_view()
-	if is_instance_valid(battle_view) and battle_view.has_method("render_command_response"):
-		battle_view.call("render_command_response", command, response)
-	if bool(response.get("accepted", false)):
-		if String(command.get("type", "")) == "RUN_COMBAT_ROUND" \
-				and String(snapshot.get("phase", "")) != "battle" \
-				and is_instance_valid(battle_view):
-			if battle_view.has_method("render_snapshot"):
-				battle_view.call("render_snapshot", snapshot)
-			if battle_view.has_method("is_battle_input_locked") \
-					and bool(battle_view.call("is_battle_input_locked")) \
-					and battle_view.has_signal("trace_sequence_finished"):
-				await battle_view.trace_sequence_finished
-		elif String(snapshot.get("phase", "")) == "battle" \
-				and is_instance_valid(battle_view) \
-				and battle_view.has_method("render_snapshot"):
-			battle_view.call("render_snapshot", snapshot)
-	_configure_three_choice_view(snapshot)
-	_release_features_not_required(snapshot)
-	return bool(response.get("accepted", false))
+	return await _presentation_coordinator.submit_battle_command(command)
 
 
 func _run_visible_auto_battle() -> void:
@@ -446,41 +447,24 @@ func _mount_battle(snapshot: Dictionary = {}) -> Node:
 			battle_scene.connect("shortcut_bindings_changed", keybind_callback)
 	if battle_scene != null and battle_scene.has_method("set_button_shortcut_hints_visible"):
 		battle_scene.call("set_button_shortcut_hints_visible", _button_shortcut_hints_visible)
+	if battle_scene != null and three_choice_view.has_method("attach_feature_view"):
+		three_choice_view.call("attach_feature_view", FeatureRegistryScript.BATTLE_FEATURE, battle_scene)
+	_presentation_coordinator.configure_battle_view(battle_scene)
 	if battle_scene != null and battle_scene.has_method("render_snapshot"):
 		var current := snapshot if not snapshot.is_empty() else _session_bridge.current_snapshot()
 		battle_scene.call("render_snapshot", current)
 	return battle_scene
 
 
-func _mount_shop(snapshot: Dictionary = {}) -> Node:
-	if _feature_router == null:
-		return null
-	if _feature_router.active_feature() == FeatureRegistryScript.SHOP_FEATURE:
-		var active: Node = _feature_router.active_view()
-		if is_instance_valid(active) and active.has_method("render_snapshot") and not snapshot.is_empty():
-			active.call("render_snapshot", snapshot)
-		return active
-	_clear_battle()
-	var shop_scene: Node = _feature_router.mount_feature(FeatureRegistryScript.SHOP_FEATURE)
-	if shop_scene != null and shop_scene.has_signal("command_requested"):
-		shop_scene.connect("command_requested", Callable(self, "_on_shop_command_requested"))
-	if shop_scene != null and shop_scene.has_method("render_snapshot"):
-		var current := snapshot if not snapshot.is_empty() else _session_bridge.current_snapshot()
-		shop_scene.call("render_snapshot", current)
-	return shop_scene
-
-
 func _clear_battle() -> void:
 	if _feature_router == null:
 		return
+	var feature_id: StringName = _feature_router.active_feature()
 	var feature_view: Node = _feature_router.active_view()
 	if is_instance_valid(feature_view) and feature_view.has_signal("command_requested"):
-		for command_callback in [
-			Callable(self, "_on_battle_command_requested"),
-			Callable(self, "_on_shop_command_requested"),
-		]:
-			if feature_view.is_connected("command_requested", command_callback):
-				feature_view.disconnect("command_requested", command_callback)
+		var command_callback := Callable(self, "_on_battle_command_requested")
+		if feature_view.is_connected("command_requested", command_callback):
+			feature_view.disconnect("command_requested", command_callback)
 	if is_instance_valid(feature_view) and feature_view.has_signal("session_operation_requested"):
 		var session_operation_callback := Callable(self, "_on_battle_session_operation_requested")
 		if feature_view.is_connected("session_operation_requested", session_operation_callback):
@@ -493,20 +477,19 @@ func _clear_battle() -> void:
 		var keybind_callback := Callable(self, "_on_shortcut_bindings_changed")
 		if feature_view.is_connected("shortcut_bindings_changed", keybind_callback):
 			feature_view.disconnect("shortcut_bindings_changed", keybind_callback)
+	if is_instance_valid(feature_view) and three_choice_view.has_method("detach_feature_view"):
+		three_choice_view.call("detach_feature_view", feature_id, feature_view)
 	_visible_auto_battle_running = false
 	_feature_router.clear()
 
 
-func _snapshot_from_response(response: Dictionary) -> Dictionary:
-	var value: Variant = response.get("snapshot", {})
-	if value is Dictionary and not Dictionary(value).is_empty():
-		return Dictionary(value).duplicate(true)
-	return _session_bridge.current_snapshot()
+func _active_battle_view() -> Node:
+	if _feature_router == null or _feature_router.active_feature() != FeatureRegistryScript.BATTLE_FEATURE:
+		return null
+	return _feature_router.active_view()
 
 
 func _required_feature_for_snapshot(snapshot: Dictionary) -> StringName:
-	if String(snapshot.get("phase", "")) == "shop":
-		return FeatureRegistryScript.SHOP_FEATURE
 	if String(snapshot.get("phase", "")) == "battle":
 		return FeatureRegistryScript.BATTLE_FEATURE
 	return &""
@@ -514,9 +497,7 @@ func _required_feature_for_snapshot(snapshot: Dictionary) -> StringName:
 
 func _prepare_feature_for_snapshot(snapshot: Dictionary) -> void:
 	var required_feature := _required_feature_for_snapshot(snapshot)
-	if required_feature == FeatureRegistryScript.SHOP_FEATURE:
-		_mount_shop(snapshot)
-	elif required_feature == FeatureRegistryScript.BATTLE_FEATURE:
+	if required_feature == FeatureRegistryScript.BATTLE_FEATURE:
 		_mount_battle(snapshot)
 
 

@@ -1,0 +1,51 @@
+# 2026-08-15 22:49 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260815-patrol-2249
+- delivery_base_commit: `6c6174e`
+- objective: 复核 21:18 大提交后的真实工作树、当前 fast 门禁、确定性日志、远端 CI 可达性和未完成任务卡；只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-15_background_patrol_2249.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-15_background_patrol_2249.md`
+  - `tasks/ai/QUEUE.md`（仅刷新当前 HEAD、门禁证据、任务状态与优先级）
+  - `tasks/ai/STATUS.md`（仅刷新本轮巡检摘要、验证证据、阻断与下一步）
+- existing_wip:
+  - 开工 HEAD 为 `6c6174e`，与 `origin/codex/full-project-structure-migration` 一致，`git status --short --untracked-files=all` 为空
+  - 提交 `6c6174e` 一次纳入 724 个文件、20,471 行新增和 70 行删除，其中包含此前拖拽 P1、战斗权威/UI/测试 WIP、宠物草稿及大量导入/临时产物；本轮不重写、回退或拆分该提交
+  - `tasks/doing/2026-08-15_background_patrol_1801.md`、24 小时卡、商店人物卡和旧 visual 卡仍由原 owner 声明且状态滞后；本轮只在控制面记录后续事实，不覆盖旧卡
+- stop_conditions:
+  - 使用独立临时 HOME/`user://` 运行当前 HEAD 的 fast 套件并保存 summary
+  - 对 fast 唯一失败做一次更长但同脚本的隔离复验，区分逻辑失败、死锁与门禁时限退化
+  - 复核宠物/商店清单、最近自动巡检日志、Git 状态及远端 CI 可达性
+  - 未定位到明确、无冲突、无需产品决策且可独立验收的 P0/P1 根因时，不修改产品代码或测试超时
+- validation:
+  - `HOME=<isolated> python3 tools/qa/run_qa.py --suite fast --skip-import --run-id patrol-2219-20260815 --output output/validation/qa/patrol-2219-20260815`
+  - `HOME=<isolated> python3 tools/qa/run_qa.py --test tests/integration/smoke_playable_flow.gd --skip-import --timeout 600 --run-id patrol-2219-playable-repeat-20260815 --output output/validation/qa/patrol-2219-playable-repeat-20260815`
+  - `python3 tools/art/generate_pet_image_manifest.py --check`
+  - `python3 tools/art/generate_shop_character_manifest.py --check`
+  - `gh run list --repo jyf0330/xyxsj --limit 10`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-15_background_patrol_2249.md`
+  - `git status --short --untracked-files=all`
+- findings:
+  - 当前 fast 为 18/19；此前失败的 `smoke_battle_ui.gd` 已通过，唯一失败改为 `smoke_playable_flow.gd` 在 300.079 秒被门禁终止
+  - 同一 playable flow 使用 600 秒上限复验完成并输出成功，耗时 503.67 秒；这证明不是逻辑断言失败或死锁，但稳定超过 fast 的 300 秒合同
+  - 17:05 保存结果中 playable flow 为 173.927 秒、3 seed bot 为 104.41 秒；当前分别为 503.67 秒和 388.248 秒，存在显著时长退化，但当前证据尚不能在产品、机器负载、自动布置、表现演出或日志/历史链之间唯一归责
+  - `smoke_battle_ui.gd` 当前通过 51.012 秒，证明拖拽详情旧断言已被 HEAD 淘汰；该可见 P1 仍缺独立虚拟屏正式入口验收
+  - `pal_279`–`pal_283` 已被 `6c6174e` 跟踪，但仍未进入正式清单/映射；宠物清单保持 `PET_IMAGE_MANIFEST_STALE`，按暂停任务中间态处理
+  - 商店人物清单仍为 33/33 通过；最近十次已完成自动巡检均退出码 0、stderr 为 0 字节
+  - `gh run list` 仍因本机代理 `127.0.0.1:7897` 被沙箱拒绝；公开 Web 也未获得该仓库 Actions 结果，远端 CI 未验证
+- validation_result:
+  - `patrol-2219-20260815`：18/19 通过，唯一失败为 playable flow 超时；总耗时 938.855 秒
+  - `patrol-2219-playable-repeat-20260815`：1/1 通过，playable flow 耗时 503.67 秒
+  - `generate_shop_character_manifest.py --check`：通过，`targets=33 generated=33 approved=33 pending=0`
+  - `generate_pet_image_manifest.py --check`：返回 1/`PET_IMAGE_MANIFEST_STALE`，与已暂停但被大提交纳入的五张未接线草稿一致
+  - 精确暂存时无法创建 `.git/index.lock`，当前沙箱返回 `Operation not permitted`；没有文件进入暂存区
+- residual_risk:
+  - fast 当前仍是失败门禁；在受控负载下完成性能分段和归责前，不能把 503.67 秒简单当成产品性能缺陷，也不能直接放宽 300 秒掩盖退化
+  - 拖拽详情修复已被大提交带入 HEAD，但仍缺正式入口真实窗口证据；旧任务卡“未提交”结论已失真
+  - 远端 CI 当前不可验证；旧 owner 任务卡存在多处状态滞后
+- next_step: 优先在受控负载下隔离 playable flow 的权威计算、自动布置、表现等待和环境耗时；只有定位出单一责任层且写入范围明确后才建立修复任务。另在独立虚拟屏完成拖拽详情正式入口验收
+- commit: 未提交；当前沙箱不允许创建 `.git/index.lock`，三份控制面差异保持未暂存，不推送

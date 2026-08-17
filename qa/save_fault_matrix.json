@@ -1,0 +1,13 @@
+{
+  "schema": "ysbzs.qa.save-fault-matrix.v1",
+  "cases": [
+    {"id": "atomic_replace", "test": "tests/integration/smoke_save_system.gd", "expected": "no temporary file remains"},
+    {"id": "corrupt_primary", "test": "tests/integration/smoke_save_system.gd", "expected": "load previous backup"},
+    {"id": "tampered_checksum", "test": "tests/integration/smoke_singleplayer_persistence.gd", "expected": "reject document"},
+    {"id": "impossible_phase", "test": "tests/integration/smoke_save_system.gd", "expected": "reject checksum-valid invalid state"},
+    {"id": "legacy_schema", "test": "tests/integration/smoke_save_migrations.gd", "expected": "migrate through explicit path"},
+    {"id": "future_schema", "test": "tests/integration/smoke_save_migrations.gd", "expected": "reject unsupported version"},
+    {"id": "slot_isolation", "test": "tests/integration/smoke_save_system.gd", "expected": "slots do not overwrite each other"},
+    {"id": "out_of_range_slot", "test": "tests/integration/smoke_save_system.gd", "expected": "reject write"}
+  ]
+}

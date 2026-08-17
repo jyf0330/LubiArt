@@ -2,15 +2,11 @@ extends Control
 
 signal confirm_requested(command: Dictionary)
 
+const MODAL_PANEL_POSITION := Vector2(1294.0, 100.0)
 const MODAL_PANEL_SCALE := Vector2.ONE
-const CONTEXT_PANEL_SCALE := Vector2.ONE
-const PANEL_SIZE := Vector2(380.0, 820.0)
-const RIGHT_MARGIN := 0.0
-const TOP_MARGIN := 80.0
-const VIEWPORT_MARGIN := 16.0
 
-@export_group("Context Detail Layout")
-@export var context_follow_pointer := true
+@export var context_panel_position := Vector2(-140.0, 10.0)
+@export var context_panel_scale := Vector2(1.24, 1.24)
 
 @onready var dim: ColorRect = $Dim
 @onready var panel: Control = $Panel
@@ -22,16 +18,11 @@ var _detail_snapshot := {}
 var _confirm_command := {}
 var _is_context_detail := false
 var _mouse_filters_by_id := {}
-var _authored_context_panel_position := Vector2.ZERO
-var _authored_context_panel_scale := Vector2.ONE
 
 
 func _ready() -> void:
 	visible = false
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if panel != null:
-		_authored_context_panel_position = panel.position
-		_authored_context_panel_scale = panel.scale
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	if close_button != null:
 		close_button.pressed.connect(close)
 	if confirm_button != null:
@@ -42,9 +33,10 @@ func _ready() -> void:
 
 func show_detail(record: Dictionary, texture: Texture2D = null, confirm_command: Dictionary = {}) -> void:
 	_is_context_detail = false
+	mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_ENABLED
 	_restore_mouse_filters(self)
 	_apply_modal_layout()
-	dim.visible = false
+	dim.visible = true
 	_confirm_command = confirm_command.duplicate(true)
 	if info_card.has_method("set_info"):
 		_detail_snapshot = Dictionary(info_card.call("set_info", record, texture))
@@ -66,14 +58,7 @@ func show_context_detail(record: Dictionary, texture: Texture2D = null) -> void:
 	if confirm_button != null:
 		confirm_button.visible = false
 	_set_mouse_passthrough(self)
-	# The battle card is an occupied interaction layer. Keep the surrounding
-	# fullscreen detail host transparent, but stop clicks anywhere inside the
-	# visible card from falling through to the board's blank-area cancel path.
-	info_card.mouse_filter = Control.MOUSE_FILTER_STOP
-	# Preserve passthrough outside the card while restoring the card's authored
-	# hover targets so their tooltips remain available in battle context mode.
-	if info_card.has_method("set_hover_tooltip_input_enabled"):
-		info_card.call("set_hover_tooltip_input_enabled", true)
+	mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
 	move_to_front()
 
 
@@ -81,7 +66,8 @@ func close() -> void:
 	visible = false
 	_confirm_command = {}
 	_is_context_detail = false
-	dim.visible = false
+	mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_ENABLED
+	dim.visible = true
 	_restore_mouse_filters(self)
 	if close_button != null:
 		close_button.visible = true
@@ -98,28 +84,15 @@ func is_context_detail() -> bool:
 
 
 func _apply_modal_layout() -> void:
-	_apply_right_layout(MODAL_PANEL_SCALE)
+	if panel != null:
+		panel.position = MODAL_PANEL_POSITION
+		panel.scale = MODAL_PANEL_SCALE
 
 
 func _apply_context_layout() -> void:
-	if panel == null:
-		return
-	if not context_follow_pointer:
-		panel.position = _authored_context_panel_position
-		panel.scale = _authored_context_panel_scale
-		return
-	_apply_right_layout(CONTEXT_PANEL_SCALE)
-
-
-func _apply_right_layout(panel_scale: Vector2) -> void:
-	if panel == null or not is_inside_tree():
-		return
-	panel.scale = panel_scale
-	var viewport_size := get_viewport_rect().size
-	panel.position = Vector2(
-		maxf(VIEWPORT_MARGIN, viewport_size.x - PANEL_SIZE.x - RIGHT_MARGIN),
-		clampf(TOP_MARGIN, VIEWPORT_MARGIN, maxf(VIEWPORT_MARGIN, viewport_size.y - PANEL_SIZE.y - VIEWPORT_MARGIN))
-	)
+	if panel != null:
+		panel.position = context_panel_position
+		panel.scale = context_panel_scale
 
 
 func get_detail_snapshot() -> Dictionary:

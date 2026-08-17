@@ -1,0 +1,44 @@
+# 2026-08-15 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260815-patrol
+- delivery_base_commit: `1ff25f4`
+- objective: 复核当前测试、CI、确定性运行证据与任务租约，只同步持续工作控制面；不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-15_background_patrol.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-15_background_patrol.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md` 与 `tasks/ai/STATUS.md` 开工前已有 2026-08-12 巡检修改；本轮保留原有证据，只纠正已被后续验证淘汰的旧状态并补充最新结论
+  - 当前另有 22 个已跟踪修改、138 个未跟踪路径，涵盖战斗权威、自动摆位、UI、测试、visual 基线、宠物图片生成和临时产物；全部视为其他任务资产
+  - `tasks/doing/2026-08-13_24h_visible_watch.md` 仍声明旧 owner 且头部为 `recording`，本轮不覆盖该独占任务卡，只在控制面记录其已生成的 31/31 最终证据
+- stop_conditions:
+  - Nightly 14 项旧失败按提交 `6514da8` 的 14/14 通过证据关闭
+  - 24 小时观察的确定问题、可能问题和环境噪声按最终报告正确分级
+  - 不把需要视觉方向或与现有 WIP 重叠的 P1 自动晋级为可执行修复
+  - 不修改、暂存或提交任何产品、测试、正式数据、美术或其他任务文件
+- validation:
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md`
+  - `rg -n '[[:blank:]]+$' tasks/doing/2026-08-15_background_patrol.md`
+  - `git diff -- tasks/ai/QUEUE.md tasks/ai/STATUS.md`
+  - `git status --short --untracked-files=all`
+- findings:
+  - Nightly 遗留 14 项已在隔离当前树复验为 14/14 通过，不再是当前缺陷
+  - 24 小时观察最终 31/31 门槛通过；确认状态文字 24/24 小时样本覆盖单位美术，属于 P1 产品表现问题
+  - 状态文字修复存在多种视觉方案，且 `smoke_battle_ui.gd`、五张 visual 基线和 `ui_regression.gd` 均有既有 WIP，不满足本轮自动修复条件
+  - GitHub Actions 查询受本机网络沙箱阻断；未获得当前远端 CI 结论，不能把“无法查询”写成 CI 通过或失败
+  - 巡检期间现有图片任务自行提交第 28 批并将 HEAD 从 `1ff25f4` 前进至 `702b5aa`；本轮仅更新其只读进度证据，未触碰任务文件
+- validation_result:
+  - 24 小时 `completion-audit.json`：`complete=true`、`passedChecks=31`、`totalChecks=31`、`failedCheckIds=[]`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md`：通过
+  - 巡检任务卡尾随空白检查：通过
+  - diff 复核只包含控制面证据与优先级更新；未改产品、测试、正式数据或美术文件
+- residual_risk:
+  - 本轮没有可验证的远端 CI 结果
+  - 控制面文件包含开工前 2026-08-12 未提交修改，不能与本轮归属安全隔离
+- next_step: 等现有 owner 收口图片任务与 UI/visual WIP，再按已确认布局方向建立状态文字 P1 修复任务
+- commit: 控制面文件含开工前未提交修改且 24 小时任务卡归属未释放；本轮不提交

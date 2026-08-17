@@ -4,7 +4,7 @@ extends RefCounted
 ## It may manipulate presentation nodes, but never calculates combat rules or
 ## mutates the authoritative Snapshot.
 
-var _board: Control = null
+var _board: BattleBoard = null
 var _presenter: RefCounted = null
 var _last_snapshot: Dictionary = {}
 var _input_locked := false
@@ -17,12 +17,10 @@ var _drag_attack_highlight_keys: Array[String] = []
 var _drag_attack_marker_keys: Array[String] = []
 var _drag_damage_preview_unit_ids: Array[String] = []
 var _direction_hover_highlight_keys: Array[String] = []
-var _selected_action_range_keys: Array[String] = []
 var _enemy_damage_preview_sync_epoch_msec := -1
-var _preserve_settled_enemy_damage_previews := false
 
 
-func configure(board: Control, presenter: RefCounted) -> void:
+func configure(board: BattleBoard, presenter: RefCounted) -> void:
 	_board = board
 	_presenter = presenter
 
@@ -32,33 +30,10 @@ func set_input_locked(locked: bool) -> void:
 
 
 func render_snapshot(snapshot: Dictionary) -> void:
-	_last_snapshot = snapshot.duplicate(true)
+	_last_snapshot = snapshot
 	_clear_all_cell_highlights()
 	_apply_selected_action_block_ranges()
-	sync_enemy_damage_previews(_preserve_settled_enemy_damage_previews)
-
-
-func render_selection_snapshot(snapshot: Dictionary) -> void:
-	for key in [
-		"selected_unit_id",
-		"selectedUnitId",
-		"selected",
-		"selected_action_slot_index",
-		"selectedActionSlotIndex",
-		"selected_action_slots",
-		"selectedActionSlots",
-		"action_block_ranges_by_unit",
-		"actionBlockRangesByUnit",
-		"action_preview_by_unit",
-		"actionPreviewByUnit",
-		"placement_damage_by_unit",
-		"placementDamageByUnit",
-	]:
-		if snapshot.has(key):
-			_last_snapshot[key] = snapshot[key]
-	_clear_all_cell_highlights()
-	_apply_selected_action_block_ranges()
-	sync_enemy_damage_previews(_preserve_settled_enemy_damage_previews)
+	sync_enemy_damage_previews()
 
 
 func show_direction_preview(unit_id: String, direction: String) -> void:
@@ -73,7 +48,6 @@ func begin_drag(unit_id: String, origin: Vector2i, preview: Control) -> void:
 	_drag_origin = origin
 	_drag_preview = preview
 	_drag_preview_target = Vector2i(-1, -1)
-	_preserve_settled_enemy_damage_previews = false
 	_stop_enemy_damage_previews()
 
 
@@ -83,7 +57,6 @@ func update_drag(target: Vector2i, force: bool = false) -> void:
 
 func finish_drag(release_damage_previews: bool = false) -> void:
 	if release_damage_previews:
-		_preserve_settled_enemy_damage_previews = true
 		_release_drag_damage_previews()
 	_clear_drag_attack_preview(not release_damage_previews)
 	_drag_unit_id = ""
@@ -93,7 +66,6 @@ func finish_drag(release_damage_previews: bool = false) -> void:
 
 
 func clear_transient_state() -> void:
-	_preserve_settled_enemy_damage_previews = false
 	finish_drag(false)
 	_clear_direction_hover_preview()
 	_stop_enemy_damage_previews()
@@ -130,12 +102,8 @@ func sync_enemy_damage_previews(preserve_active_enemy_previews: bool = false) ->
 		if unit == null or not unit.has_method("start_damage_preview"):
 			continue
 		var cell_data := _cell_data_for_cell(cell)
-		# placement_damage_by_unit is an aggregate target preview keyed by unit ID.
-		# It may contain either friendly or enemy targets, so always prefer it
-		# before falling back to the selected actor's per-target preview.
-		var preview := _incoming_player_damage_preview(cell_data)
-		if not _damage_preview_is_complete(preview) and not _cell_data_is_friendly(cell_data):
-			preview = _enemy_damage_preview(cell_data)
+		var preview := _incoming_player_damage_preview(cell_data) \
+			if _cell_data_is_friendly(cell_data) else _enemy_damage_preview(cell_data)
 		if not _damage_preview_is_complete(preview):
 			if preserve_active_enemy_previews and not _cell_data_is_friendly(cell_data) \
 					and unit.has_method("get_damage_preview_snapshot") \
@@ -145,12 +113,11 @@ func sync_enemy_damage_previews(preserve_active_enemy_previews: bool = false) ->
 				continue
 			unit.call("stop_damage_preview")
 			continue
-		var resolved := _resolved_damage_preview_values(cell_data, preview)
-		var current_hp := int(resolved.get("current_hp", 0))
-		var projected_hp := int(resolved.get("projected_hp", current_hp))
-		var current_shield := int(resolved.get("current_shield", 0))
-		var projected_shield := int(resolved.get("projected_shield", current_shield))
-		var predicted_damage := int(resolved.get("predicted_damage", 0))
+		var current_hp := int(cell_data.get("hp", 0))
+		var projected_hp := _preview_int(preview, ["predictedHpTo", "predicted_hp_to", "hpTo", "hp_to"])
+		var current_shield := int(cell_data.get("shield", 0))
+		var projected_shield := _preview_int(preview, ["predictedShieldTo", "predicted_shield_to", "shieldTo", "shield_to"])
+		var predicted_damage := _preview_int(preview, ["predictedDamage", "predicted_damage", "totalDamage", "total_damage", "damage", "threat"])
 		active_preview_count += 1
 		unit.call(
 			"start_damage_preview",
@@ -167,7 +134,6 @@ func sync_enemy_damage_previews(preserve_active_enemy_previews: bool = false) ->
 
 
 func _apply_selected_action_block_ranges() -> void:
-	_clear_selected_action_range_highlights()
 	for cell_value in _presentation_cells():
 		var cell := cell_value as Control
 		if cell == null or not cell.has_method("get_unit_node"):
@@ -201,35 +167,12 @@ func _apply_selected_action_block_ranges() -> void:
 		selected_unit_node.call(
 			"show_action_block_attack_ranges",
 			Array(ranges_by_unit[selected_unit_id]),
-			_board.call("_presentation_cell_size") as Vector2,
+			_board.presentation_cell_size(),
 			selected_grid,
 			(_board.get_node("CellHost") as Control).size,
 			(_board.get_node("CellHost") as Control).global_position,
-			Dictionary(_board.call("_attack_range_geometry"))
+			_board.attack_range_geometry()
 		)
-		var range_summary := Dictionary(selected_unit_node.call("get_action_block_attack_range_snapshot"))
-		for range_cell_value in Array(range_summary.get("cells", [])):
-			var range_cell := Dictionary(range_cell_value)
-			var target_grid := selected_grid + Vector2i(
-				int(range_cell.get("x", 0)),
-				int(range_cell.get("y", 0))
-			)
-			if not _is_visible_board_cell(target_grid):
-				continue
-			_board.call("_set_cell_highlight", target_grid, "range")
-			var target_key := String(_board.call("_cell_key", target_grid))
-			if not _selected_action_range_keys.has(target_key):
-				_selected_action_range_keys.append(target_key)
-
-
-func _clear_selected_action_range_highlights() -> void:
-	for key in _selected_action_range_keys:
-		var grid := _grid_from_key(key)
-		if grid.x < 0:
-			continue
-		if not _drag_attack_highlight_keys.has(key) and not _direction_hover_highlight_keys.has(key):
-			_board.call("_clear_cell_highlight", grid)
-	_selected_action_range_keys.clear()
 
 
 func _refresh_drag_attack_preview(target: Vector2i, force: bool = false) -> void:
@@ -262,17 +205,16 @@ func _refresh_drag_incoming_damage_preview(target: Vector2i) -> void:
 		if _drag_preview.has_method("stop_damage_preview"):
 			_drag_preview.call("stop_damage_preview")
 		return
-	var resolved := _resolved_damage_preview_values(cell_data, preview)
-	var current_hp := int(resolved.get("current_hp", 0))
-	var current_shield := int(resolved.get("current_shield", 0))
+	var current_hp := int(cell_data.get("hp", 0))
+	var current_shield := int(cell_data.get("shield", 0))
 	_drag_preview.call(
 		"start_damage_preview",
 		current_hp,
-		int(resolved.get("projected_hp", current_hp)),
+		_preview_int(preview, ["predictedHpTo", "predicted_hp_to", "hpTo", "hp_to"]),
 		-1,
-		int(resolved.get("predicted_damage", 0)),
+		_preview_int(preview, ["predictedDamage", "predicted_damage", "totalDamage", "total_damage", "damage", "threat"]),
 		current_shield,
-		int(resolved.get("projected_shield", current_shield)),
+		_preview_int(preview, ["predictedShieldTo", "predicted_shield_to", "shieldTo", "shield_to"]),
 		int(cell_data.get("max_hp", cell_data.get("maxHp", current_hp))),
 		true
 	)
@@ -284,12 +226,12 @@ func _clear_drag_attack_preview(stop_damage_previews: bool = true) -> void:
 	for key in _drag_attack_highlight_keys:
 		var grid := _grid_from_key(key)
 		if grid.x >= 0:
-			_restore_selected_range_or_clear(grid)
+			_board.clear_cell_highlight(grid)
 	_drag_attack_highlight_keys.clear()
 	for key in _drag_attack_marker_keys:
 		var grid := _grid_from_key(key)
 		if grid.x >= 0:
-			_board.call("_clear_cell_attack_order_marker", grid)
+			_board.clear_cell_attack_order_marker(grid)
 	_drag_attack_marker_keys.clear()
 
 
@@ -302,7 +244,7 @@ func _clear_direction_hover_preview() -> void:
 		if cell != null and cell.has_method("set_attack_highlight_blinking"):
 			cell.call("set_attack_highlight_blinking", false)
 		if not _drag_attack_highlight_keys.has(key):
-			_restore_selected_range_or_clear(grid)
+			_board.clear_cell_highlight(grid)
 	_direction_hover_highlight_keys.clear()
 
 
@@ -320,11 +262,11 @@ func _show_direction_hover_preview(unit_id: String, direction: String) -> void:
 	for grid in projected:
 		if not _cell_allows_attack_highlight(grid):
 			continue
-		_board.call("_set_cell_highlight", grid, "attack")
+		_board.set_cell_highlight(grid, "attack")
 		var cell := _cell_at(grid)
 		if cell != null and cell.has_method("set_attack_highlight_blinking"):
 			cell.call("set_attack_highlight_blinking", true)
-		_direction_hover_highlight_keys.append(String(_board.call("_cell_key", grid)))
+		_direction_hover_highlight_keys.append(_board.cell_key(grid))
 
 
 func _show_drag_attack_cells(cells: Array[Vector2i]) -> void:
@@ -332,8 +274,8 @@ func _show_drag_attack_cells(cells: Array[Vector2i]) -> void:
 	for grid in cells:
 		if not _cell_allows_attack_highlight(grid):
 			continue
-		_board.call("_set_cell_highlight", grid, "attack")
-		_drag_attack_highlight_keys.append(String(_board.call("_cell_key", grid)))
+		_board.set_cell_highlight(grid, "attack")
+		_drag_attack_highlight_keys.append(_board.cell_key(grid))
 		if _cell_is_enemy_occupied(grid):
 			enemy_attack_cells.append(grid)
 	if enemy_attack_cells.is_empty():
@@ -341,8 +283,8 @@ func _show_drag_attack_cells(cells: Array[Vector2i]) -> void:
 	_show_drag_damage_previews(enemy_attack_cells)
 	var marker_grid := enemy_attack_cells[enemy_attack_cells.size() - 1]
 	var preview := _drag_action_preview()
-	_board.call("_set_cell_attack_order_marker", marker_grid, int(preview.get("slotIndex", _selected_slot_index())) + 1)
-	_drag_attack_marker_keys.append(String(_board.call("_cell_key", marker_grid)))
+	_board.set_cell_attack_order_marker(marker_grid, int(preview.get("slotIndex", _selected_slot_index())) + 1)
+	_drag_attack_marker_keys.append(_board.cell_key(marker_grid))
 
 
 func _show_drag_damage_previews(enemy_cells: Array[Vector2i]) -> void:
@@ -386,8 +328,8 @@ func _clear_drag_damage_previews() -> void:
 func _release_drag_damage_previews() -> void:
 	for unit_id in _drag_damage_preview_unit_ids:
 		var unit := _rendered_unit_node(unit_id)
-		if unit != null and unit.has_method("pin_damage_preview"):
-			unit.call("pin_damage_preview")
+		if unit != null and unit.has_method("release_damage_preview"):
+			unit.call("release_damage_preview", 1.0)
 	_drag_damage_preview_unit_ids.clear()
 
 
@@ -427,18 +369,10 @@ func _stop_enemy_damage_previews() -> void:
 
 func _clear_all_cell_highlights() -> void:
 	_direction_hover_highlight_keys.clear()
-	_selected_action_range_keys.clear()
 	for cell_value in _presentation_cells():
 		var cell := cell_value as Control
 		if cell != null and cell.has_method("clear_highlight"):
 			cell.call("clear_highlight")
-
-
-func _restore_selected_range_or_clear(grid: Vector2i) -> void:
-	if _selected_action_range_keys.has(String(_board.call("_cell_key", grid))):
-		_board.call("_set_cell_highlight", grid, "range")
-	else:
-		_board.call("_clear_cell_highlight", grid)
 
 
 func _incoming_player_damage_preview(cell_data: Dictionary) -> Dictionary:
@@ -531,73 +465,28 @@ func _preview_int(preview: Dictionary, keys: Array) -> int:
 	return 0
 
 
-func _resolved_damage_preview_values(cell_data: Dictionary, preview: Dictionary) -> Dictionary:
-	var current_hp := maxi(0, int(cell_data.get("hp", 0)))
-	var current_shield := maxi(0, int(cell_data.get("shield", 0)))
-	var projected_hp := clampi(
-		_preview_int(preview, ["predictedHpTo", "predicted_hp_to", "hpTo", "hp_to"]),
-		0,
-		current_hp
-	)
-	var projected_shield := clampi(
-		_preview_int(preview, ["predictedShieldTo", "predicted_shield_to", "shieldTo", "shield_to"]),
-		0,
-		current_shield
-	)
-	var predicted_damage := maxi(0, _preview_int(
-		preview,
-		["predictedDamage", "predicted_damage", "totalDamage", "total_damage", "damage", "threat"]
-	))
-	var visible_loss := current_hp + current_shield - projected_hp - projected_shield
-	# Some captured preview records contain a valid public damage result but stale
-	# hpTo/shieldTo values equal to the current stats. Recover only that missing
-	# presentation delta from the captured damage components; this does not
-	# calculate combat damage or change the Snapshot.
-	if predicted_damage > 0 and visible_loss <= 0:
-		var shield_damage := maxi(0, _preview_int(
-			preview,
-			["predictedShieldDamage", "predicted_shield_damage", "shieldDamage", "shield_damage"]
-		))
-		var hp_damage := maxi(0, _preview_int(
-			preview,
-			["predictedHpDamage", "predicted_hp_damage", "hpDamage", "hp_damage"]
-		))
-		if shield_damage + hp_damage <= 0:
-			shield_damage = mini(current_shield, predicted_damage)
-			hp_damage = maxi(0, predicted_damage - shield_damage)
-		projected_shield = maxi(0, current_shield - shield_damage)
-		projected_hp = maxi(0, current_hp - hp_damage)
-	return {
-		"current_hp": current_hp,
-		"projected_hp": projected_hp,
-		"current_shield": current_shield,
-		"projected_shield": projected_shield,
-		"predicted_damage": predicted_damage,
-	}
-
-
 func _presentation_cells() -> Array:
-	return Array(_board.call("_presentation_cells")) if _board != null else []
+	return _board.presentation_cells() if _board != null else []
 
 
 func _cell_at(grid: Vector2i) -> Control:
-	return _board.call("_cell_at", grid.x, grid.y) as Control if _board != null else null
+	return _board.cell_at(grid) if _board != null else null
 
 
 func _cell_data_at_grid(grid: Vector2i) -> Dictionary:
-	return Dictionary(_board.call("_cell_data_at_grid", grid)) if _board != null else {}
+	return _board.cell_data_at_grid(grid) if _board != null else {}
 
 
 func _cell_data_for_cell(cell: Node) -> Dictionary:
-	return Dictionary(_board.call("_cell_data_for_cell", cell)) if _board != null else {}
+	return _board.cell_data_for_node(cell) if _board != null else {}
 
 
 func _rendered_unit_node(unit_id: String) -> Control:
-	return _board.call("_rendered_unit_node", unit_id) as Control if _board != null else null
+	return _board.rendered_unit_node(unit_id) if _board != null else null
 
 
 func _is_visible_board_cell(grid: Vector2i) -> bool:
-	return bool(_board.call("_is_visible_board_cell", grid.x, grid.y)) if _board != null else false
+	return _board.is_visible_cell(grid) if _board != null else false
 
 
 func _grid_from_key(key: String) -> Vector2i:

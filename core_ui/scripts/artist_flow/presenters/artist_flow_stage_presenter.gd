@@ -1,10 +1,14 @@
 extends RefCounted
 
 const VIEW_THREE_OPTION := &"three_option"
+const VIEW_SHOP := &"shop"
 const VIEW_BAG := &"bag"
+const VIEW_BATTLE := &"battle"
 
 const ANIM_SHOW_THREE_OPTION := &"show_Three_Option"
 const ANIM_HIDE_THREE_OPTION := &"hide_Three_Option"
+const ANIM_SHOW_SHOP := &"show_Shop"
+const ANIM_HIDE_SHOP := &"hide_Shop"
 const ANIM_SHOW_BAG := &"show_Bag"
 const ANIM_HIDE_BAG := &"hide_bag"
 
@@ -44,7 +48,10 @@ func set_initial() -> void:
 	reset_alpha()
 	_set_visible(&"three_option", true)
 	_set_visible(&"bag_overlay", false)
+	_set_visible(&"shop", false)
 	_set_visible(&"bag", false)
+	_set_visible(&"shop_top", false)
+	_set_visible(&"battle", false)
 
 
 func show_initial(view: StringName) -> void:
@@ -97,16 +104,24 @@ func reset_alpha() -> void:
 
 func _play_hide(view: StringName) -> void:
 	match view:
+		VIEW_SHOP:
+			await _play_animation(ANIM_HIDE_SHOP)
 		VIEW_BAG:
 			await _play_animation(ANIM_HIDE_BAG)
+		VIEW_BATTLE:
+			return
 		_:
 			await _play_animation(ANIM_HIDE_THREE_OPTION)
 
 
 func _play_show(view: StringName) -> void:
 	match view:
+		VIEW_SHOP:
+			await _play_animation(ANIM_SHOW_SHOP)
 		VIEW_BAG:
 			await _play_animation(ANIM_SHOW_BAG)
+		VIEW_BATTLE:
+			return
 		_:
 			await _play_animation(ANIM_SHOW_THREE_OPTION)
 
@@ -159,8 +174,12 @@ func _nodes_for_view(view: StringName, excluded_keys: Dictionary = {}) -> Array:
 
 func _node_keys_for_view(view: StringName) -> Array[StringName]:
 	match view:
+		VIEW_SHOP:
+			return [&"shop", &"shop_top"]
 		VIEW_BAG:
 			return [&"three_option", &"bag_overlay", &"bag"]
+		VIEW_BATTLE:
+			return [&"battle"] if _node(&"battle") != null else []
 		_:
 			return [&"three_option"]
 
@@ -175,8 +194,12 @@ func _shared_node_keys(from_view: StringName, target_view: StringName) -> Dictio
 
 func _view_owns_node(view: StringName, key: StringName) -> bool:
 	match view:
+		VIEW_SHOP:
+			return key == &"shop" or key == &"shop_top"
 		VIEW_BAG:
 			return key == &"three_option" or key == &"bag_overlay" or key == &"bag"
+		VIEW_BATTLE:
+			return key == &"battle"
 		_:
 			return key == &"three_option"
 

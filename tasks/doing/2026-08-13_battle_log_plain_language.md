@@ -1,0 +1,44 @@
+# 普通玩家战斗描述优化
+
+- status: complete
+- owner: codex-root-20260813
+- objective: 将结构化战斗描述从开发者日志语言改成普通玩家可快速理解的中文，同时继续以 Command Result / Battle Trace 为唯一数据来源
+- delivery_base_commit: 7425757
+- write_scopes:
+  - `core_ui/scripts/battle/controllers/battle_log_readable_projection.gd`
+  - `core_ui/scripts/battle/prefabs/hud/battle_log_dashboard.gd`
+  - `tests/features/smoke_battle_log_readability.gd`
+  - `tests/features/smoke_battle_art_scene.gd`（仅更新战斗描述玩家文案断言）
+  - `tasks/doing/2026-08-13_battle_log_plain_language.md`
+- exclusive_files:
+  - `core_ui/scripts/battle/controllers/battle_log_readable_projection.gd`
+  - `core_ui/scripts/battle/prefabs/hud/battle_log_dashboard.gd`
+  - `tests/features/smoke_battle_log_readability.gd`
+  - `tests/features/smoke_battle_art_scene.gd`
+- existing_wip:
+  - 当前树中的自动摆位、权威状态、其他 UI、visual 基线和控制面修改均为其他任务资产，不读取、不覆盖、不暂存
+  - 本任务延续已提交的战斗描述模块，不修改战斗权威和策划数据
+- stop_conditions:
+  - 默认界面不再出现 `R2C5`、`HP`、技能队列序号等开发者术语
+  - 移动、元素、技能、伤害均使用普通中文并保留精确格子与数值
+  - 双方同名宠物继续明确显示我方/敌方
+  - 镜像四宠专项、既有看板回归和独立窗口目视验收通过
+- validation:
+  - `tests/features/smoke_battle_log_readability.gd`
+  - `tests/features/smoke_battle_art_scene.gd`
+  - `git diff --check`
+  - 独立虚拟屏真实窗口检查默认首屏可读性
+- commit: 完成后精确提交本任务文件；不推送
+- changes:
+  - 坐标从 `R2C5` 改成“第2行第5列”，自动布置说明改成“从…移动到…”和玩家能理解的选择原因
+  - 元素记录改成“铺设1层雷：具体格子（+1层）”，回合地形汇总改成完整中文
+  - 技能去掉内部队列序号，显示“我方/敌方宠物发动技能【名称】”
+  - 伤害只显示实际发生变化的生命/护盾，例如“10点伤害（护盾4→0，生命50→44）”，不再显示 `HP` 或重复解释
+  - 有结构化 Trace 时不再混入旧开发者日志；没有 Trace 的旧 Snapshot 仍可回退显示原始 `log_lines`
+- validation_result:
+  - `godot --headless --path . --script tests/features/smoke_battle_log_readability.gd`：通过，输出 `SMOKE_BATTLE_LOG_READABILITY_OK`
+  - `godot --headless --path . --script tests/features/smoke_battle_art_scene.gd`：通过，输出 `SMOKE_BATTLE_ART_SCENE_OK scenes=1 prefabs=4`
+  - `git diff --check`：通过
+  - 独立虚拟屏 `Codex Plain Battle Log QA 0813`（1920x1080、Mirror Off、非主屏）目视通过；截图 `output/validation/battle-log-plain-language-20260813/dashboard-final.png`
+- residual_risk:
+  - 默认仍保留完整事件历史供滚动查看；本轮没有增加筛选按钮，避免增加玩家操作复杂度

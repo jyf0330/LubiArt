@@ -5,9 +5,7 @@ extends RefCounted
 ## not registered as a dynamically mounted child.
 
 const BATTLE_SCENE := preload("res://art/scenes/battle/battle_art_scene.tscn")
-const SHOP_SCENE := preload("res://art/scenes/shop/shop_scene.tscn")
 const THREE_CHOICE_FEATURE := &"three_choice"
-const SHOP_FEATURE := &"shop"
 const BATTLE_FEATURE := &"battle"
 
 var _scenes: Dictionary = {}
@@ -15,7 +13,6 @@ var _scenes: Dictionary = {}
 
 func _init(register_defaults: bool = true) -> void:
 	if register_defaults:
-		register_feature(SHOP_FEATURE, SHOP_SCENE)
 		register_feature(BATTLE_FEATURE, BATTLE_SCENE)
 
 

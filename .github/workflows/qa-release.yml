@@ -1,0 +1,123 @@
+name: QA Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  complete-headless:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install official Godot 4.7
+        shell: bash
+        run: |
+          godot_bin="$(bash tools/qa/install_godot_ci.sh "${RUNNER_TEMP}/godot")"
+          echo "GODOT_BIN=${godot_bin}" >> "${GITHUB_ENV}"
+
+      - name: Import project
+        run: '"${GODOT_BIN}" --headless --editor --path . --import --quit'
+
+      - name: Run complete headless QA
+        run: >-
+          python3 tools/qa/run_qa.py
+          --suite nightly
+          --skip-import
+          --run-id ci-release-headless-${{ github.run_id }}-${{ github.run_attempt }}
+          --output output/validation/qa/ci-release-headless
+
+      - name: Upload headless evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-release-headless-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            output/validation/qa/ci-release-headless
+          if-no-files-found: warn
+          retention-days: 30
+
+  visual:
+    needs: complete-headless
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install official Godot 4.7
+        shell: bash
+        run: |
+          godot_bin="$(bash tools/qa/install_godot_ci.sh "${RUNNER_TEMP}/godot")"
+          echo "GODOT_BIN=${godot_bin}" >> "${GITHUB_ENV}"
+
+      - name: Import project
+        run: '"${GODOT_BIN}" --headless --editor --path . --import --quit'
+
+      - name: Run visual QA
+        run: >-
+          python3 tools/qa/run_qa.py
+          --suite visual
+          --skip-import
+          --run-id ci-release-visual-${{ github.run_id }}-${{ github.run_attempt }}
+          --output output/validation/qa/ci-release-visual
+
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-release-visual-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/validation/qa/ci-release-visual
+          if-no-files-found: warn
+          retention-days: 30
+
+  web-release:
+    needs: complete-headless
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install official Godot 4.7
+        shell: bash
+        run: |
+          godot_bin="$(bash tools/qa/install_godot_ci.sh "${RUNNER_TEMP}/godot")"
+          echo "GODOT_BIN=${godot_bin}" >> "${GITHUB_ENV}"
+
+      - name: Install export templates
+        shell: bash
+        run: bash tools/release/install_export_templates.sh "${RUNNER_TEMP}/godot-templates"
+
+      - name: Import project
+        run: '"${GODOT_BIN}" --headless --editor --path . --import --quit'
+
+      - name: Export Web release
+        run: bash tools/release/build_web_release.sh
+
+      - name: Install Chromium smoke dependency
+        run: |
+          python3 -m pip install --disable-pip-version-check playwright==1.55.0
+          python3 -m playwright install --with-deps chromium
+
+      - name: Boot exported release in Chromium
+        run: python3 tools/release/smoke_web_release.py
+
+      - name: Upload Web release and smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/web
+            output/validation/web-release-smoke.json
+          if-no-files-found: error
+          retention-days: 30

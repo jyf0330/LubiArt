@@ -1,0 +1,56 @@
+# 全工作树提交推送与最新快照压缩
+
+- status: completed
+- owner: codex-root-20260817-full-closeout
+- user_authorization: 2026-08-17 用户明确要求“全部提交推送 并拉取最新的在一个新文件夹弄压缩”
+- delivery_base_commit: `b678c798`
+- objective: 保留并提交当前工作树全部既有改动，推送当前集成分支；同步远端最新状态后，在仓库外创建干净的新文件夹与 ZIP 快照
+- write_scopes:
+  - 当前工作树中用户明确授权的全部 tracked / untracked 改动
+  - `tasks/doing/2026-08-17_full_commit_push_latest_snapshot.md`
+  - `/Users/ywh/Documents/godot-latest-latest-20260817/**`
+  - `/Users/ywh/Documents/godot-latest-latest-20260817.zip`
+- exclusive_files:
+  - `tasks/doing/2026-08-17_full_commit_push_latest_snapshot.md`
+- existing_wip:
+  - 两份累计控制面：`tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md`
+  - 十四张累计后台巡检任务卡
+  - 四张商店 PNG 的 `.import` 元数据与四个脚本 `.gd.uid`
+  - 用户本轮明确授权“全部提交推送”，上述 20 个既有条目均纳入全工作树收口；不删除、不回退任何内容
+- remote_baseline:
+  - `git fetch --all --prune` 后，当前分支 `codex/full-project-structure-migration` 相对跟踪分支为 `ahead 100 / behind 0`
+  - `origin/main` 已是当前 HEAD 的祖先；无远端候选需要合并
+- validation:
+  - Godot headless import
+  - `python3 run_qa.py --suite fast`（从 `tools/qa` 运行）
+  - `.gd.uid` 对应源文件、单行格式与 UID 唯一性检查
+  - `git diff --check`、冲突标记扫描、暂存清单复核
+  - 推送后核对本地 HEAD、upstream、`git ls-remote`、ahead/behind 和干净工作树
+  - 新文件夹从已推送提交创建；ZIP 解压清单、提交标记和 SHA-256 校验
+- stop_conditions:
+  - 若 fetch 后出现远端分叉，先预演并按项目契约合并，不重写历史
+  - 若 QA 失败，记录真实结果，不把失败误报为通过；仅 Git/文档/导入元数据收口不擅自修改产品代码
+  - 不删除现有仓库、工作树、分支、输出或用户资产
+- commit: 待验证完成后与本轮授权的全工作树改动一起提交并推送
+
+- changes:
+  - 完成 fetch 与分支祖先关系审计；跟踪分支无新增提交、无分叉、无待合并远端候选
+  - 核对并保留全部累计控制面、巡检卡和 Godot 导入元数据，没有删除或回退任何既有资产
+  - 在仓库外隔离副本完成 Godot 4.7.1 全量导入与 fast QA
+- validation_result:
+  - 首次隔离导入后 fast 为 18/19；唯一失败来自新 `.godot` 缓存尚未完整生成，严格门禁捕获资源预加载错误，非业务断言失败
+  - 同一隔离副本补导入后，`smoke_game_session_boundary.gd` 定点复验 1/1 通过
+  - 最终 fast `full-closeout-final-20260817` 为 19/19、0 失败；完整可玩流程 173.19 秒，seed bot 105.10 秒
+  - 并发美术任务完成正式战斗表现收敛并精确提交 `c35212a1`；4 个专项 smoke 和独立真实窗口 10 步对照通过，随后停止写入且未推送
+  - 基于 `c35212a1` 加剩余全仓 WIP 的最终隔离副本再次完成导入；fast `full-closeout-final-head-20260817` 为 19/19、0 失败，完整可玩流程 170.69 秒，seed bot 104.23 秒
+  - `.gd.uid` 均有对应源文件、均为单行且本轮四个 UID 互不重复
+  - `git diff --check` 通过
+- post_commit_delivery:
+  - 推送后再次 fetch 并核对本地、upstream 与远端 OID
+  - 从最终远端提交创建 `/Users/ywh/Documents/godot-latest-latest-20260817/` 和 `/Users/ywh/Documents/godot-latest-latest-20260817.zip`
+- commits:
+  - `c35212a1 art: converge battle visuals with handoff`
+  - `cf94123a chore: close out accumulated workspace state`
+- residual_risk:
+  - 战斗拖拽详情的旧 P1 仍缺“详情保持打开时直接开始拖拽”的独立虚拟屏精确步骤；不影响本次已提交内容的专项、10 步实窗与 fast 19/19 结果
+  - 宠物图片任务继续保持用户要求的 paused 状态

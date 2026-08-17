@@ -1,0 +1,2257 @@
+{
+  "generatedAt": "2026-07-09T09:00:25.076Z",
+  "contractStatus": "PASS",
+  "summary": {
+    "checks": 128,
+    "passed": 128,
+    "failed": 0,
+    "knownDeltas": 4
+  },
+  "checks": [
+    {
+      "id": "staleStart.exists",
+      "passed": true,
+      "message": "staleStart exists in both dumps",
+      "details": {}
+    },
+    {
+      "id": "staleStart.field.ok",
+      "passed": true,
+      "message": "staleStart exposes ok",
+      "details": {}
+    },
+    {
+      "id": "staleStart.field.accepted",
+      "passed": true,
+      "message": "staleStart exposes accepted",
+      "details": {}
+    },
+    {
+      "id": "staleStart.field.command",
+      "passed": true,
+      "message": "staleStart exposes command",
+      "details": {}
+    },
+    {
+      "id": "staleStart.field.commandEnvelopeType",
+      "passed": true,
+      "message": "staleStart exposes commandEnvelopeType",
+      "details": {}
+    },
+    {
+      "id": "staleStart.field.stateVersion",
+      "passed": true,
+      "message": "staleStart exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "staleStart.field.stateHash",
+      "passed": true,
+      "message": "staleStart exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "staleStart.field.viewModelKeys",
+      "passed": true,
+      "message": "staleStart exposes viewModelKeys",
+      "details": {}
+    },
+    {
+      "id": "staleStart.command",
+      "passed": true,
+      "message": "staleStart normalized command matches",
+      "details": {
+        "ysbzs": "START_BATTLE",
+        "godot": "START_BATTLE"
+      }
+    },
+    {
+      "id": "staleStart.envelope",
+      "passed": true,
+      "message": "staleStart commandEnvelope.type matches",
+      "details": {
+        "ysbzs": "START_BATTLE",
+        "godot": "START_BATTLE"
+      }
+    },
+    {
+      "id": "staleStart.hash16",
+      "passed": true,
+      "message": "staleStart stateHash is a 16-char hash",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.phase",
+      "passed": true,
+      "message": "staleStart viewModel exposes phase",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.stateVersion",
+      "passed": true,
+      "message": "staleStart viewModel exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.stateHash",
+      "passed": true,
+      "message": "staleStart viewModel exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.gold",
+      "passed": true,
+      "message": "staleStart viewModel exposes gold",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.round",
+      "passed": true,
+      "message": "staleStart viewModel exposes round",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.period",
+      "passed": true,
+      "message": "staleStart viewModel exposes period",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.heroes",
+      "passed": true,
+      "message": "staleStart viewModel exposes heroes",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.enemies",
+      "passed": true,
+      "message": "staleStart viewModel exposes enemies",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.board",
+      "passed": true,
+      "message": "staleStart viewModel exposes board",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.selected",
+      "passed": true,
+      "message": "staleStart viewModel exposes selected",
+      "details": {}
+    },
+    {
+      "id": "staleStart.viewModel.nextActions",
+      "passed": true,
+      "message": "staleStart viewModel exposes nextActions",
+      "details": {}
+    },
+    {
+      "id": "staleStart.boardCell.r",
+      "passed": true,
+      "message": "staleStart board cell exposes r",
+      "details": {}
+    },
+    {
+      "id": "staleStart.boardCell.c",
+      "passed": true,
+      "message": "staleStart board cell exposes c",
+      "details": {}
+    },
+    {
+      "id": "staleStart.boardCell.key",
+      "passed": true,
+      "message": "staleStart board cell exposes key",
+      "details": {}
+    },
+    {
+      "id": "staleStart.boardCell.unitId",
+      "passed": true,
+      "message": "staleStart board cell exposes unitId",
+      "details": {}
+    },
+    {
+      "id": "staleStart.boardCell.unitSide",
+      "passed": true,
+      "message": "staleStart board cell exposes unitSide",
+      "details": {}
+    },
+    {
+      "id": "staleStart.board64",
+      "passed": true,
+      "message": "staleStart board has 64 cells",
+      "details": {
+        "ysbzs": 64,
+        "godot": 64
+      }
+    },
+    {
+      "id": "startBattle.exists",
+      "passed": true,
+      "message": "startBattle exists in both dumps",
+      "details": {}
+    },
+    {
+      "id": "startBattle.field.ok",
+      "passed": true,
+      "message": "startBattle exposes ok",
+      "details": {}
+    },
+    {
+      "id": "startBattle.field.accepted",
+      "passed": true,
+      "message": "startBattle exposes accepted",
+      "details": {}
+    },
+    {
+      "id": "startBattle.field.command",
+      "passed": true,
+      "message": "startBattle exposes command",
+      "details": {}
+    },
+    {
+      "id": "startBattle.field.commandEnvelopeType",
+      "passed": true,
+      "message": "startBattle exposes commandEnvelopeType",
+      "details": {}
+    },
+    {
+      "id": "startBattle.field.stateVersion",
+      "passed": true,
+      "message": "startBattle exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "startBattle.field.stateHash",
+      "passed": true,
+      "message": "startBattle exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "startBattle.field.viewModelKeys",
+      "passed": true,
+      "message": "startBattle exposes viewModelKeys",
+      "details": {}
+    },
+    {
+      "id": "startBattle.command",
+      "passed": true,
+      "message": "startBattle normalized command matches",
+      "details": {
+        "ysbzs": "START_BATTLE",
+        "godot": "START_BATTLE"
+      }
+    },
+    {
+      "id": "startBattle.envelope",
+      "passed": true,
+      "message": "startBattle commandEnvelope.type matches",
+      "details": {
+        "ysbzs": "START_BATTLE",
+        "godot": "START_BATTLE"
+      }
+    },
+    {
+      "id": "startBattle.hash16",
+      "passed": true,
+      "message": "startBattle stateHash is a 16-char hash",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.phase",
+      "passed": true,
+      "message": "startBattle viewModel exposes phase",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.stateVersion",
+      "passed": true,
+      "message": "startBattle viewModel exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.stateHash",
+      "passed": true,
+      "message": "startBattle viewModel exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.gold",
+      "passed": true,
+      "message": "startBattle viewModel exposes gold",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.round",
+      "passed": true,
+      "message": "startBattle viewModel exposes round",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.period",
+      "passed": true,
+      "message": "startBattle viewModel exposes period",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.heroes",
+      "passed": true,
+      "message": "startBattle viewModel exposes heroes",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.enemies",
+      "passed": true,
+      "message": "startBattle viewModel exposes enemies",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.board",
+      "passed": true,
+      "message": "startBattle viewModel exposes board",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.selected",
+      "passed": true,
+      "message": "startBattle viewModel exposes selected",
+      "details": {}
+    },
+    {
+      "id": "startBattle.viewModel.nextActions",
+      "passed": true,
+      "message": "startBattle viewModel exposes nextActions",
+      "details": {}
+    },
+    {
+      "id": "startBattle.boardCell.r",
+      "passed": true,
+      "message": "startBattle board cell exposes r",
+      "details": {}
+    },
+    {
+      "id": "startBattle.boardCell.c",
+      "passed": true,
+      "message": "startBattle board cell exposes c",
+      "details": {}
+    },
+    {
+      "id": "startBattle.boardCell.key",
+      "passed": true,
+      "message": "startBattle board cell exposes key",
+      "details": {}
+    },
+    {
+      "id": "startBattle.boardCell.unitId",
+      "passed": true,
+      "message": "startBattle board cell exposes unitId",
+      "details": {}
+    },
+    {
+      "id": "startBattle.boardCell.unitSide",
+      "passed": true,
+      "message": "startBattle board cell exposes unitSide",
+      "details": {}
+    },
+    {
+      "id": "startBattle.board64",
+      "passed": true,
+      "message": "startBattle board has 64 cells",
+      "details": {
+        "ysbzs": 64,
+        "godot": 64
+      }
+    },
+    {
+      "id": "selectUnit.exists",
+      "passed": true,
+      "message": "selectUnit exists in both dumps",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.field.ok",
+      "passed": true,
+      "message": "selectUnit exposes ok",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.field.accepted",
+      "passed": true,
+      "message": "selectUnit exposes accepted",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.field.command",
+      "passed": true,
+      "message": "selectUnit exposes command",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.field.commandEnvelopeType",
+      "passed": true,
+      "message": "selectUnit exposes commandEnvelopeType",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.field.stateVersion",
+      "passed": true,
+      "message": "selectUnit exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.field.stateHash",
+      "passed": true,
+      "message": "selectUnit exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.field.viewModelKeys",
+      "passed": true,
+      "message": "selectUnit exposes viewModelKeys",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.command",
+      "passed": true,
+      "message": "selectUnit normalized command matches",
+      "details": {
+        "ysbzs": "SELECT_UNIT",
+        "godot": "SELECT_UNIT"
+      }
+    },
+    {
+      "id": "selectUnit.envelope",
+      "passed": true,
+      "message": "selectUnit commandEnvelope.type matches",
+      "details": {
+        "ysbzs": "SELECT_UNIT",
+        "godot": "SELECT_UNIT"
+      }
+    },
+    {
+      "id": "selectUnit.hash16",
+      "passed": true,
+      "message": "selectUnit stateHash is a 16-char hash",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.phase",
+      "passed": true,
+      "message": "selectUnit viewModel exposes phase",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.stateVersion",
+      "passed": true,
+      "message": "selectUnit viewModel exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.stateHash",
+      "passed": true,
+      "message": "selectUnit viewModel exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.gold",
+      "passed": true,
+      "message": "selectUnit viewModel exposes gold",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.round",
+      "passed": true,
+      "message": "selectUnit viewModel exposes round",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.period",
+      "passed": true,
+      "message": "selectUnit viewModel exposes period",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.heroes",
+      "passed": true,
+      "message": "selectUnit viewModel exposes heroes",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.enemies",
+      "passed": true,
+      "message": "selectUnit viewModel exposes enemies",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.board",
+      "passed": true,
+      "message": "selectUnit viewModel exposes board",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.selected",
+      "passed": true,
+      "message": "selectUnit viewModel exposes selected",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.viewModel.nextActions",
+      "passed": true,
+      "message": "selectUnit viewModel exposes nextActions",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.boardCell.r",
+      "passed": true,
+      "message": "selectUnit board cell exposes r",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.boardCell.c",
+      "passed": true,
+      "message": "selectUnit board cell exposes c",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.boardCell.key",
+      "passed": true,
+      "message": "selectUnit board cell exposes key",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.boardCell.unitId",
+      "passed": true,
+      "message": "selectUnit board cell exposes unitId",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.boardCell.unitSide",
+      "passed": true,
+      "message": "selectUnit board cell exposes unitSide",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.board64",
+      "passed": true,
+      "message": "selectUnit board has 64 cells",
+      "details": {
+        "ysbzs": 64,
+        "godot": 64
+      }
+    },
+    {
+      "id": "exportReplay.exists",
+      "passed": true,
+      "message": "exportReplay exists in both dumps",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.field.ok",
+      "passed": true,
+      "message": "exportReplay exposes ok",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.field.accepted",
+      "passed": true,
+      "message": "exportReplay exposes accepted",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.field.command",
+      "passed": true,
+      "message": "exportReplay exposes command",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.field.commandEnvelopeType",
+      "passed": true,
+      "message": "exportReplay exposes commandEnvelopeType",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.field.stateVersion",
+      "passed": true,
+      "message": "exportReplay exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.field.stateHash",
+      "passed": true,
+      "message": "exportReplay exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.field.viewModelKeys",
+      "passed": true,
+      "message": "exportReplay exposes viewModelKeys",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.command",
+      "passed": true,
+      "message": "exportReplay normalized command matches",
+      "details": {
+        "ysbzs": "EXPORT_REPLAY",
+        "godot": "EXPORT_REPLAY"
+      }
+    },
+    {
+      "id": "exportReplay.envelope",
+      "passed": true,
+      "message": "exportReplay commandEnvelope.type matches",
+      "details": {
+        "ysbzs": "EXPORT_REPLAY",
+        "godot": "EXPORT_REPLAY"
+      }
+    },
+    {
+      "id": "exportReplay.hash16",
+      "passed": true,
+      "message": "exportReplay stateHash is a 16-char hash",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.phase",
+      "passed": true,
+      "message": "exportReplay viewModel exposes phase",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.stateVersion",
+      "passed": true,
+      "message": "exportReplay viewModel exposes stateVersion",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.stateHash",
+      "passed": true,
+      "message": "exportReplay viewModel exposes stateHash",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.gold",
+      "passed": true,
+      "message": "exportReplay viewModel exposes gold",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.round",
+      "passed": true,
+      "message": "exportReplay viewModel exposes round",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.period",
+      "passed": true,
+      "message": "exportReplay viewModel exposes period",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.heroes",
+      "passed": true,
+      "message": "exportReplay viewModel exposes heroes",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.enemies",
+      "passed": true,
+      "message": "exportReplay viewModel exposes enemies",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.board",
+      "passed": true,
+      "message": "exportReplay viewModel exposes board",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.selected",
+      "passed": true,
+      "message": "exportReplay viewModel exposes selected",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.viewModel.nextActions",
+      "passed": true,
+      "message": "exportReplay viewModel exposes nextActions",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.boardCell.r",
+      "passed": true,
+      "message": "exportReplay board cell exposes r",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.boardCell.c",
+      "passed": true,
+      "message": "exportReplay board cell exposes c",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.boardCell.key",
+      "passed": true,
+      "message": "exportReplay board cell exposes key",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.boardCell.unitId",
+      "passed": true,
+      "message": "exportReplay board cell exposes unitId",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.boardCell.unitSide",
+      "passed": true,
+      "message": "exportReplay board cell exposes unitSide",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.board64",
+      "passed": true,
+      "message": "exportReplay board has 64 cells",
+      "details": {
+        "ysbzs": 64,
+        "godot": 64
+      }
+    },
+    {
+      "id": "staleStart.rejected",
+      "passed": true,
+      "message": "stale START_BATTLE rejects on both engines",
+      "details": {}
+    },
+    {
+      "id": "staleStart.errorCode",
+      "passed": true,
+      "message": "stale START_BATTLE uses STATE_VERSION_MISMATCH",
+      "details": {}
+    },
+    {
+      "id": "startBattle.accepted",
+      "passed": true,
+      "message": "START_BATTLE accepted on both engines",
+      "details": {}
+    },
+    {
+      "id": "startBattle.versionAdvance",
+      "passed": true,
+      "message": "START_BATTLE advances to stateVersion 1",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.ephemeral",
+      "passed": true,
+      "message": "SELECT_UNIT is ephemeral on both engines",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.versionStable",
+      "passed": true,
+      "message": "SELECT_UNIT does not advance stateVersion",
+      "details": {}
+    },
+    {
+      "id": "selectUnit.selected",
+      "passed": true,
+      "message": "SELECT_UNIT returns selected.unitId on both engines",
+      "details": {
+        "ysbzs": "hero_pal_001_1",
+        "godot": "pal_002"
+      }
+    },
+    {
+      "id": "exportReplay.readOnly",
+      "passed": true,
+      "message": "EXPORT_REPLAY is readOnly on both engines",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.schema",
+      "passed": true,
+      "message": "EXPORT_REPLAY result schema matches ysbzs.replay",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.versionStable",
+      "passed": true,
+      "message": "EXPORT_REPLAY does not advance stateVersion",
+      "details": {}
+    },
+    {
+      "id": "exportReplay.hashStable",
+      "passed": true,
+      "message": "EXPORT_REPLAY does not change stateHash",
+      "details": {}
+    },
+    {
+      "id": "save.schema",
+      "passed": true,
+      "message": "save schema matches ysbzs.save",
+      "details": {}
+    },
+    {
+      "id": "save.checksum",
+      "passed": true,
+      "message": "save documents include checksum",
+      "details": {}
+    },
+    {
+      "id": "save.goldAlias",
+      "passed": true,
+      "message": "save gold aliases coins on both engines",
+      "details": {}
+    },
+    {
+      "id": "save.roundAlias",
+      "passed": true,
+      "message": "save round aliases battle_round on both engines",
+      "details": {}
+    },
+    {
+      "id": "save.periodAlias",
+      "passed": true,
+      "message": "save period aliases battle_period on both engines",
+      "details": {}
+    }
+  ],
+  "failures": [],
+  "knownDeltas": [
+    {
+      "field": "initial.phase",
+      "ysbzs": "init",
+      "godot": "route",
+      "note": "ysbzs adapter starts at init; Godot singleplayer starts at route."
+    },
+    {
+      "field": "initial.gold",
+      "ysbzs": 8,
+      "godot": 16,
+      "note": "ysbzs test adapter uses gold=8; Godot data snapshot currently starts at coins=16."
+    },
+    {
+      "field": "startBattle.viewModel.phase",
+      "ysbzs": "player_turn",
+      "godot": "battle",
+      "note": "ysbzs battle phase is player_turn; Godot singleplayer battle screen phase is battle."
+    },
+    {
+      "field": "startBattle.nextActionTypes",
+      "ysbzs": [
+        "AUTO_POSITION_HEROES",
+        "MOVE_HERO",
+        "SET_ACTION_DIRECTION",
+        "USE_SLOT",
+        "END_PLAYER_TURN",
+        "BUILD_PREVIEW",
+        "ENTER_SHOP",
+        "RUN_BATTLE",
+        "RUN_FULL_DAY",
+        "RUN_FULL_RUN",
+        "SETUP_DAY7_FIRE_TRIAL"
+      ],
+      "godot": [
+        "AUTO_POSITION_HEROES",
+        "MOVE_HERO",
+        "SET_ACTION_DIRECTION",
+        "SET_ACTION_AP",
+        "USE_SLOT",
+        "USE_ACTION_SLOT",
+        "RUN_PLAYER_ALL_OUT",
+        "END_PLAYER_TURN"
+      ],
+      "note": "Godot exposes additional singleplayer action controls; ysbzs exposes browser battle command set."
+    }
+  ],
+  "dumps": {
+    "ysbzs": {
+      "engine": "ysbzs",
+      "initial": {
+        "phase": "init",
+        "stateVersion": 0,
+        "stateHash": "6b3ca901c54f466a",
+        "gold": 8,
+        "round": 0,
+        "period": "上午",
+        "heroCount": 1,
+        "enemyCount": 0,
+        "board": {
+          "size": 0,
+          "cellCount": 64,
+          "firstCellKeys": [
+            "c",
+            "elements",
+            "key",
+            "moveRisk",
+            "preview",
+            "previews",
+            "r",
+            "teamRisk",
+            "terrain",
+            "threat",
+            "unitId",
+            "unitName",
+            "unitSide"
+          ],
+          "firstCell": {
+            "r": 0,
+            "c": 0,
+            "key": "0,0",
+            "unitId": null,
+            "unitSide": null,
+            "x": null,
+            "y": null
+          }
+        },
+        "nextActionTypes": [
+          "GENERATE_NODE_OPTIONS",
+          "START_BATTLE",
+          "ENTER_SHOP",
+          "RUN_BATTLE",
+          "RUN_FULL_DAY",
+          "RUN_FULL_RUN",
+          "SETUP_DAY7_FIRE_TRIAL"
+        ],
+        "viewModelKeys": [
+          "battleId",
+          "battlePrepEffects",
+          "battleTrace",
+          "board",
+          "buildCore",
+          "castleLine",
+          "commandLog",
+          "dailyFlow",
+          "day",
+          "day7Trial",
+          "dayRoute",
+          "dayRouteRuns",
+          "economyMultiplier",
+          "enemies",
+          "events",
+          "gold",
+          "heroes",
+          "inventory",
+          "leaders",
+          "localPrediction",
+          "logs",
+          "maxRounds",
+          "meta",
+          "mode",
+          "monsterIntents",
+          "moveRiskGrid",
+          "nextActions",
+          "outerRunEffects",
+          "period",
+          "phase",
+          "playerId",
+          "playerViewState",
+          "players",
+          "previewGrid",
+          "relics",
+          "result",
+          "rewards",
+          "round",
+          "selected",
+          "shop",
+          "stateHash",
+          "stateVersion",
+          "teamPlacementPreview",
+          "teamRiskGrid",
+          "teams",
+          "terminalSummary",
+          "threatGrid",
+          "turn"
+        ]
+      },
+      "responses": {
+        "staleStart": {
+          "ok": false,
+          "accepted": false,
+          "readOnly": false,
+          "ephemeral": false,
+          "command": "START_BATTLE",
+          "commandEnvelopeType": "START_BATTLE",
+          "stateVersion": 0,
+          "stateHash": "6b3ca901c54f466a",
+          "errorCode": "STATE_VERSION_MISMATCH",
+          "resultSchema": "",
+          "eventCount": 0,
+          "traceEventCount": 1,
+          "viewModelKeys": [
+            "battleId",
+            "battlePrepEffects",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "commandLog",
+            "dailyFlow",
+            "day",
+            "day7Trial",
+            "dayRoute",
+            "dayRouteRuns",
+            "economyMultiplier",
+            "enemies",
+            "events",
+            "gold",
+            "heroes",
+            "inventory",
+            "leaders",
+            "localPrediction",
+            "logs",
+            "maxRounds",
+            "meta",
+            "mode",
+            "monsterIntents",
+            "moveRiskGrid",
+            "nextActions",
+            "outerRunEffects",
+            "period",
+            "phase",
+            "playerId",
+            "playerViewState",
+            "players",
+            "previewGrid",
+            "relics",
+            "result",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "teamRiskGrid",
+            "teams",
+            "terminalSummary",
+            "threatGrid",
+            "turn"
+          ],
+          "viewModel": {
+            "phase": "init",
+            "gold": 8,
+            "round": 0,
+            "period": "上午",
+            "heroCount": 1,
+            "enemyCount": 0,
+            "selectedUnitId": "",
+            "board": {
+              "size": 0,
+              "cellCount": 64,
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "key",
+                "moveRisk",
+                "preview",
+                "previews",
+                "r",
+                "teamRisk",
+                "terrain",
+                "threat",
+                "unitId",
+                "unitName",
+                "unitSide"
+              ],
+              "firstCell": {
+                "r": 0,
+                "c": 0,
+                "key": "0,0",
+                "unitId": null,
+                "unitSide": null,
+                "x": null,
+                "y": null
+              }
+            },
+            "nextActionTypes": [
+              "GENERATE_NODE_OPTIONS",
+              "START_BATTLE",
+              "ENTER_SHOP",
+              "RUN_BATTLE",
+              "RUN_FULL_DAY",
+              "RUN_FULL_RUN",
+              "SETUP_DAY7_FIRE_TRIAL"
+            ]
+          }
+        },
+        "startBattle": {
+          "ok": true,
+          "accepted": true,
+          "readOnly": false,
+          "ephemeral": false,
+          "command": "START_BATTLE",
+          "commandEnvelopeType": "START_BATTLE",
+          "stateVersion": 1,
+          "stateHash": "c44cc315222e2a0a",
+          "errorCode": "",
+          "resultSchema": "",
+          "eventCount": 4,
+          "traceEventCount": 4,
+          "viewModelKeys": [
+            "battleId",
+            "battlePrepEffects",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "commandLog",
+            "dailyFlow",
+            "day",
+            "day7Trial",
+            "dayRoute",
+            "dayRouteRuns",
+            "economyMultiplier",
+            "enemies",
+            "events",
+            "gold",
+            "heroes",
+            "inventory",
+            "leaders",
+            "localPrediction",
+            "logs",
+            "maxRounds",
+            "meta",
+            "mode",
+            "monsterIntents",
+            "moveRiskGrid",
+            "nextActions",
+            "outerRunEffects",
+            "period",
+            "phase",
+            "playerId",
+            "playerViewState",
+            "players",
+            "previewGrid",
+            "relics",
+            "result",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "teamRiskGrid",
+            "teams",
+            "terminalSummary",
+            "threatGrid",
+            "turn"
+          ],
+          "viewModel": {
+            "phase": "player_turn",
+            "gold": 8,
+            "round": 1,
+            "period": "上午",
+            "heroCount": 1,
+            "enemyCount": 2,
+            "selectedUnitId": "",
+            "board": {
+              "size": 0,
+              "cellCount": 64,
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "key",
+                "moveRisk",
+                "preview",
+                "previews",
+                "r",
+                "teamRisk",
+                "terrain",
+                "threat",
+                "unitId",
+                "unitName",
+                "unitSide"
+              ],
+              "firstCell": {
+                "r": 0,
+                "c": 0,
+                "key": "0,0",
+                "unitId": null,
+                "unitSide": null,
+                "x": null,
+                "y": null
+              }
+            },
+            "nextActionTypes": [
+              "AUTO_POSITION_HEROES",
+              "MOVE_HERO",
+              "SET_ACTION_DIRECTION",
+              "USE_SLOT",
+              "END_PLAYER_TURN",
+              "BUILD_PREVIEW",
+              "ENTER_SHOP",
+              "RUN_BATTLE",
+              "RUN_FULL_DAY",
+              "RUN_FULL_RUN",
+              "SETUP_DAY7_FIRE_TRIAL"
+            ]
+          }
+        },
+        "selectUnit": {
+          "ok": true,
+          "accepted": true,
+          "readOnly": false,
+          "ephemeral": true,
+          "command": "SELECT_UNIT",
+          "commandEnvelopeType": "SELECT_UNIT",
+          "stateVersion": 1,
+          "stateHash": "4530057c30fca9b3",
+          "errorCode": "",
+          "resultSchema": "",
+          "eventCount": 1,
+          "traceEventCount": 1,
+          "viewModelKeys": [
+            "battleId",
+            "battlePrepEffects",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "commandLog",
+            "dailyFlow",
+            "day",
+            "day7Trial",
+            "dayRoute",
+            "dayRouteRuns",
+            "economyMultiplier",
+            "enemies",
+            "events",
+            "gold",
+            "heroes",
+            "inventory",
+            "leaders",
+            "localPrediction",
+            "logs",
+            "maxRounds",
+            "meta",
+            "mode",
+            "monsterIntents",
+            "moveRiskGrid",
+            "nextActions",
+            "outerRunEffects",
+            "period",
+            "phase",
+            "playerId",
+            "playerViewState",
+            "players",
+            "previewGrid",
+            "relics",
+            "result",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "teamRiskGrid",
+            "teams",
+            "terminalSummary",
+            "threatGrid",
+            "turn"
+          ],
+          "viewModel": {
+            "phase": "player_turn",
+            "gold": 8,
+            "round": 1,
+            "period": "上午",
+            "heroCount": 1,
+            "enemyCount": 2,
+            "selectedUnitId": "hero_pal_001_1",
+            "board": {
+              "size": 0,
+              "cellCount": 64,
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "key",
+                "moveRisk",
+                "preview",
+                "previews",
+                "r",
+                "teamRisk",
+                "terrain",
+                "threat",
+                "unitId",
+                "unitName",
+                "unitSide"
+              ],
+              "firstCell": {
+                "r": 0,
+                "c": 0,
+                "key": "0,0",
+                "unitId": null,
+                "unitSide": null,
+                "x": null,
+                "y": null
+              }
+            },
+            "nextActionTypes": [
+              "AUTO_POSITION_HEROES",
+              "MOVE_HERO",
+              "SET_ACTION_DIRECTION",
+              "USE_SLOT",
+              "END_PLAYER_TURN",
+              "BUILD_PREVIEW",
+              "ENTER_SHOP",
+              "RUN_BATTLE",
+              "RUN_FULL_DAY",
+              "RUN_FULL_RUN",
+              "SETUP_DAY7_FIRE_TRIAL"
+            ]
+          }
+        },
+        "exportReplay": {
+          "ok": true,
+          "accepted": true,
+          "readOnly": true,
+          "ephemeral": false,
+          "command": "EXPORT_REPLAY",
+          "commandEnvelopeType": "EXPORT_REPLAY",
+          "stateVersion": 1,
+          "stateHash": "4530057c30fca9b3",
+          "errorCode": "",
+          "resultSchema": "ysbzs.replay",
+          "eventCount": 0,
+          "traceEventCount": 0,
+          "viewModelKeys": [
+            "battleId",
+            "battlePrepEffects",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "commandLog",
+            "dailyFlow",
+            "day",
+            "day7Trial",
+            "dayRoute",
+            "dayRouteRuns",
+            "economyMultiplier",
+            "enemies",
+            "events",
+            "gold",
+            "heroes",
+            "inventory",
+            "leaders",
+            "localPrediction",
+            "logs",
+            "maxRounds",
+            "meta",
+            "mode",
+            "monsterIntents",
+            "moveRiskGrid",
+            "nextActions",
+            "outerRunEffects",
+            "period",
+            "phase",
+            "playerId",
+            "playerViewState",
+            "players",
+            "previewGrid",
+            "relics",
+            "result",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "teamRiskGrid",
+            "teams",
+            "terminalSummary",
+            "threatGrid",
+            "turn"
+          ],
+          "viewModel": {
+            "phase": "player_turn",
+            "gold": 8,
+            "round": 1,
+            "period": "上午",
+            "heroCount": 1,
+            "enemyCount": 2,
+            "selectedUnitId": "hero_pal_001_1",
+            "board": {
+              "size": 0,
+              "cellCount": 64,
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "key",
+                "moveRisk",
+                "preview",
+                "previews",
+                "r",
+                "teamRisk",
+                "terrain",
+                "threat",
+                "unitId",
+                "unitName",
+                "unitSide"
+              ],
+              "firstCell": {
+                "r": 0,
+                "c": 0,
+                "key": "0,0",
+                "unitId": null,
+                "unitSide": null,
+                "x": null,
+                "y": null
+              }
+            },
+            "nextActionTypes": [
+              "AUTO_POSITION_HEROES",
+              "MOVE_HERO",
+              "SET_ACTION_DIRECTION",
+              "USE_SLOT",
+              "END_PLAYER_TURN",
+              "BUILD_PREVIEW",
+              "ENTER_SHOP",
+              "RUN_BATTLE",
+              "RUN_FULL_DAY",
+              "RUN_FULL_RUN",
+              "SETUP_DAY7_FIRE_TRIAL"
+            ]
+          }
+        }
+      },
+      "stateAfterReplay": {
+        "phase": "player_turn",
+        "stateVersion": 1,
+        "stateHash": "4530057c30fca9b3",
+        "gold": 8,
+        "round": 1,
+        "period": "上午",
+        "heroCount": 1,
+        "enemyCount": 2,
+        "board": {
+          "size": 0,
+          "cellCount": 64,
+          "firstCellKeys": [
+            "c",
+            "elements",
+            "key",
+            "moveRisk",
+            "preview",
+            "previews",
+            "r",
+            "teamRisk",
+            "terrain",
+            "threat",
+            "unitId",
+            "unitName",
+            "unitSide"
+          ],
+          "firstCell": {
+            "r": 0,
+            "c": 0,
+            "key": "0,0",
+            "unitId": null,
+            "unitSide": null,
+            "x": null,
+            "y": null
+          }
+        },
+        "nextActionTypes": [
+          "AUTO_POSITION_HEROES",
+          "MOVE_HERO",
+          "SET_ACTION_DIRECTION",
+          "USE_SLOT",
+          "END_PLAYER_TURN",
+          "BUILD_PREVIEW",
+          "ENTER_SHOP",
+          "RUN_BATTLE",
+          "RUN_FULL_DAY",
+          "RUN_FULL_RUN",
+          "SETUP_DAY7_FIRE_TRIAL"
+        ],
+        "viewModelKeys": [
+          "battleId",
+          "battlePrepEffects",
+          "battleTrace",
+          "board",
+          "buildCore",
+          "castleLine",
+          "commandLog",
+          "dailyFlow",
+          "day",
+          "day7Trial",
+          "dayRoute",
+          "dayRouteRuns",
+          "economyMultiplier",
+          "enemies",
+          "events",
+          "gold",
+          "heroes",
+          "inventory",
+          "leaders",
+          "localPrediction",
+          "logs",
+          "maxRounds",
+          "meta",
+          "mode",
+          "monsterIntents",
+          "moveRiskGrid",
+          "nextActions",
+          "outerRunEffects",
+          "period",
+          "phase",
+          "playerId",
+          "playerViewState",
+          "players",
+          "previewGrid",
+          "relics",
+          "result",
+          "rewards",
+          "round",
+          "selected",
+          "shop",
+          "stateHash",
+          "stateVersion",
+          "teamPlacementPreview",
+          "teamRiskGrid",
+          "teams",
+          "terminalSummary",
+          "threatGrid",
+          "turn"
+        ]
+      },
+      "replayImmutability": {
+        "beforeVersion": 1,
+        "afterVersion": 1,
+        "beforeHash": "4530057c30fca9b3",
+        "afterHash": "4530057c30fca9b3"
+      },
+      "save": {
+        "schema": "ysbzs.save",
+        "schemaVersion": 1,
+        "hasChecksum": true,
+        "stateKeys": [
+          "actionDirs",
+          "battleId",
+          "battlePrepEffects",
+          "battleTrace",
+          "board",
+          "castleLine",
+          "changeLog",
+          "changes",
+          "commandLog",
+          "day",
+          "dayRoute",
+          "debugTimeline",
+          "economyMultiplier",
+          "events",
+          "factionRules",
+          "gold",
+          "initialStateHash",
+          "inputLog",
+          "inventory",
+          "leaders",
+          "maxRounds",
+          "mode",
+          "nextChange",
+          "nextCommand",
+          "nextElementPacket",
+          "nextStep",
+          "nextUiEvent",
+          "nextUnit",
+          "outerRunEffects",
+          "period",
+          "phase",
+          "players",
+          "relics",
+          "replayInitialOptions",
+          "replayLog",
+          "result",
+          "rewards",
+          "rngState",
+          "round",
+          "selected",
+          "shop",
+          "stateVersion",
+          "teamPlacementPreview",
+          "teams",
+          "triggerQueue",
+          "turn",
+          "units"
+        ],
+        "state": {
+          "coins": 8,
+          "gold": 8,
+          "battle_round": 1,
+          "round": 1,
+          "battle_period": "上午",
+          "period": "上午"
+        }
+      }
+    },
+    "godot": {
+      "engine": "godot",
+      "initial": {
+        "board": {
+          "cellCount": 64,
+          "firstCell": {
+            "c": 0,
+            "key": "0,0",
+            "r": 0,
+            "unitId": "",
+            "unitSide": "",
+            "x": 0,
+            "y": 0
+          },
+          "firstCellKeys": [
+            "c",
+            "elements",
+            "hp",
+            "key",
+            "leaderId",
+            "name",
+            "r",
+            "side",
+            "trace",
+            "traces",
+            "unitId",
+            "unitName",
+            "unitSide",
+            "unit_id",
+            "x",
+            "y"
+          ],
+          "size": 8
+        },
+        "enemyCount": 0,
+        "gold": 16,
+        "heroCount": 0,
+        "nextActionTypes": [
+          "PICK_NODE",
+          "PICK_NODE",
+          "PICK_NODE",
+          "ENTER_SHOP",
+          "RUN_BATTLE"
+        ],
+        "period": "上午",
+        "phase": "route",
+        "round": 1,
+        "stateHash": "df155788889b2ade",
+        "stateVersion": 0,
+        "viewModelKeys": [
+          "ap",
+          "battlePeriod",
+          "battleResult",
+          "battleRound",
+          "battleTrace",
+          "board",
+          "buildCore",
+          "castleLine",
+          "coins",
+          "commandLog",
+          "day",
+          "dayRoute",
+          "economyMultiplier",
+          "enemies",
+          "gold",
+          "heroHp",
+          "heroMaxHp",
+          "hero_hp",
+          "hero_max_hp",
+          "heroes",
+          "inventory",
+          "leaders",
+          "logLines",
+          "maxRounds",
+          "nextActions",
+          "next_actions",
+          "period",
+          "phase",
+          "rewards",
+          "round",
+          "selected",
+          "shop",
+          "stateHash",
+          "stateVersion",
+          "teamPlacementPreview",
+          "units"
+        ]
+      },
+      "replayImmutability": {
+        "afterHash": "882a45b8966ab39a",
+        "afterVersion": 1,
+        "beforeHash": "882a45b8966ab39a",
+        "beforeVersion": 1
+      },
+      "responses": {
+        "exportReplay": {
+          "accepted": true,
+          "command": "EXPORT_REPLAY",
+          "commandEnvelopeType": "EXPORT_REPLAY",
+          "ephemeral": true,
+          "errorCode": "",
+          "eventCount": 0,
+          "ok": true,
+          "readOnly": true,
+          "resultSchema": "ysbzs.replay",
+          "stateHash": "882a45b8966ab39a",
+          "stateVersion": 1,
+          "traceEventCount": 0,
+          "viewModel": {
+            "board": {
+              "cellCount": 64,
+              "firstCell": {
+                "c": 0,
+                "key": "0,0",
+                "r": 0,
+                "unitId": "",
+                "unitSide": "",
+                "x": 0,
+                "y": 0
+              },
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "hp",
+                "key",
+                "leaderId",
+                "name",
+                "r",
+                "side",
+                "trace",
+                "traces",
+                "unitId",
+                "unitName",
+                "unitSide",
+                "unit_id",
+                "x",
+                "y"
+              ],
+              "size": 8
+            },
+            "enemyCount": 2,
+            "gold": 16,
+            "heroCount": 1,
+            "nextActionTypes": [
+              "AUTO_POSITION_HEROES",
+              "MOVE_HERO",
+              "SET_ACTION_DIRECTION",
+              "SET_ACTION_AP",
+              "USE_SLOT",
+              "USE_ACTION_SLOT",
+              "RUN_PLAYER_ALL_OUT",
+              "END_PLAYER_TURN"
+            ],
+            "period": "上午",
+            "phase": "battle",
+            "round": 1,
+            "selectedUnitId": "pal_002"
+          },
+          "viewModelKeys": [
+            "ap",
+            "battlePeriod",
+            "battleResult",
+            "battleRound",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "coins",
+            "commandLog",
+            "day",
+            "dayRoute",
+            "economyMultiplier",
+            "enemies",
+            "gold",
+            "heroHp",
+            "heroMaxHp",
+            "hero_hp",
+            "hero_max_hp",
+            "heroes",
+            "inventory",
+            "leaders",
+            "logLines",
+            "maxRounds",
+            "nextActions",
+            "next_actions",
+            "period",
+            "phase",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "units"
+          ]
+        },
+        "selectUnit": {
+          "accepted": true,
+          "command": "SELECT_UNIT",
+          "commandEnvelopeType": "SELECT_UNIT",
+          "ephemeral": true,
+          "errorCode": "",
+          "eventCount": 0,
+          "ok": true,
+          "readOnly": false,
+          "resultSchema": "",
+          "stateHash": "882a45b8966ab39a",
+          "stateVersion": 1,
+          "traceEventCount": 0,
+          "viewModel": {
+            "board": {
+              "cellCount": 64,
+              "firstCell": {
+                "c": 0,
+                "key": "0,0",
+                "r": 0,
+                "unitId": "",
+                "unitSide": "",
+                "x": 0,
+                "y": 0
+              },
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "hp",
+                "key",
+                "leaderId",
+                "name",
+                "r",
+                "side",
+                "trace",
+                "traces",
+                "unitId",
+                "unitName",
+                "unitSide",
+                "unit_id",
+                "x",
+                "y"
+              ],
+              "size": 8
+            },
+            "enemyCount": 2,
+            "gold": 16,
+            "heroCount": 1,
+            "nextActionTypes": [
+              "AUTO_POSITION_HEROES",
+              "MOVE_HERO",
+              "SET_ACTION_DIRECTION",
+              "SET_ACTION_AP",
+              "USE_SLOT",
+              "USE_ACTION_SLOT",
+              "RUN_PLAYER_ALL_OUT",
+              "END_PLAYER_TURN"
+            ],
+            "period": "上午",
+            "phase": "battle",
+            "round": 1,
+            "selectedUnitId": "pal_002"
+          },
+          "viewModelKeys": [
+            "ap",
+            "battlePeriod",
+            "battleResult",
+            "battleRound",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "coins",
+            "commandLog",
+            "day",
+            "dayRoute",
+            "economyMultiplier",
+            "enemies",
+            "gold",
+            "heroHp",
+            "heroMaxHp",
+            "hero_hp",
+            "hero_max_hp",
+            "heroes",
+            "inventory",
+            "leaders",
+            "logLines",
+            "maxRounds",
+            "nextActions",
+            "next_actions",
+            "period",
+            "phase",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "units"
+          ]
+        },
+        "staleStart": {
+          "accepted": false,
+          "command": "START_BATTLE",
+          "commandEnvelopeType": "START_BATTLE",
+          "ephemeral": false,
+          "errorCode": "STATE_VERSION_MISMATCH",
+          "eventCount": 0,
+          "ok": false,
+          "readOnly": false,
+          "resultSchema": "",
+          "stateHash": "df155788889b2ade",
+          "stateVersion": 0,
+          "traceEventCount": 0,
+          "viewModel": {
+            "board": {
+              "cellCount": 64,
+              "firstCell": {
+                "c": 0,
+                "key": "0,0",
+                "r": 0,
+                "unitId": "",
+                "unitSide": "",
+                "x": 0,
+                "y": 0
+              },
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "hp",
+                "key",
+                "leaderId",
+                "name",
+                "r",
+                "side",
+                "trace",
+                "traces",
+                "unitId",
+                "unitName",
+                "unitSide",
+                "unit_id",
+                "x",
+                "y"
+              ],
+              "size": 8
+            },
+            "enemyCount": 0,
+            "gold": 16,
+            "heroCount": 0,
+            "nextActionTypes": [
+              "PICK_NODE",
+              "PICK_NODE",
+              "PICK_NODE",
+              "ENTER_SHOP",
+              "RUN_BATTLE"
+            ],
+            "period": "上午",
+            "phase": "route",
+            "round": 1,
+            "selectedUnitId": ""
+          },
+          "viewModelKeys": [
+            "ap",
+            "battlePeriod",
+            "battleResult",
+            "battleRound",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "coins",
+            "commandLog",
+            "day",
+            "dayRoute",
+            "economyMultiplier",
+            "enemies",
+            "gold",
+            "heroHp",
+            "heroMaxHp",
+            "hero_hp",
+            "hero_max_hp",
+            "heroes",
+            "inventory",
+            "leaders",
+            "logLines",
+            "maxRounds",
+            "nextActions",
+            "next_actions",
+            "period",
+            "phase",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "units"
+          ]
+        },
+        "startBattle": {
+          "accepted": true,
+          "command": "START_BATTLE",
+          "commandEnvelopeType": "START_BATTLE",
+          "ephemeral": false,
+          "errorCode": "",
+          "eventCount": 0,
+          "ok": true,
+          "readOnly": false,
+          "resultSchema": "",
+          "stateHash": "882a45b8966ab39a",
+          "stateVersion": 1,
+          "traceEventCount": 0,
+          "viewModel": {
+            "board": {
+              "cellCount": 64,
+              "firstCell": {
+                "c": 0,
+                "key": "0,0",
+                "r": 0,
+                "unitId": "",
+                "unitSide": "",
+                "x": 0,
+                "y": 0
+              },
+              "firstCellKeys": [
+                "c",
+                "elements",
+                "hp",
+                "key",
+                "leaderId",
+                "name",
+                "r",
+                "side",
+                "trace",
+                "traces",
+                "unitId",
+                "unitName",
+                "unitSide",
+                "unit_id",
+                "x",
+                "y"
+              ],
+              "size": 8
+            },
+            "enemyCount": 2,
+            "gold": 16,
+            "heroCount": 1,
+            "nextActionTypes": [
+              "AUTO_POSITION_HEROES",
+              "MOVE_HERO",
+              "SET_ACTION_DIRECTION",
+              "SET_ACTION_AP",
+              "USE_SLOT",
+              "USE_ACTION_SLOT",
+              "RUN_PLAYER_ALL_OUT",
+              "END_PLAYER_TURN"
+            ],
+            "period": "上午",
+            "phase": "battle",
+            "round": 1,
+            "selectedUnitId": ""
+          },
+          "viewModelKeys": [
+            "ap",
+            "battlePeriod",
+            "battleResult",
+            "battleRound",
+            "battleTrace",
+            "board",
+            "buildCore",
+            "castleLine",
+            "coins",
+            "commandLog",
+            "day",
+            "dayRoute",
+            "economyMultiplier",
+            "enemies",
+            "gold",
+            "heroHp",
+            "heroMaxHp",
+            "hero_hp",
+            "hero_max_hp",
+            "heroes",
+            "inventory",
+            "leaders",
+            "logLines",
+            "maxRounds",
+            "nextActions",
+            "next_actions",
+            "period",
+            "phase",
+            "rewards",
+            "round",
+            "selected",
+            "shop",
+            "stateHash",
+            "stateVersion",
+            "teamPlacementPreview",
+            "units"
+          ]
+        }
+      },
+      "save": {
+        "hasChecksum": true,
+        "schema": "ysbzs.save",
+        "schemaVersion": 1,
+        "state": {
+          "battle_period": "上午",
+          "battle_round": 1,
+          "coins": 16,
+          "gold": 16,
+          "period": "上午",
+          "round": 1
+        },
+        "stateKeys": [
+          "action_ap_choices",
+          "action_dirs",
+          "active_encounter",
+          "active_schedule",
+          "active_shop_pool",
+          "active_shop_seed_context",
+          "active_stall",
+          "active_wave",
+          "ap",
+          "battle_period",
+          "battle_prep_effects",
+          "battle_result",
+          "battle_round",
+          "battle_trace",
+          "board_traces",
+          "castleLine",
+          "castle_line",
+          "cell_elements",
+          "coins",
+          "command_log",
+          "day",
+          "economyMultiplier",
+          "economy_multiplier",
+          "gold",
+          "heroMaxHp",
+          "hero_hp",
+          "hero_max_hp",
+          "leaders",
+          "log_lines",
+          "node_index",
+          "outer_run_effects",
+          "period",
+          "phase",
+          "reward_fallback_audit",
+          "reward_options",
+          "roster",
+          "round",
+          "route_options",
+          "run_plan",
+          "run_seed",
+          "selected_action_slot_index",
+          "selected_unit_id",
+          "shop_context_roll_count",
+          "shop_event_effects",
+          "shop_free_rolls",
+          "shop_next_discount",
+          "shop_offers",
+          "shop_paid_refreshes",
+          "shop_roll_count",
+          "shop_seed_audit",
+          "stateVersion",
+          "state_version",
+          "teamPlacementPreview",
+          "team_placement_preview",
+          "units"
+        ]
+      },
+      "stateAfterReplay": {
+        "board": {
+          "cellCount": 64,
+          "firstCell": {
+            "c": 0,
+            "key": "0,0",
+            "r": 0,
+            "unitId": "",
+            "unitSide": "",
+            "x": 0,
+            "y": 0
+          },
+          "firstCellKeys": [
+            "c",
+            "elements",
+            "hp",
+            "key",
+            "leaderId",
+            "name",
+            "r",
+            "side",
+            "trace",
+            "traces",
+            "unitId",
+            "unitName",
+            "unitSide",
+            "unit_id",
+            "x",
+            "y"
+          ],
+          "size": 8
+        },
+        "enemyCount": 2,
+        "gold": 16,
+        "heroCount": 1,
+        "nextActionTypes": [
+          "AUTO_POSITION_HEROES",
+          "MOVE_HERO",
+          "SET_ACTION_DIRECTION",
+          "SET_ACTION_AP",
+          "USE_SLOT",
+          "USE_ACTION_SLOT",
+          "RUN_PLAYER_ALL_OUT",
+          "END_PLAYER_TURN"
+        ],
+        "period": "上午",
+        "phase": "battle",
+        "round": 1,
+        "stateHash": "882a45b8966ab39a",
+        "stateVersion": 1,
+        "viewModelKeys": [
+          "ap",
+          "battlePeriod",
+          "battleResult",
+          "battleRound",
+          "battleTrace",
+          "board",
+          "buildCore",
+          "castleLine",
+          "coins",
+          "commandLog",
+          "day",
+          "dayRoute",
+          "economyMultiplier",
+          "enemies",
+          "gold",
+          "heroHp",
+          "heroMaxHp",
+          "hero_hp",
+          "hero_max_hp",
+          "heroes",
+          "inventory",
+          "leaders",
+          "logLines",
+          "maxRounds",
+          "nextActions",
+          "next_actions",
+          "period",
+          "phase",
+          "rewards",
+          "round",
+          "selected",
+          "shop",
+          "stateHash",
+          "stateVersion",
+          "teamPlacementPreview",
+          "units"
+        ]
+      }
+    }
+  },
+  "outputFiles": {
+    "json": "/Users/ywh/Documents/godot/output/core_io_golden_diff.json",
+    "markdown": "/Users/ywh/Documents/godot/output/core_io_golden_diff.md"
+  }
+}

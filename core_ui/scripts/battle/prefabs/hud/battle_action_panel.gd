@@ -3,6 +3,8 @@ extends PanelContainer
 signal command_requested(command: Dictionary)
 
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
+const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
+const BattleSnapshotView := preload("res://core_ui/scripts/battle/controllers/battle_snapshot_view.gd")
 
 const STATE_SELECT := &"select"
 const STATE_PREVIEW := &"preview"
@@ -24,6 +26,7 @@ var _picked_skill_index := -1
 var _trace_cursor := -1
 var _latest_result_text := ""
 var _input_locked := false
+var _commands := BattleCommandBuilderScript.new()
 
 
 func _ready() -> void:
@@ -32,7 +35,7 @@ func _ready() -> void:
 	for child in skill_queue_grid.get_children():
 		child.move_requested.connect(_move_skill)
 		child.slot_pressed.connect(_pick_or_move_skill)
-	all_out_button.pressed.connect(func(): _emit("RUN_PLAYER_ALL_OUT"))
+	all_out_button.pressed.connect(func(): _emit("RUN_COMBAT_ROUND"))
 	end_turn_button.pressed.connect(func(): _emit("END_PLAYER_TURN"))
 	monster_turn_button.pressed.connect(func(): _emit("RUN_MONSTER_TURN"))
 	_configure_focus_navigation()
@@ -41,19 +44,11 @@ func _ready() -> void:
 
 
 func render_snapshot(snap: Dictionary) -> void:
-	_render_snapshot(snap, true)
-
-
-func render_selection_snapshot(snap: Dictionary) -> void:
-	_render_snapshot(snap, false)
-
-
-func _render_snapshot(snap: Dictionary, deep_copy: bool) -> void:
-	_snapshot = snap.duplicate(deep_copy)
+	_snapshot = snap
 	_update_result_feedback(snap)
-	var selected_id := String(snap.get("selected_unit_id", snap.get("selectedUnitId", "")))
+	var selected_id := BattleSnapshotView.selected_unit_id(snap)
 	var selected := _selected_unit(selected_id)
-	var queue := Array(snap.get("skillControlBar", snap.get("skill_control_bar", [])))
+	var queue := BattleSnapshotView.skill_control_bar(snap)
 	title_label.text = RuntimeUiPolicy.text("UI_ACTION_TITLE", [int(snap.get("battle_round", 0))])
 	var summary_lines := [
 		String(selected.get("name", selected_id if selected_id != "" else RuntimeUiPolicy.text("UI_ACTION_NO_SELECTION"))),
@@ -62,7 +57,7 @@ func _render_snapshot(snap: Dictionary, deep_copy: bool) -> void:
 	if _latest_result_text != "":
 		summary_lines.append(_latest_result_text)
 	summary_label.text = "\n".join(PackedStringArray(summary_lines))
-	var reset_state := Dictionary(Dictionary(snap.get("pet_reset", {})).get("player", {}))
+	var reset_state := BattleSnapshotView.player_reset_state(snap)
 	var reset_ready := bool(reset_state.get("eligible", false))
 	var alive_threshold := int(reset_state.get("aliveThreshold", 2))
 	var reset_charges := int(reset_state.get("charges", 0))
@@ -149,26 +144,15 @@ func visual_state_summary() -> Dictionary:
 
 
 func _emit(command_type: String) -> void:
-	var selected_id := String(_snapshot.get("selected_unit_id", _snapshot.get("selectedUnitId", "")))
-	var slot_index := int(_snapshot.get("selected_action_slot_index", _snapshot.get("selectedActionSlotIndex", 0)))
-	match command_type:
-		"SELECT_ACTION_SLOT":
-			var slots := Array(_snapshot.get("selected_action_slots", _snapshot.get("selectedActionSlots", [])))
-			command_requested.emit({"type": command_type, "slotId": (slot_index + 1) % max(1, slots.size())})
-		"SET_ACTION_DIRECTION":
-			command_requested.emit({"type": command_type, "unitId": selected_id, "slotId": slot_index, "dir": _next_direction()})
-		"SET_ACTION_AP":
-			command_requested.emit({"type": command_type, "unitId": selected_id, "slotId": slot_index, "ap": _next_ap()})
-		"USE_ACTION_SLOT":
-			command_requested.emit({"type": command_type, "unitId": selected_id, "slotId": slot_index, "ap": _selected_ap()})
-		_:
-			command_requested.emit({"type": command_type})
+	var command := Dictionary(_commands.build(command_type, _snapshot))
+	if not command.is_empty():
+		command_requested.emit(command)
 
 
 func _move_skill(from_index: int, to_index: int) -> void:
 	if _input_locked:
 		return
-	var queue := Array(_snapshot.get("skillControlBar", _snapshot.get("skill_control_bar", [])))
+	var queue := BattleSnapshotView.skill_control_bar(_snapshot)
 	if from_index < 0 or from_index >= queue.size() or to_index < 0 or to_index >= queue.size():
 		return
 	var ordered_ids: Array = []
@@ -177,10 +161,7 @@ func _move_skill(from_index: int, to_index: int) -> void:
 		ordered_ids.append(String(entry.get("entryId", entry.get("entry_id", ""))))
 	var moved: Variant = ordered_ids.pop_at(from_index)
 	ordered_ids.insert(to_index, moved)
-	command_requested.emit({
-		"type": "SET_SKILL_CONTROL_ORDER",
-		"orderedEntryIds": ordered_ids,
-	})
+	command_requested.emit(_commands.set_skill_control_order(ordered_ids))
 	_picked_skill_index = -1
 	_latest_result_text = ""
 	_refresh_skill_queue_title()
@@ -252,8 +233,8 @@ func _apply_control_availability() -> void:
 	if not is_node_ready():
 		return
 	var phase_is_battle := String(_snapshot.get("phase", "")) == "battle"
-	var queue := Array(_snapshot.get("skillControlBar", _snapshot.get("skill_control_bar", [])))
-	var reset_state := Dictionary(Dictionary(_snapshot.get("pet_reset", {})).get("player", {}))
+	var queue := BattleSnapshotView.skill_control_bar(_snapshot)
+	var reset_state := BattleSnapshotView.player_reset_state(_snapshot)
 	reset_pets_button.disabled = _input_locked or not phase_is_battle or not bool(reset_state.get("eligible", false))
 	for child in skill_queue_grid.get_children():
 		var skill_id := String(child.get("skill_id")) if child.get("skill_id") != null else ""

@@ -1,0 +1,43 @@
+# 2026-08-16 03:04 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-0304
+- delivery_base_commit: `fd4d900`
+- objective: 复核当前测试/CI、确定性日志、未完成任务卡、Git/WIP 与优先级；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_0304.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_0304.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与两张上一轮巡检卡为既有未提交控制面 WIP；本轮保留其证据，只纠正当前 HEAD、测试和任务状态
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 正占用商店 View、表现模块、专项/可见测试、同步工具和 5 组共享图片；开工时 3 个跟踪产品/测试修改与 22 个未跟踪实现/资源路径均归属该任务
+  - 本轮不编辑、不暂存、不提交上述产品、测试、工具、图片或可见验收文件；执行 `FILE_CONFLICT_STOP`
+- stop_conditions:
+  - 核对最新完整 fast 的结果及其被测源码与当前已提交 HEAD 的一致性
+  - 核对 roundtrip 最新确定性产物、当前 Git/任务租约和远端 CI 可达性
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取 `/tmp/codex-shop-art-visual-20260816/after_project/output/validation/qa/20260816-010321-fast/{summary.json,junit.xml}`
+  - 比对被测快照与 `HEAD` 中四个商店实现/测试文件的 SHA-256
+  - 读取 `output/validation/shop-art-roundtrip/round-008/**/{capture_manifest,comparison_manifest,formal_to_art_receipt}.json`
+  - `gh run list --repo jyf0330/xyxsj --limit 15 --json ...`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_0304.md`
+  - `git status --short --untracked-files=all`
+- findings:
+  - 当前 HEAD 为 `fd4d900`，已完成正式商店美术接入；本地分支领先 origin 2 个提交
+  - 该提交对应的隔离 fast 为 19/19、0 失败、总耗时 345.947 秒；playable flow 171.941 秒、battle UI 15.419 秒、seed bot 102.553 秒，均在合同内
+  - 被测快照中的 `legacy_code_shop_view.gd`、`shop_art_backdrop.gd`、`smoke_shop_art_visual_integration.gd`、`capture_shop_art_comparison.gd` 与 `HEAD` 逐文件 SHA-256 一致；此前 18/19 的 playable flow 超时已被当前稳定 HEAD 的直接通过证据淘汰
+  - round-008 最新 `art-package-v2/comparison-v2` 已生成美术侧 6 状态 capture 和 6 张一操作一对照图；`sync-bundle-v3` outbound receipt 为 15 张宠物图加 1 张商人图，inbound receipt 为 11 个白名单文件。但任务卡仍为 `in_progress`，当前工作树继续修改其独占文件，不能由巡检接管或将中间态宣称完成
+  - 巡检收尾期间原 owner 继续更新任务卡并新增 `smoke_shop_art_workspace_sync.gd.uid`；最终工作树为 5 个跟踪修改、26 个未跟踪路径，其中 3 个跟踪产品/测试修改与 23 个未跟踪实现/资源路径归属 roundtrip，证明租约仍活跃
+  - `gh run list` 仍因代理 `127.0.0.1:7897` 被沙箱拒绝，网页侧也未获得公开 Actions 结果；远端 CI 当前结论未验证
+- validation_result:
+  - `git diff --check` 在本轮开工前工作树上通过；未发现新的本地确定性测试失败
+  - 未运行当前中间态的完整 fast，避免把活跃 roundtrip WIP 当作稳定树验收
+  - 未修改产品代码、测试、玩法、美术或正式数据，未推送、部署或发布
+- residual_risk:
+  - 当前 roundtrip WIP 尚无稳定树完整 fast 证据；远端 CI 仍不可见
+  - 拖拽详情清除仍缺独立虚拟屏正式入口验收；旧任务卡存在状态滞后但仍归属原 owner
+- next_step: 由现有 owner 完成商店 roundtrip、补齐正式侧 round-008 证据和稳定树专项/fast 验证后释放文件；随后巡检再复核。除此之外无可安全推进事项
+- commit: 控制面包含既有未提交巡检 WIP，且产品树仍有活跃 owner；本轮不提交，不推送

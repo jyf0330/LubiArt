@@ -1,0 +1,45 @@
+# Nightly 独有旧失败当前树复验
+
+- status: done
+- owner: codex-goal-20260812
+- delivery_base_commit: 4157773
+- objective: 在正常 QA 权限槽中复验 nightly 独有、未被后续 full 覆盖的 14 项旧失败，区分已经修复的历史结果与当前仍可复现的问题
+- write_scopes:
+  - `tasks/doing/2026-08-12_nightly_gap_revalidation.md`
+  - `output/validation/qa/codex-goal-nightly-gap-20260812/**`
+- exclusive_files:
+  - `tasks/doing/2026-08-12_nightly_gap_revalidation.md`
+- existing_wip:
+  - 当前有 24 个已修改路径和 4 个未跟踪路径，涉及战斗权威、自动摆位、Bazaar、visual 基线、相关测试以及控制面文件
+  - 本任务不编辑、不暂存、不提交这些既有资产；若当前失败指向其范围，只记录证据并执行 `FILE_CONFLICT_STOP`
+- test_scope:
+  - `tests/core/smoke_three_hit_element_settlement.gd`
+  - `tests/features/smoke_artist_ui.gd`
+  - `tests/features/smoke_artist_ui_assets.gd`
+  - `tests/features/smoke_artist_ui_route_interactions.gd`
+  - `tests/features/smoke_artist_ui_run_tools.gd`
+  - `tests/features/smoke_artist_ui_shop_interactions.gd`
+  - `tests/features/smoke_battle_debug.gd`
+  - `tests/features/smoke_battle_feature_routing.gd`
+  - `tests/features/smoke_battle_hit_sync_vfx.gd`
+  - `tests/features/smoke_battle_move_visible_projection.gd`
+  - `tests/features/smoke_battle_pet_complete_v2.gd`
+  - `tests/features/smoke_battle_save_load_toolbar.gd`
+  - `tests/features/smoke_pet_visual_composition.gd`
+  - `tests/features/smoke_shared_pet_prefab.gd`
+- stop_conditions:
+  - 14 项均在当前树和隔离 `user://` 中实际运行并生成 summary
+  - 全部通过则关闭旧失败观察项；任一失败则根据最新日志判断文件归属，仅在无冲突时另立修复任务
+  - 不因历史失败修改产品代码或测试
+- validation:
+  - `python3 tools/qa/run_qa.py --test <14 paths> --run-id codex-goal-nightly-gap-20260812 --output output/validation/qa/codex-goal-nightly-gap-20260812`
+- control_plane_note: `tasks/ai/QUEUE.md` 与 `tasks/ai/STATUS.md` 是既有 WIP，本任务不覆盖；释放后再同步复验结论
+- validation_result:
+  - `codex-goal-nightly-gap-20260812`：14/14 通过，0 失败，summary 状态为 `passed`，总耗时 1.924 秒
+  - 复验使用当前工作树、独立 QA `user://` 与独立输出目录；没有修改任何产品或测试文件
+  - nightly 独有的 14 项旧失败均已被当前树淘汰，不再构成当前可复现缺陷，也无需建立修复任务
+- residual_risk:
+  - 本任务只关闭这 14 项旧失败观察范围，不替代 full、nightly 或 visual 套件整体门禁
+  - visual 基线仍由其他 WIP 占用，独立虚拟屏像素门禁问题仍由 `2026-08-12_commercial_virtual_visual_verification.md` 跟踪
+- next_step: 控制面文件释放后，将 14 项旧失败从 `Observed` 移入 `Done`；在此之前保持 `FILE_CONFLICT_STOP`
+- commit: 复验任务卡可独立精确提交；不包含 QA 输出、控制面 WIP 或任何产品/测试文件

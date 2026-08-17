@@ -1,0 +1,15 @@
+{
+  "schema": "ysbzs.qa.performance-budgets.v1",
+  "budgets": {
+    "auto_position_search_precision_ms": 3500,
+    "web_release_boot_seconds": 60,
+    "minimum_runtime_fps": 30,
+    "diagnostic_sample_limit": 600,
+    "diagnostic_report_limit": 20
+  },
+  "blockingTests": [
+    "tests/core/smoke_auto_position_search_precision.gd",
+    "tools/release/smoke_web_release.py",
+    "tests/qa/runtime_diagnostics_probe.gd"
+  ]
+}

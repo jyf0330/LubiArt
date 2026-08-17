@@ -1,5 +1,5 @@
 {
-  "source": "data/ysbzs_singleplayer_data.json route.node_pool",
+  "source": "data/content route.node_pool",
   "rule": "formal reward nodes in core node_pool order map to reward_node_001..025",
   "mapped": [
     {

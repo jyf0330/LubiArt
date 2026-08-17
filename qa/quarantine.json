@@ -1,0 +1,5 @@
+{
+  "schema": "ysbzs.qa.quarantine.v1",
+  "policy": "Commercial gates do not permit non-blocking quarantines. Obsolete probes are recorded in qa/retired_tests.json; authoritative contracts must live in blocking suites.",
+  "entries": []
+}

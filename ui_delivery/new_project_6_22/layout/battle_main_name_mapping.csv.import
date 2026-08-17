@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dgr0hlnloxcob"
+
+[deps]
+
+files=["res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.source.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.export.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.role.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.visible.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.bbox.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.export.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.suggested.translation"]
+
+source_file="res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.csv"
+dest_files=["res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.source.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.export.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.role.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.visible.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.bbox.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.export.translation", "res://ui_delivery/new_project_6_22/layout/battle_main_name_mapping.suggested.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

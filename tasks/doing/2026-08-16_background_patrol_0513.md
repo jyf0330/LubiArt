@@ -1,0 +1,42 @@
+# 2026-08-16 05:13 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-0513
+- delivery_base_commit: `03db1a4e`
+- objective: 复核当前测试/CI、确定性日志、未完成任务卡、Git/WIP 与优先级；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_0513.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_0513.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与三张旧巡检卡为既有未提交控制面 WIP；本轮保留并更新其累计证据，不覆盖产品文件
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 仍为 `in_progress`，独占商店 View、表现模块、专项/可见测试、同步工具、共享图片和自身任务卡；即使当前产品树已提交干净，本轮也不接管或运行其中间态验证
+- stop_conditions:
+  - 核对 03:04 后新提交、最新完整 fast、roundtrip 实窗/几何证据与当前 Git 状态
+  - 检查最近自动巡检结果、确定性失败日志和远端 CI 可达性
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取 `/private/tmp/codex-shop-roundtrip-0816.zJbgii/formal/output/validation/qa/20260816-043841-fast/summary.json`
+  - 读取 `output/validation/shop-art-roundtrip/round-030/**/{capture_manifest,comparison_manifest}.json` 与 `geometry_audit.json`
+  - 扫描 round-027 至 round-030 的 Godot 日志失败标记
+  - `gh run list --repo jyf0330/xyxsj --limit 15 --json ...`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_0513.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 03:04 后 roundtrip owner 形成 17 个精确提交，HEAD 推进至 `03db1a4e`、本地领先 origin 19 个提交；任务卡仍为 `in_progress`
+  - 04:38 隔离 fast 为 19/19、0 失败、344.185 秒；round-030 六步状态身份一致，16 项资源几何和 2 项层级审计通过，正式实窗日志输出 `FORMAL_SHOP_OPERATION_PARITY_CAPTURE_PASS captures=6`
+  - round-030 美术侧六张图、manifest 和日志与 round-028 逐字节一致，日志输出路径仍指向 round-028；记录为 P2 验证 provenance 风险，不归类为玩家产品失败
+  - 巡检期间原 owner 再次修改 `shop_shared_rail.gd` 与 `smoke_shop_art_visual_integration.gd`，确认租约持续活跃；没有无冲突、无需产品决策且可独立验收的 P0/P1 小任务
+  - `gh run list` 仍因代理 `127.0.0.1:7897` 被沙箱拒绝，远端 CI 未验证
+- validation_result:
+  - round-027 至 round-030 Godot 日志未发现失败标记；round-030 比较清单为 6 组，几何审计 `passed=true`、`errors=[]`
+  - 逐文件 `cmp` 确认 round-030 美术侧证据复用 round-028，并以 mtime、日志输出路径交叉确认
+  - 未运行当前活跃中间态测试，未修改产品代码、测试、玩法、美术或正式数据，未推送、部署或发布
+- residual_risk:
+  - 04:38 fast 早于后续层级/验证提交，且当前产品文件再次出现未提交修改；不能把该 fast 宣称为最新稳定树完整验收
+  - roundtrip 最终收口仍需处理美术侧 evidence provenance；远端 CI 和拖拽详情独立真实窗口验收仍不可见
+- next_step: 由现有 owner 完成 roundtrip，明确复用基线或重新采集美术侧证据，并在稳定树运行专项/fast 后释放文件；除此之外无可安全推进事项
+- commit: 控制面包含既有未提交巡检 WIP，且产品树仍有活跃 owner；本轮不提交，不推送

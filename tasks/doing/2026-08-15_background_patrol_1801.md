@@ -1,0 +1,64 @@
+# 2026-08-15 18:01 后台巡检控制面同步
+
+- status: validation_blocked
+- owner: codex-root-20260815-patrol-1801
+- delivery_base_commit: `3593e6b`
+- objective: 复核当前测试、CI、确定性运行证据、未完成任务卡与文件租约；仅在存在无冲突且可独立验收的 P0/P1 时修复，否则只同步巡检控制面
+- write_scopes:
+  - `tasks/doing/2026-08-15_background_patrol_1801.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+  - `core_ui/scripts/battle/controllers/battle_board_drag_interaction.gd`
+  - `output/validation/qa/patrol-1801-20260815/**`（只作为隔离验证输出）
+- exclusive_files:
+  - `tasks/doing/2026-08-15_background_patrol_1801.md`
+  - `tasks/ai/QUEUE.md`（仅更新本轮证据、优先级与巡检摘要）
+  - `tasks/ai/STATUS.md`（仅更新本轮证据、阻断与下一步）
+  - `core_ui/scripts/battle/controllers/battle_board_drag_interaction.gd`
+- existing_wip:
+  - 开工 HEAD 为 `3593e6b`，工作树有 16 个已跟踪修改和 704 个未跟踪路径；战斗权威、自动摆位、宠物详情、UI、测试、暂停宠物草稿、导入副产物和临时图均视为用户或其他任务资产
+  - `tests/features/smoke_battle_ui.gd` 与 `core_ui/scripts/shared/pet/pet_detail_panel.gd` 均有未提交修改，不编辑、不暂存；复验已把根因收窄到当前干净且无任务卡租约的 `battle_board_drag_interaction.gd`
+  - `tasks/doing/2026-08-15_all_planner_pet_images.md` 为 `paused`，`pal_279`–`pal_283` 草稿不得接管、改写或删除
+  - `tasks/doing/2026-08-13_24h_visible_watch.md` 仍由旧 owner 独占且头部状态滞留为 `recording`；本轮只读取其最终 `31/31` 证据
+- stop_conditions:
+  - 复核保存的 fast 失败是否在当前树仍可复现，并按目标文件归属判断能否安全推进
+  - 拖拽开始必须无条件清除既有格子详情；不得因悬停格已经是无效坐标而吞掉清除信号
+  - 现有 `smoke_battle_ui.gd` 的拖拽详情断言通过，且不编辑或暂存该测试及详情面板 WIP
+  - 复核最近自动巡检日志、24 小时最终审计、任务卡状态和远端 CI 可达性
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 时，不修改产品代码
+  - 不推送、部署、发布、删除、清理其他进程或改动正式玩法、美术、数据和凭证
+- validation:
+  - `python3 tools/qa/run_qa.py --test tests/features/smoke_battle_ui.gd --run-id patrol-1801-20260815 --output output/validation/qa/patrol-1801-20260815`
+  - 受沙箱限制时，使用任务专属 `/private/tmp` 日志目录直接运行同一 Godot 脚本，并要求 `SMOKE_BATTLE_UI_OK`
+  - `gh run list --repo jyf0330/xyxsj --limit 10`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-15_background_patrol_1801.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 保存的 `non-image-fast-20260815` 为 18/19；唯一失败是 `smoke_battle_ui.gd:266` 的“拖拽开始后旧宠物详情仍可见”
+  - 当前树修复前直接复验再次命中同一断言，确认不是旧日志或偶发结果
+  - 根因在 `_start_unit_drag()`：它调用 `_set_hover_detail_grid(Vector2i(-1, -1))` 清除详情，但通过点击打开的详情不会设置 `_hover_detail_grid`；该值本来就是无效坐标，helper 因“值未变化”提前返回，未发出 `cell_detail_requested(-1, "")`，`BattleOverlay.clear()` 因而没有执行
+  - 根因文件 `core_ui/scripts/battle/controllers/battle_board_drag_interaction.gd` 开工干净，未被现有任务卡租用；相关已修改的 `smoke_battle_ui.gd` 与 `pet_detail_panel.gd` 只读复用，未编辑或暂存
+  - 远端 CI 查询仍被代理沙箱拒绝；最近五次已完成后台巡检均退出码 0 且 stderr 为空
+- changes:
+  - `_set_hover_detail_grid()` 新增默认关闭的 `force_emit` 参数
+  - 拖拽开始清除详情时显式强制发出无效格信号，其他悬停路径保持原有去重行为
+- validation_result:
+  - 标准 QA runner 在创建 `/Users/ywh/Library/Application Support/YSBZS_QA/patrol-1801-20260815` 时被沙箱拒绝，返回 `PermissionError`；测试进程尚未启动，因此不计为产品失败
+  - 任务专属 `/private/tmp` 日志目录直接运行同一 `smoke_battle_ui.gd`：修复前退出 1 并再次命中第 266 行；修复后退出 0、输出 `SMOKE_BATTLE_UI_OK res://art/scenes/battle/battle_art_scene.tscn`
+  - 修复后 smoke 已继续覆盖拖拽取消、再次拖拽、移动落点及回合按钮，未在旧失败后提前退出
+  - 当前沙箱仍拒绝正式 macOS `user://` run-history 写入；这些错误与修复前后均一致，未改变回归断言结果
+  - `gh run list --repo jyf0330/xyxsj --limit 10`：代理 `127.0.0.1:7897` 连接被拒，远端 CI 未验证
+- residual_risk:
+  - 可见 UI 必须完成独立虚拟屏真实窗口验收；当前无法从命令行确认显示槽，Computer Use 对 Godot 未获准，本轮不能把 headless 通过冒充视觉验收完成
+  - 工作树的测试、详情面板、战斗权威和其他 UI WIP 仍由原 owner 保留
+- next_step: 获得本 AI 独立虚拟屏后，从正式入口打开宠物详情并开始拖拽，确认面板立即消失且取消/落点后不残留；通过后再精确提交本任务文件
+- commit: 未提交；真实窗口验收尚未完成，不满足仓库完成标准
+
+## 2026-08-15 20:12 巡检复核
+
+- Git 状态为 19 个已跟踪修改、705 个未跟踪路径；新增变化仍主要来自既有测试/UI WIP、导入副产物和本任务控制面，未扩大产品代码写入范围。
+- 使用新的隔离目录 `/private/tmp/codex-patrol-2012-godot-user.iKImhU` 重跑 `tests/features/smoke_battle_ui.gd`，日志第 199 行再次输出 `SMOKE_BATTLE_UI_OK`，未出现第 266 行详情残留断言；macOS CA 与正式 run-history 写入错误仍是相同沙箱噪声。
+- 尝试通过 Computer Use 只读检查 Godot 可见窗口时明确返回 `Computer Use was not approved to use Godot`；未操作用户或其他 AI 的 Godot，也无法证明独立虚拟屏。
+- `gh run list --repo jyf0330/xyxsj --limit 10` 仍因代理 `127.0.0.1:7897` 被沙箱拒绝；远端 CI 未验证。
+- 判定保持 `validation_blocked`：没有新的无冲突 P0/P1 可安全领取；本轮不修改产品代码、不提交。

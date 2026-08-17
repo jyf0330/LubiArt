@@ -1,0 +1,19 @@
+{
+  "schema": "ysbzs.qa.seed-matrix.v1",
+  "fixedSeeds": [
+    "ysbzs-test-play-20260715-v1",
+    "qa-route-shop-battle-a",
+    "qa-reward-save-load-b",
+    "qa-reset-round-five-c",
+    "qa-board-edge-d"
+  ],
+  "dimensions": [
+    {"width": 8, "height": 7},
+    {"width": 8, "height": 8},
+    {"width": 6, "height": 6}
+  ],
+  "difficulties": ["normal", "easy"],
+  "maxCaseMilliseconds": 120000,
+  "maxCommands": 400,
+  "minimumCommands": 2
+}

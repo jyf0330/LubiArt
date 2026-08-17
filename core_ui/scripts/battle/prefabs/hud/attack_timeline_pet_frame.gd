@@ -6,7 +6,7 @@ extends TextureButton
 const VISUAL_METRICS_PATH := "res://art/manifests/shared/pets/sheets/pet_battle_visual_metrics.json"
 const PET_IMAGE_MAP_PATH := "res://art/manifests/shared/pets/sheets/pet_id_map.json"
 const PET_SHEET_SLICE_DIR := "res://art/images/shared/pets/sheets/slices"
-const PET_FALLBACK_TEXTURE := preload("res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png")
+const PET_FALLBACK_TEXTURE := preload("res://art/images/shared/pets/sheets/slices/pal_042.png")
 const PetAssetResolverScript := preload("res://core_ui/scripts/shared/pet/pet_asset_resolver.gd")
 
 const ELEMENT_BACKGROUNDS := {

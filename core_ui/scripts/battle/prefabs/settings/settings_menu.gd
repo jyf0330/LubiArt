@@ -1,4 +1,5 @@
 extends Control
+class_name BattleSettingsMenu
 
 ## Presentation-only pause/settings overlay used by the standalone battle Mock.
 ## It owns local button feedback, visibility, and menu-prefab composition, but
@@ -87,6 +88,13 @@ func handle_cancel() -> void:
 
 func is_open() -> bool:
 	return visible
+
+
+func configure_formal_session_mode() -> void:
+	main_menu_button.disabled = true
+	main_menu_button.tooltip_text = "正式流程尚未开放从战斗直接返回主菜单"
+	resign_button.disabled = true
+	resign_button.tooltip_text = "正式流程尚未开放从战斗直接认输"
 
 
 func has_active_panel() -> bool:

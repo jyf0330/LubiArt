@@ -94,12 +94,10 @@ offset_top = 985.0
 offset_right = 155.0
 offset_bottom = 1047.0
 pivot_offset = Vector2(32.5, 31)
-tooltip_text = "切换战斗速度：在 1 倍与 2 倍播放速度之间切换。（快捷键 D）"
+tooltip_text = "战斗日志：打开或关闭战斗日志看板。（快捷键 D）"
 focus_mode = 0
 mouse_default_cursor_shape = 2
-toggle_mode = true
 texture_normal = ExtResource("5_speed")
-metadata/speed_active = false
 
 [node name="SettingsButton" type="TextureButton" parent="." unique_id=677565926]
 layout_mode = 0
@@ -115,9 +113,9 @@ texture_normal = ExtResource("6_settings")
 
 [node name="AttackOrderButton" type="TextureButton" parent="." unique_id=1450587695]
 layout_mode = 0
-offset_left = 1772.0
+offset_left = 1773.0
 offset_top = 915.0
-offset_right = 1837.0
+offset_right = 1838.0
 offset_bottom = 977.0
 pivot_offset = Vector2(32.5, 31)
 tooltip_text = "攻击顺序：查看或收起本回合的攻击顺序。（快捷键 TAB）"

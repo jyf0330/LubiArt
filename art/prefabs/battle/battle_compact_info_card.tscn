@@ -1,0 +1,423 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/battle/prefabs/battle_compact_info_card.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://art/images/shared/pets/info_card/fonts/fusion_pixel_zh_hans.ttf" id="2_font"]
+[ext_resource type="PackedScene" path="res://art/prefabs/shared/ui_value_bar.tscn" id="3_value_bar"]
+[ext_resource type="PackedScene" path="res://art/prefabs/battle/battle_attack_shape_grid.tscn" id="4_attack_grid"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_attack.png" id="5_attack"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_defense.png" id="6_defense"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_regen.png" id="7_regen"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_ap.png" id="8_ap"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_shield.png" id="9_shield"]
+[ext_resource type="Texture2D" path="res://art/images/shared/pets/info_panel/stat_hp.png" id="10_hp"]
+
+[sub_resource type="StyleBoxFlat" id="FrameStyle"]
+bg_color = Color(0.0431373, 0.129412, 0.113725, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.545098, 0.384314, 0.192157, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="PortraitStyle"]
+bg_color = Color(0.14902, 0.231373, 0.196078, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.301961, 0.4, 0.356863, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="IdentityStyle"]
+bg_color = Color(0.392157, 0.192157, 0.631373, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.141176, 0.0784314, 0.266667, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="SectionStyle"]
+bg_color = Color(0.027451, 0.0666667, 0.0588235, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.141176, 0.286275, 0.254902, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StatStyle"]
+bg_color = Color(0.027451, 0.0666667, 0.0588235, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.12549, 0.219608, 0.196078, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+anti_aliasing = false
+
+[node name="SpriteInfoCard" type="Control"]
+custom_minimum_size = Vector2(380, 820)
+layout_mode = 0
+offset_right = 380.0
+offset_bottom = 820.0
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Frame" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("FrameStyle")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="Column" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PortraitShell" type="PanelContainer" parent="Margin/Column"]
+custom_minimum_size = Vector2(352, 230)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PortraitStyle")
+
+[node name="Portrait" type="TextureRect" parent="Margin/Column/PortraitShell"]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="IdentityBar" type="PanelContainer" parent="Margin/Column"]
+custom_minimum_size = Vector2(352, 42)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("IdentityStyle")
+
+[node name="IdentityRow" type="HBoxContainer" parent="Margin/Column/IdentityBar"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="SideAccent" type="ColorRect" parent="Margin/Column/IdentityBar/IdentityRow"]
+custom_minimum_size = Vector2(7, 36)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.278431, 0.843137, 0.768627, 1)
+
+[node name="NameLabel" type="Label" parent="Margin/Column/IdentityBar/IdentityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.960784, 0.913725, 1, 1)
+theme_override_colors/font_outline_color = Color(0.105882, 0.0470588, 0.196078, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+text = "宠物"
+vertical_alignment = 1
+
+[node name="QualityLabel" type="Label" parent="Margin/Column/IdentityBar/IdentityRow"]
+custom_minimum_size = Vector2(58, 38)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.890196, 0.572549, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "青铜"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ElementIcon" type="TextureRect" parent="Margin/Column/IdentityBar/IdentityRow"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Health" parent="Margin/Column" instance=ExtResource("3_value_bar")]
+custom_minimum_size = Vector2(352, 28)
+layout_mode = 2
+
+[node name="Shield" parent="Margin/Column" instance=ExtResource("3_value_bar")]
+custom_minimum_size = Vector2(352, 16)
+layout_mode = 2
+fill_color = Color(0.796078, 0.858824, 0.988235, 1)
+track_color = Color(0.0352941, 0.0627451, 0.0980392, 1)
+border_color = Color(0.235294, 0.329412, 0.513726, 1)
+label_color = Color(0.0823529, 0.129412, 0.231373, 1)
+
+[node name="CombatHeader" type="Label" parent="Margin/Column"]
+custom_minimum_size = Vector2(352, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.968627, 0.839216, 0.490196, 1)
+theme_override_colors/font_outline_color = Color(0.0470588, 0.105882, 0.0901961, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "攻击范围"
+vertical_alignment = 1
+
+[node name="CombatPanel" type="PanelContainer" parent="Margin/Column"]
+custom_minimum_size = Vector2(352, 170)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SectionStyle")
+
+[node name="CombatMargin" type="MarginContainer" parent="Margin/Column/CombatPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="CombatRow" type="HBoxContainer" parent="Margin/Column/CombatPanel/CombatMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="AttackShapeGrid" parent="Margin/Column/CombatPanel/CombatMargin/CombatRow" instance=ExtResource("4_attack_grid")]
+layout_mode = 2
+
+[node name="Legend" type="VBoxContainer" parent="Margin/Column/CombatPanel/CombatMargin/CombatRow"]
+custom_minimum_size = Vector2(100, 96)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="SideLabel" type="Label" parent="Margin/Column/CombatPanel/CombatMargin/CombatRow/Legend"]
+custom_minimum_size = Vector2(100, 28)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.278431, 0.843137, 0.768627, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "我方 · 风系"
+vertical_alignment = 1
+
+[node name="OriginHint" type="Label" parent="Margin/Column/CombatPanel/CombatMargin/CombatRow/Legend"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.937255, 0.470588, 0.313726, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+text = "■ 自身位置"
+
+[node name="TargetHint" type="Label" parent="Margin/Column/CombatPanel/CombatMargin/CombatRow/Legend"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.756863, 0.231373, 0.164706, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+text = "■ 命中范围"
+
+[node name="StatsHeader" type="Label" parent="Margin/Column"]
+custom_minimum_size = Vector2(352, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.968627, 0.839216, 0.490196, 1)
+theme_override_colors/font_outline_color = Color(0.0470588, 0.105882, 0.0901961, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "战斗属性"
+vertical_alignment = 1
+
+[node name="StatsPanel" type="PanelContainer" parent="Margin/Column"]
+custom_minimum_size = Vector2(352, 168)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SectionStyle")
+
+[node name="StatsMargin" type="MarginContainer" parent="Margin/Column/StatsPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="StatGrid" type="GridContainer" parent="Margin/Column/StatsPanel/StatsMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
+columns = 3
+
+[node name="Attack" type="PanelContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid"]
+custom_minimum_size = Vector2(106, 69)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StatStyle")
+
+[node name="Row" type="HBoxContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Attack"]
+layout_mode = 2
+alignment = 1
+[node name="Icon" type="TextureRect" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Attack/Row"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+texture = ExtResource("5_attack")
+expand_mode = 1
+stretch_mode = 5
+[node name="Value" type="Label" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Attack/Row"]
+custom_minimum_size = Vector2(52, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94902, 0.741176, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 19
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Defense" type="PanelContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid"]
+custom_minimum_size = Vector2(106, 69)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StatStyle")
+[node name="Row" type="HBoxContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Defense"]
+layout_mode = 2
+alignment = 1
+[node name="Icon" type="TextureRect" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Defense/Row"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+texture = ExtResource("6_defense")
+expand_mode = 1
+stretch_mode = 5
+[node name="Value" type="Label" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Defense/Row"]
+custom_minimum_size = Vector2(52, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94902, 0.741176, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 19
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Regen" type="PanelContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid"]
+custom_minimum_size = Vector2(106, 69)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StatStyle")
+[node name="Row" type="HBoxContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Regen"]
+layout_mode = 2
+alignment = 1
+[node name="Icon" type="TextureRect" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Regen/Row"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+texture = ExtResource("7_regen")
+expand_mode = 1
+stretch_mode = 5
+[node name="Value" type="Label" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Regen/Row"]
+custom_minimum_size = Vector2(52, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94902, 0.741176, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 19
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Ap" type="PanelContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid"]
+custom_minimum_size = Vector2(106, 69)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StatStyle")
+[node name="Row" type="HBoxContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Ap"]
+layout_mode = 2
+alignment = 1
+[node name="Icon" type="TextureRect" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Ap/Row"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+texture = ExtResource("8_ap")
+expand_mode = 1
+stretch_mode = 5
+[node name="Value" type="Label" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Ap/Row"]
+custom_minimum_size = Vector2(52, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94902, 0.741176, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 19
+text = "0/0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Shield" type="PanelContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid"]
+custom_minimum_size = Vector2(106, 69)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StatStyle")
+[node name="Row" type="HBoxContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Shield"]
+layout_mode = 2
+alignment = 1
+[node name="Icon" type="TextureRect" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Shield/Row"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+texture = ExtResource("9_shield")
+expand_mode = 1
+stretch_mode = 5
+[node name="Value" type="Label" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/Shield/Row"]
+custom_minimum_size = Vector2(52, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94902, 0.741176, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 19
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DamageCap" type="PanelContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid"]
+custom_minimum_size = Vector2(106, 69)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StatStyle")
+[node name="Row" type="HBoxContainer" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/DamageCap"]
+layout_mode = 2
+alignment = 1
+[node name="Icon" type="TextureRect" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/DamageCap/Row"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+texture = ExtResource("10_hp")
+expand_mode = 1
+stretch_mode = 5
+[node name="Value" type="Label" parent="Margin/Column/StatsPanel/StatsMargin/StatGrid/DamageCap/Row"]
+custom_minimum_size = Vector2(52, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94902, 0.741176, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 19
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1

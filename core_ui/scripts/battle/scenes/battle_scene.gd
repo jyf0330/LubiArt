@@ -11,11 +11,14 @@ signal shortcut_bindings_changed(bindings: Dictionary)
 
 const BattleAssetRegistryScript := preload("res://core_ui/scripts/battle/controllers/battle_asset_registry.gd")
 const BattleTraceProjectionScript := preload("res://core_ui/scripts/battle/controllers/battle_trace_projection.gd")
+const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
+const BattleLogDashboardScript := preload("res://core_ui/scripts/battle/prefabs/hud/battle_log_dashboard.gd")
+const BattleSnapshotView := preload("res://core_ui/scripts/battle/controllers/battle_snapshot_view.gd")
 const GameLogScript := preload("res://core/logging/game_log.gd")
+const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 const ShortcutCatalog := preload("res://core_ui/scripts/shared/shortcut_catalog.gd")
 const NORMAL_BATTLE_SPEED := 1.0
 const FAST_BATTLE_SPEED := 2.0
-const DEFAULT_ART_MAP_ID := "mountain_new"
 const SETTINGS_MODAL_BLOCKED_SHORTCUTS := [
 	ShortcutCatalog.ACTION_AUTO_ARRANGE,
 	ShortcutCatalog.ACTION_RESET_ARRANGE,
@@ -32,77 +35,67 @@ const TIMELINE_MODAL_BLOCKED_SHORTCUTS := [
 	ShortcutCatalog.ACTION_ALL_OUT,
 ]
 
-@onready var board: Control = $Board
-@onready var vfx_host: Control = $Board/VfxHost
-@onready var hud: Control = $Hud
-@onready var overlay: Control = $OverlayHost
-@onready var settings_menu: Control = $OverlayHost/SettingsMenu
-@onready var map_selection_overlay: Control = $OverlayHost/MapSelectionOverlay
-@onready var map_controls: Control = $MapControls
-@onready var enemy_info_drawer: Control = $EnemyInfoDrawer
+@onready var board: BattleBoard = $Board
+@onready var vfx_host: BattleVfxController = $Board/VfxHost
+@onready var hud: BattleHud = $Hud
+@onready var overlay: BattleOverlay = $OverlayHost
+@onready var settings_menu: BattleSettingsMenu = $OverlayHost/SettingsMenu
+@onready var map_controls: BattleMapControls = $MapControls
 @onready var map_debug_button: Button = $Hud/BattleActionPanel/Margin/Content/MapDebugButton
 @onready var map_auto_arrange_button: TextureButton = $MapControls/AutoArrangeButton
 @onready var map_reset_button: TextureButton = $MapControls/ResetButton
+@onready var map_speed_button: TextureButton = $MapControls/SpeedButton
+@onready var map_attack_order_button: TextureButton = $MapControls/AttackOrderButton
 @onready var map_bag_button: TextureButton = $MapControls/BagButton
 @onready var map_all_out_button: TextureButton = $MapControls/AllOutButton
 
-var _assets: RefCounted = null
+var _assets: BattleAssetRegistry = null
 var _trace_projection := BattleTraceProjectionScript.new()
-var _last_snapshot: Dictionary = {}
+var _commands := BattleCommandBuilderScript.new()
 var _presented_snapshot: Dictionary = {}
 var _rendered_trace_count := -1
 var _pending_final_snapshot: Dictionary = {}
 var _pending_enemy_move_final_cells := {}
 var _battle_input_locked := false
+var _last_snapshot: Dictionary = {}
 var _debug_map_index := -1
 var _combat_speed_enabled := false
 var _all_out_trace_active := false
 var _button_shortcut_hints_visible := true
-var _announced_round := 0
+var _log_dashboard: BattleLogDashboard = null
 
 
 func _ready() -> void:
 	_assets = BattleAssetRegistryScript.new()
-	board.call("configure", _assets)
-	overlay.call("configure", _assets)
+	board.configure(_assets)
+	overlay.configure(_assets)
+	_log_dashboard = BattleLogDashboardScript.new()
+	_log_dashboard.name = "BattleLogDashboard"
+	overlay.add_child(_log_dashboard)
+	_log_dashboard.close_requested.connect(_on_log_dashboard_close_requested)
+	_log_dashboard.speed_toggled.connect(_on_log_dashboard_speed_toggled)
 	_connect_command_source(board)
 	_connect_command_source(hud)
-	if hud.has_signal("health_bar_tier_requested"):
-		hud.connect(
-			"health_bar_tier_requested",
-			Callable(self, "_on_health_bar_tier_requested")
-		)
-	if board.has_signal("cell_detail_requested"):
-		board.connect("cell_detail_requested", Callable(self, "_on_cell_detail_requested"))
-	if vfx_host.has_method("configure"):
-		vfx_host.call("configure", board.get_node("CellHost"), board.get_node("UnitHost"), _assets)
+	board.cell_detail_requested.connect(_on_cell_detail_requested)
+	vfx_host.configure(board.get_node("CellHost"), board.get_node("UnitHost"), _assets)
 	_connect_vfx_signal("pets_reset_reveal_requested", "_on_pets_reset_reveal_requested")
 	_connect_vfx_signal("trace_sequence_started", "_on_trace_sequence_started")
 	_connect_vfx_signal("trace_sequence_finished", "_on_trace_sequence_finished")
 	_connect_vfx_signal("enemy_move_projection_requested", "_on_enemy_move_projection_requested")
-	if settings_menu.has_signal("session_operation_requested"):
-		settings_menu.connect(
-			"session_operation_requested",
-			Callable(self, "_on_settings_session_operation_requested")
-		)
-	if settings_menu.has_signal("button_shortcut_hints_visibility_changed"):
-		settings_menu.connect(
-			"button_shortcut_hints_visibility_changed",
-			Callable(self, "_on_button_shortcut_hints_visibility_changed")
-		)
-	if settings_menu.has_signal("shortcut_bindings_changed"):
-		settings_menu.connect(
-			"shortcut_bindings_changed",
-			Callable(self, "_on_shortcut_bindings_changed")
-		)
+	settings_menu.session_operation_requested.connect(_on_settings_session_operation_requested)
+	settings_menu.configure_formal_session_mode()
+	settings_menu.button_shortcut_hints_visibility_changed.connect(
+		_on_button_shortcut_hints_visibility_changed
+	)
+	settings_menu.shortcut_bindings_changed.connect(_on_shortcut_bindings_changed)
 	settings_menu.visibility_changed.connect(_on_settings_menu_visibility_changed)
 	_connect_map_controls()
+	var developer_tools_enabled := RuntimeUiPolicy.developer_tools_enabled()
+	map_debug_button.visible = developer_tools_enabled
+	if developer_tools_enabled:
+		map_debug_button.pressed.connect(_on_map_debug_button_pressed)
 	_configure_round_rewind_action({})
 	set_button_shortcut_hints_visible(_button_shortcut_hints_visible)
-	map_debug_button.pressed.connect(_on_map_debug_button_pressed)
-	map_selection_overlay.connect("map_selected", Callable(self, "_on_map_selected"))
-	if enemy_info_drawer.has_method("configure"):
-		enemy_info_drawer.call("configure", _assets)
 
 
 func _exit_tree() -> void:
@@ -120,17 +113,8 @@ func is_battle_input_locked() -> bool:
 
 func set_button_shortcut_hints_visible(hints_visible: bool) -> void:
 	_button_shortcut_hints_visible = hints_visible
-	if map_controls != null and map_controls.has_method("set_shortcut_hints_visible"):
-		map_controls.call("set_shortcut_hints_visible", hints_visible)
-	if settings_menu != null and settings_menu.has_method("set_button_shortcut_hints_visible"):
-		settings_menu.call("set_button_shortcut_hints_visible", hints_visible)
-
-
-func _on_health_bar_tier_requested(tier: String) -> void:
-	if board != null and board.has_method("set_all_health_bar_tiers"):
-		board.call("set_all_health_bar_tiers", tier)
-	if overlay != null and overlay.has_method("set_quality_tier_override"):
-		overlay.call("set_quality_tier_override", tier)
+	map_controls.set_shortcut_hints_visible(hints_visible)
+	settings_menu.set_button_shortcut_hints_visible(hints_visible)
 
 
 func are_button_shortcut_hints_visible() -> bool:
@@ -147,18 +131,20 @@ func get_trace_cursor() -> int:
 
 func render_snapshot(snapshot: Dictionary) -> void:
 	var incoming := snapshot.duplicate(true)
-	var new_events := Array(_trace_projection.call("new_events", incoming, _rendered_trace_count))
+	# The page owns the one defensive copy. Children receive the same read-only
+	# presentation snapshot instead of cloning the full trace and board again.
+	_last_snapshot = incoming
+	var new_events := _trace_projection.new_events(incoming, _rendered_trace_count)
 	var stage_for_active_trace := not _presented_snapshot.is_empty() and (
 		not new_events.is_empty()
 		or not _pending_final_snapshot.is_empty()
 		or _battle_input_locked
 	)
-	_last_snapshot = incoming
-	var final_cells := Array(Dictionary(incoming.get("board", {})).get("cells", [])).duplicate(true)
+	var final_cells := BattleSnapshotView.board_cells(incoming).duplicate(true)
 	if stage_for_active_trace:
-		_pending_final_snapshot = incoming.duplicate(true)
+		_pending_final_snapshot = incoming
 		_pending_enemy_move_final_cells.merge(
-			Dictionary(_trace_projection.call("collect_enemy_move_final_cells", final_cells, new_events)),
+			_trace_projection.collect_enemy_move_final_cells(final_cells, new_events),
 			true
 		)
 		_refresh_pending_enemy_move_final_cells(final_cells)
@@ -166,37 +152,25 @@ func render_snapshot(snapshot: Dictionary) -> void:
 		_pending_final_snapshot = {}
 		var visible_cells := final_cells.duplicate(true)
 		_pending_enemy_move_final_cells.merge(
-			Dictionary(_trace_projection.call("defer_enemy_move_projection", visible_cells, new_events)),
+			_trace_projection.defer_enemy_move_projection(visible_cells, new_events),
 			true
 		)
 		_commit_presentation_snapshot(
 			incoming,
 			visible_cells,
-			Dictionary(_trace_projection.call("pending_reset_unit_ids", new_events))
+			_trace_projection.pending_reset_unit_ids(new_events)
 		)
 	if not new_events.is_empty():
 		_all_out_trace_active = _latest_command_type(incoming) == "RUN_COMBAT_ROUND"
-		_rendered_trace_count = Array(incoming.get("battleTrace", incoming.get("battle_trace", []))).size()
+		_rendered_trace_count = BattleSnapshotView.trace_events(incoming).size()
 		_set_battle_input_locked(true)
 		play_battle_trace(new_events)
 	elif _rendered_trace_count < 0:
-		_rendered_trace_count = Array(incoming.get("battleTrace", incoming.get("battle_trace", []))).size()
-
-
-func render_selection_snapshot(snapshot: Dictionary) -> void:
-	_last_snapshot = snapshot.duplicate(false)
-	if board != null and board.has_method("render_selection_snapshot"):
-		board.call("render_selection_snapshot", snapshot)
-	if hud != null and hud.has_method("render_selection_snapshot"):
-		hud.call("render_selection_snapshot", snapshot)
-	if overlay != null and overlay.has_method("render_selection_snapshot"):
-		overlay.call("render_selection_snapshot", snapshot)
-	_presented_snapshot = snapshot.duplicate(false)
+		_rendered_trace_count = BattleSnapshotView.trace_events(incoming).size()
 
 
 func render_command_response(command: Dictionary, response: Dictionary) -> void:
-	if hud.has_method("render_command_response"):
-		hud.call("render_command_response", command, response)
+	hud.render_command_response(command, response)
 	var response_snapshot_value: Variant = response.get("snapshot", {})
 	var availability_snapshot := (
 		Dictionary(response_snapshot_value)
@@ -210,11 +184,11 @@ func render_command_response(command: Dictionary, response: Dictionary) -> void:
 func play_battle_trace(events: Array) -> void:
 	if events.is_empty():
 		return
-	if vfx_host == null or not vfx_host.has_method("play_trace"):
+	if vfx_host == null:
 		GameLogScript.warning("表现/战斗事件", "VFX 不可用，直接应用最终快照")
 		_apply_staged_final_snapshot()
 		return
-	vfx_host.call("play_trace", events)
+	vfx_host.play_trace(events)
 
 
 func _connect_command_source(source: Node) -> void:
@@ -236,17 +210,14 @@ func _connect_vfx_signal(signal_name: StringName, method_name: StringName) -> vo
 func _on_command_requested(command: Dictionary) -> void:
 	if _battle_input_locked or command.is_empty():
 		return
-	if String(command.get("type", "")).strip_edges().to_upper() == "RUN_COMBAT_ROUND" \
-			and board != null and board.has_method("clear_transient_state"):
-		board.call("clear_transient_state")
 	command_requested.emit(command.duplicate(true))
 
 
 func _on_cell_detail_requested(grid: Vector2i, unit_id: String) -> void:
 	if grid.x < 0 or grid.y < 0:
-		overlay.call("clear")
+		overlay.clear()
 		return
-	overlay.call("request_detail", grid, unit_id)
+	overlay.request_detail(grid, unit_id)
 
 
 func _on_enemy_move_projection_requested(event: Dictionary) -> void:
@@ -255,12 +226,12 @@ func _on_enemy_move_projection_requested(event: Dictionary) -> void:
 	var final_cell := Dictionary(_pending_enemy_move_final_cells.get(unit_id, {}))
 	if unit_id == "" or final_cell.is_empty():
 		return
-	board.call("apply_enemy_move_final_cell", unit_id, final_cell)
+	board.apply_enemy_move_final_cell(unit_id, final_cell)
 	_pending_enemy_move_final_cells.erase(unit_id)
 
 
 func _on_pets_reset_reveal_requested(units: Array) -> void:
-	board.call("reveal_reset_units", units)
+	board.reveal_reset_units(units)
 
 
 func _on_trace_sequence_started() -> void:
@@ -284,11 +255,11 @@ func _apply_staged_final_snapshot() -> void:
 	if not _pending_final_snapshot.is_empty():
 		var final_snapshot := _pending_final_snapshot.duplicate(true)
 		_pending_final_snapshot = {}
-		var final_cells := Array(Dictionary(final_snapshot.get("board", {})).get("cells", [])).duplicate(true)
+		var final_cells := BattleSnapshotView.board_cells(final_snapshot).duplicate(true)
 		_commit_presentation_snapshot(final_snapshot, final_cells, {}, true)
 	else:
 		for unit_id_value in _pending_enemy_move_final_cells.keys():
-			board.call("apply_enemy_move_final_cell", String(unit_id_value), Dictionary(_pending_enemy_move_final_cells[unit_id_value]))
+			board.apply_enemy_move_final_cell(String(unit_id_value), Dictionary(_pending_enemy_move_final_cells[unit_id_value]))
 	_pending_enemy_move_final_cells.clear()
 	_set_battle_input_locked(false)
 	trace_sequence_finished.emit()
@@ -300,31 +271,17 @@ func _commit_presentation_snapshot(
 	pending_reset_ids: Dictionary = {},
 	reconcile_unit_presentation: bool = false
 ) -> void:
-	board.call(
-		"render_snapshot",
+	board.render_snapshot(
 		snapshot,
 		cells,
 		pending_reset_ids,
 		reconcile_unit_presentation
 	)
-	hud.call("render_snapshot", snapshot)
-	overlay.call("render_snapshot", snapshot)
-	if enemy_info_drawer.has_method("render_snapshot"):
-		enemy_info_drawer.call("render_snapshot", snapshot)
+	hud.render_snapshot(snapshot)
+	overlay.render_snapshot(snapshot)
+	_log_dashboard.render_snapshot(snapshot)
 	_sync_map_controls(snapshot)
-	_presented_snapshot = snapshot.duplicate(true)
-	_announce_round_if_needed(snapshot)
-
-
-func _announce_round_if_needed(snapshot: Dictionary) -> void:
-	if String(snapshot.get("phase", "")) != "battle":
-		return
-	var round_number := int(snapshot.get("battle_round", snapshot.get("battleRound", 0)))
-	if round_number <= 0 or round_number == _announced_round:
-		return
-	_announced_round = round_number
-	if vfx_host != null and vfx_host.has_method("play_round_banner"):
-		vfx_host.call("play_round_banner", round_number, "player")
+	_presented_snapshot = snapshot
 
 
 func _refresh_pending_enemy_move_final_cells(final_cells: Array) -> void:
@@ -339,15 +296,13 @@ func _refresh_pending_enemy_move_final_cells(final_cells: Array) -> void:
 
 func _set_battle_input_locked(locked: bool) -> void:
 	_battle_input_locked = locked
-	board.call("set_input_locked", locked)
-	hud.call("set_input_locked", locked)
+	board.set_input_locked(locked)
+	hud.set_input_locked(locked)
 	_update_map_control_availability(_last_snapshot)
 
 
 func _input(event: InputEvent) -> void:
-	if settings_menu != null \
-			and settings_menu.has_method("is_capturing_shortcut") \
-			and bool(settings_menu.call("is_capturing_shortcut")):
+	if settings_menu != null and settings_menu.is_capturing_shortcut():
 		return
 	if not event is InputEventKey and not event is InputEventMouseButton:
 		return
@@ -361,23 +316,18 @@ func _input(event: InputEvent) -> void:
 	)
 	var is_echo := event is InputEventKey and (event as InputEventKey).echo
 	if _settings_menu_is_open() and action_id in SETTINGS_MODAL_BLOCKED_SHORTCUTS:
-		if not pressed and map_controls.has_method("handle_shortcut_input"):
-			map_controls.call("handle_shortcut_input", event, false)
+		if not pressed:
+			map_controls.handle_shortcut_input(event, false)
 		get_viewport().set_input_as_handled()
 		return
 	if _attack_timeline_is_open() and action_id in TIMELINE_MODAL_BLOCKED_SHORTCUTS:
-		if not pressed and map_controls.has_method("handle_shortcut_input"):
-			map_controls.call("handle_shortcut_input", event, false)
-		get_viewport().set_input_as_handled()
-		return
-	if action_id == ShortcutCatalog.ACTION_SETTINGS \
-			and pressed and not is_echo and _close_visible_detail():
+		if not pressed:
+			map_controls.handle_shortcut_input(event, false)
 		get_viewport().set_input_as_handled()
 		return
 	if action_id not in [ShortcutCatalog.ACTION_SETTINGS, ShortcutCatalog.ACTION_ATTACK_ORDER]:
 		return
-	if map_controls.has_method("handle_shortcut_input"):
-		map_controls.call("handle_shortcut_input", event, false)
+	map_controls.handle_shortcut_input(event, false)
 	if not pressed or is_echo:
 		get_viewport().set_input_as_handled()
 		return
@@ -392,20 +342,11 @@ func _input(event: InputEvent) -> void:
 
 
 func _settings_menu_is_open() -> bool:
-	return settings_menu != null and bool(settings_menu.call("is_open"))
+	return settings_menu != null and settings_menu.is_open()
 
 
 func _attack_timeline_is_open() -> bool:
-	return hud != null and bool(hud.call("debug_is_attack_timeline_open"))
-
-
-func _close_visible_detail() -> bool:
-	if overlay == null or not overlay.has_method("has_visible_detail") \
-			or not bool(overlay.call("has_visible_detail")):
-		return false
-	overlay.call("clear")
-	GameLogScript.info("战斗按键/Esc", "已关闭战斗详情")
-	return true
+	return hud != null and hud.debug_is_attack_timeline_open()
 
 
 func _connect_map_controls() -> void:
@@ -415,7 +356,7 @@ func _connect_map_controls() -> void:
 		"bag_requested": Callable(self, "_on_map_bag_requested"),
 		"auto_arrange_requested": Callable(self, "_on_map_auto_arrange_requested"),
 		"reset_requested": Callable(self, "_on_map_reset_requested"),
-		"speed_toggled": Callable(self, "_on_map_speed_toggled"),
+		"log_requested": Callable(self, "_on_map_log_requested"),
 		"all_out_requested": Callable(self, "_on_map_all_out_requested"),
 		"shortcut_blocked": Callable(self, "_on_map_shortcut_blocked"),
 	}
@@ -426,8 +367,8 @@ func _connect_map_controls() -> void:
 
 
 func _configure_round_rewind_action(snapshot: Dictionary) -> void:
-	var phase_is_battle := String(snapshot.get("phase", "")) == "battle"
-	var rewind_state := Dictionary(snapshot.get("round_rewind", snapshot.get("roundRewind", {})))
+	var phase_is_battle := BattleSnapshotView.phase(snapshot) == "battle"
+	var rewind_state := BattleSnapshotView.round_rewind_state(snapshot)
 	var can_rewind := phase_is_battle and bool(rewind_state.get("canRewind", false))
 	map_bag_button.disabled = _battle_input_locked or not can_rewind
 	if can_rewind:
@@ -437,16 +378,21 @@ func _configure_round_rewind_action(snapshot: Dictionary) -> void:
 
 
 func _sync_map_controls(snapshot: Dictionary) -> void:
-	if _debug_map_index < 0:
-		_apply_art_map(DEFAULT_ART_MAP_ID)
+	if _assets != null:
+		var map_id := String(_assets.battle_background_key(snapshot))
+		if map_controls.set_map_by_id(map_id):
+			_debug_map_index = map_controls.get_map_index()
+			if map_debug_button.visible:
+				_update_map_debug_button_label()
 	_update_map_control_availability(snapshot)
 
 
 func _update_map_control_availability(snapshot: Dictionary) -> void:
-	var phase_is_battle := String(snapshot.get("phase", "")) == "battle"
+	var phase_is_battle := BattleSnapshotView.phase(snapshot) == "battle"
 	map_auto_arrange_button.disabled = _battle_input_locked or not phase_is_battle
 	map_all_out_button.disabled = _battle_input_locked or not phase_is_battle
-	var reset_state := Dictionary(Dictionary(snapshot.get("pet_reset", {})).get("player", {}))
+	map_attack_order_button.disabled = _battle_input_locked or not phase_is_battle
+	var reset_state := BattleSnapshotView.player_reset_state(snapshot)
 	var reset_charges := int(reset_state.get("charges", 0))
 	var rounds_until_next_charge := int(reset_state.get(
 		"roundsUntilNextCharge",
@@ -457,61 +403,70 @@ func _update_map_control_availability(snapshot: Dictionary) -> void:
 	# this state; leaving the TextureButton disabled made mouse clicks appear
 	# completely dead. The handler below still guards the semantic command.
 	map_reset_button.disabled = _battle_input_locked or not phase_is_battle
-	if map_controls.has_method("set_reset_charge_state"):
-		map_controls.call(
-			"set_reset_charge_state",
-			reset_charges,
-			rounds_until_next_charge
-		)
+	map_controls.set_reset_charge_state(reset_charges, rounds_until_next_charge)
 	_configure_round_rewind_action(snapshot)
 
 
 func _on_map_settings_requested() -> void:
 	if _settings_menu_is_open():
-		settings_menu.call("handle_cancel")
+		settings_menu.handle_cancel()
 		GameLogScript.info("战斗按键/Esc", "已关闭战斗菜单")
 	else:
 		_close_secondary_interfaces()
-		settings_menu.call("open_menu")
+		settings_menu.open_menu()
 		GameLogScript.info("战斗按键/Esc", "已打开战斗菜单")
 
 
 func _close_secondary_interfaces() -> void:
-	if hud.has_method("close_attack_timeline"):
-		hud.call("close_attack_timeline")
-	if overlay.has_method("clear"):
-		overlay.call("clear")
-	if map_selection_overlay.has_method("close"):
-		map_selection_overlay.call("close")
+	hud.close_attack_timeline()
+	overlay.clear()
+	if _log_dashboard != null:
+		_log_dashboard.close()
 
 
 func _on_settings_menu_visibility_changed() -> void:
-	if hud.has_method("set_attack_timeline_obscured"):
-		hud.call("set_attack_timeline_obscured", settings_menu.visible)
+	hud.set_attack_timeline_obscured(settings_menu.visible)
 
 
 func _on_map_attack_order_requested() -> void:
-	if hud.has_method("toggle_attack_timeline"):
-		hud.call("toggle_attack_timeline")
-		var opened := bool(hud.call("debug_is_attack_timeline_open"))
-		GameLogScript.info("战斗按键/Tab", "攻击顺序界面已%s" % ("打开" if opened else "关闭"))
+	if _battle_input_locked or map_attack_order_button.disabled:
+		return
+	if _log_dashboard != null:
+		_log_dashboard.close()
+	hud.toggle_attack_timeline()
+	var opened := hud.debug_is_attack_timeline_open()
+	GameLogScript.info("战斗按键/Tab", "攻击顺序界面已%s" % ("打开" if opened else "关闭"))
 
 
 func _on_map_bag_requested() -> void:
 	if _battle_input_locked or map_bag_button.disabled:
 		_on_map_shortcut_blocked("B", "BagButton")
 		return
-	var rewind_state := Dictionary(_last_snapshot.get("round_rewind", _last_snapshot.get("roundRewind", {})))
+	var rewind_state := BattleSnapshotView.round_rewind_state(_last_snapshot)
 	GameLogScript.info("战斗按键/B", "已请求回撤到上一回合开始", {
 		"目标回合": int(rewind_state.get("targetRound", 0)),
 	})
-	command_requested.emit({"type": "REWIND_TO_PREVIOUS_ROUND_START"})
+	command_requested.emit(_commands.build("REWIND_TO_PREVIOUS_ROUND_START", _last_snapshot))
 
 
-func _on_map_speed_toggled(active: bool) -> void:
+func _on_map_log_requested() -> void:
+	if _log_dashboard == null:
+		return
+	if not _log_dashboard.is_open():
+		_close_secondary_interfaces()
+	_log_dashboard.toggle()
+	GameLogScript.info("战斗按键/D", "战斗日志看板已%s" % ("打开" if _log_dashboard.is_open() else "关闭"))
+
+
+func _on_log_dashboard_close_requested() -> void:
+	if _log_dashboard != null:
+		_log_dashboard.close()
+
+
+func _on_log_dashboard_speed_toggled(active: bool) -> void:
 	_combat_speed_enabled = active
 	_apply_combat_speed()
-	GameLogScript.info("战斗按键/D", "二倍战斗速度已%s" % ("开启" if active else "关闭"), {
+	GameLogScript.info("战斗日志看板", "二倍战斗速度已%s" % ("开启" if active else "关闭"), {
 		"当前是否处于战斗演出": _battle_input_locked,
 		"当前实际速度": Engine.time_scale,
 	})
@@ -521,37 +476,35 @@ func _on_map_auto_arrange_requested() -> void:
 	if _battle_input_locked or map_auto_arrange_button.disabled:
 		return
 	map_auto_arrange_button.disabled = true
-	if hud.has_method("request_auto_arrange"):
-		hud.call("request_auto_arrange")
+	hud.request_auto_arrange()
 
 
 func _on_map_reset_requested() -> void:
 	if _battle_input_locked or map_reset_button.disabled:
 		return
-	var reset_state := Dictionary(Dictionary(_last_snapshot.get("pet_reset", {})).get("player", {}))
+	var reset_state := BattleSnapshotView.player_reset_state(_last_snapshot)
 	if not bool(reset_state.get("eligible", false)):
 		_on_map_shortcut_blocked("点击/R", "ResetButton")
 		return
 	GameLogScript.info("战斗按键/R", "已请求回溯我方精灵到本场战斗入场状态")
-	command_requested.emit({"type": "RESET_PETS"})
+	command_requested.emit(_commands.build("RESET_PETS", _last_snapshot))
 
 
 func _on_map_all_out_requested() -> void:
 	if _battle_input_locked or map_all_out_button.disabled:
 		return
 	GameLogScript.info("战斗按键/Space", "已请求全军出击")
-	if hud.has_method("request_begin_turn"):
-		hud.call("request_begin_turn")
+	hud.request_begin_turn()
 
 
 func _on_map_shortcut_blocked(shortcut: String, button_name: String) -> void:
 	var reason := "当前不可用"
 	if _battle_input_locked:
 		reason = "战斗演出正在进行"
-	elif String(_last_snapshot.get("phase", "")) != "battle":
+	elif BattleSnapshotView.phase(_last_snapshot) != "battle":
 		reason = "当前不在战斗阶段"
 	elif button_name == "ResetButton":
-		var reset_state := Dictionary(Dictionary(_last_snapshot.get("pet_reset", {})).get("player", {}))
+		var reset_state := BattleSnapshotView.player_reset_state(_last_snapshot)
 		var rounds_until_next_charge := int(reset_state.get(
 			"roundsUntilNextCharge",
 			reset_state.get("cooldownRemaining", 0)
@@ -577,7 +530,7 @@ func _apply_combat_speed() -> void:
 
 
 func _latest_command_type(snapshot: Dictionary) -> String:
-	var command_log := Array(snapshot.get("command_log", snapshot.get("commandLog", [])))
+	var command_log := BattleSnapshotView.command_log(snapshot)
 	if command_log.is_empty():
 		return ""
 	var latest_value: Variant = command_log.back()
@@ -643,26 +596,20 @@ func _on_shortcut_bindings_changed(bindings: Dictionary) -> void:
 
 
 func _on_map_debug_button_pressed() -> void:
-	_close_secondary_interfaces()
-	map_selection_overlay.call("open", String(map_controls.call("get_map_id")))
-
-
-func _on_map_selected(map_id: String) -> void:
-	_apply_art_map(map_id)
-
-
-func _apply_art_map(map_id: String) -> bool:
-	if not bool(map_controls.call("set_map_by_id", map_id)):
-		return false
-	_debug_map_index = int(map_controls.call("get_map_index"))
-	var texture := map_controls.call("get_map_texture") as Texture2D
-	if texture != null and board.has_method("set_background_texture"):
-		board.call("set_background_texture", texture)
+	var map_ids := map_controls.get_map_ids()
+	if map_ids.is_empty():
+		return
+	_debug_map_index = (_debug_map_index + 1) % map_ids.size()
+	if not map_controls.set_map_by_index(_debug_map_index):
+		return
+	var texture := map_controls.get_map_texture()
+	if texture != null:
+		board.set_background_texture(texture)
 	_update_map_debug_button_label()
-	return true
+
 
 func _update_map_debug_button_label() -> void:
-	map_debug_button.text = "选择地图：%s" % String(map_controls.call("get_map_display_name"))
+	map_debug_button.text = "调试地图：%s" % map_controls.get_map_display_name()
 
 
 func _on_settings_session_operation_requested(

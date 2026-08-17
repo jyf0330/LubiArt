@@ -1,0 +1,950 @@
+{
+  "schema": "ysbzs.shop-character-generation-manifest.v1",
+  "source": "res://data/content/generated/013_route.json",
+  "source_node_map": "res://art/manifests/route/shop/characters/shop_character_node_map_manifest.json",
+  "source_node_map_sha256": "cf611f156f8fac2f79b1eb336639963f35b921fb510bf290e3855fca22a9b8a3",
+  "style_reference": "res://art/images/route/three_choice_psd/route_portrait_shop.png",
+  "style_contract": {
+    "id": "ysbzs-route-chibi-pixel-v1",
+    "required": [
+      "compact Q-version merchant with one readable trade identity",
+      "visible hard pixel clusters and stair-step contours",
+      "dark warm outline and limited flat stepped shading",
+      "one complete reusable character on transparency without UI"
+    ],
+    "forbidden": [
+      "smooth painterly, vector, 3D-rendered, or photorealistic surfaces",
+      "scenery, stall, card frame, text, logo, watermark, glow, or gradient"
+    ]
+  },
+  "target_count": 33,
+  "generated_count": 33,
+  "approved_count": 33,
+  "pending_count": 0,
+  "targets": [
+    {
+      "character_id": "shop_character_001",
+      "index": 1,
+      "node_id": "node_shop_basic",
+      "name": "夜市商人",
+      "shop_pool_id": "night_base",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_001.png",
+      "file": {
+        "state": "generated",
+        "sha256": "a52891031b3b56575e8557e20f945d6e82f58c437cbc6dd604689171322f7672",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          219,
+          90,
+          1000,
+          1154
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: distinct night-market woman with one lantern and one coin pouch; hard Q-version pixel clusters, complete silhouette and hard alpha without stall, scenery, UI or text"
+    },
+    {
+      "character_id": "shop_character_002",
+      "index": 2,
+      "node_id": "node_shop_fire",
+      "name": "火系补货商人",
+      "shop_pool_id": "elem_火",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_002.png",
+      "file": {
+        "state": "generated",
+        "sha256": "e1ea7b0d5a60ae689ff1aeac2abc09d29b3b7dda8a1eb3efb8b211200f2553ad",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          333,
+          68,
+          955,
+          1200
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed after rejecting a same-face female draft: distinct short-haired male fire blacksmith with one apron, one hammer and one local ember badge; hard alpha and no free flame effects"
+    },
+    {
+      "character_id": "shop_character_003",
+      "index": 3,
+      "node_id": "node_d02_role_summon",
+      "name": "召唤摊位",
+      "shop_pool_id": "role_召唤",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_003.png",
+      "file": {
+        "state": "generated",
+        "sha256": "aeda070aba20e79d1d4afa29dd16f422f73f7454180fa1ba561942b24fe228d9",
+        "width": 1238,
+        "height": 1271,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          224,
+          78,
+          989,
+          1157
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: distinct short-haired summoning merchant with exactly one closed tied scroll and one plain belt talisman patch; no creature, magic circle, UI or text"
+    },
+    {
+      "character_id": "shop_character_004",
+      "index": 4,
+      "node_id": "node_d02_role_tank",
+      "name": "前排摊位",
+      "shop_pool_id": "role_坦克",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_004.png",
+      "file": {
+        "state": "generated",
+        "sha256": "819b456cb19231c82214807907bd438a63994e1a96d4bf55e0d7f545ea0d1890",
+        "width": 1238,
+        "height": 1271,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          119,
+          50,
+          1103,
+          1201
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: distinct stocky moustached quartermaster with one wooden shield and one blank clipboard; readable frontline trade identity without weapon or heroic over-armor"
+    },
+    {
+      "character_id": "shop_character_005",
+      "index": 5,
+      "node_id": "node_d02_shop_water",
+      "name": "水系补货商人",
+      "shop_pool_id": "elem_水",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_005.png",
+      "file": {
+        "state": "generated",
+        "sha256": "774c1ff59cecf671aa741f22abda999a2e301b7d0746e6a87e27259ba52d9ffb",
+        "width": 1239,
+        "height": 1270,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          238,
+          78,
+          872,
+          1188
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: distinct braided water apothecary with one ceramic gourd and one folded inventory bundle; restrained wave stitch, no free water effects, hard alpha"
+    },
+    {
+      "character_id": "shop_character_006",
+      "index": 6,
+      "node_id": "node_d03_tier2_shop",
+      "name": "白银预备商人",
+      "shop_pool_id": "tier_pT2",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_006.png",
+      "file": {
+        "state": "generated",
+        "sha256": "971eae986a9a2f163dc3570872e0f3d4ec60482bdfe61188a4ab89633a8ef641",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          417,
+          125,
+          851,
+          1130
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: calm silver-guild clerk with short grey hair and one closed silver lockbox; compact hard-pixel silhouette, transparent margin, no coin, text or scenery"
+    },
+    {
+      "character_id": "shop_character_007",
+      "index": 7,
+      "node_id": "node_d03_fire_shop",
+      "name": "火系强化商人",
+      "shop_pool_id": "elem_火",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_007.png",
+      "file": {
+        "state": "generated",
+        "sha256": "031e67a9cddc3effe9cd2512ecf930c338a8feed94c1d407959067caf4de6a8c",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          285,
+          67,
+          989,
+          1186
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: distinct high-ponytail female fire refiner with one long forging tong and one restrained ingot; no free flames, extra tools, UI or scenery"
+    },
+    {
+      "character_id": "shop_character_008",
+      "index": 8,
+      "node_id": "node_d03_summon_shop",
+      "name": "召唤强化商人",
+      "shop_pool_id": "role_召唤",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_008.png",
+      "file": {
+        "state": "generated",
+        "sha256": "7ff0a3eb6709d28493034a0506470c0f7935a1c38e63f963b62d5e4a1f6eb5be",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          367,
+          50,
+          874,
+          1205
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: elderly male contract archivist with spectacles, moustache and one closed blank ledger; distinct silhouette, hard alpha, no creatures, circles or text"
+    },
+    {
+      "character_id": "shop_character_009",
+      "index": 9,
+      "node_id": "node_d04_tier2_shop",
+      "name": "白银商会",
+      "shop_pool_id": "tier_pT2",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_009.png",
+      "file": {
+        "state": "generated",
+        "sha256": "ac810c14bb93c82e30f94ca7a37d6a0aab685ba1825400845f1ea4c7aa9f5087",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          314,
+          131,
+          916,
+          1127
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: poised silver-guild accountant with low side bun and one wooden abacus; restrained neutral palette, hard pixel clusters, no coins, writing or frame"
+    },
+    {
+      "character_id": "shop_character_010",
+      "index": 10,
+      "node_id": "node_d04_wind_shop",
+      "name": "雷系补货商人",
+      "shop_pool_id": "elem_雷",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_010.png",
+      "file": {
+        "state": "generated",
+        "sha256": "599a8ff25e4c74fe8accedb9285e2f92bea4a6cee0f70fc57f72ecf10074efc2",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          200,
+          32,
+          883,
+          1495
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed after live-route identity correction: indigo-haired lightning supply merchant with one sealed ceramic canister and restrained lightning clasp; no free effects, glow, text or scenery"
+    },
+    {
+      "character_id": "shop_character_011",
+      "index": 11,
+      "node_id": "node_d04_control_shop",
+      "name": "控制补强商人",
+      "shop_pool_id": "role_控制",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_011.png",
+      "file": {
+        "state": "generated",
+        "sha256": "d8feeeccb914408d5e21585a9ce02bc65d76c12efc07b8300e9177c1a3234636",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          376,
+          55,
+          878,
+          1156
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: lean middle-aged restraint-gear merchant with narrow eyes, tied beard and one plain rope coil; no chains, weapons, magic or scenery"
+    },
+    {
+      "character_id": "shop_character_012",
+      "index": 12,
+      "node_id": "node_d05_tier2_shop",
+      "name": "白银精选商会",
+      "shop_pool_id": "tier_pT2",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_012.png",
+      "file": {
+        "state": "generated",
+        "sha256": "3994e91d65282bf609eb1aab9aff6d0186a33d9193c2ca692d04b98ebcb610f4",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          246,
+          115,
+          973,
+          1128
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: cheerful heavyset silver-guild curator with one open presentation case and one unmarked silver brooch; distinct premium guild silhouette without text or coins"
+    },
+    {
+      "character_id": "shop_character_013",
+      "index": 13,
+      "node_id": "node_d05_water_shop",
+      "name": "水系治疗商人",
+      "shop_pool_id": "elem_水",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_013.png",
+      "file": {
+        "state": "generated",
+        "sha256": "76db53d9637735b063a61b2ba92cd66e457aa834f87a30d58a9d28e55d8780a2",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          386,
+          73,
+          862,
+          1182
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed after rejecting a black-vignette draft: friendly older water healer with short silver braid and one stoppered medicine bottle; clean hard transparency and no free effects"
+    },
+    {
+      "character_id": "shop_character_014",
+      "index": 14,
+      "node_id": "node_d05_heal_shop",
+      "name": "治疗补强商人",
+      "shop_pool_id": "role_治疗",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_014.png",
+      "file": {
+        "state": "generated",
+        "sha256": "8ef402f2c5dba8d537ae32d2e02ac012e8bf0fbb7ed04497525306d64ef20ace",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          393,
+          94,
+          835,
+          1167
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: quiet young field medic with tied-back hair, sage robe, work vest and one folded bandage bundle; no cross symbol, extra tools, UI or scenery"
+    },
+    {
+      "character_id": "shop_character_015",
+      "index": 15,
+      "node_id": "node_d06_tier3_shop",
+      "name": "黄金商会",
+      "shop_pool_id": "tier_pT3",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_015.png",
+      "file": {
+        "state": "generated",
+        "sha256": "01e72020b08b97d0d62ea5ac0820f056e1cade7a0e675f7861518c1a43d63ec4",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          394,
+          49,
+          896,
+          1208
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: dignified elderly gold-guild chairwoman with tall coiffure, burgundy formal robe and one blank gold-edged folio; distinct from silver guild staff"
+    },
+    {
+      "character_id": "shop_character_016",
+      "index": 16,
+      "node_id": "node_d06_output_shop",
+      "name": "输出补强商人",
+      "shop_pool_id": "role_输出",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_016.png",
+      "file": {
+        "state": "generated",
+        "sha256": "4cc907e613f7ee6289db0be41de118e3528855962139a15ed3a2de452ec955cf",
+        "width": 1122,
+        "height": 1402,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          283,
+          118,
+          896,
+          1271
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: energetic short-haired female output merchant with one plain wooden target disk; target identity reads without weapon, numbers, effects or scenery"
+    },
+    {
+      "character_id": "shop_character_017",
+      "index": 17,
+      "node_id": "node_d06_fire_shop",
+      "name": "火系爆发商人",
+      "shop_pool_id": "elem_火",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_017.png",
+      "file": {
+        "state": "generated",
+        "sha256": "1c1b199e180ece4238adc2a5276758457bc429d57c4378eae2ddc2d81c6780df",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          355,
+          75,
+          855,
+          1188
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: wiry white-haired furnace-fuel specialist with one sealed dark ceramic jar; no repeated hammer or tongs, free fire, sparks or extra props"
+    },
+    {
+      "character_id": "shop_character_018",
+      "index": 18,
+      "node_id": "node_d07_tier3_shop",
+      "name": "黄金精选商会",
+      "shop_pool_id": "tier_pT3",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_018.png",
+      "file": {
+        "state": "generated",
+        "sha256": "91efd0db8c1dadf69b70ea1edd0cd136b8f79cac4d4e69a825252172d2560793",
+        "width": 1122,
+        "height": 1402,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          317,
+          59,
+          810,
+          1333
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: elegant male gold-guild appraiser with side-parted hair, thin moustache and one magnifying lens; distinct from the chairwoman and prior guild clerks"
+    },
+    {
+      "character_id": "shop_character_019",
+      "index": 19,
+      "node_id": "node_d07_tank_shop",
+      "name": "前排补强商人",
+      "shop_pool_id": "role_坦克",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_019.png",
+      "file": {
+        "state": "generated",
+        "sha256": "02dbb3e5dafd0adc6e56699e43e82caf0357f4c5543df0f9c434fd6c8d5e3f25",
+        "width": 1086,
+        "height": 1448,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          211,
+          100,
+          872,
+          1337
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: broad older female armor outfitter with cropped grey hair and one folded padded shoulder guard; no repeated shield, weapon or clipboard"
+    },
+    {
+      "character_id": "shop_character_020",
+      "index": 20,
+      "node_id": "node_d07_earth_shop",
+      "name": "地系防线商人",
+      "shop_pool_id": "elem_地",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_020.png",
+      "file": {
+        "state": "generated",
+        "sha256": "c676d5701db473762c9f7b5a705d80aa82b3c467ae84fca5e8710a70c10d6d12",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          271,
+          59,
+          913,
+          1201
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: sturdy square-faced masonry merchant with close-cropped hair, stone apron and one fired-clay brick; no wall, rocks, effects, text or scenery"
+    },
+    {
+      "character_id": "shop_character_021",
+      "index": 21,
+      "node_id": "node_d08_tier3_shop",
+      "name": "黄金连锁商会",
+      "shop_pool_id": "tier_pT3",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_021.png",
+      "file": {
+        "state": "generated",
+        "sha256": "3f389bac8a314d0ad87845091ebd8f415f1fa0a6c1df6e6759efceca8e6fcb16",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          379,
+          54,
+          855,
+          1205
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: angular-bob female chain-guild logistics director with exactly three sample links; distinct final-tier guild silhouette without coins, ledger or scenery"
+    },
+    {
+      "character_id": "shop_character_022",
+      "index": 22,
+      "node_id": "node_d08_economy_shop",
+      "name": "经济补强商人",
+      "shop_pool_id": "role_经济",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_022.png",
+      "file": {
+        "state": "generated",
+        "sha256": "67fa1a21dd595ee83070dcbf0d3c623c78fa317c79dc496f93e9a583914a6699",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          336,
+          50,
+          958,
+          1201
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: elderly thrift-supply merchant with patched tidy robe and one plain five-peg counting board; no abacus, coins, writing or extra props"
+    },
+    {
+      "character_id": "shop_character_023",
+      "index": 23,
+      "node_id": "node_d08_wind_shop",
+      "name": "雷系连锁商人",
+      "shop_pool_id": "elem_雷",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_023.png",
+      "file": {
+        "state": "generated",
+        "sha256": "a6f4c3b8b601569808fef476b512f40c98993cf7cbca3b6da90a9610f849ded3",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          55,
+          68,
+          918,
+          1453
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed after live-route identity correction: elderly silver-haired relay engineer with one interlocking copper clamp case; readable lightning-chain identity without free effects, glow, text or scenery"
+    },
+    {
+      "character_id": "shop_character_024",
+      "index": 24,
+      "node_id": "node_d09_tier3_shop",
+      "name": "终局前黄金商会",
+      "shop_pool_id": "tier_pT3",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_024.png",
+      "file": {
+        "state": "generated",
+        "sha256": "90bce37b6c20449770744ed9132e4dfd385a7bf488a2e562d59adc5936df6225",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          289,
+          41,
+          918,
+          1190
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: stocky senior gold-guild steward with square grey beard and one sealed document tube; no repeated folio, magnifier, chain, coins or crown"
+    },
+    {
+      "character_id": "shop_character_025",
+      "index": 25,
+      "node_id": "node_d09_summon_shop",
+      "name": "召唤终局商人",
+      "shop_pool_id": "role_召唤",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_025.png",
+      "file": {
+        "state": "generated",
+        "sha256": "f98a68ccae366ee45034b8c2a573b9ea88af6b96c92828a0521215d738f71b73",
+        "width": 1254,
+        "height": 1254,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          328,
+          46,
+          897,
+          1203
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: sharp-eyed female master contract merchant with high-loop teal hair and one blank octagonal contract box; no creature, scroll, circle or particles"
+    },
+    {
+      "character_id": "shop_character_026",
+      "index": 26,
+      "node_id": "node_d09_fire_shop",
+      "name": "火系终局商人",
+      "shop_pool_id": "elem_火",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_026.png",
+      "file": {
+        "state": "generated",
+        "sha256": "11bf8ce60d5941eb5d27bd82f94883c0c1e57d08ef277049429658c33085ecb7",
+        "width": 1122,
+        "height": 1402,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          261,
+          79,
+          865,
+          1288
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: young male fireproof-textile specialist with shaved sides, red-brown topknot and one folded dark-red cloth bundle; no flames, jars or metal tools"
+    },
+    {
+      "character_id": "shop_character_027",
+      "index": 27,
+      "node_id": "node_d10_tier3_shop",
+      "name": "终局黄金商会",
+      "shop_pool_id": "tier_pT3",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_027.png",
+      "file": {
+        "state": "generated",
+        "sha256": "0da452596dfcde582c54db54a35aa9f0ef55fca371991ca4727e6a1b985e563e",
+        "width": 1122,
+        "height": 1402,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          322,
+          106,
+          783,
+          1300
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: short silver-blonde female final gold-guild executive with ivory-black robe and one closed blank signet case; distinct from all prior guild staff"
+    },
+    {
+      "character_id": "shop_character_028",
+      "index": 28,
+      "node_id": "node_d10_output_shop",
+      "name": "终局输出商人",
+      "shop_pool_id": "role_输出",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_028.png",
+      "file": {
+        "state": "generated",
+        "sha256": "ecfbb6d2cddeca5c2e71e66a28d93ada8102b7fa36c7759dbd519a61f007e735",
+        "width": 1122,
+        "height": 1402,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          273,
+          95,
+          809,
+          1298
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: scarred elderly female combat-calibration merchant with one blank brass spring tension gauge; no weapon, target, medals, text or effects"
+    },
+    {
+      "character_id": "shop_character_029",
+      "index": 29,
+      "node_id": "node_d10_fire_shop",
+      "name": "终局火系商人",
+      "shop_pool_id": "elem_火",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_029.png",
+      "file": {
+        "state": "generated",
+        "sha256": "12c44236bc5c9176179234d64b72e76bfebf9ffbac753f8ee5b70dd19bc97144",
+        "width": 1100,
+        "height": 1430,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          222,
+          59,
+          896,
+          1359
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: broad-faced elderly furnace matriarch with high white bun and one closed heatproof ember casket; no free fire, glow, jar, cloth or extra tools"
+    },
+    {
+      "character_id": "shop_character_030",
+      "index": 30,
+      "node_id": "node_shop_element_day1",
+      "name": "元素巡商",
+      "shop_pool_id": "day1_element_dynamic",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_030.png",
+      "file": {
+        "state": "generated",
+        "sha256": "6ad5640d70269f4f3b252e6df106a2688faa8ff4cce71a0fdf4bb24fb0172b75",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          163,
+          32,
+          959,
+          1499
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: auburn element traveler with one nine-mineral sample case and compact travel pack; all elements read without free effects, labels, UI or scenery"
+    },
+    {
+      "character_id": "shop_character_031",
+      "index": 31,
+      "node_id": "node_shop_role_day1",
+      "name": "定位经纪人",
+      "shop_pool_id": "day1_role_dynamic",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_031.png",
+      "file": {
+        "state": "generated",
+        "sha256": "3f8b486d98a620bb713f0bf8dbfa035547c901d833b35bddff67b30304bfd400",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          145,
+          14,
+          852,
+          1523
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: long-haired role broker with one blank silhouette-badge organizer; distinct formal silhouette, hard transparency and no text, UI or scenery"
+    },
+    {
+      "character_id": "shop_character_032",
+      "index": 32,
+      "node_id": "node_shop_growth_day1",
+      "name": "成长工坊",
+      "shop_pool_id": "day1_growth",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_032.png",
+      "file": {
+        "state": "generated",
+        "sha256": "5ddbbe399ac08aadf183f40c706bc2156ae11d8c0ee28e3229409bd03644a544",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          190,
+          31,
+          865,
+          1510
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: teal-haired growth artisan with one incubation capsule and restrained workshop apron; readable upgrade identity without creature, glow, text or scenery"
+    },
+    {
+      "character_id": "shop_character_033",
+      "index": 33,
+      "node_id": "node_shop_skill_day1",
+      "name": "技能训练师",
+      "shop_pool_id": "day1_skill",
+      "output_path": "res://art/images/route/shop/characters/generated/shop_character_033.png",
+      "file": {
+        "state": "generated",
+        "sha256": "3e0abca99afffc258144f0c4fed838959f26f180eec17195f07552e221ba82d8",
+        "width": 1024,
+        "height": 1536,
+        "mode": "RGBA",
+        "has_alpha": true,
+        "alpha_bbox": [
+          192,
+          17,
+          834,
+          1512
+        ],
+        "alpha_values": [
+          0,
+          255
+        ]
+      },
+      "review_status": "approved",
+      "review_note": "2026-08-15 visual review passed: scarred grey-haired veteran skill trainer with one blank training tablet; distinct combat-instructor identity without weapon, text, effects or scenery"
+    }
+  ]
+}

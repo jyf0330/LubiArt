@@ -1,0 +1,52 @@
+# 2026-08-17 02:40 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260817-patrol-0240
+- delivery_base_commit: `b678c798`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与可复现玩家问题；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-17_background_patrol_0240.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-17_background_patrol_0240.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与十三张旧巡检卡为累计未提交控制面 WIP；本轮保留既有证据，只接续当前事实，不提交
+  - 开工时商店 roundtrip 的十个正式项目文件仍为原 owner 的未提交 WIP；巡检期间原 owner 已精确提交为 `b678c798`，本轮未编辑、运行或暂存其租约内文件
+  - 当前剩余四张 `.png.import`、四个 `.gd.uid` 均为开工前未跟踪导入副产物，继续视为其他任务资产，不删除、不暂存
+- stop_conditions:
+  - 核对最新 fast、商店固定种子验收、战斗十步正式实窗证据、自动巡检日志、远端 CI 可达性和当前文件租约
+  - 若失败或验收缺口位于既有 owner 租约内，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取 `b678c798`、`b0f75dfc`、当前 Git 状态、未完成任务卡和最新验证摘要
+  - 读取 `output/validation/qa/20260817-022956-fast/summary.json`
+  - 读取 `output/validation/shop-art-roundtrip/round-acceptance-20260817/` 的比较清单与几何审计
+  - 读取最近五次自动巡检 `status.txt` / `stderr.log`
+  - `gh run list --repo jyf0330/yxysj --limit 10 --json databaseId,status,conclusion,workflowName,headBranch,headSha,createdAt,updatedAt,url`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-17_background_patrol_0240.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 巡检期间 HEAD 从 `b0f75dfc` 前移到 `b678c798`；商店 roundtrip 已由原 owner 标记完成并精确提交十个归属文件，正式工作树不再保留其产品代码、测试或工具 WIP
+  - 固定种子商店验收为 14 对比较，`copied_mock_code=false`；几何审计 `passed=true`、`errors=[]`，覆盖 21 项资源、2 项层级、36 项精确裁剪、1 项容差和 1 项效果
+  - 最新 fast `20260817-022956-fast` 为 `19/19`、0 失败、351.898 秒；battle UI 15.808 秒、playable flow 174.112 秒、seed bot 104.898 秒，未发现新的确定性回归
+  - `b0f75dfc` 已提交战斗十步美术对照；正式入口真实窗口覆盖详情打开/关闭、拖拽预览/取消、自动摆位与首回合，10/10 Snapshot 身份一致且几何审计通过，但它在拖拽前先点击空地关闭详情，不能替代“详情打开后直接开始拖拽”的旧 P1 精确可见验收
+  - 最近五次已完成自动巡检均 `exit_code=0` 且 `stderr.log` 为 0 字节；未见新的产品测试失败
+  - 远端 Actions 查询仍因代理 `127.0.0.1:7897` 被沙箱拒绝；当前分支领先跟踪分支 100 个提交，远端 CI 未验证且不能代表本地 HEAD
+  - 当前除累计控制面和导入副产物外无未提交产品代码；Ready 为空，没有另一个有明确失败证据、无需产品决策且可独立验收的 P0/P1 小任务
+- changes:
+  - 只新增本轮巡检卡，并刷新 `QUEUE.md` / `STATUS.md` 的 HEAD、商店收口、fast、战斗十步证据、CI 与优先级事实
+  - 未修改产品代码、测试、美术、玩法或正式数据
+- validation_result:
+  - 最新 fast：`status=passed`、`19/19`、0 失败、351.898 秒
+  - 商店固定种子验收：14 对比较；几何审计 `passed=true`、`errors=[]`、21/2/36/1/1 门禁通过
+  - 最近五次 patrol：五次 `exit_code=0`，五份 `stderr.log` 合计 0 字节
+  - `gh run list`：代理连接被沙箱拒绝，远端 CI 未验证
+  - 控制面与本轮任务卡 whitespace 检查通过；最终 HEAD `b678c798`，分支领先跟踪分支 100 个提交
+- residual_risk:
+  - 战斗拖拽详情清除仍缺“详情保持打开时直接开始拖拽”的独立虚拟屏正式入口证据，不能用相邻但不同的十步序列误标完成
+  - 两份控制面与十三张旧巡检卡包含开工前累计 WIP，本轮不能安全形成独立提交
+  - 未跟踪 `.import` / `.uid` 为既有导入副产物，归属未释放，不清理、不提交
+- next_step: 在独立虚拟屏从正式入口执行“打开宠物详情 -> 不先关闭详情 -> 直接开始拖拽”，确认详情立即消失且取消/落点后不残留；否则等待新的确定性失败证据。除此之外无可安全推进事项
+- commit: 未提交；控制面含既有未提交巡检 WIP，无法与本轮归属安全隔离，不推送

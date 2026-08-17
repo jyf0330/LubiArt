@@ -1,0 +1,21 @@
+extends RefCounted
+
+## Copy this file into core/effects/handlers/<effect_id>_effect.gd, then replace
+## every REPLACE_ME marker. The handler must stay stateless and may mutate
+## gameplay only through the supplied Port.
+
+const StatIdsScript := preload("res://core/stats/stat_ids.gd")
+
+
+func plugin_id() -> String:
+	return "REPLACE_ME_EFFECT_ID"
+
+
+func consumed_stats(_effect: Dictionary, _source_kind: String) -> Array[String]:
+	return [
+		# StatIdsScript.REPLACE_ME_STAT,
+	]
+
+
+func execute(port: RefCounted, context: Dictionary, effect: Dictionary) -> Variant:
+	return port.call(&"REPLACE_ME_PORT_METHOD", context, effect)

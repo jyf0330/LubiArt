@@ -39,7 +39,7 @@ var _candidate_index := -1
 var _active_kind := SOURCE_NONE
 var _preview: TextureRect = null
 var _preview_locked_size := DEFAULT_PREVIEW_SIZE
-var _hidden_button: BaseButton = null
+var _hidden_button: TextureButton = null
 var _hidden_visual: Control = null
 var _hidden_texture: Texture2D = null
 var _restore_hidden_source := false
@@ -74,7 +74,7 @@ func configure(
 func begin_shop(index: int) -> bool:
 	if is_active() or index < 0 or index >= _shop_buttons.size():
 		return false
-	var button := _shop_buttons[index] as BaseButton
+	var button := _shop_buttons[index] as TextureButton
 	if button == null or Dictionary(button.get_meta("command", {})).is_empty():
 		return false
 	_begin(SOURCE_SHOP, index)
@@ -200,17 +200,11 @@ func preview_locked_size() -> Vector2:
 	return _preview_locked_size
 
 
-func candidate_button() -> BaseButton:
+func candidate_button() -> TextureButton:
 	var buttons := _buttons_for_source(_candidate_source)
 	if _candidate_index < 0 or _candidate_index >= buttons.size():
 		return null
-	return buttons[_candidate_index] as BaseButton
-
-
-func candidate_texture() -> Texture2D:
-	if _hidden_texture != null:
-		return _hidden_texture
-	return _texture_for_candidate()
+	return buttons[_candidate_index] as TextureButton
 
 
 func preview_size_for_candidate() -> Vector2:
@@ -232,7 +226,7 @@ func record_for_source(source: StringName, index: int) -> Dictionary:
 	var buttons := _buttons_for_source(source)
 	if index < 0 or index >= buttons.size():
 		return {}
-	var button := buttons[index] as BaseButton
+	var button := buttons[index] as TextureButton
 	return Dictionary(button.get_meta("drag_record", {})).duplicate(true) if button != null else {}
 
 
@@ -253,7 +247,7 @@ func _begin(source: StringName, index: int) -> void:
 func _plan_shop_release(mouse_position: Vector2) -> Dictionary:
 	if _candidate_index < 0 or _candidate_index >= _shop_buttons.size():
 		return {"kind": PLAN_NONE}
-	var button := _shop_buttons[_candidate_index] as BaseButton
+	var button := _shop_buttons[_candidate_index] as TextureButton
 	var offer_command := Dictionary(button.get_meta("command", {})) if button != null else {}
 	if offer_command.is_empty():
 		return {"kind": PLAN_NONE}
@@ -269,8 +263,6 @@ func _plan_shop_release(mouse_position: Vector2) -> Dictionary:
 		"target_kind": target_kind,
 		"command": {
 			"type": "DROP_ITEM_ON_TARGET",
-			"source_type": String(SOURCE_SHOP),
-			"source_index": _candidate_index,
 			"offer_id": String(offer_command.get("offer_id", "")),
 			"target_type": String(target_kind),
 			"target_index": int(target.get("index", -1)),
@@ -304,8 +296,6 @@ func _plan_storage_release(mouse_position: Vector2) -> Dictionary:
 		"target_kind": target_kind,
 		"command": {
 			"type": "DROP_ITEM_ON_TARGET",
-			"source_type": String(_candidate_source),
-			"source_index": _candidate_index,
 			"unitId": unit_id,
 			"target_type": String(target_kind),
 			"target_index": target_index,
@@ -335,10 +325,7 @@ func _slot_at_position(slots: Array, mouse_position: Vector2) -> int:
 
 
 func _point_inside(control: Control, point: Vector2) -> bool:
-	if control == null or not control.is_visible_in_tree():
-		return false
-	var local_point := control.get_global_transform_with_canvas().affine_inverse() * point
-	return Rect2(Vector2.ZERO, control.size).has_point(local_point)
+	return control != null and control.is_visible_in_tree() and control.get_global_rect().has_point(point)
 
 
 func _start_preview() -> void:
@@ -369,13 +356,7 @@ func _texture_for_candidate() -> Texture2D:
 	if button == null:
 		return null
 	var shared_texture := button.get_meta("pet_texture") as Texture2D if button.has_meta("pet_texture") else null
-	if shared_texture != null:
-		return shared_texture
-	if button is TextureButton:
-		return (button as TextureButton).texture_normal
-	if button is Button:
-		return (button as Button).icon
-	return null
+	return shared_texture if shared_texture != null else button.texture_normal
 
 
 func _hide_source(texture: Texture2D) -> void:

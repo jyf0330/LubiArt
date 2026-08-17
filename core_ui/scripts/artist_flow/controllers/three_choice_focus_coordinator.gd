@@ -3,32 +3,40 @@ extends RefCounted
 ## Owns controller/keyboard focus policy for the current three-choice surface.
 ## It reads only existing Controls and never reads Snapshot or emits Commands.
 
+const VIEW_SHOP := &"shop"
 const VIEW_BAG := &"bag"
+const VIEW_BATTLE := &"battle"
 
 var _host: Control = null
 var _three_buttons: Array = []
+var _shop_buttons: Array = []
 var _party_buttons: Array = []
 var _bag_buttons: Array = []
+var _shop_back_button: BaseButton = null
 var _bag_button: BaseButton = null
-var _exit_button: BaseButton = null
+var _bazaar_info_panel: Control = null
 var _connections: Array[Dictionary] = []
 
 
 func configure(
 		host: Control,
 		three_buttons: Array,
+		shop_buttons: Array,
 		party_buttons: Array,
 		bag_buttons: Array,
+		shop_back_button: BaseButton,
 		bag_button: BaseButton,
-		exit_button: BaseButton = null
+		bazaar_info_panel: Control
 ) -> void:
 	dispose()
 	_host = host
 	_three_buttons = three_buttons
+	_shop_buttons = shop_buttons
 	_party_buttons = party_buttons
 	_bag_buttons = bag_buttons
+	_shop_back_button = shop_back_button
 	_bag_button = bag_button
-	_exit_button = exit_button
+	_bazaar_info_panel = bazaar_info_panel
 	for button in _all_focus_buttons():
 		button.focus_mode = Control.FOCUS_ALL
 		_connect(button.focus_entered, Callable(self, "_on_focus_entered").bind(button))
@@ -80,22 +88,29 @@ func dispose() -> void:
 	_connections.clear()
 	_host = null
 	_three_buttons.clear()
+	_shop_buttons.clear()
 	_party_buttons.clear()
 	_bag_buttons.clear()
+	_shop_back_button = null
 	_bag_button = null
-	_exit_button = null
+	_bazaar_info_panel = null
 
 
 func _focus_controls_for_view(view: StringName) -> Array[Control]:
 	var candidates: Array = []
 	match view:
+		VIEW_SHOP:
+			candidates.append_array(_shop_buttons)
 		VIEW_BAG:
 			candidates.append_array(_bag_buttons)
 		_:
 			candidates.append_array(_three_buttons)
-	candidates.append(_bag_button)
-	if view != VIEW_BAG:
-		candidates.append(_exit_button)
+	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("focus_controls"):
+		candidates.append_array(Array(_bazaar_info_panel.call("focus_controls")))
+	if view == VIEW_SHOP:
+		candidates.append(_shop_back_button)
+	if view != VIEW_BATTLE:
+		candidates.append(_bag_button)
 	var controls: Array[Control] = []
 	for value in candidates:
 		var control := value as Control
@@ -109,14 +124,18 @@ func _focus_controls_for_view(view: StringName) -> Array[Control]:
 
 func _all_focus_buttons() -> Array[BaseButton]:
 	var buttons: Array[BaseButton] = []
-	for group in [_three_buttons, _party_buttons, _bag_buttons]:
+	for group in [_three_buttons, _shop_buttons, _party_buttons, _bag_buttons]:
 		for value in group:
 			var button := value as BaseButton
 			if button != null:
 				buttons.append(button)
-	for button in [_bag_button, _exit_button]:
+	for button in [_shop_back_button, _bag_button]:
 		if button != null:
 			buttons.append(button)
+	if _bazaar_info_panel != null and _bazaar_info_panel.has_method("focus_controls"):
+		for value in Array(_bazaar_info_panel.call("focus_controls")):
+			if value is BaseButton:
+				buttons.append(value as BaseButton)
 	return buttons
 
 

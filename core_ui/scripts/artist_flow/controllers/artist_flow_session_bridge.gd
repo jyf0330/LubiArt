@@ -1,10 +1,9 @@
 extends RefCounted
 
-signal asynchronous_snapshot_received(snapshot: Dictionary)
+signal asynchronous_snapshot_received(snapshot: Dictionary, metadata: Dictionary)
 
 var _session: RefCounted = null
 var _connected_session: RefCounted = null
-var _awaiting_commands := 0
 
 
 func bind_session(session: RefCounted) -> void:
@@ -24,12 +23,18 @@ func current_snapshot() -> Dictionary:
 	return Dictionary(_session.current_snapshot())
 
 
+func current_presentation_snapshot() -> Dictionary:
+	if _session == null:
+		return {}
+	if _session.has_method("current_presentation_snapshot"):
+		return Dictionary(_session.call("current_presentation_snapshot"))
+	return current_snapshot()
+
+
 func submit_command(command: Dictionary) -> Dictionary:
 	if _session == null:
 		return {}
-	_awaiting_commands += 1
 	var response := Dictionary(await _session.submit_command_and_wait(command))
-	_awaiting_commands -= 1
 	return response
 
 
@@ -79,6 +84,8 @@ func _disconnect_session_signals() -> void:
 
 
 func _on_snapshot_received(snapshot: Dictionary, metadata: Dictionary) -> void:
-	if not bool(metadata.get("asynchronous", false)) or _awaiting_commands > 0:
+	if String(metadata.get("reason", "")) == "command":
 		return
-	asynchronous_snapshot_received.emit(snapshot.duplicate(true))
+	if not bool(metadata.get("asynchronous", false)):
+		return
+	asynchronous_snapshot_received.emit(snapshot.duplicate(true), metadata.duplicate(true))

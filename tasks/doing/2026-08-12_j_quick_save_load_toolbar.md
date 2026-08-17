@@ -1,0 +1,47 @@
+# J 键切换快速存读档工具栏
+
+- status: done
+- owner: codex-root-20260812
+- delivery_base_commit: ce8a88f
+- write_scopes:
+  - `core_ui/scripts/app/game_controller.gd`
+  - `core_ui/scripts/shared/shortcut_catalog.gd`
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`
+  - `core_ui/scripts/artist_flow/controllers/three_choice_developer_toolbar.gd`
+  - `tests/features/smoke_global_save_load_hotkey.gd`
+  - `tests/visible/smoke_global_save_load_hotkey_visible.gd`
+  - `tasks/doing/2026-08-12_j_quick_save_load_toolbar.md`
+  - `tasks/ai/STATUS.md`
+  - `tasks/ai/QUEUE.md`
+- exclusive_files:
+  - `core_ui/scripts/app/game_controller.gd`
+  - `core_ui/scripts/shared/shortcut_catalog.gd`
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`
+  - `core_ui/scripts/artist_flow/controllers/three_choice_developer_toolbar.gd`
+  - `tests/features/smoke_global_save_load_hotkey.gd`
+  - `tests/visible/smoke_global_save_load_hotkey_visible.gd`
+- existing_wip: 开工时仓库存在大量其他任务修改；上述产品与测试文件均无既有修改，不读取、不覆盖、不暂存其他 WIP
+- objective: 将 J 键从正式存读档菜单改为切换纯代码生成的三槽快速存读档工具栏
+- stop_conditions:
+  - J 首次按下显示快速工具栏，再次按下隐藏
+  - 保存/读档按钮继续通过 GameSession 的槽位接口工作
+  - J 不再打开正式存读档菜单
+- validation:
+  - `smoke_global_save_load_hotkey.gd`
+  - 非 headless 正式 `Game` 入口可见 smoke 与截图检查
+  - `git diff --check`
+- changes:
+  - J 不再调用正式存读档菜单，改为调用 `ThreeChoiceScene` 的快速工具栏切换接口
+  - 快速工具栏可由 J 在普通模式创建并显隐；开发模式下 J 也能覆盖默认可见状态
+  - 设置页快捷键说明更新为“打开/关闭快速存读档栏”
+  - 专项 smoke 改为验证三槽代码按钮、GameSession 槽位调用和正式菜单保持关闭
+- validation_result:
+  - 最终专项 QA：`smoke_global_save_load_hotkey.gd` 与 `smoke_three_choice_responsibility_contract.gd` 共 2 项全部通过；证据目录 `output/validation/qa/20260812-j-quick-save-load-final`
+  - `git diff --check`：通过
+  - 独立虚拟屏 `Codex Initial Reset 0724`（Mirror Off）上，从正式 `Game` 入口运行非 headless visible smoke，通过并输出 `VISIBLE_GLOBAL_SAVE_LOAD_HOTKEY_OK`
+  - 可见证据目录：`output/validation/j-quick-save-load-visible`；目视确认默认无工具栏、J 后三槽工具栏完整且不遮挡主要交互、保存/读档状态可读、再次 J 后无残留
+  - `01_route_default_hidden.png` 与 `05_route_j_closed.png` SHA-256 均为 `afdf8c98aa8ff6dd100086dfa6025ea4f6d1ea3d9f05354d73b5fa5e09b09cd5`，关闭状态精确恢复
+  - 验收使用隔离项目副本、`.godot`、`GODOT_USER_HOME` 与输出目录；未终止用户或其他任务 Godot 进程
+- residual_risk: 无已知阻断；工具栏为桌面键盘快捷入口，触屏入口不在本任务范围
+- next_step: 精确提交本任务文件；不推送
+- commit: 随本任务精确提交

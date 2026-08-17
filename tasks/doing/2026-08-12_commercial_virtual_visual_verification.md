@@ -1,0 +1,41 @@
+# Commercial WIP 独立虚拟屏可见复验
+
+- status: validation_blocked
+- owner: codex-goal-20260812
+- delivery_base_commit: 4157773
+- objective: 在不改动当前 commercial WIP 的前提下，使用独立虚拟屏复验最新 visual 基线与正式 UI 流程
+- write_scopes:
+  - `tasks/doing/2026-08-12_commercial_virtual_visual_verification.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-12_commercial_virtual_visual_verification.md`
+- existing_wip:
+  - 当前有 25 个已修改或未跟踪路径，包含战斗权威、自动摆位、Bazaar、测试、visual 基线及 `tasks/ai/QUEUE.md` / `STATUS.md`
+  - 所有既有修改均归属其他工作槽；本任务只读取当前树并写独立验证输出，不编辑、不暂存、不提交这些文件
+- stop_conditions:
+  - 专用 `Codex Initial Reset 0724` 虚拟屏在线且 Mirror Off
+  - visual 套件在该屏幕的隔离 QA 项目与 `user://` 中通过
+  - 五张实际截图完成目视检查，无空窗、裁切、明显错位或缺失阶段
+  - 验证进程退出后断开本任务虚拟屏，不影响用户实体屏与其他 Godot 进程
+- validation:
+  - `python3 tools/qa/run_qa.py --suite visual --screen 1 --run-id codex-goal-commercial-virtual-visual-20260812 --output output/validation/qa/codex-goal-commercial-virtual-visual-20260812 --fail-fast`
+  - `system_profiler SPDisplaysDataType`
+  - 目视检查 `tests/ui_regression-6ddf2c9d/*actual.png`
+- control_plane_note: `tasks/ai/QUEUE.md` 与 `STATUS.md` 当前为其他工作槽 WIP，本任务不覆盖；释放后再同步本次结果
+- validation_result:
+  - `commercial-nightly-final2-20260812`：179/179 通过，含 24 种子随机回归；总耗时 2420.393 秒
+  - 实体屏槽的 `commercial-visual-baseline-migration2-20260812` 与 `commercial-visual-final2-20260812` 均 1/1 通过，但实体屏是唯一在线屏幕，不满足项目独立虚拟屏要求
+  - 独立虚拟屏 `Codex Initial Reset 0724`：3200x1800、Mirror Off；用户 `Odyssey G61SD` 保持在线、Mirror Off
+  - `codex-goal-commercial-virtual-visual-20260812` 在 `--screen 1` 上完成路线、进入战斗、自动摆位、完整回合、结算五阶段，语义流程与演出均完成，耗时 41.33 秒
+  - 五张独立虚拟屏实际图均为 480x270；目视确认完整铺满 16:9，无空窗、裁切、明显错位或阶段缺失
+  - 像素比较失败：与实体屏生成基线相比 RMSE 18.83–28.24、变化像素 52.25%–61.55%
+  - 根因证据：实体屏新基线左右有灰条，战斗基线右侧混入上一场景残影；独立虚拟屏实际图无这些捕获污染，因此实体屏基线不能作为正式基线
+- residual_risk:
+  - `qa/visual_baselines/macos/*.png` 与 `tests/qa/ui_regression.gd` 是其他工作槽现有 WIP；未经归属释放不得用虚拟屏图覆盖
+  - 当前 visual 自动像素门禁仍是环境相关失败，不能宣称 visual 套件正式通过
+- next_step: 由基线 WIP 所有者释放文件后，在独立虚拟屏重新迁移五张基线，再在同一虚拟屏不更新基线复验并目视检查
+- commit: 未提交；存在基线文件归属冲突且独立虚拟屏像素门禁尚未通过
+- blocked_audit:
+  - 2026-08-12 20:07 +0800 再次核对：五张 macOS visual 基线、`tests/qa/ui_regression.gd`、`tasks/ai/QUEUE.md` 与 `STATUS.md` 仍为既有未提交 WIP，HEAD 之外没有归属释放提交
+  - 14 项 nightly 缺口已经由独立任务 `2026-08-12_nightly_gap_revalidation.md` 当前树复验为 14/14 通过并提交，不再提供其他可安全推进事项
+  - 当前没有新 Ready 项、没有新自动化结果，且只有用户 Godot 进程在线；继续迁移基线必须等待外部 WIP 释放
+- unblock_condition: 目标基线、`ui_regression.gd` 与控制面 WIP 被其所有者提交/撤出租约，或用户明确重新分配这些文件的所有权

@@ -27,14 +27,14 @@ const BATTLE_BUTTON_PATHS := {
 }
 
 const SELL_ITEM_KEY := KEY_E
-const SAVE_LOAD_KEY := KEY_H
+const SAVE_LOAD_KEY := KEY_J
 
 const DISPLAY_BINDINGS := [
 	{"id": ACTION_SETTINGS, "node": "Settings", "label": "进入设置", "keycode": KEY_ESCAPE},
-	{"id": ACTION_SAVE_LOAD, "node": "SaveLoad", "label": "打开存档菜单", "keycode": SAVE_LOAD_KEY},
+	{"id": ACTION_SAVE_LOAD, "node": "SaveLoad", "label": "打开/关闭快速存读档栏", "keycode": SAVE_LOAD_KEY},
 	{"id": ACTION_AUTO_ARRANGE, "node": "AutoArrange", "label": "自动布阵", "keycode": KEY_A},
 	{"id": ACTION_RESET_ARRANGE, "node": "ResetArrange", "label": "重置布阵", "keycode": KEY_R},
-	{"id": ACTION_BATTLE_SPEED, "node": "BattleSpeed", "label": "切换战斗速度", "keycode": KEY_D},
+	{"id": ACTION_BATTLE_SPEED, "node": "BattleSpeed", "label": "打开战斗日志", "keycode": KEY_D},
 	{"id": ACTION_ATTACK_ORDER, "node": "AttackOrder", "label": "查看攻击顺序", "keycode": KEY_TAB},
 	{"id": ACTION_BATTLE_BAG, "node": "BattleBag", "label": "回撤到上一回合开始", "keycode": KEY_B},
 	{"id": ACTION_ALL_OUT, "node": "AllOut", "label": "全军出击", "keycode": KEY_SPACE},

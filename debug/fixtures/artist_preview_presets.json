@@ -1,0 +1,14 @@
+{
+  "route_default": {
+    "label": "路线",
+    "snapshot_id": "route_default"
+  },
+  "shop_stocked": {
+    "label": "商店",
+    "snapshot_id": "shop_stocked"
+  },
+  "battle_opening": {
+    "label": "战斗",
+    "snapshot_id": "battle_opening"
+  }
+}

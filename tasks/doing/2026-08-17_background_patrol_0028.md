@@ -1,0 +1,50 @@
+# 2026-08-17 00:28 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260817-patrol-0028
+- delivery_base_commit: `866113e5`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与可复现玩家问题；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-17_background_patrol_0028.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-17_background_patrol_0028.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与十二张旧巡检卡为累计未提交控制面 WIP；本轮保留既有证据，只接续当前事实，不提交
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 仍为 `in_progress`，独占商店 View、表现模块、专项/可见测试、同步工具、共享图片和自身任务卡
+  - 开工 HEAD 为 `866113e5`；原 owner 正在任务卡、正式可见采集和四个 Python 对照/几何文件中扩展 round-115，全部视为其资产，不编辑、不运行、不暂存、不提交
+- stop_conditions:
+  - 核对最新 fast、roundtrip 最新确定性对照/几何证据、自动巡检日志、远端 CI 可达性和当前文件租约
+  - 若当前失败或验收缺口位于活跃 owner 租约内，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取当前 HEAD、round-114 fast、round-115 比较清单与几何审计、现有任务卡和当前 Git 状态
+  - 扫描最近 QA summary、自动巡检 `status.txt` / `stderr.log` 与确定性命令失败
+  - `gh run list --repo jyf0330/yxysj --limit 10 --json databaseId,status,conclusion,workflowName,headBranch,headSha,createdAt,updatedAt,url`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-17_background_patrol_0028.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - HEAD 已从上轮 `2d49287f` 前移到 `866113e5`；`719755dc` 已提交取消商品按住后的 Tooltip 残留修复，`866113e5` 已提交按住期间隐藏误显锁按钮的修复
+  - round-114 隔离 fast 为 `19/19`、0 失败、353.831 秒；完整玩家流程 175.584 秒、seed bot 104.365 秒、battle UI 16.111 秒，淘汰 2026-08-15 的旧 18/19 超时结果
+  - round-115 已生成 83 组比较和 `passed=true` 几何审计，覆盖 33 项资源、2 项层级、175 项精确像素、1 项容差和 9 项效果，当前 `errors=[]`
+  - round-115 任务卡仍只记录计划，且采集器与四个 Python 门禁文件存在未提交修改；这些证据尚未由原 owner 形成任务闭环，巡检执行 `FILE_CONFLICT_STOP`
+  - 最近五次已完成自动巡检均 `exit_code=0` 且 `stderr.log` 为 0 字节；更早日志中的 WebSocket 回退、补丁上下文失败和命令拼接错误属于 Agent/工具噪声，没有产品测试失败证据
+  - 远端存在三份 Actions workflow，但 `gh run list` 仍因代理 `127.0.0.1:7897` 被沙箱拒绝；公开网页搜索也未获得该仓库运行记录。当前分支另领先跟踪分支 94 个提交，远端 CI 即使可见也不能代表本地 HEAD
+  - 战斗拖拽开始后详情清除修复已在 HEAD 且 headless smoke 通过，仍缺独立虚拟屏正式入口验收；本轮没有安全显示槽证据，不把它误标为完成
+- changes:
+  - 只新增本轮巡检卡并刷新 `QUEUE.md` / `STATUS.md` 的当前 HEAD、fast、round-115、CI、WIP 与优先级事实
+  - 未修改产品代码、测试、美术、玩法或正式数据
+- validation_result:
+  - round-114 `summary.json`：`status=passed`、`19/19`、0 失败、353.831 秒
+  - round-115 `comparison_manifest.json`：83 组；`geometry_audit.json`：`passed=true`、`errors=[]`、33/2/175/1/9 门禁通过
+  - 最近五次已完成 patrol：五次 `exit_code=0`，五份 `stderr.log` 合计 0 字节
+  - `gh run list`：代理连接被沙箱拒绝，远端 CI 未验证
+- residual_risk:
+  - roundtrip owner 正在 round-115 租约内继续写入；不能由巡检接管、提交或宣称最终收口
+  - 远端 CI 当前不可验证，本地 HEAD 比跟踪分支领先 94 个提交
+  - 拖拽详情修复仍缺独立虚拟屏正式入口可见验收
+  - 控制面文件含开工前累计未提交巡检 WIP，无法与本轮归属安全隔离
+- next_step: 由现有 owner 完成 round-115、记录验证并释放 roundtrip 租约，再由巡检复核；另待独立虚拟屏完成战斗拖拽详情正式入口验收。除此之外无可安全推进事项
+- commit: 未提交；控制面含既有未提交巡检 WIP，且活跃 roundtrip 任务仍未释放，不推送

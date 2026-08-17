@@ -1,0 +1,58 @@
+name: QA Nightly
+
+on:
+  schedule:
+    - cron: "17 18 * * *"
+  workflow_dispatch:
+    inputs:
+      seed_count:
+        description: Number of deterministic bot seeds
+        required: false
+        default: "24"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-nightly
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install official Godot 4.7
+        shell: bash
+        run: |
+          godot_bin="$(bash tools/qa/install_godot_ci.sh "${RUNNER_TEMP}/godot")"
+          echo "GODOT_BIN=${godot_bin}" >> "${GITHUB_ENV}"
+
+      - name: Import project
+        run: '"${GODOT_BIN}" --headless --editor --path . --import --quit'
+
+      - name: Run nightly QA
+        env:
+          DISPATCH_SEED_COUNT: ${{ inputs.seed_count }}
+        shell: bash
+        run: |
+          seed_count="${DISPATCH_SEED_COUNT:-24}"
+          python3 tools/qa/run_qa.py \
+            --suite nightly \
+            --seed-count "${seed_count}" \
+            --skip-import \
+            --run-id "ci-nightly-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --output output/validation/qa/ci-nightly
+
+      - name: Upload QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-nightly-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            output/validation/qa/ci-nightly
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,46 @@
+# 2026-08-16 22:20 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-2220
+- delivery_base_commit: `2d49287f`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与可复现玩家问题；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_2220.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_2220.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与十一张旧巡检卡为累计未提交控制面 WIP；本轮保留既有证据，只接续当前事实，不提交
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 仍为 `in_progress`，独占商店 View、表现模块、专项/可见测试、同步工具、共享图片和自身任务卡
+  - 开工 HEAD 为 `2d49287f`；巡检期间原 owner 新增 `shop_shelf_layout.gd`、商店专项 smoke、正式可见采集及四个 Python 对照/几何文件的 round-111 WIP，全部视为其资产，不编辑、不运行、不暂存、不提交
+- stop_conditions:
+  - 核对最新稳定/probe 审计、最近完整 fast、自动巡检日志、远端 CI 可达性和当前文件租约
+  - 若当前失败或验收缺口位于活跃 owner 租约内，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取当前 HEAD、round-110/111 稳定与 probe 审计、最近完整 fast 记录、现有任务卡和当前 Git 状态
+  - 扫描最近自动巡检 `status.txt` / `stderr.log`
+  - `gh run list --repo jyf0330/xyxsj --limit 10 --json databaseId,status,conclusion,workflowName,headSha,createdAt`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_2220.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 当前无 P0，`Ready` 仍为空；没有可脱离现有租约独立领取的 P1 小任务
+  - HEAD 为 `2d49287f`，当前分支领先跟踪分支 90 个提交；round-110 双边完成 77 步真实入口对照，稳定审计为 `passed=true`、`errors=[]`，33 项资源、2 项层级、153 项精确像素、1 项容差和 9 项效果门禁通过
+  - round-111 双边新增至 79 步，状态/交互、按住帧 6 个新裁剪与取消帧完整第二货孔均通过；人工并排图确认正式项目在取消按住、悬停和焦点均清空后仍于新指针位置显示旧商品 Tooltip，属于可复现玩家可见 P1
+  - 原 owner 已在独占的 `shop_shelf_layout.gd`、商店专项 smoke、正式可见采集和四个 Python 比较/几何门禁文件中形成未提交最小修复 WIP；巡检期间这些文件于 22:24 继续写入，执行 `FILE_CONFLICT_STOP`
+  - 最近完整 fast 仍为 `9ca03359` 对应的 19/19、0 失败、349.261 秒；当前 `shop_shelf_layout.gd` 已有更新的未提交变化，因此该 fast 只作为最近完整基线，不能证明 round-111 WIP 已验收
+  - 最近四次已完成自动巡检的 `stderr.log` 均为 0 字节；本轮 worker 只有 WebSocket/HTTPS transport 重试，没有产品、Godot 或测试错误
+  - `gh run list` 仍因代理 `127.0.0.1:7897` 被沙箱拒绝；本地另领先 90 个提交，远端 CI 即使可见也不能代表当前 HEAD
+- validation_result:
+  - round-110 `geometry_audit.json`：`passed=true`、`errors=[]`；33 项资源、2 项层级、153 项精确像素、1 项容差和 9 项效果全部通过
+  - round-111 稳定审计：`passed=true`、`errors=[]`；33 项资源、2 项层级、160 项精确像素、1 项容差和 9 项效果通过，但其裁剪范围不替代人工确认的右下角 Tooltip 残留
+  - 没有运行活跃 owner 的未提交测试或修改产品代码、测试、玩法、美术、正式数据；未推送、部署或发布
+  - `git diff --check` 仅覆盖本轮控制面与巡检卡
+- residual_risk:
+  - roundtrip 任务仍未释放租约，Tooltip 修复尚缺 owner 的真实窗口复拍、专项回归和覆盖当前运行时树的完整 fast
+  - 战斗拖拽详情修复仍缺独立虚拟屏正式入口验收；宠物图片任务继续按用户要求暂停
+  - 控制面包含开工前累计巡检 WIP，不能形成独立提交
+- next_step: 由现有 owner 完成 round-111 Tooltip 修复与真实窗口/专项/fast 闭环并释放租约，再由巡检复核；另待独立虚拟屏完成战斗拖拽详情验收。除此之外无可安全推进事项
+- commit: 未提交；控制面含既有未提交巡检 WIP，且活跃 roundtrip 任务仍未释放，不推送

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://x5n33hc1dx4n"]
 
 [ext_resource type="Script" uid="uid://csqxflij4ro4m" path="res://core_ui/scripts/shared/pet/pet_detail_panel.gd" id="1_detail"]
-[ext_resource type="PackedScene" path="res://art/prefabs/pet/battle_pet_info_card.tscn" id="2_card"]
+[ext_resource type="PackedScene" uid="uid://du4gt6syjpyo" path="res://art/prefabs/pet/sprite_info_card.tscn" id="2_card"]
 
 [node name="PetDetail" type="Control" unique_id=724131388]
 layout_mode = 3
@@ -11,6 +11,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_detail")
+context_panel_position = Vector2(-140, 10)
+context_panel_scale = Vector2(1.24, 1.24)
 
 [node name="Dim" type="ColorRect" parent="." unique_id=1459037313]
 layout_mode = 1
@@ -19,18 +21,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0)
+color = Color(0.025, 0.022, 0.016, 0.78)
 
 [node name="Panel" type="Control" parent="." unique_id=571847960]
 anchors_preset = 0
-offset_left = 1540.0
-offset_top = 80.0
-offset_right = 1920.0
-offset_bottom = 900.0
-mouse_filter = 2
+offset_left = 1294.0
+offset_top = 100.0
+offset_right = 1894.0
+offset_bottom = 1000.0
 
 [node name="SpriteInfoCard" parent="Panel" unique_id=1216807739 instance=ExtResource("2_card")]
 anchors_preset = 0
-offset_right = 380.0
-offset_bottom = 820.0
+offset_left = 135.0
+offset_top = 1.0
+offset_right = 611.0
+offset_bottom = 540.0

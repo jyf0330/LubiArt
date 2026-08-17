@@ -25,9 +25,7 @@ const STYLE_SHADOW_SIZE := 5
 const STYLE_SHADOW_OFFSET := Vector2(0.0, 3.0)
 const PERSPECTIVE_DEFAULT_FILL := Color(0.82, 0.84, 0.86, 0.015)
 const PERSPECTIVE_DEFAULT_BORDER := Color(0.86, 0.89, 0.91, 0.12)
-const ATTACK_HIGHLIGHT_FILL := Color(0.92, 0.1, 0.08, 0.42)
-const RANGE_HIGHLIGHT_FILL := Color(1.0, 0.16, 0.10, 0.30)
-@export var use_perspective_geometry := false
+@export var use_perspective_geometry := true
 @export var polygon := PackedVector2Array([
 	Vector2(3.660006, 0.0),
 	Vector2(124.66, 0.0),
@@ -56,7 +54,6 @@ var _transient_element_visual_dirty := false
 var _unit_stat_layout_scale := 1.0
 var _active_element_tile_variant := ""
 var _is_hovered := false
-var _grid_visuals_visible := false
 var _attack_highlight_blink_tween: Tween = null
 
 
@@ -70,8 +67,7 @@ func _ready() -> void:
 		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		queue_redraw()
 	else:
-		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-		queue_redraw()
+		add_theme_stylebox_override("panel", _make_cell_style())
 	if not gui_input.is_connected(_on_gui_input):
 		gui_input.connect(_on_gui_input)
 	if not mouse_entered.is_connected(_on_mouse_entered):
@@ -93,7 +89,6 @@ func setup_grid_position(
 	if not use_perspective_geometry:
 		position = origin
 		size = cell_size
-		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_unit_stat_layout_scale = 1.0
 	if use_perspective_geometry and front_row_height > 0.0:
 		_unit_stat_layout_scale = clampf(size.y / front_row_height, 0.1, 1.0)
@@ -166,9 +161,9 @@ func set_cell_data(data: Dictionary, assets: RefCounted) -> void:
 	_attack_order_marker = null
 	_transient_element_visual_dirty = false
 	var unit_id := String(cell_data.get("unitId", cell_data.get("unit_id", "")))
+	_render_element_tile(Dictionary(cell_data.get("elements", {})))
 	if unit_id == "" and _unit_node != null:
 		_unit_node = null
-	_render_element_tile(Dictionary(cell_data.get("elements", {})))
 
 
 func _apply_unit_stat_layout_scale() -> void:
@@ -184,25 +179,15 @@ func set_highlight(mode: String) -> void:
 	if mode != "attack":
 		set_attack_highlight_blinking(false)
 	_update_attack_highlight()
-	queue_redraw()
+	if use_perspective_geometry:
+		queue_redraw()
+	else:
+		add_theme_stylebox_override("panel", _make_cell_style(mode))
 
 
 func set_hovered(value: bool) -> void:
 	_is_hovered = value
 	_update_interaction_highlights()
-
-
-func set_grid_visuals_visible(value: bool) -> void:
-	if _grid_visuals_visible == value:
-		return
-	_grid_visuals_visible = value
-	_update_attack_highlight()
-	_update_interaction_highlights()
-	queue_redraw()
-
-
-func are_grid_visuals_visible() -> bool:
-	return _grid_visuals_visible
 
 
 func is_hover_highlight_visible() -> bool:
@@ -256,9 +241,6 @@ func clear_element_visuals() -> void:
 
 
 func show_element_tile(element: String) -> void:
-	if _has_unit_occupant():
-		clear_element_tile()
-		return
 	var variant_id := _element_tile_variant_id(element)
 	var tile_texture := _element_tile_texture(variant_id)
 	_landing_tile_art.texture = tile_texture
@@ -277,7 +259,7 @@ func get_active_element_tile_variant() -> String:
 
 func show_transient_element_tile(element: String) -> void:
 	show_element_tile(element)
-	_transient_element_visual_dirty = _active_element_tile_variant != ""
+	_transient_element_visual_dirty = element != ""
 
 
 func consume_transient_element_visual_dirty() -> bool:
@@ -290,9 +272,6 @@ func play_element_impact(
 	element: String,
 	persist_tile: bool = true
 ) -> Node:
-	if _has_unit_occupant():
-		clear_element_tile()
-		return null
 	if persist_tile:
 		show_transient_element_tile(element)
 	if _element_impact_layer == null:
@@ -330,12 +309,6 @@ func play_element_impact(
 func has_player_unit() -> bool:
 	var side := String(cell_data.get("side", cell_data.get("unitSide", "")))
 	return String(cell_data.get("unitId", cell_data.get("unit_id", ""))) != "" and side in ["player", "hero_leader"]
-
-
-func _has_unit_occupant() -> bool:
-	if _unit_node != null and is_instance_valid(_unit_node):
-		return true
-	return String(cell_data.get("unitId", cell_data.get("unit_id", ""))) != ""
 
 
 func set_unit_dragging(is_dragging: bool) -> void:
@@ -456,12 +429,10 @@ func _sync_attack_highlight_geometry() -> void:
 
 func _update_attack_highlight() -> void:
 	var is_attack := _highlight_mode == "attack"
-	var is_range := _highlight_mode == "range"
 	if _attack_highlight != null:
-		_attack_highlight.color = RANGE_HIGHLIGHT_FILL if is_range else ATTACK_HIGHLIGHT_FILL
-		_attack_highlight.visible = _grid_visuals_visible and (is_attack or is_range)
+		_attack_highlight.visible = is_attack
 	if _attack_highlight_border != null:
-		_attack_highlight_border.visible = _grid_visuals_visible and is_attack
+		_attack_highlight_border.visible = is_attack
 
 
 func _sync_interaction_highlight_geometry() -> void:
@@ -482,9 +453,9 @@ func _sync_interaction_highlight_geometry() -> void:
 
 func _update_interaction_highlights() -> void:
 	if _hover_highlight != null:
-		_hover_highlight.visible = _grid_visuals_visible and _is_hovered
+		_hover_highlight.visible = _is_hovered
 	if _hover_highlight_border != null:
-		_hover_highlight_border.visible = _grid_visuals_visible and _is_hovered
+		_hover_highlight_border.visible = _is_hovered
 
 
 func _has_point(point: Vector2) -> bool:
@@ -494,18 +465,12 @@ func _has_point(point: Vector2) -> bool:
 
 
 func _draw() -> void:
-	if not _grid_visuals_visible:
+	if not uses_perspective_geometry():
 		return
-	var cell_polygon := polygon.duplicate() if uses_perspective_geometry() else PackedVector2Array([
-		Vector2.ZERO,
-		Vector2(size.x, 0.0),
-		size,
-		Vector2(0.0, size.y),
-	])
 	var colors := _perspective_colors()
-	draw_colored_polygon(cell_polygon, colors[0])
-	var outline := cell_polygon.duplicate()
-	outline.append(cell_polygon[0])
+	draw_colored_polygon(polygon, colors[0])
+	var outline := polygon.duplicate()
+	outline.append(polygon[0])
 	draw_polyline(outline, colors[1], 2.0, true)
 
 

@@ -1,0 +1,44 @@
+# 2026-08-16 11:40 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-1140
+- delivery_base_commit: `25ba23bc`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与可复现玩家问题；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_1140.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_1140.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与六张旧巡检卡为累计未提交控制面 WIP；本轮保留全部既有证据，只接续当前事实
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 仍为 `in_progress`，独占商店 View、表现模块、专项/可见测试、同步工具、共享图片和自身任务卡
+  - 巡检期间原 owner 持续写入并将 HEAD 从 `05c047b6` 推进至 `25ba23bc`；本轮不编辑、不运行或提交其租约内文件
+- stop_conditions:
+  - 核对最新稳定 fast、roundtrip 最新确定性对照/几何证据、自动巡检日志、远端 CI 可达性和当前文件租约
+  - 若原 owner 持续写入，或失败/验收缺口仍位于其租约内，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取 `25ba23bc`、round-074 的操作对照与几何审计，以及最近完整 fast `summary.json`
+  - 扫描最近已完成巡检的 `status.txt`、`stderr.log` 和当前运行 stderr
+  - `gh run list --repo jyf0330/xyxsj --limit 15`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_1140.md`
+  - `git status --short --untracked-files=all`
+- findings:
+  - 当前无 P0，`Ready` 仍为空；没有新增可复现玩家问题或本地确定性产品失败
+  - roundtrip 原 owner 已将 HEAD 推进至 `25ba23bc`，本地领先 origin 54 个提交；任务卡仍为 `in_progress`，执行 `FILE_CONFLICT_STOP`
+  - round-074 已把真实入口操作矩阵扩展至 40 步；状态/交互比较通过，几何审计为 33 项资源、2 项层级、85 项精确像素、1 项容差和 7 项效果，`errors=[]`
+  - 最新完整 fast 仍是 `42d370aa` 的 19/19；之后 `5a754a59` 修改正式 `shop_shared_rail.gd` 修复空背包槽点击穿透，虽有四项商店 smoke、可见采集和 Python 门禁通过，但尚无该运行时提交后的完整 fast
+  - 最近已完成自动巡检均退出码 0；05:13 的 stderr 是一次补丁上下文失配，09:31 的 stderr 是一次 Codex WebSocket 连接重置，均不是游戏或测试日志
+  - `gh run list` 仍因代理 `127.0.0.1:7897` 被沙箱拒绝，远端 CI 未验证
+- validation_result:
+  - round-074 `comparison_manifest.json`：40 组对照，核对 6 个状态字段与 4 个交互字段，`copied_mock_code=false`
+  - round-074 `geometry_audit.json`：`passed=true`、`errors=[]`；33 项资源、2 项层级、85 项精确像素、1 项容差和 7 项效果全部通过
+  - 最近完整 fast：19/19、0 失败；该证据早于 `5a754a59` 的正式运行时代码修复，不能当作当前 HEAD 的完整验收
+  - 未修改产品代码、测试、玩法、美术或正式数据，未推送、部署或发布
+- residual_risk:
+  - roundtrip 任务仍未释放租约，且当前 HEAD 缺 `5a754a59` 之后的完整 fast；巡检不能替原 owner 接管验证或宣称最终完成
+  - 远端 CI 与战斗拖拽详情的独立真实窗口验收仍不可见
+  - 控制面包含开工前累计巡检 WIP，不能安全形成独立提交
+- next_step: 由现有 owner 完成 roundtrip 当前稳定树 full fast、最终收口并释放租约，再由巡检复核；另待独立虚拟屏完成拖拽详情正式入口验收。除此之外无可安全推进事项
+- commit: 未提交；控制面含既有未提交巡检 WIP，且活跃 roundtrip 任务仍未释放，不推送

@@ -1,18 +1,20 @@
 extends Control
+class_name BattleHud
 
 ## Authored battle HUD responsibility root. It consumes public Snapshots and
 ## emits semantic command requests; Game remains the only Session owner.
 
 signal command_requested(command: Dictionary)
-signal health_bar_tier_requested(tier: String)
 
 const BattleHudControllerScript := preload("res://core_ui/scripts/battle/controllers/battle_hud_controller.gd")
 const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
+const BattleSnapshotView := preload("res://core_ui/scripts/battle/controllers/battle_snapshot_view.gd")
 const GameLogScript := preload("res://core/logging/game_log.gd")
 const RuntimeUiPolicy := preload("res://core_ui/scripts/shared/runtime_ui_policy.gd")
 
+@onready var auto_arrange_button: TextureButton = $BattlePrimaryActions/AutoArrangeButton
 @onready var position_difficulty_button: Button = $BattleActionPanel/Margin/Content/PositionDifficultyButton
-@onready var health_bar_tier_button: Button = $BattleActionPanel/Margin/Content/HealthBarTierButton
+@onready var begin_turn_button: TextureButton = $BattlePrimaryActions/BeginTurnButton
 @onready var action_panel: Control = $BattleActionPanel
 @onready var debug_drawer_toggle_button: Button = $DebugDrawerToggleButton
 @onready var attack_timeline_layer: CanvasLayer = $AttackTimelineLayer
@@ -23,8 +25,6 @@ const DEBUG_DRAWER_COLLAPSED_PANEL_POSITION := Vector2(-462.0, 150.0)
 const DEBUG_DRAWER_EXPANDED_TOGGLE_POSITION := Vector2(480.0, 174.0)
 const DEBUG_DRAWER_COLLAPSED_TOGGLE_POSITION := Vector2(0.0, 174.0)
 const DEBUG_DRAWER_TWEEN_DURATION := 0.18
-const HEALTH_BAR_TIER_IDS := ["bronze", "silver", "gold", "diamond"]
-const HEALTH_BAR_TIER_LABELS := ["青铜", "白银", "黄金", "钻石"]
 
 var _snapshot: Dictionary = {}
 var _input_locked := false
@@ -33,18 +33,18 @@ var _auto_position_feedback_visible := false
 var _pending_state_version := -1
 var _pending_command_log_size := -1
 var _position_feedback_serial := 0
-var _debug_drawer_collapsed := true
+var _debug_drawer_collapsed := false
 var _debug_drawer_tween: Tween = null
 var _attack_timeline_obscured := false
-var _health_bar_tier_index := 0
 var _hud_controller: RefCounted = BattleHudControllerScript.new()
-var _command_builder: RefCounted = BattleCommandBuilderScript.new()
+var _command_builder := BattleCommandBuilderScript.new()
 
 
 func _ready() -> void:
 	RuntimeUiPolicy.install()
+	auto_arrange_button.pressed.connect(_on_auto_arrange_pressed)
 	position_difficulty_button.toggled.connect(_on_position_difficulty_toggled)
-	health_bar_tier_button.pressed.connect(_on_health_bar_tier_button_pressed)
+	begin_turn_button.pressed.connect(_on_begin_turn_pressed)
 	debug_drawer_toggle_button.pressed.connect(_on_debug_drawer_toggle_pressed)
 	if action_panel.has_signal("command_requested"):
 		action_panel.connect("command_requested", Callable(self, "_on_child_command_requested"))
@@ -56,13 +56,12 @@ func _ready() -> void:
 	visibility_changed.connect(_sync_attack_timeline_layer_visibility)
 	_sync_attack_timeline_layer_visibility()
 	_apply_position_difficulty_label("normal")
-	_refresh_health_bar_tier_button()
 	_refresh_debug_drawer_toggle()
 	_apply_command_availability()
 
 
 func render_snapshot(snapshot: Dictionary) -> void:
-	_snapshot = snapshot.duplicate(true)
+	_snapshot = snapshot
 	if action_panel.has_method("render_snapshot"):
 		action_panel.call("render_snapshot", _snapshot)
 	debug_drawer_toggle_button.visible = action_panel.visible
@@ -72,16 +71,6 @@ func render_snapshot(snapshot: Dictionary) -> void:
 		_consume_auto_position_feedback(_snapshot)
 	elif not _auto_position_feedback_visible:
 		_apply_position_difficulty_label(String(_snapshot.get("difficulty", "normal")))
-	_apply_command_availability()
-
-
-func render_selection_snapshot(snapshot: Dictionary) -> void:
-	_snapshot = snapshot.duplicate(false)
-	if action_panel.has_method("render_selection_snapshot"):
-		action_panel.call("render_selection_snapshot", _snapshot)
-	elif action_panel.has_method("render_snapshot"):
-		action_panel.call("render_snapshot", _snapshot)
-	debug_drawer_toggle_button.visible = action_panel.visible
 	_apply_command_availability()
 
 
@@ -149,10 +138,13 @@ func _on_auto_arrange_pressed() -> void:
 	_pending_command_log_size = _snapshot_command_log(_snapshot).size()
 	_position_feedback_serial += 1
 	position_difficulty_button.text = RuntimeUiPolicy.text("UI_POSITION_CALCULATING")
+	auto_arrange_button.modulate = Color("#fff0ad")
+	var pulse := create_tween()
+	pulse.tween_property(auto_arrange_button, "modulate", Color.WHITE, 0.35)
 	_apply_command_availability()
 	GameLogScript.info("表现/自动布置", "玩家点击自动布置，界面进入计算状态", {
 		"难度": String(_snapshot.get("difficulty", "normal")),
-		"回合": int(_snapshot.get("battleRound", _snapshot.get("battle_round", 0))),
+		"回合": BattleSnapshotView.battle_round(_snapshot),
 		"基线版本": _pending_state_version,
 		"基线命令数": _pending_command_log_size,
 	})
@@ -258,28 +250,11 @@ func _on_position_difficulty_toggled(use_easy: bool) -> void:
 	_auto_position_feedback_visible = false
 	var difficulty := "easy" if use_easy else "normal"
 	_apply_position_difficulty_label(difficulty)
-	command_requested.emit({"type": "SET_DIFFICULTY", "difficulty": difficulty})
+	command_requested.emit(_command_builder.set_difficulty(difficulty))
 
 
 func _on_debug_drawer_toggle_pressed() -> void:
 	_set_debug_drawer_collapsed(not _debug_drawer_collapsed)
-
-
-func _on_health_bar_tier_button_pressed() -> void:
-	_health_bar_tier_index = (_health_bar_tier_index + 1) % HEALTH_BAR_TIER_IDS.size()
-	_refresh_health_bar_tier_button()
-	health_bar_tier_requested.emit(String(HEALTH_BAR_TIER_IDS[_health_bar_tier_index]))
-
-
-func _refresh_health_bar_tier_button() -> void:
-	if health_bar_tier_button == null:
-		return
-	health_bar_tier_button.text = "调试星级：%s" % String(
-		HEALTH_BAR_TIER_LABELS[_health_bar_tier_index]
-	)
-	health_bar_tier_button.tooltip_text = "点击切换全部单位血条外框和右侧信息栏星级到下一档：%s" % String(
-		HEALTH_BAR_TIER_LABELS[(_health_bar_tier_index + 1) % HEALTH_BAR_TIER_LABELS.size()]
-	)
 
 
 func _set_debug_drawer_collapsed(collapsed: bool, animate: bool = true) -> void:
@@ -327,7 +302,7 @@ func _refresh_debug_drawer_toggle() -> void:
 func _on_begin_turn_pressed() -> void:
 	if _input_locked or not _phase_is_battle():
 		return
-	command_requested.emit({"type": "RUN_COMBAT_ROUND"})
+	command_requested.emit(_command_builder.build("RUN_COMBAT_ROUND", _snapshot))
 
 
 func request_auto_arrange() -> void:
@@ -360,26 +335,25 @@ func _apply_command_availability() -> void:
 	if not is_node_ready():
 		return
 	var phase_is_battle := _phase_is_battle()
+	auto_arrange_button.disabled = (
+		_input_locked or _auto_position_feedback_pending or not phase_is_battle
+	)
 	position_difficulty_button.disabled = (
 		_input_locked or _auto_position_feedback_pending or not phase_is_battle
 	)
-	health_bar_tier_button.disabled = not phase_is_battle
-
-
-func debug_health_bar_tier() -> String:
-	return String(HEALTH_BAR_TIER_IDS[_health_bar_tier_index])
+	begin_turn_button.disabled = _input_locked or not phase_is_battle
 
 
 func _snapshot_state_version(snapshot: Dictionary) -> int:
-	return int(snapshot.get("stateVersion", snapshot.get("state_version", -1)))
+	return BattleSnapshotView.state_version(snapshot)
 
 
 func _phase_is_battle() -> bool:
-	return String(_snapshot.get("phase", "")) == "battle"
+	return BattleSnapshotView.phase(_snapshot) == "battle"
 
 
 func _snapshot_command_log(snapshot: Dictionary) -> Array:
-	return Array(snapshot.get("command_log", snapshot.get("commandLog", [])))
+	return BattleSnapshotView.command_log(snapshot)
 
 
 func _command_type(entry: Dictionary) -> String:
@@ -406,15 +380,18 @@ func set_attack_timeline_obscured(obscured: bool) -> void:
 
 
 func _toggle_attack_timeline() -> void:
-	if not is_visible_in_tree() or _input_locked:
+	# The legacy action HUD can be hidden while its authored CanvasLayer remains
+	# the public attack-order overlay used by MapControls/Tab.
+	if not is_inside_tree() or _input_locked:
 		return
 	attack_timeline.visible = not attack_timeline.visible
+	_sync_attack_timeline_layer_visibility()
 
 
 func _sync_attack_timeline_layer_visibility() -> void:
-	var battle_is_visible := is_visible_in_tree()
-	attack_timeline_layer.visible = battle_is_visible and not _attack_timeline_obscured
-	if not battle_is_visible:
+	var timeline_host_available := is_inside_tree()
+	attack_timeline_layer.visible = timeline_host_available and not _attack_timeline_obscured
+	if not timeline_host_available:
 		attack_timeline.visible = false
 
 

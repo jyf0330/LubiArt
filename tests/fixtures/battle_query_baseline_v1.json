@@ -1,0 +1,17 @@
+{
+  "schema": "ysbzs.battle-query-baseline.v1",
+  "seed": "battle-query-baseline-v1",
+  "board": {
+    "width": 8,
+    "height": 7,
+    "cellCount": 56
+  },
+  "playerUnitId": "pal_002",
+  "enemyUnitId": "enemy_r01_001",
+  "routeSnapshotSha256": "085524b4005e6545541b98d1509af595b794143551f2aa577c768a87346715cb",
+  "battleSnapshotSha256": "f2450e2ce0ca211229b7301d62ef82f673df3aed7cd52289a87a4fd2134a488a",
+  "configuredSnapshotSha256": "c1ec969a59429de2dcf14a4707c8b5c6a9ccfb2f0f7db9197a57d9b4f84cd011",
+  "buildPreviewSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "playerCellDetailSha256": "9916f730f1de4281df5cc074bb3078ffc91bedbc21e92190e33ff9a9c8fd9dd3",
+  "enemyCellDetailSha256": "ca86d62ffc8eae2cdc4b477804321b0d66ed0e4954ab312081cb7c2344620a09"
+}

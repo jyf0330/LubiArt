@@ -1,98 +1,47 @@
 {
-  "version": 8,
+  "version": 3,
   "source_set": "confirmed_sprite_style_2026-07-30",
-  "count": 13,
+  "count": 8,
   "images": [
     {
       "index": 1,
-      "sprite_id": "SPR_001",
       "name": "gold_mascot",
-      "display_name": "Gold Mascot",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_001_gold_mascot.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_002.png"
     },
     {
       "index": 2,
-      "sprite_id": "SPR_002",
       "name": "gold_shell",
-      "display_name": "Gold Shell",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_002_gold_shell.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_011.png"
     },
     {
       "index": 3,
-      "sprite_id": "SPR_003",
       "name": "blue_electric_shell",
-      "display_name": "Blue Electric Shell",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_003_blue_electric_shell.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_028.png"
     },
     {
       "index": 4,
-      "sprite_id": "SPR_004",
       "name": "pink_electric_wave",
-      "display_name": "Pink Electric Wave",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_004_pink_electric_wave.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_030.png"
     },
     {
       "index": 5,
-      "sprite_id": "SPR_005",
       "name": "earth_slime",
-      "display_name": "Earth Slime",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_005_earth_slime.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_001.png"
     },
     {
       "index": 6,
-      "sprite_id": "SPR_006",
       "name": "shadow_rock_wolf",
-      "display_name": "Shadow Rock Wolf",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_006_shadow_rock_wolf.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_006.png"
     },
     {
       "index": 7,
-      "sprite_id": "SPR_007",
       "name": "rock_claw",
-      "display_name": "Rock Claw",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_007_rock_claw.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_003.png"
     },
     {
       "index": 8,
-      "sprite_id": "SPR_008",
       "name": "volcanic_dijiang",
-      "display_name": "Volcanic Dijiang",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_008_volcanic_dijiang.png"
-    },
-    {
-      "index": 12,
-      "sprite_id": "SPR_012",
-      "name": "azure_wind_feather",
-      "display_name": "Azure Wind Feather",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_012_azure_wind_feather.png"
-    },
-    {
-      "index": 57,
-      "sprite_id": "SPR_057",
-      "name": "frost_fox",
-      "display_name": "Frost Fox",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_057_frost_fox.png"
-    },
-    {
-      "index": 901,
-      "sprite_id": "SPR_901",
-      "name": "aqua_crystal_frog",
-      "display_name": "Aqua Crystal Frog",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_901_aqua_crystal_frog.png"
-    },
-    {
-      "index": 14,
-      "sprite_id": "SPR_014",
-      "name": "horned_wing_dragon",
-      "display_name": "Horned Wing Dragon",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_014_horned_wing_dragon.png"
-    },
-    {
-      "index": 999,
-      "sprite_id": "SPR_999",
-      "name": "crystal_shell",
-      "display_name": "Crystal Shell",
-      "path": "res://art/images/shared/pets/sheets/slices/pet_style_999_crystal_shell.png"
+      "path": "res://art/images/shared/pets/sheets/slices/pal_042.png"
     }
   ]
 }

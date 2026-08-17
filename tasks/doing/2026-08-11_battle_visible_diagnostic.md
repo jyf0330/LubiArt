@@ -1,0 +1,42 @@
+# 战斗真实操作录屏、显示排障与修复
+
+- status: done
+- owner: codex-root-20260811
+- delivery_base_commit: ca9a477
+- write_scopes:
+  - `tasks/doing/2026-08-11_battle_visible_diagnostic.md`
+  - `art/scenes/battle/battle_art_scene.tscn`
+  - `art/prefabs/route/three_choice_card.tscn`
+  - `core_ui/scripts/battle/prefabs/hud/battle_hud.gd`
+  - `tests/presentation/smoke_battle_visible_overlay_layout.gd`
+- exclusive_files:
+  - `tasks/doing/2026-08-11_battle_visible_diagnostic.md`
+  - `art/scenes/battle/battle_art_scene.tscn`（只处理 `VfxHost` 零尺寸偏移；保留既有 `Hud.visible` WIP）
+  - `art/prefabs/route/three_choice_card.tscn`
+  - `core_ui/scripts/battle/prefabs/hud/battle_hud.gd`
+  - `tests/presentation/smoke_battle_visible_overlay_layout.gd`
+- existing_wip: 当前工作区已有 35 个修改文件与 7 个未跟踪文件；全部视为用户/其他任务工作，不覆盖、不回退、不顺带提交
+- expected_change: 从正式主入口连续录制战斗操作，记录显示或交互问题，完成最小修复并重新录到结算
+- validation:
+  - 独立项目快照、独立 `user://`、固定 Godot App、专用虚拟屏、独立 FFmpeg 输出
+  - 真实鼠标执行自动布置、必要的宠物重置、开始行动、后续回合直到结算
+  - 对修复文件运行相关 smoke / fast QA
+  - `git diff --check`
+- artifacts:
+  - 修复后连续验收录屏：`output/validation/recordings/20260811-battle-visible/battle_visible_fixed_full.mov`
+  - 首帧/奖励卡/时间线/结算抽帧：`output/validation/recordings/20260811-battle-visible/*.png`
+  - 视频参数：H.264、1920×1080、30 fps、417.53 秒；专用虚拟屏全屏录制
+  - 录制覆盖：正式路线入口 → 商店 → 奖励三选一 → 战斗 → Tab 时间线 → 两次宠物重置 → 第 12 回合结算返回路线页
+- findings:
+  - 路线进入奖励三选一时，中间宠物立绘按原始纹理尺寸撑大并越出卡片。根因是复用的 `ThreeChoiceCard/Portrait` 仍使用 TextureRect 默认 `KEEP_SIZE`；奖励宠物纹理大于路线占位图时改变了控件最小尺寸。
+  - `Board/VfxHost` 使用全屏锚点却同时保留 `-1920/-1080` 右下偏移，运行时尺寸为零；动态回合横幅因此退化到左上角并被裁切。
+  - 当前 WIP 将 `Hud` 根隐藏后，攻击顺序 `CanvasLayer` 也被 `is_visible_in_tree()` 门禁关闭，Tab 快捷键无法打开时间线；专项 smoke 已复现。
+- fixes:
+  - `ThreeChoiceCard/Portrait` 改为 `EXPAND_IGNORE_SIZE`，大尺寸奖励纹理不再改变卡片布局。
+  - 移除 `VfxHost` 与全屏锚点冲突的负向右下偏移，恢复 1920×1080 宿主尺寸与居中横幅。
+  - 时间线 CanvasLayer 的可用性改为由节点是否在树中决定，不再依赖隐藏的 `Hud` 根可见性。
+  - 新增 `smoke_battle_visible_overlay_layout.gd`，覆盖大纹理奖励卡、隐藏 HUD 下的 Tab 时间线和回合横幅边界。
+- validation_result:
+  - 真实全屏录制首帧、10 秒接触表、尾帧均已目视确认；金币从 16 变为 17，证明结算完成。
+  - 相关 7 项 QA 全部通过：`output/validation/qa/20260811-battle-visible-final`
+  - `git diff --check` 通过。

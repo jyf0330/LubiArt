@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://core_ui/scripts/shared/components/ui_value_bar.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://art/images/shared/pets/info_card/fonts/fusion_pixel_zh_hans.ttf" id="2_font"]
+
+[node name="UiValueBar" type="Control"]
+custom_minimum_size = Vector2(352, 30)
+layout_mode = 0
+offset_right = 352.0
+offset_bottom = 30.0
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Bar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+value = 100.0
+show_percentage = false
+
+[node name="PreviewSegment" type="ColorRect" parent="."]
+visible = false
+z_index = 1
+layout_mode = 0
+offset_right = 1.0
+offset_bottom = 30.0
+mouse_filter = 2
+color = Color(0.937255, 0.2, 0.168627, 1)
+
+[node name="Value" type="Label" parent="."]
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.035, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "0 / 0"
+horizontal_alignment = 1
+vertical_alignment = 1

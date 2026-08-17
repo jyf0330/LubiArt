@@ -1,0 +1,23 @@
+[Unit]
+Description=YSBZS authoritative Godot session server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ysbzs
+Group=ysbzs
+WorkingDirectory=/opt/ysbzs/current
+EnvironmentFile=/etc/ysbzs/authority.env
+ExecStart=/opt/ysbzs/current/bin/godot --headless --path /opt/ysbzs/current --script res://session/server/authority_server_main.gd
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/ysbzs
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

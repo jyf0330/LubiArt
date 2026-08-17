@@ -1,0 +1,88 @@
+{
+  "schema": "ysbzs.shop-screen-art-handoff.v1",
+  "source": {
+    "archive": "LubiArt_complete_handoff_20260814_180751.zip",
+    "archive_sha256": "16aa3dbdf394ba46b763ff1b9befa73d14ae1f6a843e56ea069522a79ed6cffc",
+    "created_at": "2026-08-14T18:07:51+08:00",
+    "source_head": "6f12b0c363315b398f2d9702dc62221f2b560dd5",
+    "archive_commit": "dc628542d113bd3ad44dce3c196af6f94471f09e",
+    "source_art_psd": "新商店2_三选建筑工作版_副本.psd",
+    "source_art_psd_sha256": "7f0a76ec48fe41f3499dc3718607522dff06d231ef30f30bf2504960e5a71fbc"
+  },
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "runtime_boundary": {
+    "authority": "GameSession -> Command -> YsbzsState -> Result/Trace/Snapshot",
+    "fixed_mock_offer_count_imported": false,
+    "mock_merchant_map_imported": false,
+    "formal_offer_capacity_preserved": 10,
+    "formal_merchant_mapping": "res://art/manifests/route/shop/characters/shop_character_map.json",
+    "note": "This manifest registers reusable delivery assets only. Formal shop behavior and merchant identity remain owned by the production project."
+  },
+  "files": [
+    {
+      "id": "shop_background",
+      "path": "res://art/images/shop/screen_shop_godot_v1/background.png",
+      "sha256": "1db338ded7ed0fc48b634fa22cf197adc1cc8bc53a33f25299d093371014b0c1",
+      "size": [1920, 1080],
+      "alpha_policy": "opaque_rgba",
+      "classification": "background",
+      "rect": [0, 0, 1920, 1080]
+    },
+    {
+      "id": "shop_facade",
+      "path": "res://art/images/shop/screen_shop_godot_v1/shop_facade.png",
+      "sha256": "989899dec1a18d50ede0e0924f5de4807dd11a9a4444aa73ee5fd29b31d75407",
+      "size": [1766, 988],
+      "alpha_policy": "transparent_required",
+      "classification": "facade",
+      "rect": [31, 76, 1766, 988]
+    },
+    {
+      "id": "merchant_default",
+      "path": "res://art/images/shop/screen_shop_godot_v1/merchant_default.png",
+      "sha256": "50e6953f5330d92caa0a1e6a17f27b0249f8bdef86d1336b20f408dae5e1b5ba",
+      "size": [177, 202],
+      "alpha_policy": "transparent_required",
+      "classification": "fallback_only",
+      "rect": [813, 566, 177, 202]
+    },
+    {
+      "id": "refresh_curtain",
+      "path": "res://art/images/shop/screen_shop_godot_v1/refresh_curtain.png",
+      "sha256": "c085da193e8255046a22efce91093e06b4748b508b7b3d50bb159cff7261fba9",
+      "size": [836, 502],
+      "alpha_policy": "transparent_required",
+      "classification": "refresh_state",
+      "rect": [492, 313, 836, 502]
+    },
+    {
+      "id": "refresh_bell_normal",
+      "path": "res://art/images/shop/screen_shop_godot_v1/refresh_bell_normal.png",
+      "sha256": "566fbbb9abd66bd236e6e1f9eef93229ff7055a54d17b26e8c1b91f543e79b7e",
+      "size": [89, 86],
+      "alpha_policy": "transparent_required",
+      "classification": "refresh_normal",
+      "rect": [945, 705, 89, 86]
+    },
+    {
+      "id": "refresh_bell_hover",
+      "path": "res://art/images/shop/screen_shop_godot_v1/refresh_bell_hover.png",
+      "sha256": "c90cede84c8b782fda5a72a38e164f4ac6d2adf29548a981016a048128a9eea5",
+      "size": [89, 86],
+      "alpha_policy": "transparent_required",
+      "classification": "refresh_hover_pressed_focused",
+      "rect": [945, 705, 89, 86]
+    },
+    {
+      "id": "shop_source_psd",
+      "path": "res://art/images/shop/source_psd/screen_shop_godot_v1.psd",
+      "sha256": "2a8071175232b8cc683aad9c1e99f8b36e558b3b6ec4ea9da0ed7ec60ea3adea",
+      "classification": "editable_source",
+      "importer": "external_source_only",
+      "note": "The Mock psd_importer plugin is not part of the formal project. Runtime uses the audited PNG exports."
+    }
+  ]
+}

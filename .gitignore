@@ -1,9 +1,34 @@
 .godot/
-.codex-backups/
-.codex_tmp/
-tmp/
-__pycache__/
-*.pyc
-outputs/
-output/validation/
+.import/
+.DS_Store
+*.tmp
 *.log
+*.pyc
+__pycache__/
+tmp/
+.~lock.*#
+output/**/*.import
+# Local validation recordings are reproducible evidence, not repository assets.
+output/validation/
+outputs/validation/
+# Local unattended Codex run logs and reports.
+output/automation/
+# Local handoff archives are regenerated from committed source and stay off Git.
+output/exports/
+output/**/*.mov
+output/**/*.mp4
+output/**/*.webm
+outputs/validation/**/*.mov
+outputs/validation/**/*.mp4
+outputs/validation/**/*.webm
+output/artist_ui_demo_frames/
+output/browser-recordings/
+output/artist_ui_mouse*.mp4
+output/artist_ui_mouse*.png
+output/artist_ui_mouse*.png.import
+output/artist_ui_zip_demo*.mp4
+output/artist_ui_zip_demo*.png
+output/artist_ui_zip_demo*.png.import
+output/battle_debug.png
+output/battle_debug.png.import
+build/web/

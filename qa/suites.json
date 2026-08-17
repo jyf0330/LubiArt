@@ -1,0 +1,155 @@
+{
+  "schema": "ysbzs.qa.suites.v1",
+  "defaults": {
+    "timeout_seconds": 180,
+    "display": false,
+    "strict_output": true
+  },
+  "suites": {
+    "isolation": [
+      {
+        "path": "tests/qa/user_data_isolation_probe.gd",
+        "args": ["--qa-probe=alpha"],
+        "timeout_seconds": 45
+      },
+      {
+        "path": "tests/qa/user_data_isolation_probe.gd",
+        "args": ["--qa-probe=beta"],
+        "timeout_seconds": 45
+      }
+    ],
+    "bot": [
+      {
+        "path": "tests/qa/seed_bot.gd",
+        "args": ["--qa-seed-count=3"],
+        "timeout_seconds": 600
+      }
+    ],
+    "fast": [
+      {"suite": "isolation"},
+      {
+        "path": "tests/qa/runtime_diagnostics_probe.gd",
+        "timeout_seconds": 45
+      },
+      {
+        "path": "tests/qa/smoke_commercial_operability_contract.gd",
+        "timeout_seconds": 45
+      },
+      {
+        "path": "tests/session/smoke_game_session_boundary.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/session/smoke_command_intent_boundary.gd",
+        "timeout_seconds": 120
+      },
+      {
+        "path": "tests/core/smoke_phase_policy.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/core/smoke_command_rejection_atomicity.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/core/smoke_composition_service_ownership.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/core/smoke_sts2_damage_pipeline.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/core/smoke_sts2_damage_production.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/features/smoke_battle_debug_session.gd",
+        "timeout_seconds": 120
+      },
+      {
+        "path": "tests/core/smoke_shop_catalog_patterns.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/core/smoke_effect_content_schema.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/core/smoke_effect_handler_contract.gd",
+        "timeout_seconds": 60
+      },
+      {
+        "path": "tests/core/smoke_two_player_pet_reset_battle.gd",
+        "timeout_seconds": 180
+      },
+      {
+        "path": "tests/features/smoke_battle_ui.gd",
+        "timeout_seconds": 180
+      },
+      {
+        "path": "tests/integration/smoke_playable_flow.gd",
+        "timeout_seconds": 300
+      },
+      {"suite": "bot"}
+    ],
+    "session": [
+      {
+        "glob": "tests/session/smoke_*.gd",
+        "timeout_seconds": 180
+      }
+    ],
+    "core": [
+      {
+        "glob": "tests/core/smoke_*.gd",
+        "timeout_seconds": 300
+      }
+    ],
+    "features": [
+      {
+        "glob": "tests/features/smoke_*.gd",
+        "timeout_seconds": 300
+      }
+    ],
+    "integration": [
+      {
+        "glob": "tests/integration/smoke_*.gd",
+        "timeout_seconds": 600
+      }
+    ],
+    "full": [
+      {"suite": "session"},
+      {"suite": "core"},
+      {"suite": "features"},
+      {"suite": "integration"}
+    ],
+    "quarantine": [],
+    "nightly": [
+      {"suite": "full"},
+      {"suite": "isolation"},
+      {
+        "path": "tests/qa/seed_bot.gd",
+        "args": ["--qa-seed-count=24"],
+        "timeout_seconds": 2400
+      }
+    ],
+    "visual": [
+      {
+        "path": "tests/qa/ui_regression.gd",
+        "display": true,
+        "strict_output": true,
+        "timeout_seconds": 360,
+        "engine_args": [
+          "--resolution",
+          "1920x1080",
+          "--rendering-method",
+          "gl_compatibility"
+        ]
+      }
+    ],
+    "release": [
+      {"suite": "nightly"},
+      {"suite": "visual"}
+    ]
+  }
+}

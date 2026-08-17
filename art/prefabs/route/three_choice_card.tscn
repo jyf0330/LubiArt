@@ -3,10 +3,12 @@
 [ext_resource type="Script" uid="uid://b6cddsfncomg6" path="res://core_ui/scripts/route/prefabs/three_choice_card.gd" id="1_card_script"]
 [ext_resource type="Texture2D" uid="uid://dt4ycseflgs55" path="res://art/images/route/three_choice_psd/route_icon_event.png" id="2_icon"]
 [ext_resource type="Texture2D" uid="uid://c62t3lbvcuhrx" path="res://art/images/route/three_choice_psd/route_portrait_event.png" id="3_portrait"]
-[ext_resource type="Texture2D" path="res://art/images/route/three_choice_psd/route_highlight_event.png" id="6_highlight"]
+[ext_resource type="Texture2D" uid="uid://dlene6gqvg5u" path="res://art/images/route/three_choice_psd/incense_smoke.png" id="4_smoke"]
+[ext_resource type="Texture2D" uid="uid://nggrmovdum34" path="res://art/images/route/three_choice_psd/incense_burner.png" id="5_burner"]
+[ext_resource type="Texture2D" uid="uid://bbyq7ryw3w1qg" path="res://art/images/route/three_choice_psd/route_highlight_2.png" id="6_highlight"]
 
 [node name="ThreeChoiceCard" type="Control" unique_id=1397874282]
-custom_minimum_size = Vector2(365, 500)
+custom_minimum_size = Vector2(260, 392)
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
@@ -14,34 +16,60 @@ script = ExtResource("1_card_script")
 
 [node name="KindIcon" type="TextureRect" parent="." unique_id=30206432]
 layout_mode = 0
-offset_right = 365.0
-offset_bottom = 500.0
+offset_left = 83.91
+offset_right = 123.91001
+offset_bottom = 62.0
 mouse_filter = 2
 texture = ExtResource("2_icon")
+expand_mode = 1
 stretch_mode = 5
 
 [node name="Portrait" type="TextureRect" parent="." unique_id=2114202963]
 layout_mode = 0
-offset_right = 365.0
-offset_bottom = 500.0
+offset_left = 5.0
+offset_top = 49.61
+offset_right = 212.0
+offset_bottom = 296.61
 mouse_filter = 2
 texture = ExtResource("3_portrait")
+expand_mode = 1
 stretch_mode = 5
 
 [node name="RouteHighlight" type="TextureRect" parent="." unique_id=777777398]
 visible = false
 layout_mode = 0
-offset_right = 365.0
-offset_bottom = 500.0
+offset_left = -63.62
+offset_top = -69.0
+offset_right = 311.38
+offset_bottom = 409.0
 mouse_filter = 2
 texture = ExtResource("6_highlight")
 stretch_mode = 5
 
+[node name="HoverSmoke" type="TextureRect" parent="." unique_id=843894824]
+visible = false
+layout_mode = 0
+offset_left = -9.0
+offset_top = 168.0
+offset_right = 113.0
+offset_bottom = 325.0
+mouse_filter = 2
+texture = ExtResource("4_smoke")
+stretch_mode = 5
+
+[node name="IncenseBurner" type="TextureRect" parent="." unique_id=1251348391]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 315.0
+offset_right = 155.0
+offset_bottom = 410.0
+mouse_filter = 2
+texture = ExtResource("5_burner")
+stretch_mode = 5
+
 [node name="Three_Button" type="TextureButton" parent="." unique_id=2022537440]
 layout_mode = 0
-offset_left = 27.0
-offset_top = 48.0
-offset_right = 337.0
-offset_bottom = 448.0
+offset_right = 260.0
+offset_bottom = 392.0
 ignore_texture_size = true
 stretch_mode = 5

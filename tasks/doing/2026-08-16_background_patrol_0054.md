@@ -1,0 +1,42 @@
+# 2026-08-16 00:54 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-0054
+- delivery_base_commit: `982413f`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与优先级；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_0054.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_0054.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 和 `tasks/doing/2026-08-15_background_patrol_2249.md` 为上一轮未提交控制面 WIP；本轮保留全部既有结论，只做当前事实的最小接续
+  - `2026-08-16_shop_art_visual_integration.md` 正在独占 `legacy_code_shop_view.gd`、`shop_art_backdrop.gd` 及两份专项/可见测试；当前工作树中的 1 个跟踪产品修改和 4 个未跟踪实现/任务文件均归属该任务
+  - 本轮不编辑、不暂存、不提交上述产品、测试或可见验收文件；发生失败也只记录并执行 `FILE_CONFLICT_STOP`
+- stop_conditions:
+  - 复核最近 fast、延长复验、自动巡检 stderr、当前 HEAD/上游差异和远端 CI 可达性
+  - 明确区分产品失败、整机级减速证据、活跃任务中间态和环境/工具噪声
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 对比 `non-image-fast-20260815/fast-summary.json` 与 `patrol-2219-20260815/summary.json` 的同名测试耗时
+  - 对比 playable flow 两轮命令与自动布置内部计算日志
+  - `gh run list --repo jyf0330/xyxsj --limit 10`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_0054.md`
+  - `git status --short --untracked-files=all`
+- findings:
+  - 最新完整 fast 仍是提交 `6c6174e` 上的 18/19；`smoke_playable_flow.gd` 在 300.079 秒超时，同脚本 600 秒复验于 503.67 秒通过，未发生逻辑断言失败或死锁
+  - 与 17:05 结果相比，排除目标脚本与当时失败的 battle UI 后，16 个同名测试耗时中位倍率为 `3.47x`，范围 `2.14x`–`6.01x`；seed bot 为 `3.72x`
+  - playable flow 内部自动布置计算、`AUTO_POSITION_HEROES`、`RUN_COMBAT_ROUND`、存读档和演出等待均近似同比变慢，不能把门禁超时唯一归责给自动布置、权威状态或表现层；当前更强证据是整轮机器/运行环境级减速
+  - 当前 HEAD `982413f` 只比上次 fast 基线多一份已验证的商店美术资源提交，本地分支领先 origin 1 个提交；巡检收尾时商店视觉接入 owner 又继续写入，并新增 baseline-v2、after-v2 与六状态 comparison 产物，但任务卡仍为 `in_progress`，尚无专项回归和完成结论
+  - 上一轮自动巡检退出码为 0，但 `stderr.log` 为 2,653 字节，内容是一次 `apply_patch` 上下文失配；随后控制面写入与 final 正常完成，属于工具过程噪声，不是产品运行失败
+  - `gh run list` 仍被本机代理沙箱拒绝，远端 CI 未验证
+- validation_result:
+  - 本轮未复跑完整 fast：现有活跃 UI/可见测试 WIP 尚未收口，且现成对照已证明当时为全局 `3.47x` 级减速；继续在非受控负载下复跑不能提供单一责任层证据
+  - 控制面差异、尾随空白和 Git/WIP 归属检查通过
+  - 未修改产品代码、测试、玩法、美术或正式数据，未推送、部署或发布
+- residual_risk:
+  - fast 仍缺一轮受控负载下的当前稳定树通过证据；远端 CI 仍不可见
+  - 拖拽详情清除仍缺独立虚拟屏正式入口验收；商店视觉接入 owner 在本轮巡检期间仍持续写入，由其继续收口
+- next_step: 先让商店视觉接入任务完成并释放 WIP；随后在受控负载下重跑 fast，只有跨测试倍率恢复但 playable flow 仍单独超时，才建立单一责任层性能修复任务
+- commit: 控制面包含上一轮未提交改动，且当前沙箱对 `.git` 只读；本轮不提交，不推送

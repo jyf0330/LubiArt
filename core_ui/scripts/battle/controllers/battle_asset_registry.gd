@@ -1,10 +1,12 @@
 extends RefCounted
+class_name BattleAssetRegistry
 
 const MANIFEST_PATH := "res://art/manifests/battle/battle_asset_manifest.json"
 const SUPPORTED_MANIFEST_VERSION := 2
 const DEFAULT_RUNTIME_SECTIONS := ["background", "buttons", "frames", "leaders", "fallback_units", "effects"]
 const BACKGROUND_BIOME_SEQUENCE := ["grassland", "pond", "wasteland", "mountain", "lowland"]
 const PetAssetResolverScript := preload("res://core_ui/scripts/shared/pet/pet_asset_resolver.gd")
+const GameDataRepositoryScript := preload("res://persistence/game_data_repository.gd")
 
 var manifest: Dictionary = {}
 var pet_image_by_id: Dictionary = {}
@@ -13,6 +15,7 @@ var enemy_image_by_key: Dictionary = {}
 var _texture_cache: Dictionary = {}
 var _load_issues: Array[Dictionary] = []
 var _pet_resolver: RefCounted = null
+var _game_data_repository: RefCounted = GameDataRepositoryScript.new()
 
 
 func _init() -> void:
@@ -251,7 +254,7 @@ func validate_registry() -> Dictionary:
 			errors.append(_issue("error", "enemy_texture_missing", String(key), "敌方图片不存在", path))
 	var coverage_settings := Dictionary(manifest.get("coverage", {}))
 	var catalog_path := String(coverage_settings.get("player_pet_catalog", ""))
-	if catalog_path == "" or not FileAccess.file_exists(catalog_path):
+	if catalog_path == "" or (not FileAccess.file_exists(catalog_path) and DirAccess.open(catalog_path) == null):
 		errors.append(_issue("error", "player_pet_catalog_missing", catalog_path, "宠物目录文件不存在", catalog_path))
 	var coverage := _catalog_coverage()
 	var missing_pet_ids := Array(coverage.get("missing_player_pet_ids", []))
@@ -344,6 +347,12 @@ func _pet_texture(record: Dictionary) -> Texture2D:
 
 
 func _enemy_texture(record: Dictionary) -> Texture2D:
+	# A pet keeps the same visual identity on either side of the board. Enemy
+	# mappings remain only as a compatibility path for non-pet monster records.
+	if _pet_id(record) != "":
+		var shared_pet_texture := _pet_texture(record)
+		if shared_pet_texture != null:
+			return shared_pet_texture
 	for key in _enemy_image_keys(record):
 		if enemy_image_by_key.has(key):
 			var texture := _load_texture_if_exists(String(enemy_image_by_key[key]))
@@ -428,7 +437,7 @@ func _declared_runtime_asset_paths() -> Array[String]:
 func _catalog_coverage() -> Dictionary:
 	var coverage_settings := Dictionary(manifest.get("coverage", {}))
 	var catalog_path := String(coverage_settings.get("player_pet_catalog", ""))
-	var catalog := _load_json_dictionary(catalog_path, "player_pet_catalog", false)
+	var catalog := _load_catalog_dictionary(catalog_path)
 	var economy := Dictionary(catalog.get("economy", {}))
 	var expected_ids: Array[String] = []
 	for value in Array(economy.get("shop_items", [])):
@@ -445,6 +454,12 @@ func _catalog_coverage() -> Dictionary:
 		"catalog_player_pet_ids": expected_ids.size(),
 		"missing_player_pet_ids": missing_ids,
 	}
+
+
+func _load_catalog_dictionary(path: String) -> Dictionary:
+	if FileAccess.file_exists(path):
+		return _load_json_dictionary(path, "player_pet_catalog", false)
+	return Dictionary(_game_data_repository.read_content_pack(path))
 
 
 func _load_json_dictionary(path: String, kind: String, record_issue: bool = true) -> Dictionary:

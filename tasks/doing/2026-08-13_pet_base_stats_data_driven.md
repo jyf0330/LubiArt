@@ -1,0 +1,51 @@
+# 宠物基础数值数据驱动
+
+- status: done
+- owner: codex-root-20260813
+- objective: 由上游策划主表设计并生成宠物 HP / 攻 / 防 / 盾 / AP，Godot 代码不包含宠物面板默认值且缺失数据时 fail closed
+- delivery_base_commit: 6514da8
+- write_scopes:
+  - `tools/export_pet_catalogs.py`
+  - `core/content/content_object_registry.gd`
+  - `core_ui/scripts/shared/pet/pet_info_panel_v2.gd`
+  - `core_ui/scripts/shared/pet/sprite_rank_stats.gd`
+  - `tests/core/smoke_pet_base_stats_data_driven.gd`
+  - `tests/core/smoke_modular_content_pack.gd`（仅更新经验证的内容指纹）
+  - `data/content/generated/**`（仅上游导出产生的预期数据包）
+  - `tasks/doing/2026-08-13_pet_base_stats_data_driven.md`
+- exclusive_files:
+  - `tools/export_pet_catalogs.py`
+  - `core/content/content_object_registry.gd`
+  - `core_ui/scripts/shared/pet/pet_info_panel_v2.gd`
+  - `core_ui/scripts/shared/pet/sprite_rank_stats.gd`
+  - `tests/core/smoke_pet_base_stats_data_driven.gd`
+  - `tests/core/smoke_modular_content_pack.gd`
+- existing_wip:
+  - 当前树有其他任务的战斗权威、自动摆位、宠物详情、Bazaar、visual 与测试 WIP，全部保留
+  - 本任务不修改已占用的 `core/state/game_state.gd`、`core_ui/scripts/shared/pet/pet_detail_panel.gd`、`tasks/ai/QUEUE.md` 或 `tasks/ai/STATUS.md`
+- stop_conditions:
+  - 上游 369 宠五项基础数值全部来自 workbook 规则并成功导出
+  - Godot 内容包携带完整 `base_stats`
+  - 生产代码不再提供宠物面板示例/默认值；数据缺失由加载边界拒绝
+  - 专项测试与相关回归通过
+- validation:
+  - 上游 workbook / CSV 导出与专项 Node 测试
+  - `smoke_pet_base_stats_data_driven.gd`
+  - `smoke_modular_content_pack.gd`
+  - `smoke_generic_pet_attribute_system.gd`
+  - `git diff --check`
+- commit: 完成验证后按仓库规则精确提交；不推送
+- changes:
+  - 生成宠物内容包显式携带五项 `base_stats`，本次只修正 `pal_090`、`pal_110`、`pal_124` 的历史表外防御与相应效果分
+  - 内容注册边界校验 `base_stats` 的存在、数值类型及与顶层字段的一致性，缺失时 fail closed
+  - 导出器、宠物信息面板和 SpriteRank 资源删除宠物基础面板示例值/默认值
+  - 新增 369 宠完整性与生产代码静态门禁，并更新已验证的模块内容指纹
+- validation_result:
+  - `smoke_pet_base_stats_data_driven.gd`：通过，369/369
+  - `smoke_generic_pet_attribute_system.gd`：通过，47 stats / 8 statuses
+  - `smoke_modular_content_pack.gd`：通过，content `c5f14d2c...` / stable `0abf5fb7...`
+  - `git diff --check`：通过
+  - 上游 `data:export:check` 与 26 项相关 Node 测试通过
+- residual_risk:
+  - 未进行可见 UI 变更；本任务删除的是编辑器/示例默认数据并强化加载边界，不需要视觉验收
+  - 工作树中的自动摆位、战斗、UI、visual 与控制面 WIP 均未触碰或纳入本任务

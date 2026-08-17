@@ -10,8 +10,8 @@ offset_right = 124.66
 offset_bottom = 109.57143
 theme_override_styles/panel = SubResource("StyleBoxEmpty_a711e")
 script = ExtResource("1_script")
-use_perspective_geometry = false
-polygon = PackedVector2Array(0, 0, 124.66, 0, 124.66, 109.57143, 0, 109.57143)
+use_perspective_geometry = true
+polygon = PackedVector2Array(3.660006, 0, 124.66, 0, 124.66, 109.57143, 0, 109.57143)
 
 [node name="CellImage" type="TextureRect" parent="." unique_id=2000503071]
 visible = false
@@ -54,6 +54,7 @@ joint_mode = 2
 antialiased = true
 
 [node name="GroundElementEffects" type="Control" parent="." unique_id=1888732241]
+visible = false
 z_index = 1
 layout_mode = 1
 anchors_preset = 15
@@ -76,6 +77,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="ImpactLayer" type="Control" parent="GroundElementEffects" unique_id=616791229]
+visible = false
 z_index = 1
 layout_mode = 1
 anchors_preset = 15

@@ -8,21 +8,22 @@ signal command_requested(command: Dictionary)
 signal cell_detail_requested(grid: Vector2i, unit_id: String)
 
 const GameLogScript := preload("res://core/logging/game_log.gd")
+const BattleUnitScene := preload("res://art/prefabs/pet/pet.tscn")
+const BattleCommandBuilderScript := preload("res://core_ui/scripts/battle/controllers/battle_command_builder.gd")
 
 const DRAG_CLICK_THRESHOLD := 12.0
-const DROP_SETTLE_DURATION := 0.20
-const DROP_RETURN_MIN_DURATION := 0.22
-const DROP_RETURN_MAX_DURATION := 0.34
-const DROP_RETURN_PIXELS_PER_SECOND := 1400.0
+const DROP_SETTLE_DURATION := 0.12
+const DROP_RETURN_DURATION := 0.16
 
-var _board: Control = null
+var _board: BattleBoard = null
 var _board_grid: Control = null
 var _unit_host: Control = null
 var _assets: RefCounted = null
 var _preview: RefCounted = null
+var _commands := BattleCommandBuilderScript.new()
 
 var _hovered_grid := Vector2i(-1, -1)
-var _detail_hover_grid := Vector2i(-1, -1)
+var _hover_detail_grid := Vector2i(-1, -1)
 var _pointer_viewport_position := Vector2(-1.0, -1.0)
 var _drag_unit_id := ""
 var _drag_origin := Vector2i(-1, -1)
@@ -31,22 +32,17 @@ var _drag_offset := Vector2.ZERO
 var _drag_hover_grid := Vector2i(-1, -1)
 var _drag_start_mouse_position := Vector2.ZERO
 var _drag_has_moved := false
-var _drag_pointer_travel := 0.0
-var _drag_started_on_selected_unit := false
 var _drop_settle_active := false
 var _drop_settle_preview: Control = null
 var _drop_settle_tween: Tween = null
 var _drop_settle_unit_id := ""
 var _drop_settle_grid := Vector2i(-1, -1)
-var _drop_settle_snapshot_reconciled := false
-var _suppressed_cell_selection := Vector2i(-1, -1)
-var _selection_suppression_serial := 0
+var _suppress_next_select := false
 var _input_locked := false
-var _locked_inspection_unit_id := ""
 
 
 func configure(
-	board: Control,
+	board: BattleBoard,
 	board_grid: Control,
 	unit_host: Control,
 	assets: RefCounted,
@@ -66,12 +62,11 @@ func set_assets(assets: RefCounted) -> void:
 func set_input_locked(locked: bool) -> void:
 	if _input_locked != locked:
 		GameLogScript.debug("表现/输入锁", "战斗棋盘输入状态变化", {"状态": "锁定" if locked else "解锁"})
-		_locked_inspection_unit_id = ""
 	_input_locked = locked
 	if locked:
-		_clear_pet_hover_detail()
 		_set_cursor_grabbing(false)
 		_set_cursor_pet_hover(false)
+		_set_hover_detail_grid(Vector2i(-1, -1))
 	else:
 		_refresh_pointer_hover_state()
 
@@ -108,30 +103,18 @@ func handle_input(event: InputEvent) -> bool:
 
 func on_cell_selected(grid: Vector2i) -> void:
 	if _input_locked:
-		_select_locked_inspection(grid)
 		return
-	if _suppressed_cell_selection == grid:
-		_clear_cell_selection_suppression()
+	if _suppress_next_select:
+		_suppress_next_select = false
 		return
 	if _cell_has_player_unit(grid):
-		_select_player_unit(grid)
+		_select_player_unit_and_request_detail(grid)
 		return
-	if _cell_has_unit(grid):
-		_request_pet_detail(grid)
-		return
-	if _cell_has_visible_elements(grid):
+	if _cell_has_unit(grid) or _cell_has_visible_elements(grid):
 		_request_cell_detail(grid)
 		return
-	_cancel_selection_through_floor(grid)
-
-
-func on_blank_area_selected() -> void:
-	if _drag_unit_id != "":
-		return
-	if _input_locked:
-		_clear_locked_inspection()
-		return
-	_cancel_selection_through_floor(_first_empty_floor_grid())
+	cell_detail_requested.emit(Vector2i(-1, -1), "")
+	command_requested.emit(_commands.select_cell(grid))
 
 
 func on_cell_pressed(grid: Vector2i) -> void:
@@ -166,15 +149,15 @@ func on_cell_unhovered(grid: Vector2i) -> void:
 		_hovered_grid = Vector2i(-1, -1)
 	if _drag_unit_id == "":
 		_set_cursor_pet_hover(false)
-		if _detail_hover_grid == grid:
-			_clear_pet_hover_detail()
+		if _hover_detail_grid == grid:
+			_set_hover_detail_grid(Vector2i(-1, -1))
 
 
 func cancel_for_board_resize() -> void:
 	if _drag_unit_id != "":
 		_finish_unit_drag(Vector2i(-1, -1))
 	_hovered_grid = Vector2i(-1, -1)
-	_clear_pet_hover_detail()
+	_set_hover_detail_grid(Vector2i(-1, -1))
 	_drag_hover_grid = Vector2i(-1, -1)
 
 
@@ -203,8 +186,6 @@ func restore_after_snapshot() -> void:
 			_preview.call("restore_drag_after_snapshot", _drag_preview)
 		if _drag_hover_grid.x >= 0:
 			_refresh_drag_hover_highlight(_drag_hover_grid, true)
-	if _drop_settle_active:
-		_drop_settle_snapshot_reconciled = true
 	_restore_drop_settle_visual_state()
 
 
@@ -216,7 +197,7 @@ func dispose() -> void:
 	_drag_unit_id = ""
 	_drag_origin = Vector2i(-1, -1)
 	_hovered_grid = Vector2i(-1, -1)
-	_clear_pet_hover_detail()
+	_hover_detail_grid = Vector2i(-1, -1)
 	_pointer_viewport_position = Vector2(-1.0, -1.0)
 	_drag_hover_grid = Vector2i(-1, -1)
 	_board = null
@@ -235,19 +216,8 @@ func _start_unit_drag(grid: Vector2i) -> void:
 	var unit := cell.call("get_unit_node") as Control
 	if unit == null or not unit.has_method("get_unit_id"):
 		return
-	_clear_pet_hover_detail()
-	# A drag is a placement operation, not a detail request. Close any pinned
-	# card before creating the preview so it cannot obscure the target cells or
-	# survive after a cancelled drag.
-	cell_detail_requested.emit(Vector2i(-1, -1), "")
+	_set_hover_detail_grid(Vector2i(-1, -1), true)
 	_drag_unit_id = String(unit.call("get_unit_id"))
-	_drag_started_on_selected_unit = (
-		_board.has_method("current_authoritative_selected_unit_id")
-		and String(_board.call("current_authoritative_selected_unit_id")) == _drag_unit_id
-	)
-	if _board.has_method("show_local_unit_selection"):
-		_board.call("show_local_unit_selection", _drag_unit_id)
-	_board.call("set_layout_drag_active", true)
 	_set_cursor_pet_hover(false)
 	_set_cursor_grabbing(true)
 	_board.set_process(true)
@@ -255,18 +225,12 @@ func _start_unit_drag(grid: Vector2i) -> void:
 	_drag_offset = _board_grid.get_local_mouse_position() - _cell_origin(grid)
 	_drag_start_mouse_position = _board_grid.get_local_mouse_position()
 	_drag_has_moved = false
-	_drag_pointer_travel = 0.0
-	# Clone the already-bound presentation before hiding the authored unit. This
-	# avoids constructing and rebinding a second full pet prefab on mouse-down.
+	_set_cell_unit_dragging(grid, true)
+	_select_player_unit(grid)
 	_create_drag_preview(unit)
 	if _preview != null:
 		_preview.call("begin_drag", _drag_unit_id, _drag_origin, _drag_preview)
 	_update_drag_preview()
-	_set_cell_unit_dragging(grid, true)
-	# Selection still goes through the public command boundary, but only after
-	# the local highlight has reached the renderer once.
-	if not _drag_started_on_selected_unit:
-		_queue_command({"type": "SELECT_CELL", "x": grid.x, "y": grid.y})
 
 
 func _finish_unit_drag(target: Vector2i) -> void:
@@ -275,51 +239,35 @@ func _finish_unit_drag(target: Vector2i) -> void:
 	var dragged_unit_id := _drag_unit_id
 	var origin := _drag_origin
 	var was_dragged := _drag_has_moved
-	var clicked_selected_unit := (
-		_drag_started_on_selected_unit
-		and target == origin
-		and _drag_pointer_travel < DRAG_CLICK_THRESHOLD
-	)
 	var can_drop := _can_drop_dragged_unit_at(target)
 	var settle_preview := _take_drag_preview()
-	_board.call("_clear_cell_highlight", origin)
+	_board.clear_cell_highlight(origin)
 	if _preview != null:
 		_preview.call("finish_drag", true)
 	_clear_drag_hover_highlight()
 	_reset_drag_tracking()
 	_set_cursor_grabbing(false)
 	_set_cursor_pet_hover(false)
-	_clear_pet_hover_detail()
-	if target == origin and (not was_dragged or clicked_selected_unit):
+	if target == origin and not was_dragged:
 		_free_drop_preview(settle_preview)
 		_set_cell_unit_dragging(origin, false)
 		_sync_enemy_damage_previews()
-		_suppress_cell_selection_once(target)
-		if clicked_selected_unit:
-			_cancel_selection_through_floor(_first_empty_floor_grid())
+		_suppress_next_select = true
+		_request_cell_detail(origin)
 		_refresh_cursor_hover_at(target)
 		return
 	if target == origin:
-		_suppress_cell_selection_once(target)
+		_suppress_next_select = true
 		_start_drop_settle(settle_preview, dragged_unit_id, origin, target, origin)
 		_refresh_cursor_hover_at(target)
 		return
 	var settled_grid := origin
-	var move_command := {}
-	if can_drop and bool(_board.call("_apply_local_unit_drop", dragged_unit_id, origin, target)):
-		move_command = {
-			"type": "MOVE_HERO",
-			"unitId": dragged_unit_id,
-			"x": target.x,
-			"y": target.y
-		}
+	if can_drop and _board.project_local_unit_drop(dragged_unit_id, origin, target):
+		command_requested.emit(_commands.move_hero(dragged_unit_id, target))
 		settled_grid = target
-	_suppress_cell_selection_once(target)
+	_suppress_next_select = true
 	_start_drop_settle(settle_preview, dragged_unit_id, origin, target, settled_grid)
 	_refresh_cursor_hover_at(target)
-	if not move_command.is_empty():
-		# Let at least one settle frame render before Snapshot reconciliation.
-		_queue_command(move_command)
 
 
 func _can_drop_dragged_unit_at(target: Vector2i) -> bool:
@@ -336,13 +284,10 @@ func _take_drag_preview() -> Control:
 
 func _reset_drag_tracking() -> void:
 	_drag_unit_id = ""
-	_board.call("set_layout_drag_active", false)
 	_board.set_process(false)
 	_drag_origin = Vector2i(-1, -1)
 	_drag_start_mouse_position = Vector2.ZERO
 	_drag_has_moved = false
-	_drag_pointer_travel = 0.0
-	_drag_started_on_selected_unit = false
 
 
 func _start_drop_settle(
@@ -353,36 +298,24 @@ func _start_drop_settle(
 	settled: Vector2i
 ) -> void:
 	var is_return := settled == origin and requested != origin
+	var duration := DROP_RETURN_DURATION if is_return else DROP_SETTLE_DURATION
 	if preview_node == null or not is_instance_valid(preview_node):
 		_set_cell_unit_dragging(settled, false)
 		_sync_enemy_damage_previews(true)
 		return
-	var settled_position := _cell_origin(settled)
-	var duration := DROP_SETTLE_DURATION
-	if is_return:
-		duration = clampf(
-			preview_node.position.distance_to(settled_position) / DROP_RETURN_PIXELS_PER_SECOND,
-			DROP_RETURN_MIN_DURATION,
-			DROP_RETURN_MAX_DURATION
-		)
 	_drop_settle_active = true
 	_drop_settle_preview = preview_node
 	_drop_settle_unit_id = unit_id
 	_drop_settle_grid = settled
-	_drop_settle_snapshot_reconciled = false
 	_set_cell_unit_dragging(settled, true)
 	preview_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	preview_node.z_as_relative = false
 	preview_node.z_index = 180
 	preview_node.modulate.a = 0.94
 	_drop_settle_tween = _board.create_tween()
-	# Quintic ease-out covered over half the remaining distance on the first
-	# 60 fps frame, which read as a snap even when the frame itself was fast.
-	# Sine-out preserves an immediate response while spreading the motion evenly
-	# enough for the hand-off from pointer tracking to remain visible and smooth.
-	_drop_settle_tween.set_trans(Tween.TRANS_SINE)
+	_drop_settle_tween.set_trans(Tween.TRANS_QUINT)
 	_drop_settle_tween.set_ease(Tween.EASE_OUT)
-	_drop_settle_tween.tween_property(preview_node, "position", settled_position, duration)
+	_drop_settle_tween.tween_property(preview_node, "position", _cell_origin(settled), duration)
 	_drop_settle_tween.parallel().tween_property(preview_node, "modulate:a", 1.0, duration)
 	_drop_settle_tween.finished.connect(
 		Callable(self, "_finish_drop_settle").bind(preview_node, unit_id, settled)
@@ -392,11 +325,9 @@ func _start_drop_settle(
 func _finish_drop_settle(preview_node: Control, _unit_id: String, settled: Vector2i) -> void:
 	if not _drop_settle_active or _drop_settle_preview != preview_node:
 		return
-	var needs_preview_sync := not _drop_settle_snapshot_reconciled
 	_discard_drop_settle()
 	_set_cell_unit_dragging(settled, false)
-	if needs_preview_sync:
-		_sync_enemy_damage_previews(true)
+	_sync_enemy_damage_previews(true)
 
 
 func _discard_drop_settle() -> void:
@@ -410,13 +341,12 @@ func _discard_drop_settle() -> void:
 	_drop_settle_active = false
 	_drop_settle_unit_id = ""
 	_drop_settle_grid = Vector2i(-1, -1)
-	_drop_settle_snapshot_reconciled = false
 
 
 func _restore_drop_settle_visual_state() -> void:
 	if not _drop_settle_active or _drop_settle_unit_id == "":
 		return
-	var current_grid := _board.call("_rendered_grid_for_unit_id", _drop_settle_unit_id) as Vector2i
+	var current_grid := _board.rendered_grid_for_unit_id(_drop_settle_unit_id)
 	if current_grid.x >= 0 and current_grid.y >= 0:
 		_drop_settle_grid = current_grid
 	_set_cell_unit_dragging(_drop_settle_grid, true)
@@ -432,137 +362,40 @@ func _request_cell_detail(grid: Vector2i) -> void:
 		Vector2i(x, y),
 		String(data.get("unitId", data.get("unit_id", "")))
 	)
-	command_requested.emit({"type": "GET_CELL_DETAIL", "x": x, "y": y})
+	command_requested.emit(_commands.get_cell_detail(Vector2i(x, y)))
 
 
-func _select_locked_inspection(grid: Vector2i) -> void:
-	if not _is_visible_board_cell(grid):
-		_clear_locked_inspection()
+func _select_player_unit_and_request_detail(grid: Vector2i) -> void:
+	if not _cell_has_player_unit(grid):
+		_request_cell_detail(grid)
 		return
-	var data := _cell_data_at_grid(grid)
-	var unit_id := String(data.get("unitId", data.get("unit_id", "")))
-	if unit_id == "" or _cell_data_is_hero(data):
-		_clear_locked_inspection()
-		return
-	if unit_id == _locked_inspection_unit_id:
-		_clear_locked_inspection()
-		return
-	_locked_inspection_unit_id = unit_id
-	if _board != null and _board.has_method("show_local_unit_inspection"):
-		_board.call("show_local_unit_inspection", unit_id)
-	_request_pet_detail(grid, unit_id)
-
-
-func _clear_locked_inspection() -> void:
-	_locked_inspection_unit_id = ""
-	if _board != null and _board.has_method("show_local_unit_inspection"):
-		_board.call("show_local_unit_inspection", "")
-	_detail_hover_grid = Vector2i(-1, -1)
-	cell_detail_requested.emit(Vector2i(-1, -1), "")
-
-
-func _cancel_selection_through_floor(grid: Vector2i) -> void:
-	if _board != null and _board.has_method("show_local_unit_selection"):
-		_board.call("show_local_unit_selection", "")
-	_detail_hover_grid = Vector2i(-1, -1)
-	cell_detail_requested.emit(Vector2i(-1, -1), "")
-	if grid.x < 0 or grid.y < 0:
-		return
-	command_requested.emit({"type": "SELECT_CELL", "x": grid.x, "y": grid.y})
-
-
-func _first_empty_floor_grid() -> Vector2i:
-	if _board_grid == null:
-		return Vector2i(-1, -1)
-	for child in _board_grid.get_children():
-		var cell := child as Control
-		if cell == null or not cell.visible or not cell.has_method("get_grid_position"):
-			continue
-		var grid := cell.call("get_grid_position") as Vector2i
-		if _cell_has_unit(grid) or _cell_has_visible_elements(grid):
-			continue
-		return grid
-	return Vector2i(-1, -1)
-
-
-func _suppress_cell_selection_once(grid: Vector2i) -> void:
-	_selection_suppression_serial += 1
-	var serial := _selection_suppression_serial
-	_suppressed_cell_selection = grid
-	Callable(self, "_expire_cell_selection_suppression").bind(serial).call_deferred()
-
-
-func _expire_cell_selection_suppression(serial: int) -> void:
-	if serial == _selection_suppression_serial:
-		_suppressed_cell_selection = Vector2i(-1, -1)
-
-
-func _clear_cell_selection_suppression() -> void:
-	_selection_suppression_serial += 1
-	_suppressed_cell_selection = Vector2i(-1, -1)
+	_select_player_unit(grid)
+	_request_cell_detail(grid)
 
 
 func _select_player_unit(grid: Vector2i) -> void:
 	if not _cell_has_player_unit(grid):
 		return
-	_request_pet_detail(grid)
-	command_requested.emit({
-		"type": "SELECT_CELL",
-		"x": grid.x,
-		"y": grid.y
-	})
-
-
-func _request_pet_detail(grid: Vector2i, unit_id := "") -> void:
-	var resolved_unit_id := unit_id
-	if resolved_unit_id == "":
-		var data := _cell_data_at_grid(grid)
-		resolved_unit_id = String(data.get("unitId", data.get("unit_id", "")))
-	if resolved_unit_id == "":
-		return
-	cell_detail_requested.emit(grid, resolved_unit_id)
-
-
-func _queue_command(command: Dictionary) -> void:
-	_emit_queued_command_after_draw(command.duplicate(true))
-
-
-func _emit_queued_command_after_draw(command: Dictionary) -> void:
-	if DisplayServer.get_name() == "headless":
-		await _board.get_tree().process_frame
-	else:
-		await RenderingServer.frame_post_draw
-	if _board == null or not is_instance_valid(_board) or not _board.is_inside_tree():
-		return
-	command_requested.emit(command)
+	command_requested.emit(_commands.select_cell(grid))
 
 
 func _create_drag_preview(unit: Control) -> void:
 	_clear_drag_preview()
-	# Duplicate the live, fully-resolved presentation. Textures, visual metrics,
-	# side facing and health layout are already bound, so mouse-down performs no
-	# second asset lookup or animation-frame load.
-	var preview_node := unit.duplicate() as Control
+	var raw_data = unit.get("cell_data")
+	if not (raw_data is Dictionary):
+		return
+	var preview_node := BattleUnitScene.instantiate() as Control
 	if preview_node == null:
 		return
-	# The public pet prefab has a 180x180 collection minimum, while battle units
-	# are fitted to their authored cell. Clear that minimum before the preview
-	# enters UnitHost or Godot expands it during its first layout pass.
-	var preview_size := unit.size
-	preview_node.custom_minimum_size = Vector2.ZERO
 	preview_node.name = "BattleUnitDragPreview"
 	preview_node.position = _unit_host.get_local_mouse_position() - _drag_offset
+	preview_node.size = _board.presentation_cell_size()
 	preview_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_unit_host.add_child(preview_node)
-	preview_node.size = preview_size
-	if preview_node.has_method("initialize_drag_preview_from"):
-		preview_node.call("initialize_drag_preview_from", unit)
+	if preview_node.has_method("set_unit_data"):
+		preview_node.call("set_unit_data", Dictionary(raw_data).duplicate(true), String(unit.get("side")), _assets)
 	if preview_node.has_method("set_dragging"):
 		preview_node.call("set_dragging", false)
-	# Transient damage-preview timing belongs to the drag coordinator. Do not
-	# inherit the source unit's current blink/hold phase into the clone.
-	if preview_node.has_method("stop_damage_preview"):
-		preview_node.call("stop_damage_preview")
 	preview_node.z_as_relative = false
 	preview_node.z_index = 180
 	preview_node.modulate.a = 0.94
@@ -580,11 +413,7 @@ func _update_drag_preview_at_board_position(local_mouse: Vector2) -> void:
 	if _drag_unit_id == "" or _drag_preview == null or not is_instance_valid(_drag_preview):
 		return
 	_drag_preview.position = local_mouse - _drag_offset
-	_drag_pointer_travel = maxf(
-		_drag_pointer_travel,
-		local_mouse.distance_to(_drag_start_mouse_position)
-	)
-	if _drag_pointer_travel >= DRAG_CLICK_THRESHOLD:
+	if local_mouse.distance_to(_drag_start_mouse_position) >= DRAG_CLICK_THRESHOLD:
 		_drag_has_moved = true
 	var target := _grid_from_board_position(local_mouse)
 	if target != _drag_origin:
@@ -670,19 +499,14 @@ func _mouse_is_over_draggable_pet(cell: Control) -> bool:
 	return _mouse_is_over_unit_art(cell, _board.get_viewport().get_mouse_position())
 
 
-func _mouse_is_over_pet(cell: Control, viewport_point: Variant = null) -> bool:
+func _mouse_is_over_pet(cell: Control) -> bool:
 	if cell == null:
 		return false
 	var data := _cell_data_for_cell(cell)
 	var unit_id := String(data.get("unitId", data.get("unit_id", "")))
 	if unit_id == "" or _cell_data_is_hero(data):
 		return false
-	var pointer_position := (
-		viewport_point as Vector2
-		if viewport_point is Vector2
-		else _pointer_viewport_position
-	)
-	return _mouse_is_over_unit_art(cell, pointer_position)
+	return _mouse_is_over_unit_art(cell, _pointer_viewport_position)
 
 
 func _mouse_is_over_unit_art(cell: Control, pointer_position: Vector2) -> bool:
@@ -699,39 +523,7 @@ func _mouse_is_over_unit_art(cell: Control, pointer_position: Vector2) -> bool:
 
 func _refresh_pointer_hover_state() -> void:
 	_refresh_cursor_hover_state()
-	_refresh_pet_hover_detail(_pointer_viewport_position)
-
-
-func _refresh_pet_hover_detail(viewport_point: Variant = null) -> void:
-	var desired_grid := Vector2i(-1, -1)
-	if (
-		not _input_locked
-		and _drag_unit_id == ""
-		and _hovered_grid.x >= 0
-		and _hovered_grid.y >= 0
-		and _mouse_is_over_pet(_cell_at(_hovered_grid), viewport_point)
-	):
-		desired_grid = _hovered_grid
-	if desired_grid == _detail_hover_grid:
-		return
-	if desired_grid.x < 0 or desired_grid.y < 0:
-		_clear_pet_hover_detail()
-		return
-	var data := _cell_data_at_grid(desired_grid)
-	var unit_id := String(data.get("unitId", data.get("unit_id", "")))
-	if unit_id == "":
-		_clear_pet_hover_detail()
-		return
-	_set_pet_battle_stats_hovered(_detail_hover_grid, false)
-	_detail_hover_grid = desired_grid
-	_set_pet_battle_stats_hovered(_detail_hover_grid, true)
-
-
-func _clear_pet_hover_detail() -> void:
-	if _detail_hover_grid.x < 0 and _detail_hover_grid.y < 0:
-		return
-	_set_pet_battle_stats_hovered(_detail_hover_grid, false)
-	_detail_hover_grid = Vector2i(-1, -1)
+	_refresh_hover_detail_state()
 
 
 func _refresh_cursor_hover_state() -> void:
@@ -741,15 +533,27 @@ func _refresh_cursor_hover_state() -> void:
 	_set_cursor_pet_hover(_mouse_is_over_draggable_pet(_cell_at(_hovered_grid)))
 
 
-func _set_pet_battle_stats_hovered(grid: Vector2i, hovered: bool) -> void:
+func _refresh_hover_detail_state() -> void:
+	var next_grid := Vector2i(-1, -1)
+	if not _input_locked and _drag_unit_id == "" \
+			and _hovered_grid.x >= 0 and _hovered_grid.y >= 0 \
+			and _mouse_is_over_pet(_cell_at(_hovered_grid)):
+		next_grid = _hovered_grid
+	_set_hover_detail_grid(next_grid)
+
+
+func _set_hover_detail_grid(grid: Vector2i, force_emit: bool = false) -> void:
+	if _hover_detail_grid == grid and not force_emit:
+		return
+	_hover_detail_grid = grid
 	if grid.x < 0 or grid.y < 0:
+		cell_detail_requested.emit(Vector2i(-1, -1), "")
 		return
-	var cell := _cell_at(grid)
-	if cell == null or not cell.has_method("get_unit_node"):
-		return
-	var unit := cell.call("get_unit_node") as Control
-	if unit != null and unit.has_method("set_battle_stats_pointer_hovered"):
-		unit.call("set_battle_stats_pointer_hovered", hovered)
+	var data := _cell_data_at_grid(grid)
+	cell_detail_requested.emit(
+		grid,
+		String(data.get("unitId", data.get("unit_id", "")))
+	)
 
 
 func _refresh_cursor_hover_at(grid: Vector2i) -> void:
@@ -796,7 +600,7 @@ func _set_cell_unit_dragging(grid: Vector2i, is_dragging: bool) -> void:
 
 func _set_cell_hovered(grid: Vector2i, value: bool) -> void:
 	if _board != null:
-		_board.call("_set_cell_hovered", grid, value)
+		_board.set_cell_hovered(grid, value)
 
 
 func _free_drop_preview(preview_node: Control) -> void:
@@ -805,24 +609,24 @@ func _free_drop_preview(preview_node: Control) -> void:
 
 
 func _cell_at(grid: Vector2i) -> Control:
-	return _board.call("_cell_at", grid.x, grid.y) as Control if _board != null else null
+	return _board.cell_at(grid) if _board != null else null
 
 
 func _cell_data_at_grid(grid: Vector2i) -> Dictionary:
-	return Dictionary(_board.call("_cell_data_at_grid", grid)) if _board != null else {}
+	return _board.cell_data_at_grid(grid) if _board != null else {}
 
 
 func _cell_data_for_cell(cell: Node) -> Dictionary:
-	return Dictionary(_board.call("_cell_data_for_cell", cell)) if _board != null else {}
+	return _board.cell_data_for_node(cell) if _board != null else {}
 
 
 func _cell_origin(grid: Vector2i) -> Vector2:
-	return _board.call("_cell_origin", grid.x, grid.y) as Vector2 if _board != null else Vector2.ZERO
+	return _board.cell_origin(grid) if _board != null else Vector2.ZERO
 
 
 func _grid_from_board_position(local_position: Vector2) -> Vector2i:
-	return _board.call("_grid_from_board_position", local_position) as Vector2i if _board != null else Vector2i(-1, -1)
+	return _board.grid_from_board_position(local_position) if _board != null else Vector2i(-1, -1)
 
 
 func _is_visible_board_cell(grid: Vector2i) -> bool:
-	return bool(_board.call("_is_visible_board_cell", grid.x, grid.y)) if _board != null else false
+	return _board.is_visible_cell(grid) if _board != null else false

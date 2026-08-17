@@ -1,0 +1,33 @@
+# 对话任务自主提交规则
+
+- status: done
+- owner: codex-root-20260812
+- delivery_base_commit: 16372cb
+- write_scopes:
+  - `AGENTS.md`
+  - `tasks/ai/README.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+  - `tasks/doing/2026-08-12_autonomous_conversation_commit_policy.md`
+- exclusive_files:
+  - `AGENTS.md`
+  - `tasks/ai/README.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+  - `tasks/doing/2026-08-12_autonomous_conversation_commit_policy.md`
+- existing_wip: `tests/features/smoke_position_difficulty_toggle.gd` 在本任务开始前已有修改，归属用户或其他任务；不读取、不覆盖、不暂存、不提交
+- objective: 明确 AI 应自行判断当前对话产生的改动是否值得形成提交，并在满足条件时自动精确提交
+- stop_conditions:
+  - 规则同时覆盖自动提交的正向条件与禁止提交的停止条件
+  - 不改动或提交既有测试 WIP
+- validation:
+  - `git diff --check`
+  - 核对暂存清单仅包含本任务五个文件
+- changes:
+  - 在仓库完成标准中加入自主提交判定和自动提交授权
+  - 在持续工作收尾流程中同步相同口径
+- validation_result:
+  - `git diff --check` 通过
+  - 提交前暂存清单仅包含本任务五个文件，既有测试 WIP 未暂存
+- residual_risk: 无产品运行时影响；本规则不授权自动推送
+- next_step: 后续对话任务按该规则自动判断并收尾

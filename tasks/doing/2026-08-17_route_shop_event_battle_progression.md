@@ -1,0 +1,52 @@
+# 前两段路线刷新与第三段战斗三选修复
+
+- status: complete
+- owner: codex-root-20260817-route-progression
+- objective: 修复商店/奇遇完成后仍显示旧路线卡的问题，确保前两段按权威日程刷新，第三段显示带红色战斗小标的三张战斗入口，选择后通过正式 Command/Snapshot/FeatureHost 链直接进入 BattleArtScene
+- delivery_base: `godot-latest-latest-20260817-103552` 独立交付目录；当前目录无 `.git` 元数据
+- write_scopes:
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`
+  - `core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd`
+  - `tests/integration/smoke_route_shop_event_battle_progression.gd`
+  - `tests/visible/visible_route_shop_event_battle_progression.gd`
+  - `tests/visible/capture_formal_shop_operation_parity.gd`
+  - `docs/10_CHANGELOG.md`
+  - `tasks/doing/2026-08-17_route_shop_event_battle_progression.md`
+  - `tasks/ai/STATUS.md`
+  - `tasks/ai/QUEUE.md`
+- exclusive_files:
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`
+  - `core_ui/scripts/artist_flow/controllers/artist_flow_asset_registry.gd`
+  - `tests/integration/smoke_route_shop_event_battle_progression.gd`
+  - `tests/visible/visible_route_shop_event_battle_progression.gd`
+  - `tests/visible/capture_formal_shop_operation_parity.gd`
+- existing_wip:
+  - 相关增量命令任务已标记 complete；当前没有活动任务占用本任务 exclusive files
+  - 保留背景巡检、战斗拖拽详情验收和暂停宠物图片任务，不修改其产品文件或旧任务卡
+  - 正式目录无 Git 元数据；无法依赖提交恢复，修改前保留相关源文件副本和现有现场日志
+- stop_conditions:
+  - 发现权威日程并非前两段普通路线、第三段固定战斗，或需要改正式 workbook/CSV/生成数据
+  - 修复要求新增、删除、改名、移动或重新挂载 Scene/prefab 节点
+  - 战斗按钮绕过 GameSession/Snapshot/FeatureHost，或普通按钮直接加载 BattleArtScene
+  - 发现其他活动任务正在写入 exclusive files
+- validation:
+  - 专项覆盖第一段商店进入/离开后卡片 ID 刷新、第二段普通路线完成后进入第三段
+  - 第三段必须有三张 `kind=battle` 卡、使用红色战斗小标，并提交当前权威 `option_id`
+  - 选择任一第三段战斗卡后 Snapshot.phase 为 battle，正式 BattleArtScene 可见
+  - Godot 4.7 正式入口 1920×1080 至少五个有意义操作/状态的独立真实窗口验收
+  - 相关脚本解析、专项、路由/职责和最终项目门禁
+- node_topology: 不变
+- implementation:
+  - `EXIT_SHOP` / `BACK_TO_ROUTE` 返回路线时重新按已确认 Snapshot 绑定路线卡，消除旧 `option_id` 残留与第三次点击被核心拒绝
+  - 战斗路线统一使用 `three_fight_logo.png` 红色交叉武器标识；普通路线继续保留原槽位小标
+  - 第三段仍通过 `CHOOSE_ROUTE` 提交当前权威 `option_id`，由 GameSession / Snapshot / FeatureHost 正常切换到 `BattleArtScene`
+  - 未新增、删除、改名、移动或重新挂载任何 Scene / prefab 节点，未修改正式日程或玩法数据
+- validation_result:
+  - `smoke_route_shop_event_battle_progression.gd`：通过；节点 1、2 刷新与节点 3 三张战斗卡、进入战斗完整闭环
+  - `smoke_fixed_battle_three_entry.gd`、`smoke_incremental_command_response.gd`、`smoke_three_choice_responsibility_contract.gd`、`smoke_legacy_code_shop_view.gd`：通过
+  - `visible_route_shop_event_battle_progression.gd`：Godot 4.7 Vulkan 1920×1080 六状态通过，输出 `output/validation/route-progression-20260817/after/`
+  - `visible_fixed_battle_three_entry.gd`：正式 Vulkan 窗口通过，三张卡共享权威 encounter 并进入战斗
+  - Godot 4.7 headless editor 扫描退出码 0；无脚本解析/导入失败
+  - 独立美术工程 `verify_ui_mirror.sh`：`MOCK_UI_STANDALONE_STRUCTURE_PASS`，动画批准门禁通过；因正式源目录未作为镜像参数提供，源码比较按设计跳过
+  - 标准 fast runner 在执行测试前被 Windows `WinError 1314`（当前用户无符号链接权限）阻断，不计为产品失败；本任务相关专项和正式窗口均已独立通过
+- final_status: 已完成；无产品阻塞，标准 fast runner 仅有环境权限阻断

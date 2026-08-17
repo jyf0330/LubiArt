@@ -1,0 +1,86 @@
+# 战斗界面美术包视觉收敛修正
+
+- status: completed
+- owner: codex-root-20260817-battle-art-convergence
+- user_authorization: 2026-08-17 用户指出上一轮“差别太大了吧”，延续此前合并美术包资源、修复错位且不照抄代码的要求
+- objective: 以独立 LubiArt Mock 当前真实战斗画面为视觉目标，纠正上一轮只比较状态身份、没有让正式画面明显收敛的问题；先统一同一 Snapshot 下的战斗角色资源身份，再独立实现正式单位 HUD 和详情层，不复制 Mock GDScript、Scene、Session 或权威逻辑
+- write_scopes:
+  - `tasks/doing/2026-08-17_battle_art_visual_convergence.md`
+  - `art/manifests/battle/enemy_image_map.json`
+  - `art/manifests/battle/battle_asset_manifest.json`
+  - `art/images/shared/pets/sheets/slices/pet_style_*.png*`（美术项目当前 13 张有名切片闭包）
+  - `art/images/battle/runtime/hero_images/hero_wukong.png`
+  - `art/images/battle/runtime/hero_images/hero_spider.png`
+  - `art/images/battle/map_controls/shortcut_hints.png`
+  - `art/images/shared/pets/battle_complete/health_bar_frames.png*`
+  - `art/prefabs/pet/pet.tscn`
+  - `art/prefabs/pet/battle_unit_status_bar.tscn`
+  - `art/prefabs/battle/battle_pet_detail.tscn`
+  - `art/prefabs/battle/battle_compact_info_card.tscn`
+  - `core_ui/scripts/shared/pet/pet_visual.gd`
+  - `core_ui/scripts/shared/pet/battle_unit_status_bar.gd`
+  - `core_ui/scripts/shared/pet/battle_unit_status_bar.gd.uid`
+  - `core_ui/scripts/battle/prefabs/battle_compact_info_card.gd`
+  - `core_ui/scripts/battle/prefabs/battle_compact_info_card.gd.uid`
+  - `core_ui/scripts/battle/scenes/battle_overlay.gd`
+  - `tests/features/smoke_battle_art_resource_convergence.gd`
+  - `tests/features/smoke_battle_art_resource_convergence.gd.uid`
+  - `tests/features/smoke_battle_pet_hover_detail.gd`
+  - `tests/features/smoke_battle_ui.gd`
+  - `tests/helpers/battle_scene_probe.gd`
+  - `tests/visible/capture_formal_battle_operation_parity.gd`
+  - `tools/qa/check_battle_art_convergence.py`
+  - `output/validation/battle-art-convergence/**`
+- exclusive_files:
+  - `tasks/doing/2026-08-17_battle_art_visual_convergence.md`
+  - `art/manifests/battle/enemy_image_map.json`
+  - `art/manifests/battle/battle_asset_manifest.json`
+  - `art/prefabs/pet/pet.tscn`
+  - `art/prefabs/pet/battle_unit_status_bar.tscn`
+  - `art/prefabs/battle/battle_pet_detail.tscn`
+  - `art/prefabs/battle/battle_compact_info_card.tscn`
+  - `core_ui/scripts/shared/pet/pet_visual.gd`
+  - `core_ui/scripts/shared/pet/battle_unit_status_bar.gd`
+  - `core_ui/scripts/shared/pet/battle_unit_status_bar.gd.uid`
+  - `core_ui/scripts/battle/prefabs/battle_compact_info_card.gd`
+  - `core_ui/scripts/battle/prefabs/battle_compact_info_card.gd.uid`
+  - `core_ui/scripts/battle/scenes/battle_overlay.gd`
+  - `tests/features/smoke_battle_art_resource_convergence.gd`
+  - `tests/features/smoke_battle_art_resource_convergence.gd.uid`
+  - `tests/features/smoke_battle_pet_hover_detail.gd`
+  - `tests/features/smoke_battle_ui.gd`
+  - `tests/helpers/battle_scene_probe.gd`
+  - `tools/qa/check_battle_art_convergence.py`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 和巡检卡为其他 owner 的当前 WIP，本任务只读，不覆盖、不暂存
+  - `core_ui/scripts/battle/controllers/battle_board_drag_interaction.gd` 仍属于旧巡检任务的验证范围，本任务不修改
+  - 商店 `.png.import`、`.gd.uid` 等未跟踪副产物保持原样
+- current_evidence:
+  - 当前轮重拍位于 `output/validation/battle-art-convergence/round-002-audit/`；入口、详情和自动布置三帧均确认整屏差异显著
+  - 同一路径战斗 PNG 中只有两个英雄与快捷键提示内容不同；敌方四只宠物由两套不同映射和不同源图片导致身份不一致
+  - 正式详情仍为羊皮纸 `sprite_info_card`，美术目标为深色战斗详情；正式单位为四项文字 HUD，美术目标为生命/护盾条。这两项属于后续独立表现实现，不得直接复制 Mock Scene/脚本
+- validation:
+  - 新增资源闭包、SHA-256 和映射 smoke
+  - 正式专项战斗 smoke 与 `git diff --check`
+  - 独立虚拟屏从正式入口重拍 10 个操作，并与当前美术项目重新并排检查
+  - 不以 Snapshot 哈希相同替代视觉验收；至少角色资源身份、英雄图、单位 HUD 三类明显差异必须收敛
+- stop_conditions:
+  - 若目标文件出现其他 owner 新改动，执行 `FILE_CONFLICT_STOP`
+  - 不修改玩法、正式数据、Command/Result/Trace/Snapshot、自动布置规则或战斗结算
+  - 不复制 Mock GDScript、Scene、Session、固定槽位实现；只导入批准图片并在正式项目独立实现表现
+
+## 完成记录
+
+- 已从美术项目同步 13 张具名宠物切片、两个英雄图、快捷键提示和生命条帧；正式敌方映射与美术项目使用同一资源身份，但仍由正式 `BattleAssetRegistry` 解析。
+- 新增独立 `BattleUnitStatusBar`，正式单位继续吃 Snapshot 数据；旧四项文字 HUD 在战斗态隐藏，生命、护盾和伤害预览由新组件表现，并修正血条与立绘相交的错误边界。
+- 新增战斗专用 `BattleCompactInfoCard` 和 wrapper；战斗详情收敛到深色 380×820 画面，三选一/商店仍使用原共享羊皮纸卡，没有复制 Mock Scene、脚本或 Session。
+- 当前轮最终 10 组“左美术项目、右正式项目”对照位于 `output/validation/battle-art-convergence/round-003-final-2/comparison/`；入口、悬停、详情、拖拽、自动布置、开始行动和首回合完成均来自独立真实窗口。
+- 专项验证通过：
+  - `SMOKE_BATTLE_ART_RESOURCE_CONVERGENCE_OK`
+  - `SMOKE_BATTLE_DISPLAY_READABILITY_OK`
+  - `SMOKE_BATTLE_PET_HOVER_DETAIL_OK`
+  - `SMOKE_BATTLE_UI_OK res://art/scenes/battle/battle_art_scene.tscn`
+  - `FORMAL_BATTLE_OPERATION_PARITY_PASS count=10`
+  - `BATTLE_OPERATION_COMPARISON_PASS count=10`
+  - `git diff --check`
+- 保留差异：正式棋盘交互网格、正式 Snapshot 站位及演出时序继续由正式项目负责；本轮没有为了像素一致而照搬 Mock 权威或表现代码。

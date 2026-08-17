@@ -1,0 +1,45 @@
+# 2026-08-16 09:31 后台巡检控制面同步
+
+- status: complete
+- owner: codex-root-20260816-patrol-0931
+- delivery_base_commit: `c0b09d81`
+- objective: 复核当前测试/CI、确定性运行日志、未完成任务卡、Git/WIP 与可复现玩家问题；没有无冲突且可独立验收的 P0/P1 时只同步控制面，不修改产品代码
+- write_scopes:
+  - `tasks/doing/2026-08-16_background_patrol_0931.md`
+  - `tasks/ai/QUEUE.md`
+  - `tasks/ai/STATUS.md`
+- exclusive_files:
+  - `tasks/doing/2026-08-16_background_patrol_0931.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 与五张旧巡检卡为累计未提交控制面 WIP；本轮保留全部既有证据，只接续当前事实
+  - `2026-08-16_shop_art_roundtrip_parity_day.md` 仍为 `in_progress`，独占商店 View、表现模块、专项/可见测试、同步工具、共享图片和自身任务卡
+  - 巡检期间原 owner 将 HEAD 从 `7af3909e` 连续推进到至少 `c0b09d81`，09:32 仍有新提交；本轮不编辑、不运行或提交其租约内文件
+- stop_conditions:
+  - 核对最新稳定 fast、roundtrip 最新确定性对照/几何证据、自动巡检日志、远端 CI 可达性和当前文件租约
+  - 若原 owner 持续写入，或失败/验收缺口仍位于其租约内，执行 `FILE_CONFLICT_STOP`
+  - 没有明确、无冲突、无需产品决策且可独立验收的 P0/P1 小任务时，不修改产品代码
+- validation:
+  - 读取 `42d370aa` 隔离 fast `summary.json` 与 round-065 机器清单
+  - 扫描最近已完成巡检的 `status.txt`、`stderr.log` 和当前运行 stderr
+  - `gh run list --repo jyf0330/xyxsj --limit 15 --json ...`
+  - `git diff --check -- tasks/ai/QUEUE.md tasks/ai/STATUS.md tasks/doing/2026-08-16_background_patrol_0931.md`
+  - `git status --short --untracked-files=all`
+
+- findings:
+  - 当前无 P0，`Ready` 仍为空；没有新增可复现玩家问题或本地确定性产品失败
+  - roundtrip 原 owner 已将 HEAD 推进至 `c0b09d81`，自 `fd4d900` 后形成 43 个精确提交；09:35 再次写入独占任务卡，状态仍为 `in_progress`，执行 `FILE_CONFLICT_STOP`
+  - round-065 已把真实入口操作矩阵扩展至 30 步，状态、交互、资源、层级、像素、容差与效果机器门禁全部通过；没有新确认错位需要巡检另立产品修复
+  - `42d370aa` 后只改活跃任务卡、可见采集与对照/几何测试，没有再改正式运行时代码；最新隔离 fast 仍是该提交的 19/19
+  - 最近已完成自动巡检均退出码 0；当前运行 stderr 仅有一次 Codex WebSocket 连接重置，不是游戏或测试日志
+  - 远端 CI 查询仍被本机代理沙箱拒绝，当前结论未验证
+- validation_result:
+  - `42d370aa` 隔离 fast：19/19、0 失败、347.139 秒
+  - round-065 `comparison_manifest.json`：30 组对照，核对 6 个状态字段与 4 个交互字段，`copied_mock_code=false`
+  - round-065 `geometry_audit.json`：`passed=true`、`errors=[]`；33 项资源、2 项层级、75 项精确像素、1 项容差、5 项效果全部通过
+  - 未修改产品代码、测试、玩法、美术或正式数据，未推送、部署或发布
+- residual_risk:
+  - roundtrip 任务仍未释放租约，巡检不能替原 owner 宣称最终完成或提交其任务卡
+  - 远端 CI 与战斗拖拽详情的独立真实窗口验收仍不可见
+  - 控制面包含开工前累计巡检 WIP，不能安全形成独立提交
+- next_step: 由现有 owner 完成 roundtrip 最终收口并释放租约，再由巡检复核；另待独立虚拟屏完成拖拽详情正式入口验收。除此之外无可安全推进事项
+- commit: 未提交；控制面含既有未提交巡检 WIP，且活跃 roundtrip 任务卡仍由原 owner 写入，不推送

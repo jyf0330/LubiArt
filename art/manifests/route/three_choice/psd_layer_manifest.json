@@ -1,25 +1,14 @@
 {
-  "source_psd": "新三选3.psd",
+  "source_psd": "新三选2_副本.psd",
   "canvas": [
     1920,
     1080
   ],
-  "route_portrait_normalization": {
-    "canvas": [
-      365,
-      500
-    ],
-    "visible_content_height": 220,
-    "max_visible_content_width": 260,
-    "horizontal_anchor": "parchment_visual_center",
-    "horizontal_anchor_x": 160,
-    "baseline_y": 370,
-    "resampling": "nearest_neighbor"
-  },
-  "note": "Approved 新三选3 Godot runtime mapping. 调色 is baked only into the building, chest states, coin panel, exit states, and party shelf; route portraits and runtime party sprites remain ungraded. All route portraits share one authored visible-content height, parchment visual center, and baseline inside the static 365x500 card canvas. Existing bag overlay presentation is retained unchanged. The obsolete yellow party-slot highlight is excluded; occupied party sprites use an authored ground shadow whose brightness carries hover and focus state.",
+  "note": "Generated from PSD layers for the standalone Godot three-choice mock.",
   "exports": [
     {
       "name": "background",
+      "source_layer": "Artboard 1/背景/新背景",
       "path": "res://art/images/route/three_choice_psd/background.png",
       "bbox": [
         0,
@@ -30,517 +19,341 @@
       "size": [
         1920,
         1080
-      ],
-      "classification": "MERGE_TEXTURE",
-      "target": "MainBG"
-    },
-    {
-      "name": "building",
-      "path": "res://art/images/route/three_choice_psd/building.png",
-      "bbox": [
-        255,
-        92,
-        1674,
-        1037
-      ],
-      "size": [
-        1419,
-        945
-      ],
-      "classification": "MERGE_TEXTURE",
-      "target": "MainBG/Temple"
-    },
-    {
-      "name": "bag_inventory_base",
-      "path": "res://art/images/route/three_choice_psd/bag_inventory_base.png",
-      "bbox": [
-        502,
-        399,
-        1320,
-        838
-      ],
-      "size": [
-        818,
-        439
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar"
-    },
-    {
-      "name": "bag_item_highlight",
-      "path": "res://art/images/route/three_choice_psd/bag_item_highlight.png",
-      "bbox": [
-        542,
-        430,
-        723,
-        604
-      ],
-      "size": [
-        181,
-        174
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "ItemSlotHoverHighlight:bag_state"
-    },
-    {
-      "name": "party_shelf",
-      "path": "res://art/images/route/three_choice_psd/party_shelf.png",
-      "bbox": [
-        519,
-        607,
-        1401,
-        1026
-      ],
-      "size": [
-        882,
-        419
-      ],
-      "classification": "MERGE_TEXTURE",
-      "target": "MainBG/Containers/Bags/BagStorageState"
-    },
-    {
-      "name": "exit_normal",
-      "path": "res://art/images/route/three_choice_psd/exit_normal.png",
-      "bbox": [
-        1410,
-        510,
-        1679,
-        982
-      ],
-      "size": [
-        269,
-        472
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "MainBG/Containers/ExitButton:texture_normal"
-    },
-    {
-      "name": "exit_hover",
-      "path": "res://art/images/route/three_choice_psd/exit_hover.png",
-      "bbox": [
-        1410,
-        510,
-        1679,
-        982
-      ],
-      "size": [
-        269,
-        472
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "MainBG/Containers/ExitButton:texture_hover,texture_pressed,texture_focused"
-    },
-    {
-      "name": "bag_closed",
-      "path": "res://art/images/route/three_choice_psd/bag_closed.png",
-      "bbox": [
-        313,
-        796,
-        549,
-        1029
-      ],
-      "size": [
-        236,
-        233
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "MainBG/Containers/Bags/Bag_Button:texture_normal"
-    },
-    {
-      "name": "bag_open_full",
-      "path": "res://art/images/route/three_choice_psd/bag_open_full.png",
-      "bbox": [
-        313,
-        796,
-        549,
-        1029
-      ],
-      "size": [
-        236,
-        233
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "MainBG/Containers/Bags/Bag_Button:open_state",
-      "note": "Open state exports only the authored open-chest layer; the legacy closed-state stair fragment behind the lid is transparent."
-    },
-    {
-      "name": "coin_panel_static",
-      "path": "res://art/images/route/three_choice_psd/coin_panel_static.png",
-      "bbox": [
-        1303,
-        905,
-        1468,
-        1029
-      ],
-      "size": [
-        165,
-        124
-      ],
-      "classification": "MERGE_TEXTURE",
-      "target": "MainBG/Containers/Top/Hud/CoinIcon"
-    },
-    {
-      "name": "route_highlight_shop",
-      "path": "res://art/images/route/three_choice_psd/route_highlight_shop.png",
-      "bbox": [
-        436,
-        346,
-        801,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "ThreeChoiceCard/RouteHighlight"
-    },
-    {
-      "name": "route_highlight_event",
-      "path": "res://art/images/route/three_choice_psd/route_highlight_event.png",
-      "bbox": [
-        747,
-        346,
-        1112,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "ThreeChoiceCard/RouteHighlight"
-    },
-    {
-      "name": "route_highlight_reward",
-      "path": "res://art/images/route/three_choice_psd/route_highlight_reward.png",
-      "bbox": [
-        1072,
-        346,
-        1437,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "STATE_RESOURCE",
-      "target": "ThreeChoiceCard/RouteHighlight"
-    },
-    {
-      "name": "route_portrait_shop_bai_xiaochang",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_shop_bai_xiaochang.png",
-      "bbox": [
-        436,
-        346,
-        801,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_shop_variant_3",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_shop_variant_3.png",
-      "bbox": [
-        436,
-        346,
-        801,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_shop_variant_5",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_shop_variant_5.png",
-      "bbox": [
-        436,
-        346,
-        801,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_event_herb_merchant",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_event_herb_merchant.png",
-      "bbox": [
-        747,
-        346,
-        1112,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_event_fish_merchant",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_event_fish_merchant.png",
-      "bbox": [
-        747,
-        346,
-        1112,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_event_ox_merchant",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_event_ox_merchant.png",
-      "bbox": [
-        747,
-        346,
-        1112,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_reward_short_samurai",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_reward_short_samurai.png",
-      "bbox": [
-        1072,
-        346,
-        1437,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_reward_variant_4",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_reward_variant_4.png",
-      "bbox": [
-        1072,
-        346,
-        1437,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_shop",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_shop.png",
-      "bbox": [
-        436,
-        346,
-        801,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "note": "Reuses the already imported portrait/icon; only normalizes it onto the new authored card canvas.",
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_event",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_event.png",
-      "bbox": [
-        747,
-        346,
-        1112,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "note": "Reuses the already imported portrait/icon; only normalizes it onto the new authored card canvas.",
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_portrait_reward",
-      "path": "res://art/images/route/three_choice_psd/route_portrait_reward.png",
-      "bbox": [
-        1072,
-        346,
-        1437,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "note": "Reuses the already imported portrait/icon; only normalizes it onto the new authored card canvas.",
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_icon_shop",
-      "path": "res://art/images/route/three_choice_psd/route_icon_shop.png",
-      "bbox": [
-        436,
-        346,
-        801,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "note": "Reuses the already imported portrait/icon; only normalizes it onto the new authored card canvas.",
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_icon_event",
-      "path": "res://art/images/route/three_choice_psd/route_icon_event.png",
-      "bbox": [
-        747,
-        346,
-        1112,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "note": "Reuses the already imported portrait/icon; only normalizes it onto the new authored card canvas.",
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    },
-    {
-      "name": "route_icon_reward",
-      "path": "res://art/images/route/three_choice_psd/route_icon_reward.png",
-      "bbox": [
-        1072,
-        346,
-        1437,
-        846
-      ],
-      "size": [
-        365,
-        500
-      ],
-      "note": "Reuses the already imported portrait/icon; only normalizes it onto the new authored card canvas.",
-      "classification": "COMPONENT",
-      "target": "ThreeChoiceCard/Portrait"
-    }
-  ],
-  "dynamic_fields": [
-    {
-      "name": "txt_coin_amount",
-      "target": "MainBG/Containers/Top/Hud/CoinLabel"
-    },
-    {
-      "name": "slot_party_pet_1",
-      "target": "MainBG/Containers/Party/Party_Container/Party_Pet1"
-    },
-    {
-      "name": "slot_party_pet_2",
-      "target": "MainBG/Containers/Party/Party_Container/Party_Pet2"
-    },
-    {
-      "name": "slot_party_pet_3",
-      "target": "MainBG/Containers/Party/Party_Container/Party_Pet3"
-    },
-    {
-      "name": "slot_party_pet_4",
-      "target": "MainBG/Containers/Party/Party_Container/Party_Pet4"
-    },
-    {
-      "name": "slot_bag_item_1",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot1"
-    },
-    {
-      "name": "slot_bag_item_2",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot2"
-    },
-    {
-      "name": "slot_bag_item_3",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot3"
-    },
-    {
-      "name": "slot_bag_item_4",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot4"
-    },
-    {
-      "name": "slot_bag_item_5",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot5"
-    },
-    {
-      "name": "slot_bag_item_6",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot6"
-    },
-    {
-      "name": "slot_bag_item_7",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot7"
-    },
-    {
-      "name": "slot_bag_item_8",
-      "target": "MainBG/Containers/Middle/Middle_Bag/ItemBar/Slots/ItemSlot8"
-    }
-  ],
-  "godot_controls": [
-    {
-      "name": "hit_exit_button",
-      "type": "TextureButton",
-      "target": "MainBG/Containers/ExitButton",
-      "rect": [
-        1410,
-        510,
-        1679,
-        982
       ]
     },
     {
-      "name": "dim_bag_overlay",
-      "type": "ColorRect",
-      "target": "MainBG/Containers/BagOverlayMask",
-      "rect": [
+      "name": "temple_base",
+      "source_layer": "Artboard 1/庙/庙底图/新庙 阴影 50% + Artboard 1/庙/庙底图/新庙 阴影2 50% + 新庙.png",
+      "path": "res://art/images/route/three_choice_psd/temple_base.png",
+      "bbox": [
         0,
         0,
         1920,
         1080
+      ],
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "name": "item_bar_base",
+      "source_layer": "Artboard 1/新物品栏/底图 + Artboard 1/新物品栏/背包栏位",
+      "path": "res://art/images/route/three_choice_psd/item_bar_base.png",
+      "bbox": [
+        138,
+        364,
+        1720,
+        891
+      ],
+      "size": [
+        1582,
+        527
+      ]
+    },
+    {
+      "name": "sell_highlight",
+      "source_layer": "Artboard 1/新物品栏/出售高亮",
+      "path": "res://art/images/route/three_choice_psd/sell_highlight.png",
+      "bbox": [
+        1276,
+        730,
+        1527,
+        879
+      ],
+      "size": [
+        251,
+        149
+      ]
+    },
+    {
+      "name": "item_selected_highlight",
+      "source_layer": "Artboard 1/新物品栏/选中高亮/发光 + Artboard 1/新物品栏/选中高亮/高亮",
+      "path": "res://art/images/route/three_choice_psd/item_selected_highlight.png",
+      "bbox": [
+        1262,
+        544,
+        1417,
+        692
+      ],
+      "size": [
+        155,
+        148
+      ]
+    },
+    {
+      "name": "pet_shadow",
+      "source_layer": "Artboard 1/庙/精灵/精灵阴影 third slot crop",
+      "path": "res://art/images/route/three_choice_psd/pet_shadow.png",
+      "bbox": [
+        948,
+        819,
+        1063,
+        879
+      ],
+      "size": [
+        115,
+        60
+      ],
+      "note": "A single shared pet shadow resource. Scene has one authored shadow node per party slot and script only toggles visibility when that slot contains a pet."
+    },
+    {
+      "name": "coin_icon",
+      "source_layer": "Artboard 1/庙/金币/金币标",
+      "path": "res://art/images/route/three_choice_psd/coin_icon.png",
+      "bbox": [
+        1363,
+        910,
+        1396,
+        944
+      ],
+      "size": [
+        33,
+        34
+      ]
+    },
+    {
+      "name": "bag_closed",
+      "source_layer": "Artboard 1/庙/新背包/关",
+      "path": "res://art/images/route/three_choice_psd/bag_closed.png",
+      "bbox": [
+        328,
+        728,
+        568,
+        1005
+      ],
+      "size": [
+        240,
+        277
+      ],
+      "note": "Padded to the shared bag state canvas. Closed artwork remains at PSD bbox [392, 749, 568, 858], so runtime swaps texture without changing authored Control geometry."
+    },
+    {
+      "name": "bag_open_full",
+      "source_layer": "Artboard 1/庙/新背包/开 + Artboard 1/庙/新背包/遮挡",
+      "path": "res://art/images/route/three_choice_psd/bag_open_full.png",
+      "bbox": [
+        328,
+        728,
+        568,
+        1005
+      ],
+      "size": [
+        240,
+        277
+      ],
+      "note": "Open bag and foreground cover are merged into one state texture."
+    },
+    {
+      "name": "bag_storage_state",
+      "source_layer": "Artboard 1/庙/新背包/格/格1-格8 + Artboard 1/庙/新背包/新背包格",
+      "path": "res://art/images/route/three_choice_psd/bag_storage_state_*.png",
+      "classification": "STATE_RESOURCE",
+      "target_nodes": [
+        "MainBG/Containers/Bags/BagStorageState"
+      ],
+      "bbox": [
+        366,
+        879,
+        523,
+        946
+      ],
+      "size": [
+        157,
+        67
+      ],
+      "states": [
+        "bag_storage_state_0",
+        "bag_storage_state_1",
+        "bag_storage_state_2",
+        "bag_storage_state_3",
+        "bag_storage_state_4",
+        "bag_storage_state_5",
+        "bag_storage_state_6",
+        "bag_storage_state_7",
+        "bag_storage_state_8"
+      ],
+      "note": "One scene node switches between nine cumulative occupancy textures. Every state includes the grid lines; state 0 shows only the grid, and state N adds slots 1 through N."
+    },
+    {
+      "name": "route_portrait_shop",
+      "source_layer": "Artboard 1/庙/三选/莲花小仙",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_shop.png",
+      "bbox": [
+        507,
+        365,
+        696,
+        560
+      ],
+      "size": [
+        189,
+        195
+      ]
+    },
+    {
+      "name": "route_portrait_event",
+      "source_layer": "Artboard 1/庙/三选/Layer 16",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_event.png",
+      "bbox": [
+        838,
+        322,
+        1045,
+        569
+      ],
+      "size": [
+        207,
+        247
+      ]
+    },
+    {
+      "name": "route_portrait_reward",
+      "source_layer": "Artboard 1/庙/三选/拳师商人",
+      "path": "res://art/images/route/three_choice_psd/route_portrait_reward.png",
+      "bbox": [
+        1208,
+        355,
+        1343,
+        568
+      ],
+      "size": [
+        135,
+        213
+      ]
+    },
+    {
+      "name": "route_icon_shop",
+      "source_layer": "Artboard 1/庙/三选/Group 1/图层 53",
+      "path": "res://art/images/route/three_choice_psd/route_icon_shop.png",
+      "bbox": [
+        612,
+        279,
+        652,
+        341
+      ],
+      "size": [
+        40,
+        62
+      ]
+    },
+    {
+      "name": "route_icon_event",
+      "source_layer": "Artboard 1/庙/三选/Group 2/图层 51",
+      "path": "res://art/images/route/three_choice_psd/route_icon_event.png",
+      "bbox": [
+        940,
+        279,
+        980,
+        341
+      ],
+      "size": [
+        40,
+        62
+      ]
+    },
+    {
+      "name": "route_icon_reward",
+      "source_layer": "Artboard 1/庙/三选/Group 3/图层 81",
+      "path": "res://art/images/route/three_choice_psd/route_icon_reward.png",
+      "bbox": [
+        1271,
+        279,
+        1311,
+        341
+      ],
+      "size": [
+        40,
+        62
+      ]
+    },
+    {
+      "name": "incense_burner",
+      "source_layer": "Artboard 1/庙/新香炉/香炉2",
+      "path": "res://art/images/route/three_choice_psd/incense_burner.png",
+      "bbox": [
+        894,
+        594,
+        988,
+        689
+      ],
+      "size": [
+        94,
+        95
+      ]
+    },
+    {
+      "name": "incense_smoke",
+      "source_layer": "Artboard 1/庙/新香炉/烟雾/烟2",
+      "path": "res://art/images/route/three_choice_psd/incense_smoke.png",
+      "bbox": [
+        824,
+        447,
+        946,
+        604
+      ],
+      "size": [
+        122,
+        157
+      ]
+    },
+    {
+      "name": "incense_shadow",
+      "source_layer": "Artboard 1/庙/香炉/阴影",
+      "path": "res://art/images/route/three_choice_psd/incense_shadow.png",
+      "bbox": [
+        552,
+        659,
+        1324,
+        702
+      ],
+      "size": [
+        772,
+        43
+      ]
+    },
+    {
+      "name": "route_highlight_1",
+      "path": "res://art/images/route/three_choice_psd/route_highlight_1.png",
+      "source_layer": "Artboard 1/庙/新三选高亮/高亮1",
+      "bbox": [
+        443,
+        211,
+        805,
+        689
+      ],
+      "size": [
+        362,
+        478
+      ]
+    },
+    {
+      "name": "route_highlight_2",
+      "path": "res://art/images/route/three_choice_psd/route_highlight_2.png",
+      "source_layer": "Artboard 1/庙/新三选高亮/高亮2",
+      "bbox": [
+        771,
+        210,
+        1146,
+        688
+      ],
+      "size": [
+        375,
+        478
+      ]
+    },
+    {
+      "name": "route_highlight_3",
+      "path": "res://art/images/route/three_choice_psd/route_highlight_3.png",
+      "source_layer": "Artboard 1/庙/新三选高亮/高亮3",
+      "bbox": [
+        1107,
+        211,
+        1469,
+        689
+      ],
+      "size": [
+        362,
+        478
       ]
     }
-  ],
-  "ignored": [
-    "香炉、香炉烟、烟雾 (confirmed obsolete visual source and removed from the authored Scene/prefab)",
-    "队伍选择高亮 (confirmed obsolete; occupied party sprites use ground-shadow brightness for hover and focus)",
-    "PSD sample party pets and sample bag pet (runtime data placeholders)",
-    "hidden route icons already imported in the project (existing files reused)"
-  ],
-  "godot_psd": "res://art/images/route/three_choice_psd/source_psd/screen_three_choice_godot_v3.psd"
+  ]
 }

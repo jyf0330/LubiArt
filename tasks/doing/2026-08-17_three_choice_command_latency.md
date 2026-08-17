@@ -1,0 +1,94 @@
+# 三选一命令主线程延迟修复
+
+- status: complete
+- owner: codex-root-20260817
+- objective: 降低三选一及商店普通命令的同步主线程延迟，并让路线跳转和购买在按下当帧出现可见反馈；保持权威状态、拒绝回退、哈希、持久化和公共响应语义不变
+- delivery_base: `godot-latest-latest-20260817-103552.zip` 解压快照；当前目录无 `.git` 元数据，无法建立 commit 基线
+- write_scopes:
+  - `core/state/game_state.gd`
+  - `core/commands/battle_query_projector.gd`
+  - `session/local_authority_port.gd`
+  - `session/local_game_session.gd`
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`
+  - `core_ui/scripts/artist_flow/controllers/three_choice_request_broker.gd`
+  - `core_ui/scripts/app/presentation_coordinator.gd`
+  - `core_ui/scripts/shop/controllers/bazaar_info_panel.gd`
+  - `core_ui/scripts/shop/views/legacy_code_shop_view.gd`
+  - `core_ui/scripts/shared/runtime_ui_policy.gd`
+  - `persistence/authoritative_state_codec.gd`（仅在分段证据证明必要时）
+  - `tests/integration/smoke_command_snapshot_reuse.gd`
+  - `tests/integration/smoke_command_latency_budget.gd`（仅在需要新增稳定回归门禁时）
+  - `tests/core/smoke_command_checkpoint_profiles.gd`
+  - `tests/visible/visible_three_choice_command_latency.gd`
+  - `tests/integration/diagnose_command_latency_segments.gd`（临时诊断，完成后删除）
+  - `tasks/doing/2026-08-17_three_choice_command_latency.md`
+- exclusive_files:
+  - `core/state/game_state.gd`
+  - `core/commands/battle_query_projector.gd`
+  - `session/local_authority_port.gd`
+  - `session/local_game_session.gd`
+  - `core_ui/scripts/artist_flow/scenes/three_choice_scene.gd`
+  - `core_ui/scripts/artist_flow/controllers/three_choice_request_broker.gd`
+  - `core_ui/scripts/app/presentation_coordinator.gd`
+  - `core_ui/scripts/shop/controllers/bazaar_info_panel.gd`
+  - `core_ui/scripts/shop/views/legacy_code_shop_view.gd`
+  - `core_ui/scripts/shared/runtime_ui_policy.gd`
+  - `persistence/authoritative_state_codec.gd`
+  - `tests/integration/smoke_command_snapshot_reuse.gd`
+  - `tests/integration/smoke_command_latency_budget.gd`
+  - `tests/core/smoke_command_checkpoint_profiles.gd`
+  - `tests/visible/visible_three_choice_command_latency.gd`
+  - `tests/integration/diagnose_command_latency_segments.gd`（临时）
+- existing_wip:
+  - 当前工作目录来自最新远端压缩包且不含 `.git`，无法以 Git 状态识别压缩包外增量；修改前以文件、任务卡和时间戳核对范围
+  - 已审查 `tasks/doing` 中对 `game_state.gd` 的引用；相关旧任务均为 complete/done 或明确不修改该文件，未发现活动独占租约冲突
+  - 当前背景巡检、战斗拖拽详情可见验收和暂停宠物图片任务均不占用本任务 exclusive files，全部保留
+  - 本任务不修改 Scene/prefab 节点、三选一美术、正式内容数据、存档槽或玩法数值
+- stop_conditions:
+  - 发现其他活动任务正在写入 exclusive files
+  - 优化需要移除拒绝命令回滚、改变权威哈希、延迟持久化或删减公共 Snapshot 字段
+  - 路线、商店、拒绝命令、存档恢复或确定性回归出现语义差异
+  - 不新增、删除、改名、移动或重新挂载 Scene/prefab 节点
+  - 不把未确认的购买显示成权威成功；若使用预响应展示，拒绝后必须恢复
+  - 不把可变权威状态迁移到工作线程
+- validation:
+  - 修改前后分段计时：状态哈希、回滚检查点、dispatch、snapshot/兼容投影
+  - `tests/integration/smoke_command_snapshot_reuse.gd`
+  - 路线/商店/拒绝命令/持久化与确定性相关专项 smoke
+  - 正式入口真实窗口连续执行路线、购买/刷新、退出、进入战斗，确认点击反馈与结果正确
+  - 检查无 Scene/prefab 节点结构和正式数据变化
+  - 路线和购买控件在按下后的同一渲染帧进入可见响应状态，成功后以权威 Snapshot 收敛，拒绝后恢复
+- commit: 当前解压目录无 `.git` 元数据，无法提交；完成后交付精确修改清单与验证证据
+- changes:
+  - 第三阶段按使用者确认启动：把三选商店高频命令的临时失败回滚从整局深复制收窄为命令字段检查点；复杂路线、非宠物商品和未登记命令继续使用全量兜底，不改变30秒/手动持久化存档策略
+  - `run_command()` 把已经计算的命令前哈希传给 `dispatch()`，并把成功命令的后哈希或拒绝命令的原哈希传给 `snapshot()`；拒绝回滚、版本推进、命令日志和公共响应字段保持不变
+  - Snapshot 的五项战斗查询改为同一不可变上下文只递归校验一次，再调用原有五个内部投影；各项结果由专项 parity 与旧公开方法逐值比较一致
+  - 当前不可变 `run_plan` 直接复用构建时已写入且经重算验证的 `plan_hash`，不再在每张 Snapshot 中重复稳定序列化整份路线计划
+  - 本地 GameSession 记住最近一次已确认的 `stateVersion/stateHash`；首次无缓存时只读取权威基线，不再为每次点击预先生成一张未使用的完整 Snapshot
+  - 新增 headless 性能/哈希/存档门禁与 Vulkan 正式 Game Scene 按钮门禁；未新增、删除、改名、移动或重新挂载 Scene/prefab 节点，未修改图片、manifest、正式内容数据或玩法数值
+  - 第二阶段在提交本地权威命令前先渲染一帧：按下当帧立即切换沙漏，路线卡保持选中反馈；购买、刷新和离开商店同步显示中性的“处理中”文本，权威成功后替换为真实结果，拒绝后清除临时提示并保持原状态
+  - 请求 broker、展示队列、Feature 准备/释放与三选/商店只读视图改为传递同一份不可变 Snapshot，移除命令展示路径上的重复深拷贝；仅临时追加 `ui_bag_page` 的字典改为浅拷贝
+  - 实窗门禁新增真实 BUY_OFFER、拒绝购买、同帧沙漏、购买 pending 文本、最终 view 收敛与拒绝不推进 stateVersion 检查
+- results:
+  - 第三阶段命令检查点微基准：原全量检查点平均约 `4.16ms`，路线商店窄检查点平均约 `0.24ms`；高频命令不再深复制整局，持久化存档/备份触发方式未改变
+  - 新增检查点字段门禁通过：路线商店 `14` 项、刷新 `10` 项、离店 `6` 项、宠物购买 `4` 项；复杂路线、功能道具和未登记命令均验证保持全量兜底
+  - `smoke_command_rejection_atomicity`、`smoke_command_handler_registry`、`smoke_snapshot_purity`、`smoke_command_intent_boundary`、`smoke_bazaar_shop_rules`、`smoke_bazaar_shop_parity`、`smoke_command_latency_budget` 全部通过；短版 save/load 权威哈希一致通过
+  - 独立 Vulkan 正式入口五操作通过：进商店 `859ms`、拒绝购买 `230ms`、成功购买 `423ms`、刷新 `489ms`、离店 `569ms`；按下反馈仍为同帧，权威最终结果仍未达到 `100ms`
+  - 长版 `smoke_singleplayer_persistence` 高负载运行超过约5分钟且无最终 sentinel，已精确停止该测试进程；未见失败输出，不记为通过
+  - 修改前分段基线：单次 Snapshot `580–850ms`，`GET_CELL_DETAIL` `1227ms`，未知拒绝命令 `1076ms`；真实玩家日志中普通三选/商店命令约 `1184–1683ms`
+  - 修改后 headless：Snapshot 约 `239ms`；路线进商店 `289–344ms`、刷新 `343ms`、退出 `245ms`、拒绝命令 `197–260ms`
+  - 正式 Vulkan Game Scene 实窗最终通过：`CHOOSE_ROUTE` 核心 `564ms` / 按钮到展示状态 `960ms`，`ROLL_SHOP` 核心 `311ms` / `806ms`，`EXIT_SHOP` 核心 `307ms` / `578ms`
+  - `smoke_command_latency_budget.gd` 通过：路线 `300–344ms`、Snapshot `162830–166400us`，并验证合并投影逐值等价、存储路线哈希等于完整重算、拒绝命令不改变哈希/版本、save/load 后权威哈希一致
+  - `smoke_command_snapshot_reuse.gd`、`smoke_command_handler_registry.gd`、`smoke_battle_query_projector_parity.gd`、`smoke_command_rejection_atomicity.gd`、`smoke_snapshot_purity.gd`、`smoke_command_intent_boundary.gd` 全部通过
+  - `smoke_singleplayer_route_economy.gd` 与 `smoke_deterministic_run_history.gd` 均进入多组完整战斗且未出现断言失败，但因自动布置长测耗时过长由本任务精确停止；不记为通过。前者未执行到后续串行测试，后者完成三轮相同战斗事件后停在后续静默历史阶段
+  - 临时分段诊断脚本已删除；仅保留两项可重复回归。Godot 编辑器 PID `15936` 保持响应，所有本任务测试窗口与进程均已退出
+  - 第二阶段正式 Vulkan 实窗最终通过：点击当帧即为 loading；进入商店完整落页 `835ms`，购买 `453ms`，刷新 `460ms`，离开 `596ms`。拒绝购买 `262ms` 返回，stateVersion 保持不变且 pending 提示被清除
+  - 第二阶段 headless 最终门禁：路线命令 `308ms`、Snapshot `139918us`；`smoke_command_handler_registry`、`smoke_battle_query_projector_parity`、`smoke_command_rejection_atomicity`、`smoke_snapshot_purity`、`smoke_command_intent_boundary`、`smoke_command_latency_budget`、`smoke_bazaar_information`、`smoke_three_choice_responsibility_contract` 与更新后的 Vulkan 可见门禁均通过
+- residual_risk:
+  - 第三阶段证明全量临时检查点只占约 `4ms`，不是剩余 `0.3–0.8s` 的主因；完整公共 Snapshot headless 仍约 `157ms`，且成功命令还需计算权威状态哈希。若要让最终结果逼近 `100ms`，下一阶段应优化哈希序列化和 Snapshot 双别名深复制，不应继续削弱回滚
+  - 第一阶段记录的约 `0.96s` 进入商店与展示管线重复深拷贝已由第二阶段替代；最终完整落页约 `0.84s`，按下反馈为同帧
+  - 自动布置仍有约 `0.5–4.0s` 的独立计算长尾，本次未修改；它不解释路线/商店每次点击的固定延迟，应另建单一责任层任务处理
+  - 完整路线经济与确定性历史长测本轮未得到最终 sentinel；已有针对本改动的等价、回滚、哈希、save/load 和真实入口证据通过
+  - “按下反馈”已经同帧，但完整权威结果仍非零耗时：冷启动路线约 `0.84s`，普通购买/刷新约 `0.45–0.46s`。继续压到完整结果 `<100ms` 需要缩小公共 Snapshot/哈希成本或异步权威架构，不能靠伪造购买成功完成
+  - `smoke_presentation_frozen_contract` 的既有源码字符串门禁和 `smoke_presentation_regressions` 的既有战斗视图销毁等待仍失败；两项均在本轮展示改动前复现，相关 Battle 文件未修改，不计为本轮回归通过
+- final_status: 三选一与商店已实现按下当帧反馈，购买成功/拒绝和页面最终收敛均完成真实入口验收；完整权威结果耗时已明确记录，无 Git 元数据，无法形成提交

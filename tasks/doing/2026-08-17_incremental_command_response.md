@@ -1,0 +1,79 @@
+# 三选商店增量命令响应
+
+- status: complete
+- owner: codex-root-20260817-incremental
+- objective: 将三选/商店高频命令从“每次生成完整 Snapshot 与完整状态哈希”改为“版本校验、小结果与局部变化”，把完整 Snapshot/哈希保留给首次进入、读档、重连、显式存储、回放导出和异常校准，并把正式入口最终可见结果控制到 100ms 目标附近
+- delivery_base: `godot-latest-latest-20260817-103552.zip` 解压快照；当前目录无 `.git` 元数据，无法建立 commit 基线
+- write_scopes:
+  - `core/state/game_state.gd`
+  - `core/commands/command_response_builder.gd`
+  - `session/session_protocol.gd`
+  - `session/local_authority_port.gd`
+  - `session/local_game_session.gd`
+  - `session/session_factory.gd`
+  - `core_ui/scripts/app/presentation_coordinator.gd`
+  - `core_ui/scripts/artist_flow/controllers/artist_flow_session_bridge.gd`
+  - `core_ui/scripts/shop/views/legacy_code_shop_view.gd`
+  - `tests/integration/smoke_incremental_command_response.gd`
+  - `tests/integration/smoke_command_latency_budget.gd`
+  - `tests/visible/visible_three_choice_command_latency.gd`
+  - `docs/03_CORE_ARCHITECTURE.md`
+  - `docs/05_GAME_SESSION_BOUNDARY.md`
+  - `docs/06_PROJECT_STRUCTURE.md`
+  - `docs/10_CHANGELOG.md`
+  - `tasks/doing/2026-08-17_incremental_command_response.md`
+  - `tasks/ai/STATUS.md`
+  - `tasks/ai/QUEUE.md`
+- exclusive_files:
+  - `core/state/game_state.gd`
+  - `core/commands/command_response_builder.gd`
+  - `session/session_protocol.gd`
+  - `session/local_authority_port.gd`
+  - `session/local_game_session.gd`
+  - `session/session_factory.gd`
+  - `core_ui/scripts/app/presentation_coordinator.gd`
+  - `core_ui/scripts/artist_flow/controllers/artist_flow_session_bridge.gd`
+  - `core_ui/scripts/shop/views/legacy_code_shop_view.gd`
+  - `tests/integration/smoke_incremental_command_response.gd`
+  - `tests/integration/smoke_command_latency_budget.gd`
+  - `tests/visible/visible_three_choice_command_latency.gd`
+  - `docs/03_CORE_ARCHITECTURE.md`
+  - `docs/05_GAME_SESSION_BOUNDARY.md`
+  - `docs/06_PROJECT_STRUCTURE.md`
+  - `docs/10_CHANGELOG.md`
+- existing_wip:
+  - 上一阶段三选命令延迟任务已 complete；当前没有活动任务占用本任务 exclusive files
+  - 背景巡检、战斗拖拽详情验收和暂停宠物图片任务不修改本任务文件，全部保留
+  - 本任务不修改 Scene/prefab 节点、美术资源、正式内容数据、存档槽和玩法数值
+- stop_conditions:
+  - 复杂命令、战斗命令、读档、重连、存储或回放被错误切换为不完整状态
+  - 拒绝命令改变权威状态或版本，或界面无法恢复为可用的已确认状态
+  - 增量结果无法用 `stateVersion` 检出乱序/过期，且没有完整 Snapshot 校准兜底
+  - 存档/回放确定性或完整 Snapshot 的真实 `stateHash` 语义被破坏
+  - 发现其他活动任务正在写入 exclusive files
+  - 不新增、删除、改名、移动或重新挂载 Scene/prefab 节点
+- validation:
+  - 增量命令响应结构、版本推进、拒绝不推进、过期版本拒绝、完整 Snapshot 校准
+  - 商店进入、购买成功、购买拒绝、刷新、退出专项 smoke
+  - Snapshot/hash、save-load、回放导出与拒绝原子性门禁
+  - 正式 Godot 入口连续五操作，记录按下反馈和最终可见结果延迟
+  - 检查无 Scene/prefab 节点、图片、manifest、正式内容数据与玩法数值变化
+- commit: 当前解压目录无 `.git` 元数据；完成后交付精确修改清单与验证证据
+- changes:
+  - 新增受限 `run_incremental_command()`：商店路线、宠物购买、刷新、离店及缺失候选拒绝使用严格 `stateVersion` 基线，返回 Result/Trace/domain delta，不构造完整 Snapshot、不计算完整状态哈希
+  - `LocalGameSession` 维护已确认版本和只读展示投影；Session bridge 显式转发该投影，Presentation 不再因缺少能力而回退调用完整 `current_snapshot()`
+  - 复杂路线、非宠物商品、战斗、连接、读档、历史恢复、显式存储/回放和异常校准保留完整 Snapshot/hash；显式逐命令 run-history 自动回退完整路径
+  - 正常 `SessionFactory` 不再默认开启逐命令 run-history；只有 `run_history=true` 或显式 `enable_run_history(true)` 才逐命令记录
+  - 正式商店对购买/刷新使用局部可见投影更新，路线/商店切换移除额外长过渡；没有修改 Scene/prefab 节点
+  - 更新 Session/Core/项目结构文档、changelog 和专项/可见性能门禁
+- results:
+  - headless 增量专项通过：进店 `21–23ms`、购买 `87–92ms`、规则拒绝 `1–3ms`、刷新 `19–24ms`、离店 `0–1ms`
+  - 独立 Godot 4.7 Vulkan 正式入口五操作通过：进店 `112ms`、缺失候选拒绝 `14ms`、购买 `112ms`、刷新 `107ms`、离店 `13ms`
+  - 增量专项同时通过旧版本拒绝、拒绝不推进版本、完整校准、save/load 最终哈希、空中间哈希 replay 确定性验证和显式 history 回退
+  - `smoke_command_snapshot_reuse`、`smoke_command_rejection_atomicity`、`smoke_game_session_boundary`、`smoke_snapshot_purity`、`smoke_command_intent_boundary`、`smoke_bazaar_shop_rules`、`smoke_bazaar_shop_parity`、`smoke_command_latency_budget`、`smoke_replay_builder_contract`、`smoke_run_history_committer_contract`、`smoke_three_choice_responsibility_contract` 全部通过
+  - 未修改 Scene/prefab、图片、manifest、正式内容数据或玩法数值；用户 Godot 编辑器未被终止
+- residual_risk:
+  - 宠物购买的正式 Vulkan 权威规则计算约 `100ms`，完整可见结果实测 `112ms`；已进入约 `0.1s` 档，但不承诺所有机器严格小于 `100.0ms`
+  - `smoke_presentation_frozen_contract` 的既有 battle source-string 断言和 `smoke_presentation_regressions` 的既有 BattleScene 销毁等待仍以原签名失败；相关战斗文件未修改
+  - 当前解压目录无 `.git` 元数据，不能形成提交或提供 Git diff；交付以精确文件清单、文档和测试证据为准
+- final_status: 已完成；正常三选商店点击不再同步生成完整 Snapshot/hash，正式入口已收敛到约 0.1 秒档

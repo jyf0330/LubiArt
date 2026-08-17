@@ -1,4 +1,5 @@
 extends Control
+class_name BattleBoard
 
 ## Authored Board responsibility root. It owns board geometry, cell/unit pools
 ## and Snapshot projection. Independent pointer and preview lifecycles live in
@@ -40,26 +41,14 @@ var _preview_coordinator := BattleBoardPreviewCoordinatorScript.new()
 var _drag_interaction := BattleBoardDragInteractionScript.new()
 var _unit_nodes_by_id := {}
 var _unit_pool: Array[Control] = []
-var _health_bar_tier_override := ""
-var _layout_grid_selected := false
-var _layout_grid_drag_active := false
-var _layout_grid_input_locked := false
-var _selected_unit_id := ""
-var _authoritative_selected_unit_id := ""
-var _inspection_selected_unit_id := ""
-var _inspection_selection_active := false
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_process_input(true)
 	set_process(false)
-	if board_background != null:
-		var background_input := Callable(self, "_on_board_background_gui_input")
-		if not board_background.gui_input.is_connected(background_input):
-			board_background.gui_input.connect(background_input)
-	_preview_coordinator.call("configure", self, BattlePreviewPresenterScript.new())
-	_drag_interaction.call("configure", self, board_grid, unit_host, _assets, _preview_coordinator)
+	_preview_coordinator.configure(self, BattlePreviewPresenterScript.new())
+	_drag_interaction.configure(self, board_grid, unit_host, _assets, _preview_coordinator)
 	_drag_interaction.command_requested.connect(_on_interaction_command_requested)
 	_drag_interaction.cell_detail_requested.connect(_on_interaction_cell_detail_requested)
 	_build_board()
@@ -67,35 +56,16 @@ func _ready() -> void:
 
 func configure(assets: RefCounted) -> void:
 	_assets = assets
-	_drag_interaction.call("set_assets", assets)
+	_drag_interaction.set_assets(assets)
 
 
 func set_input_locked(locked: bool) -> void:
-	_layout_grid_input_locked = locked
-	_sync_layout_grid_visibility()
-	_drag_interaction.call("set_input_locked", locked)
-	_preview_coordinator.call("set_input_locked", locked)
-
-
-func set_layout_drag_active(active: bool) -> void:
-	_layout_grid_drag_active = active
-	_sync_layout_grid_visibility()
-
-
-func is_layout_grid_visible() -> bool:
-	return (_layout_grid_selected or _layout_grid_drag_active) and not _layout_grid_input_locked
+	_drag_interaction.set_input_locked(locked)
+	_preview_coordinator.set_input_locked(locked)
 
 
 func show_direction_preview(unit_id: String, direction: String) -> void:
-	_preview_coordinator.call("show_direction_preview", unit_id, direction)
-
-
-func set_all_health_bar_tiers(tier: String) -> void:
-	_health_bar_tier_override = tier
-	for unit_value in _unit_nodes_by_id.values():
-		var unit := unit_value as Control
-		if unit != null and is_instance_valid(unit) and unit.has_method("set_health_bar_tier"):
-			unit.call("set_health_bar_tier", tier)
+	_preview_coordinator.show_direction_preview(unit_id, direction)
 
 
 func apply_enemy_move_final_cell(unit_id: String, cell: Dictionary) -> void:
@@ -124,7 +94,7 @@ func reveal_reset_units(units: Array) -> void:
 
 
 func clear_transient_state() -> void:
-	_drag_interaction.call("clear_transient_state")
+	_drag_interaction.clear_transient_state()
 
 
 func set_background_texture(texture: Texture2D) -> void:
@@ -148,16 +118,91 @@ func missing_mapping_report() -> Array:
 	return values
 
 
+## Public presentation surface consumed by board interaction collaborators.
+## Keeping these operations explicit prevents controllers from reaching into
+## underscore-prefixed implementation details through string-based calls.
+func cell_at(grid: Vector2i) -> Control:
+	return _cell_at(grid.x, grid.y)
+
+
+func cell_data_at_grid(grid: Vector2i) -> Dictionary:
+	return _cell_data_at_grid(grid)
+
+
+func cell_data_for_node(cell: Node) -> Dictionary:
+	return _cell_data_for_cell(cell)
+
+
+func cell_origin(grid: Vector2i) -> Vector2:
+	return _cell_origin(grid.x, grid.y)
+
+
+func grid_from_board_position(local_position: Vector2) -> Vector2i:
+	return _grid_from_board_position(local_position)
+
+
+func is_visible_cell(grid: Vector2i) -> bool:
+	return _is_visible_board_cell(grid.x, grid.y)
+
+
+func project_local_unit_drop(unit_id: String, origin: Vector2i, target: Vector2i) -> bool:
+	return _apply_local_unit_drop(unit_id, origin, target)
+
+
+func rendered_unit_node(unit_id: String) -> Control:
+	return _rendered_unit_node(unit_id)
+
+
+func rendered_grid_for_unit_id(unit_id: String) -> Vector2i:
+	return _rendered_grid_for_unit_id(unit_id)
+
+
+func presentation_cells() -> Array[Control]:
+	return _cells
+
+
+func presentation_cell_size() -> Vector2:
+	return _cell_size
+
+
+func attack_range_geometry() -> Dictionary:
+	return _attack_range_geometry()
+
+
+func cell_key(grid: Vector2i) -> String:
+	return _cell_key(grid)
+
+
+func set_cell_attack_order_marker(grid: Vector2i, dot_count: int) -> void:
+	_set_cell_attack_order_marker(grid, dot_count)
+
+
+func clear_cell_attack_order_marker(grid: Vector2i) -> void:
+	_clear_cell_attack_order_marker(grid)
+
+
+func set_cell_highlight(grid: Vector2i, mode: String) -> void:
+	_set_cell_highlight(grid, mode)
+
+
+func clear_cell_highlight(grid: Vector2i) -> void:
+	_clear_cell_highlight(grid)
+
+
+func set_cell_hovered(grid: Vector2i, value: bool) -> void:
+	_set_cell_hovered(grid, value)
+
+
 func _exit_tree() -> void:
-	_drag_interaction.call("dispose")
+	_drag_interaction.dispose()
 
 
 func _process(_delta: float) -> void:
-	_drag_interaction.call("process_drag")
+	_drag_interaction.process_drag()
 
 
 func _input(event: InputEvent) -> void:
-	if bool(_drag_interaction.call("handle_input", event)):
+	if _drag_interaction.handle_input(event):
 		get_viewport().set_input_as_handled()
 
 
@@ -167,7 +212,7 @@ func render_snapshot(
 	pending_reset_ids: Dictionary = {},
 	reconcile_unit_presentation: bool = false
 ) -> void:
-	_last_snapshot = snapshot.duplicate(true)
+	_last_snapshot = snapshot
 	_render_battle_background(snapshot)
 	_missing_mappings = {}
 	var board_data := Dictionary(snapshot.get("board", {}))
@@ -175,42 +220,8 @@ func render_snapshot(
 	_ensure_board()
 	_last_rendered_cell_count = 0
 	_render_board_cells(cells, pending_reset_ids, reconcile_unit_presentation)
-	_sync_unit_selection(snapshot)
-	_preview_coordinator.call("render_snapshot", _last_snapshot)
-	_drag_interaction.call("restore_after_snapshot")
-
-
-func show_local_unit_selection(unit_id: String) -> void:
-	_inspection_selection_active = false
-	_inspection_selected_unit_id = ""
-	_sync_unit_selection_id(unit_id)
-
-
-func show_local_unit_inspection(unit_id: String) -> void:
-	_inspection_selection_active = true
-	_inspection_selected_unit_id = unit_id
-	_sync_unit_selection_id(unit_id, false)
-
-
-func clear_local_unit_inspection() -> void:
-	_inspection_selection_active = false
-	_inspection_selected_unit_id = ""
-	_sync_unit_selection_id(_authoritative_selected_unit_id)
-
-
-func current_selected_unit_id() -> String:
-	return _selected_unit_id
-
-
-func current_authoritative_selected_unit_id() -> String:
-	return _authoritative_selected_unit_id
-
-
-func render_selection_snapshot(snapshot: Dictionary) -> void:
-	_sync_selection_snapshot_keys(_last_snapshot, snapshot)
-	_sync_unit_selection(snapshot)
-	if _preview_coordinator.has_method("render_selection_snapshot"):
-		_preview_coordinator.call("render_selection_snapshot", snapshot)
+	_preview_coordinator.render_snapshot(_last_snapshot)
+	_drag_interaction.restore_after_snapshot()
 
 
 func _render_battle_background(snapshot: Dictionary) -> void:
@@ -274,64 +285,6 @@ func _release_unused_units(desired_unit_ids: Dictionary) -> void:
 		_unit_pool.append(unit)
 
 
-func _sync_unit_selection(snapshot: Dictionary) -> void:
-	var selected_unit_id := String(snapshot.get(
-		"selected_unit_id",
-		snapshot.get("selectedUnitId", "")
-	))
-	_authoritative_selected_unit_id = selected_unit_id
-	if _inspection_selection_active:
-		if _inspection_selected_unit_id == "":
-			_sync_unit_selection_id("", false)
-			return
-		if _unit_nodes_by_id.has(_inspection_selected_unit_id):
-			_sync_unit_selection_id(_inspection_selected_unit_id, false)
-			return
-		_inspection_selection_active = false
-	_inspection_selected_unit_id = ""
-	_sync_unit_selection_id(_authoritative_selected_unit_id)
-
-
-func _sync_unit_selection_id(selected_unit_id: String, enable_layout_grid: bool = true) -> void:
-	_selected_unit_id = selected_unit_id
-	_layout_grid_selected = false
-	for unit_id_value in _unit_nodes_by_id.keys():
-		var unit := _unit_nodes_by_id[unit_id_value] as Control
-		if unit == null or not is_instance_valid(unit) or not unit.has_method("set_selected"):
-			continue
-		var is_selected := selected_unit_id != "" and String(unit_id_value) == selected_unit_id
-		unit.call("set_selected", is_selected)
-		_layout_grid_selected = _layout_grid_selected or (is_selected and enable_layout_grid)
-	_sync_layout_grid_visibility()
-
-
-func _sync_selection_snapshot_keys(target: Dictionary, source: Dictionary) -> void:
-	for key in [
-		"selected_unit_id",
-		"selectedUnitId",
-		"selected",
-		"selected_action_slot_index",
-		"selectedActionSlotIndex",
-		"selected_action_slots",
-		"selectedActionSlots",
-		"action_block_ranges_by_unit",
-		"actionBlockRangesByUnit",
-		"action_preview_by_unit",
-		"actionPreviewByUnit",
-		"placement_damage_by_unit",
-		"placementDamageByUnit",
-	]:
-		if source.has(key):
-			target[key] = source[key]
-
-
-func _sync_layout_grid_visibility() -> void:
-	var should_show := is_layout_grid_visible()
-	for cell in _cell_pool:
-		if cell != null and is_instance_valid(cell) and cell.has_method("set_grid_visuals_visible"):
-			cell.call("set_grid_visuals_visible", should_show)
-
-
 func _sync_cell_unit(
 	cell: Control,
 	cell_data: Dictionary,
@@ -366,8 +319,6 @@ func _sync_cell_unit(
 			unit.call("reconcile_unit_data", cell_data, side, _assets)
 		elif unit.has_method("set_unit_data"):
 			unit.call("set_unit_data", cell_data, side, _assets)
-	if _health_bar_tier_override != "" and unit.has_method("set_health_bar_tier"):
-		unit.call("set_health_bar_tier", _health_bar_tier_override)
 	if unit.has_method("get_missing_mapping"):
 		var missing := Dictionary(unit.call("get_missing_mapping"))
 		if not missing.is_empty():
@@ -433,8 +384,6 @@ func _build_board() -> void:
 		var active := index < required_cell_count
 		cell.visible = active
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP if active else Control.MOUSE_FILTER_IGNORE
-		if cell.has_method("set_grid_visuals_visible"):
-			cell.call("set_grid_visuals_visible", is_layout_grid_visible())
 		if not active:
 			if cell.has_method("set_hovered"):
 				cell.call("set_hovered", false)
@@ -447,8 +396,7 @@ func _build_board() -> void:
 			continue
 		var x := index % _board_columns
 		var y := int(index / _board_columns)
-		_board_layout.call(
-			"apply_cell_geometry",
+		_board_layout.apply_cell_geometry(
 			cell,
 			x,
 			y,
@@ -457,7 +405,7 @@ func _build_board() -> void:
 			CELL_GAP
 		)
 		if cell.has_method("set_hovered"):
-			cell.call("set_hovered", (_drag_interaction.call("hovered_grid") as Vector2i) == Vector2i(x, y))
+			cell.call("set_hovered", _drag_interaction.hovered_grid() == Vector2i(x, y))
 		if cell.has_signal("cell_selected") and not cell.is_connected("cell_selected", _on_cell_selected):
 			cell.connect("cell_selected", _on_cell_selected)
 		if cell.has_signal("cell_pressed") and not cell.is_connected("cell_pressed", _on_cell_pressed):
@@ -481,7 +429,7 @@ func _set_board_dimensions(dimensions: Vector2i) -> void:
 	var normalized := BattleBoardDimensionsScript.normalized(dimensions.x, dimensions.y, Vector2i(_board_columns, _board_rows))
 	if normalized.x == _board_columns and normalized.y == _board_rows and _cells.size() == normalized.x * normalized.y:
 		return
-	_drag_interaction.call("cancel_for_board_resize")
+	_drag_interaction.cancel_for_board_resize()
 	_board_columns = normalized.x
 	_board_rows = normalized.y
 	_build_board()
@@ -561,14 +509,14 @@ func _cell_at(x: int, y: int) -> Control:
 
 
 func _cell_key(grid: Vector2i) -> String:
-	return String(_board_controller.call("cell_key", grid))
+	return _board_controller.cell_key(grid)
 
 
 func _cell_origin(x: int, y: int) -> Vector2:
 	var cell := _cell_at(x, y)
 	if cell != null and cell.has_method("uses_perspective_geometry") and bool(cell.call("uses_perspective_geometry")):
 		return cell.position
-	return _board_controller.call("cell_origin", _cell_size, CELL_GAP, x, y) as Vector2
+	return _board_controller.cell_origin(_cell_size, CELL_GAP, x, y)
 
 
 func _grid_from_board_position(local_position: Vector2) -> Vector2i:
@@ -585,37 +533,27 @@ func _grid_from_board_position(local_position: Vector2) -> Vector2i:
 			return cell.call("get_grid_position") as Vector2i
 	if has_perspective_geometry:
 		return Vector2i(-1, -1)
-	return _board_controller.call("grid_from_position", local_position, Vector2i(_board_columns, _board_rows), _cell_size, CELL_GAP) as Vector2i
+	return _board_controller.grid_from_position(local_position, Vector2i(_board_columns, _board_rows), _cell_size, CELL_GAP)
 
 
 func _on_cell_selected(x: int, y: int) -> void:
-	_drag_interaction.call("on_cell_selected", Vector2i(x, y))
+	_drag_interaction.on_cell_selected(Vector2i(x, y))
 
 
 func _on_cell_pressed(x: int, y: int) -> void:
-	_drag_interaction.call("on_cell_pressed", Vector2i(x, y))
+	_drag_interaction.on_cell_pressed(Vector2i(x, y))
 
 
 func _on_cell_released(x: int, y: int) -> void:
-	_drag_interaction.call("on_cell_released", Vector2i(x, y))
+	_drag_interaction.on_cell_released(Vector2i(x, y))
 
 
 func _on_cell_hovered(x: int, y: int) -> void:
-	_drag_interaction.call("on_cell_hovered", Vector2i(x, y))
+	_drag_interaction.on_cell_hovered(Vector2i(x, y))
 
 
 func _on_cell_unhovered(x: int, y: int) -> void:
-	_drag_interaction.call("on_cell_unhovered", Vector2i(x, y))
-
-
-func _on_board_background_gui_input(event: InputEvent) -> void:
-	if not (event is InputEventMouseButton):
-		return
-	var mouse_event := event as InputEventMouseButton
-	if mouse_event.button_index != MOUSE_BUTTON_LEFT or mouse_event.pressed:
-		return
-	_drag_interaction.call("on_blank_area_selected")
-	board_background.accept_event()
+	_drag_interaction.on_cell_unhovered(Vector2i(x, y))
 
 
 func _on_interaction_command_requested(command: Dictionary) -> void:
@@ -647,9 +585,7 @@ func _apply_local_unit_drop(unit_id: String, origin: Vector2i, target: Vector2i)
 	origin_cell.call("set_cell_data", emptied_origin, _assets)
 	target_cell.call("set_cell_data", moved_data, _assets)
 	_sync_cell_unit(origin_cell, emptied_origin, true)
-	# A move changes only board placement. Keep the existing unit presentation
-	# and animation alive instead of rebinding all textures and frame resources.
-	_sync_cell_unit(target_cell, moved_data, true, true)
+	_sync_cell_unit(target_cell, moved_data, true)
 	_render_cell_trace_effects(origin_cell, emptied_origin)
 	_render_cell_trace_effects(target_cell, moved_data)
 	_collect_cell_missing_mappings(target_cell)
@@ -686,7 +622,7 @@ func _rendered_unit_node(unit_id: String) -> Control:
 
 
 func _is_visible_board_cell(x: int, y: int) -> bool:
-	return bool(_board_controller.call("contains", Vector2i(_board_columns, _board_rows), x, y))
+	return _board_controller.contains(Vector2i(_board_columns, _board_rows), x, y)
 
 
 func _set_cell_attack_order_marker(grid: Vector2i, dot_count: int) -> void:

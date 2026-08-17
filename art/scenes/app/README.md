@@ -2,7 +2,7 @@
 
 正式启动入口：`game.tscn`。
 
-- `Game` 根节点挂 `game_controller.gd`，唯一持有 `MockGameSession`、Command 执行、持久化操作和 Feature Scene 生命周期。
+- `Game` 根节点挂 `game_controller.gd`，唯一持有 `GameSession`（当前正式单机为 `LocalGameSession`）、Command 执行、持久化操作和 Feature Scene 生命周期。
 - `ThreeChoiceScene` 是常驻的纯展示 Scene，由 Game 传入 Snapshot；它不创建 Session，也不直接执行 Command。
 - `FeatureHost` 只负责挂载战斗 Scene；进入战斗时，Game 向 `BattleArtScene` 投递公共 Snapshot，并统一接收其 Command 请求。
 - `GameCursor` 属于应用级交互反馈，不放进三选一美术 Scene。

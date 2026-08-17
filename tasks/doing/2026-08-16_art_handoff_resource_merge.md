@@ -1,0 +1,62 @@
+# 美术完整交付包资源合并
+
+- status: completed
+- owner: codex-root-20260816-art-handoff
+- user_authorization: 2026-08-16 用户要求“合并美术包的资源”
+- source_archive: `/Users/ywh/Downloads/LubiArt_complete_handoff_20260814_180751.zip`
+- source_archive_sha256: `16aa3dbdf394ba46b763ff1b9befa73d14ae1f6a843e56ea069522a79ed6cffc`
+- source_head: `6f12b0c363315b398f2d9702dc62221f2b560dd5`
+- source_archive_commit: `dc628542d113bd3ad44dce3c196af6f94471f09e`
+- objective: 从完整独立 Mock 交付中精确迁移本批真正新增的商店美术资源，保留正式项目的权威商店、33 位商人映射和最多 10 件商品能力，不用 Mock 全量覆盖正式项目
+- write_scopes:
+  - `art/images/shop/screen_shop_godot_v1/**`
+  - `art/images/shop/source_psd/screen_shop_godot_v1.psd`
+  - `art/manifests/shop/screen_shop_godot_v1_manifest.json`
+  - `tests/features/smoke_shop_screen_art_handoff.gd`
+  - `tasks/doing/2026-08-16_art_handoff_resource_merge.md`
+- exclusive_files:
+  - `art/images/shop/screen_shop_godot_v1/**`
+  - `art/images/shop/source_psd/screen_shop_godot_v1.psd`
+  - `art/manifests/shop/screen_shop_godot_v1_manifest.json`
+  - `tests/features/smoke_shop_screen_art_handoff.gd`
+  - `tasks/doing/2026-08-16_art_handoff_resource_merge.md`
+- existing_wip:
+  - `tasks/ai/QUEUE.md`、`tasks/ai/STATUS.md` 和 `tasks/doing/2026-08-15_background_patrol_2249.md` 为既有巡检 WIP；本任务不读取后改写、不暂存、不提交
+  - 当前其余产品树干净；如写入范围出现并发修改，立即执行 `FILE_CONFLICT_STOP`
+- source_audit:
+  - 最新完整交付包共 1800 个文件，是独立 Mock 全量快照，不是可覆盖正式项目的纯资源包
+  - 本机历史 Mock 已将该包相对 `source_head` 的交付差异归档为 `dc62854`，其中本批真正新增的商店资源为 6 张 PNG、1 份 PSD、资源清单及 Mock 专用商店 Scene/脚本
+  - Mock 商店固定 5 个商品槽且商人变体为空；正式项目支持最多 10 件商品并已有 33/33 正式商人映射，因此不迁移 Mock 权威适配、路由和固定槽位 Scene
+- integration_contract:
+  - 图片与源 PSD 作为可复用表现资源进入正式 `art/**`，不携带 Mock Session、预览状态、固定商品数或旧商人映射
+  - Mock 的 PSD sidecar 依赖正式项目未安装的 `addons/psdImports`；源 PSD 仅作为 Photoshop 可编辑真源保存，不迁移会产生幽灵 `.res` 的 Mock 专用 `.psd.import`
+  - 适配后的 manifest 只记录实际交付文件、尺寸、哈希、透明要求、画布坐标和来源归档，不保留包内不存在的历史输出
+  - 本轮不改变 `GameSession -> Command -> YsbzsState -> Result/Trace/Snapshot`、正式策划数据、商品槽数或现有玩家操作
+- validation:
+  - 资源专项 smoke：文件、SHA-256、尺寸、透明通道、ASCII 路径、manifest 路径和 6 张 PNG 的 Godot `Texture2D` 导入全部通过；PSD 保持外部可编辑源且没有失效 sidecar
+  - 相关商店人物/正式商店专项 smoke 继续通过
+  - 在独立项目副本、独立 `.godot` 与 `user://` 中完成 Godot 4.7.1 全量导入和专项验证
+  - `git diff --check`
+- stop_conditions:
+  - 6 张 PNG 与 1 份 PSD 和交付包逐字节一致，manifest 无缺失/幽灵输出
+  - Godot 可加载全部 6 张纹理，正式商店人物与权威操作回归不受影响
+  - 精确提交只包含本任务文件，不混入巡检 WIP，不推送
+- implementation:
+  - 从完整交付包中精确提取 `background`、`shop_facade`、默认商人、刷新帘和铃铛双状态共 6 张 PNG，并保留 1 份可编辑 PSD；全部二进制与交付包逐字节一致。
+  - 新增正式 `ysbzs.shop-screen-art-handoff.v1` 清单，记录归档、来源提交、文件哈希、尺寸、透明规则、原始画布坐标和正式运行边界；移除了 Mock 清单里指向不存在中文 PNG 的幽灵输出。
+  - 没有迁移固定 5 商品槽的 Mock Scene、Mock Session/预览状态或空 `merchant_map`；正式最多 10 件商品能力和 33 位商人映射保持不变。
+  - 隔离验证发现包内 PSD sidecar 依赖 Mock 专用 `addons/psdImports`，正式项目没有该插件；因此不迁移失效 `.psd.import`，源 PSD 明确保持为外部可编辑真源，Godot 运行时只消费 6 张 PNG。
+  - 新增专项 smoke，固定检查归档身份、SHA-256、ASCII 路径、PNG 尺寸/透明度、`Texture2D` 导入、PSD 外部源边界以及正式 10 商品/33 商人边界。
+- validation_evidence:
+  - 隔离根目录：`/tmp/codex-art-merge-qa.7TT5Fy`；项目副本 638 MB，独立 `.godot`、`GODOT_USER_HOME`、应用用户目录和日志。
+  - Godot `4.7.1.stable.official.a13da4feb` 从空 `.godot` 全量导入 860 个资产，退出码 0；本批 6 张 PNG 全部生成可加载 `CompressedTexture2D`，PSD 没有生成无效 sidecar 或幽灵导入资源。
+  - `smoke_shop_screen_art_handoff.gd`：`SMOKE_SHOP_SCREEN_ART_HANDOFF_OK png=6 psd=1 formal_offer_capacity=10`。
+  - `smoke_shop_character_images.gd`：`SMOKE_SHOP_CHARACTER_IMAGES_OK targets=33 generated=33 approved=33 pending=0`。
+  - `smoke_asset_registry.gd`：`SMOKE_ASSET_REGISTRY_OK runtime=43 mapped_pets=278 catalog_pets=369 missing_pets=91 enemy_keys=16`。
+  - `smoke_shop_character_production_integration.gd`：`SMOKE_SHOP_CHARACTER_PRODUCTION_INTEGRATION_OK route=true shop=true`。
+  - `smoke_legacy_code_shop_view.gd`：冻结、解锁、刷新、购买和退出命令均经正式状态链接受，输出 `SMOKE_LEGACY_CODE_SHOP_VIEW_OK freeze+unfreeze+roll+buy+exit`。
+  - 当前文件与交付包 `cmp`/SHA-256 一致，清单 JSON 可解析，资源路径无项目外绝对引用；`git diff --check` 通过。
+- residual_risk:
+  - 本轮只完成用户要求的资源合并，没有把固定 5 槽 Mock 布局覆盖到正式最多 10 件商品界面，也没有宣称新商店建筑已在正式玩家窗口显示；后续可另开自适应表现层接线与真实窗口验收任务。
+  - 空缓存首次启动在全量导入开始前仍会短暂报告既有字体缓存未生成；资产导入完成后全部专项测试无该错误，本批资源没有新增导入错误。
+- commit: 本任务文件形成同一精确提交；不推送

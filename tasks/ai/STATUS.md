@@ -1,0 +1,46 @@
+# AI 持续工作状态
+
+- mode: validation_blocked
+- active_task: 2026-08-15_background_patrol_1801
+- last_patrol: 2026-08-17 08:56 +0800
+- last_completed: 2026-08-17_route_shop_event_battle_progression（前两段退出商店后按权威 Snapshot 刷新路线卡，第三段显示三张红色战斗标并通过正式命令链进入 BattleArtScene；专项与 Vulkan 六状态实窗通过）
+- last_patrol_result: 复核最新本地 fast 19/19、round-002 操作顺序、当前 Git/WIP 与 CI 可达性，未见新确定性失败；旧拖拽详情 P1 仍因 Godot 可见权限和独立虚拟屏不可用而缺精确验收。Vanessa 策划审阅随后已由原 owner 完成并提交为 `ab261b94`；未修改产品代码
+- validation_snapshot:
+  - 路线推进修复完成：`EXIT_SHOP` / `BACK_TO_ROUTE` 会重新绑定已确认 Snapshot，不再提交旧 `option_id`；第三段三张 `kind=battle` 卡使用 `three_fight_logo.png` 红标并通过 CHOOSE_ROUTE 进入 BattleArtScene。专项、固定战斗、增量响应、职责、旧商店和 1920×1080 Vulkan 六状态实窗均通过，证据位于 `output/validation/route-progression-20260817/after/`。
+  - 本轮标准 fast runner 在首项测试前因 Windows `WinError 1314` 无法创建隔离 `.godot` 符号链接而阻断；这是 QA 启动环境权限，不是产品测试失败。Godot headless editor 扫描退出码 0，相关专项与正式窗口已独立通过。
+  - 三选商店增量响应已完成：正常本地高频命令只走严格版本、小 Result 和 domain delta，完整 Snapshot/hash 退到连接、读档、存储/回放、复杂/战斗或异常校准；正式 Vulkan 五操作为进店112ms、拒绝14ms、购买112ms、刷新107ms、离店13ms。专项覆盖 replay/save-load/拒绝/Session/商店/完整路径均通过；目录无 Git 元数据。
+  - 三选/商店高频命令检查点由整局约70项深复制收窄为路线商店14项、刷新10项、离店6项、宠物购买4项；微基准约 `4.16ms → 0.24ms`。独立 Vulkan 五操作通过，但完整结果仍为进店859ms、购买423ms、刷新489ms、离店569ms，剩余瓶颈在权威哈希和完整 Snapshot，不在事务检查点。
+  - 战斗宠物 UI 已完成首个框架闭环：`BattlePetViewModel` 统一公开字典投影，`UiValueBar` 与 `BattleAttackShapeGrid` 可独立复用，详情卡改为 `.tscn` 组装并优化阵营、品质、攻击范围和属性层级。最终 round-002 实窗 10/10、10 单位布局门禁通过；fast `20260817-052615-fast` 为 19/19、0 失败、353.562 秒。
+  - `c35212a1` 完成战斗美术资源身份、单位血条和战斗专用深色详情卡收敛；4 个专项 smoke、独立真实窗口 10 步对照通过。基于该提交和全部累计 WIP 的最终隔离 fast 为 19/19、0 失败；playable flow 170.69 秒、battle UI 15.60 秒、seed bot 104.23 秒。
+  - Nightly 独有 14 项已由 `2026-08-12_nightly_gap_revalidation.md` 在隔离当前树实际复验为 14/14 通过、0 失败、1.924 秒；提交 `6514da8`，不再是当前缺陷。
+  - 24 小时观察最终审计 `31/31`：96 段、86,400 秒、2,592,000 完整解码帧，gap/overlap/黑屏/格式偏差/帧覆盖失败均为 0，96/96 SHA-256 独立复算通过，13,800 条伤害事件无不变量问题。
+  - 战斗状态已改为单元格顶部二列二行独立 HUD；专项几何 smoke 与独立虚拟屏 10 单位实窗均确认状态矩形不再与单位美术相交。
+  - 正式商店人物当前为 `33/33 approved`；`ThreeChoiceScene` 路线卡与实际显示的 `LegacyCodeShopView` 商店摘要均消费同一人物映射，headless 与独立实窗 route/shop 双入口通过。
+  - macOS 五阶段 visual 基线在独立虚拟屏迁移后连续两轮无更新通过；最终摘要为 1/1 passed，证据位于 `output/validation/non-image-closeout-20260815/`。
+  - `fd4d900` 对应隔离 fast 为 19/19、0 失败、总耗时 345.947 秒；playable flow 171.941 秒、battle UI 15.419 秒、seed bot 102.553 秒，均在各自合同内。
+  - 被测隔离快照中的 `legacy_code_shop_view.gd`、`shop_art_backdrop.gd`、`smoke_shop_art_visual_integration.gd`、`capture_shop_art_comparison.gd` 与当时 HEAD 逐文件 SHA-256 一致；此前 `6c6174e` 上 18/19 的 playable flow 超时已被后续稳定 HEAD 的直接通过证据淘汰。
+  - `719755dc` 已提交取消商品按住后的 Tooltip 残留修复；round-111 的 79 步稳定审计为 `passed=true`、`errors=[]`，当前运行文件对应隔离 fast 为 19/19、0 失败、350.565 秒。
+  - `866113e5` 已提交按住期间隐藏误显锁按钮的最小修复；round-114 双边完成 82 步，稳定审计覆盖 33 项资源、2 项层级、174 项精确像素、1 项容差和 9 项效果，`passed=true`、`errors=[]`。
+  - round-114 隔离 fast 为 19/19、0 失败、353.831 秒；playable flow 175.584 秒、battle UI 16.111 秒、seed bot 104.365 秒，淘汰 2026-08-15 的旧 18/19 超时结果。
+  - round-115 已生成 83 组比较，`geometry_audit.json` 为 `passed=true`、`errors=[]`，覆盖 33 项资源、2 项层级、175 项精确像素、1 项容差和 9 项效果；任务卡与采集/比较门禁仍有未提交 WIP，尚未由原 owner 记录闭环。
+  - `b678c798` 已将商店 roundtrip 收缩为固定种子验收并精确提交：14 对比较、`copied_mock_code=false`；几何审计 `passed=true`、`errors=[]`，覆盖 21 项资源、2 项层级、36 项精确裁剪、1 项容差和 1 项效果。前述 round-115 未提交状态已被该闭环淘汰。
+  - 最新 fast `20260817-022956-fast` 为 19/19、0 失败、351.898 秒；battle UI 15.808 秒、playable flow 174.112 秒、seed bot 104.898 秒。
+  - `b0f75dfc` 的战斗十步正式入口实窗覆盖详情打开/关闭、拖拽预览/取消、自动摆位与首回合，10/10 Snapshot 身份一致且几何审计通过；但序列在拖拽前先点击空地关闭详情，不能替代旧 P1 的“详情打开后直接拖拽”精确验收。
+  - 本轮标准 QA runner 因沙箱禁止创建 `/Users/ywh/Library/Application Support/YSBZS_QA/patrol-1801-20260815` 而在启动测试前返回 `PermissionError`，不作为产品测试结果。
+  - 使用任务专属 `/private/tmp` 日志目录直接运行同一 `smoke_battle_ui.gd`：修复前再次命中第 266 行；修复后退出码 0 并输出 `SMOKE_BATTLE_UI_OK`，原失败断言及后续拖拽取消/移动流程全部通过。运行中无法写 macOS 正式 `user://` 的 run-history 错误属于本轮沙箱限制。
+  - 20:17 使用新的 `/private/tmp/codex-patrol-2012-godot-user.iKImhU` 再次运行同一 smoke，日志第 199 行输出 `SMOKE_BATTLE_UI_OK`；未再出现第 266 行详情残留断言。macOS CA 与正式 run-history 目录错误仍为沙箱环境噪声。
+  - 宠物图片任务已在提交 `2b276e0` 后暂停；正式清单为 `278/369 approved`、`91 pending`。`pal_279`–`pal_283` 已被大提交 `6c6174e` 跟踪但仍未接入清单/映射，`PET_IMAGE_MANIFEST_STALE` 按暂停中间态记录而非产品失败。
+  - 最新 fast `20260817-052615-fast` 为 19/19、0 失败、353.562 秒；battle UI 15.877 秒、playable flow 173.174 秒、seed bot 104.66 秒。最新有效实窗 round-002 与该 fast 日志未检出确定性错误标记。
+  - 当前 HEAD `ab261b94` 相对 `origin/codex/full-project-structure-migration` ahead 2 / behind 0；Vanessa 策划任务及讨论日志已由原 owner 独立提交，工作树仅保留 06:53、08:56 两轮巡检控制面 WIP，仍无产品代码 WIP。
+  - 二次全仓收口已把上述巡检控制面纳入 `de52647c` 并推送；远端无待拉入提交或分叉。新的独立目录采用 APFS clone 保存全部 4,177 个跟踪文件与 Godot 导入缓存，不含 Git 元数据，组件架构专项 smoke 通过。
+  - 08:56 巡检再次直接读取最新 fast：`status=passed`、19/19、0 失败、353.562 秒；round-002 的操作顺序仍是打开详情、先点空地关闭详情、再开始拖拽，不能替代旧 P1 的精确步骤。
+  - 最近五次已完成巡检均 `exit_code=0` 且 `stderr.log` 为 0 字节；更早日志中的 WebSocket 回退、补丁上下文失败和命令拼接错误属于 Agent/工具噪声，没有产品测试失败证据。08:56 的远端 CI 查询仍因代理被拒绝，CI 未验证。
+- current_blockers:
+  - `system_profiler SPDisplaysDataType` 在当前沙箱只返回 GPU、不返回显示槽，`ps` 也被拒绝；08:56 通过 Computer Use 读取 Godot 时再次明确返回“Computer Use was not approved to use Godot”，因此无法确认独立虚拟屏或完成正式入口真实窗口验收。
+  - 24 小时、商店人物与拖拽巡检任务卡仍存在状态滞后且属于旧 owner；本轮只同步后续事实，不覆盖其独占任务卡。
+  - 远端 CI 列表仍不可查询；拖拽详情的精确真实窗口步骤仍未完成。
+  - Vanessa 策划任务已在 `ab261b94` 完成并独立提交；因表格运行时依赖缺失，未生成正式 xlsx，正式 workbook、CSV、生成 JSON、运行时代码与正式数值均未修改。
+- next_action:
+  - 保持宠物图片任务暂停；待独立虚拟屏从正式入口执行“打开宠物详情后不先关闭，直接开始拖拽”，确认详情立即消失且取消/落点后不残留。否则等待新的确定性失败证据。除此之外无可安全推进事项。
+- reporting:
+  - 每轮只报告完成内容、验证证据、阻断和下一步；无变化时只写“无可安全推进事项”。
